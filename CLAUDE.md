@@ -12,8 +12,8 @@ codigo de ahi.
 
 ## Estado
 
-Documentacion completa (2026-10-29). Fase 0 en curso: F0-01 (monorepo), F0-02 (tooling) y F0-05 (modelo de marcas)
-y F0-07 (unidades) hechas (2026-10-30). Siguiente: F0-08 (regla) y F0-09 (types/schemas) en `docs/ACTION-PLAN.md`.
+Documentacion completa (2026-10-29). Fase 0 en curso: F0-01 (monorepo), F0-02 (tooling) y F0-05 (modelo de marcas),
+F0-07 (unidades) y F0-08 (regla) hechas (2026-10-30). Siguiente: F0-09 (types/schemas) en `docs/ACTION-PLAN.md`.
 
 ## Stack
 

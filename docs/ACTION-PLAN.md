@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07 hechas) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08 hechas) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -146,7 +146,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Test no negociable #6 (ida y vuelta) con `fast-check` en m/yd y en las cinco unidades.
 - **Errores nuevos:** — · **Datos:** —
 
-### [ ] F0-08 · `@sight-mapper/domain`: regla
+### [x] F0-08 · `@sight-mapper/domain`: regla
 
 - **Modulo:** domain · **Puntos:** 3 · **Depende de:** F0-07
 - **Descripcion:** `ruler/` segun SIGHT-MATH §10: niveles de tick por unidad en enteros, posicion

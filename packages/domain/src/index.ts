@@ -25,3 +25,12 @@ export type { Parabola } from './model/parabola.js';
 export { createPchip } from './model/pchip.js';
 export { preprocess } from './model/preprocess.js';
 export type { CalcResult, CalcSuccess, MarkKind, MarkModel, MarkPoint } from './model/types.js';
+export { buildRuler, placeMarks, positionOf } from './ruler/ruler.js';
+export type {
+  PlacedMark,
+  RulerMarkInput,
+  RulerRequest,
+  RulerScale,
+  RulerTick,
+  TickLevel,
+} from './ruler/ruler.js';

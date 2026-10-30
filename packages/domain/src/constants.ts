@@ -15,3 +15,6 @@ export const MAX_DISTANCE_M = 300;
 export const MEASURED_SNAP_M = 0.001;
 /** Upper bound on grid rows, so a bad step cannot allocate unbounded memory. */
 export const MAX_GRID_ROWS = 10_000;
+
+/** Below this spacing a tick level is not drawn: an unreadable ruler is worse (SIGHT-MATH §10). */
+export const RULER_MIN_TICK_GAP_PX = 4;

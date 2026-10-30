@@ -18,6 +18,44 @@
 
 ---
 
+## 2026-10-30 — La regla de la mira se calcula en enteros y no se pisa
+
+**Tareas:** F0-08 · **Commit/PR:** rama `feat/f0-ruler` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `packages/domain/src/ruler/` ([SIGHT-MATH.md](domain/SIGHT-MATH.md) §10): `buildRuler` (ticks por
+  unidad, posicion segun `direction`, guarda de densidad), `positionOf` (pixel de una lectura, sin
+  recortar) y `placeMarks` (anti-solape de etiquetas).
+- Niveles por unidad como multiplos enteros del tick menor: `mm` 1/5/10, `cm` y `custom`
+  0.1/0.5/1, `in` 1/16, 1/4 y 1, `click` 1/5/10.
+
+### Decisiones
+
+- El indice del tick es un entero; el valor es `i / ticksPerUnit` y la posicion es
+  `largo × (i − min) / span`. Nunca se suma `+= 0.1`, asi que el ultimo tick cae exacto.
+- La guarda de densidad se decide por nivel (4 px por defecto, ajustable): si el menor no entra se
+  omite, y asi con el medio; un nivel mas grueso siempre se conserva si entra.
+- Solo los ticks mayores llevan etiqueta.
+- `placeMarks` empuja las etiquetas hacia abajo y, si el grupo se pasa del fondo, lo sube; la
+  posicion real (`positionPx`) nunca cambia.
+
+### Verificado
+
+- 209 tests, 100% de cobertura. Criterios del plan: `mm` 0–120 en 600 px da mayores cada 10 mm
+  exactos y el ultimo en 600 px sin deriva; 240 px para 0–120 mm no genera ticks de 1 mm; dos
+  marcas a 2 px separan sus etiquetas conservando su `y` real.
+- Propiedades con `fast-check`: ticks ordenados, dentro de `[0, largo]` y nunca a menos de la
+  distancia minima dentro de un nivel; las etiquetas nunca se solapan ni mueven el dato.
+- Un bug real salio de los tests: `Math.ceil(-1e-9)` daba `-0` y el primer tick se llamaba `-0`.
+
+### Pendiente / deuda
+
+- La escala fisica 1:1 (MAKER, F2) se resuelve con `unitSizeMm` fuera de este modulo.
+- El alto de etiqueta lo decide la PWA; el dominio solo recibe el numero.
+
+---
+
 ## 2026-10-30 — Las unidades se convierten en el borde y vuelven sin perdida
 
 **Tareas:** F0-07 · **Commit/PR:** rama `feat/f0-units` · **Tarjeta:** sin tablero (F0-04)
