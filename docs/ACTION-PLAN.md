@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, F0-02 hechas) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05 hechas) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -98,7 +98,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
 - **Criterios:** Given este plan, When corro la sincronizacion, Then cada tarea tiene su tarjeta en
   la lista de su estado y viceversa.
 
-### [ ] F0-05 · `@sight-mapper/domain`: modelo de marcas
+### [x] F0-05 · `@sight-mapper/domain`: modelo de marcas
 
 - **Modulo:** domain · **Puntos:** 8 · **Depende de:** F0-02
 - **Descripcion:** TDD desde cero de [SIGHT-MATH.md](domain/SIGHT-MATH.md) §3–6 y §9:

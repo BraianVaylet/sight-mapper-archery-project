@@ -29,6 +29,7 @@
     "vitest": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
-    "@sight-mapper/config": "workspace:*"
+    "@sight-mapper/config": "workspace:*",
+    "fast-check": "catalog:"
   }
 }

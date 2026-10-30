@@ -18,6 +18,47 @@
 
 ---
 
+## 2026-10-30 — El dominio calcula marcas: pasa exacto por las medidas y extrapola anclado
+
+**Tareas:** F0-05 · **Commit/PR:** rama `feat/f0-domain-model` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/domain` (TDD, [SIGHT-MATH.md](domain/SIGHT-MATH.md) §3–6 y §9): `preprocess`
+  (orden y colapso de distancias repetidas), `createPchip` (Fritsch–Carlson), `fitParabola`
+  (minimos cuadrados centrada y escalada, Cramer), `createMarkModel` (escalonado 2/3/5,
+  extrapolacion anclada, limite de vertice, baja confianza), `gridDistances` / `queryDistance` /
+  `calculateGrid` (grilla desde el origen, snap a 1 mm, `outOfScale`).
+- Resultados discriminados `{ ok: false, code, params }` para lo que el arquero puede provocar
+  (`SM-CALC-422-001/002/004`); `DomainError` solo para bugs de quien llama.
+- Constantes en `constants.ts`; gate de cobertura 95% en `vitest.config.ts`.
+
+### Decisiones
+
+- El dominio recibe solo marcas `measured` y no borradas: filtrar es del caso de uso, no del dominio
+  (no conoce `origin` ni `deletedAt`).
+- Vertice: si cae *dentro* del rango medido, extrapolar se aleja de el y no hay giro; solo se
+  rechaza cuando el vertice queda entre el borde y la distancia pedida.
+- Curvatura menor a 1e-9 mm por desvio² se trata como recta (sin vertice).
+- `outOfScale` es un campo de la fila (`SM-CALC-422-005` queda como aviso para la UI, no se emite
+  como falla).
+
+### Verificado
+
+- 62 tests, 100% de cobertura (statements, branches, funciones, lineas). Criterios del plan: las
+  cinco marcas del ejemplo devuelven su valor exacto; con 2 marcas fuera de rango da
+  `SM-CALC-422-002`; con 3+ el modelo es continuo en `d_max` y `kind = extrapolated`; propiedades
+  con `fast-check` (exactitud, monotonia, acotado entre marcas consecutivas).
+- Los valores de referencia de PCHIP se calcularon **a mano** con las formulas de §5 (no hay SciPy
+  en el entorno); una primera version con valores "de SciPy" estaba mal y se descarto.
+
+### Pendiente / deuda
+
+- Contrastar PCHIP contra SciPy real cuando haya Python con scipy.
+- `SM-CALC-422-003` y el Doctor llegan con F0-06 (necesita los fixtures de F0-21).
+
+---
+
 ## 2026-10-30 — Monorepo y tooling listos: el repo compila, testea y lintea
 
 **Tareas:** F0-01, F0-02 · **Commit/PR:** sin commit todavia · **Tarjeta:** sin tablero (F0-04)
