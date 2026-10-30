@@ -13,7 +13,7 @@ codigo de ahi.
 ## Estado
 
 Documentacion completa (2026-10-29). Fase 0 en curso: F0-01 (monorepo), F0-02 (tooling) y F0-05 (modelo de marcas),
-F0-07 (unidades), F0-08 (regla) y F0-09 (types/schemas), F0-10 (i18n) F0-12 (API core) y F0-13 (Mongo) y F0-14 (idempotencia) hechas y F0-11 (ui) casi (2026-10-30). F0-15 (auth) se hace junto con F0-20. Siguiente: F0-16 / F0-18 en `docs/ACTION-PLAN.md`.
+F0-07 (unidades), F0-08 (regla) y F0-09 (types/schemas), F0-10 (i18n) F0-12 (API core) y F0-13 (Mongo) y F0-14 (idempotencia) hechas y F0-18 (client) hechas y F0-11 (ui) casi (2026-10-30). F0-15 (auth) se hace junto con F0-20. Siguiente: F0-19 (CI) / F0-03 en `docs/ACTION-PLAN.md`.
 
 ## Stack
 

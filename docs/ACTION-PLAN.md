@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14 hechas; 11 casi) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14, 18 hechas; 11 casi) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -268,7 +268,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given registro → verificacion → login, Then llego al Home vacio (E2E smoke).
   - ES y EN completos en estas pantallas.
 
-### [ ] F0-18 · `@sight-mapper/client`
+### [x] F0-18 · `@sight-mapper/client`
 
 - **Modulo:** client · **Puntos:** 3 · **Depende de:** F0-09, F0-12
 - **Descripcion:** cliente `fetch` tipado con `ApiError`, `credentials: 'include'`,

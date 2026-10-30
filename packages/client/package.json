@@ -25,14 +25,26 @@
   },
   "dependencies": {
     "@sight-mapper/schemas": "workspace:*",
-    "@sight-mapper/types": "workspace:*"
+    "@sight-mapper/types": "workspace:*",
+    "uuid": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "vitest": "catalog:",
+    "@sight-mapper/config": "workspace:*",
+    "@tanstack/react-query": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
-    "@sight-mapper/config": "workspace:*",
-    "@types/node": "catalog:"
+    "jsdom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "react": "^19.0.0"
   }
 }

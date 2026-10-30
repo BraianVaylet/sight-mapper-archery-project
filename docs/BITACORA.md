@@ -18,6 +18,48 @@
 
 ---
 
+## 2026-10-30 — Cliente HTTP tipado: errores sin prosa, reintentos con criterio y escrituras versionadas
+
+**Tareas:** F0-18 · **Commit/PR:** rama `feat/f0-client` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/client`: `createHttpClient` (`fetch` con cookie de sesion, `Idempotency-Key` en todo POST,
+  `If-Match` cuando se le da la version, timeout de 10 s, `navigator.onLine`), `ApiError`
+  (`code`, `messageKey`, `params`, `requestId`), lector del envelope de error, `shouldRetry` /
+  `retryDelay`, `ClientProvider` + `useHttp` + `queryClientConfig`, y `createResourceHooks`
+  (list, detail, create, update, remove, action) sobre TanStack Query.
+
+### Decisiones
+
+- Toda falla es un `ApiError`: envelope valido → su codigo; respuesta sin envelope (un 502 de proxy en HTML)
+  → `SM-NET-500-001` con el status; sin red → `SM-NET-503-001`; 10 s → `SM-NET-504-001`. Un codigo que
+  este build no conoce (servidor mas nuevo) se conserva como `SM-CORE-500-001` con la `messageKey` del servidor.
+- Reintentos (errors.md §6.2): nunca en 4xx; hasta 2 con backoff en 5xx, `SM-NET-*` y 429, que espera
+  `retryAfterS` (tope 30 s). Un abort no es un `ApiError` y no se reintenta.
+- Las mutaciones no se reintentan solas: un reintento tiene que reusar la `Idempotency-Key`, y el hook la
+  crea **una vez por accion del usuario** (`create`, `run`), no por intento.
+- `If-Match` sale de la version en el cache (detalle o cualquier lista); si el cache nunca vio el recurso,
+  lo pide primero. Un 412 deja el cache con la copia nueva para mostrar "alguien lo cambio antes".
+- Actualizar es optimista con rollback; las acciones de estado son `POST /:id/<accion>`, nunca un PATCH.
+- Una señal ya abortada falla antes de salir a la red, como hace `fetch`.
+- `401` llama a `onUnauthenticated` antes de lanzar, para redirigir al login.
+
+### Verificado
+
+- 64 tests (98% lineas). Criterios del plan: un 409 con envelope lanza `ApiError` con `code` y `params`;
+  con la red caida da `SM-NET-503-001`. Contra un servidor falso que aplica el contrato (clave de
+  idempotencia, `If-Match`, 412): el cliente manda la version cacheada, hace rollback y recarga ante un 412.
+- Un test mio fallaba por TanStack: solo re-renderiza por lo que se lee durante el render. No era un bug
+  del cliente; quedo comentado en el test.
+
+### Pendiente / deuda
+
+- Optimismo para crear y borrar dentro de listas paginadas (hoy: invalidar y recargar): F1.
+- Cola offline de mutaciones (F4) reutilizara estas claves de idempotencia.
+
+---
+
 ## 2026-10-30 — Design system: tokens dark/light con contraste AA y 17 primitivas accesibles
 
 **Tareas:** F0-11 (parcial: falta el catalogo visual) · **Commit/PR:** rama `feat/f0-ui` · **Tarjeta:** sin tablero (F0-04)
