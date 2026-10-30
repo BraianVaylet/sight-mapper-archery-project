@@ -1,8 +1,10 @@
+import type { MiddlewareHandler } from 'hono';
 import { systemClock, type Clock } from './core/clock/clock.js';
 import type { Env } from './core/config/env.js';
 import { createEventBus, type EventBus } from './core/events/bus.js';
 import { createHttpApp, type HttpApp } from './core/http/app.js';
-import { alwaysReady, type Readiness } from './core/http/context.js';
+import { alwaysReady, type AppBindings, type Readiness } from './core/http/context.js';
+import type { IdempotencyStore } from './core/idempotency/idempotency.js';
 import type { Logger } from './core/logger/logger.js';
 
 export type Container = HttpApp & {
@@ -16,6 +18,9 @@ export type ContainerDeps = {
   readonly logger: Logger;
   readonly clock?: Clock;
   readonly readiness?: Readiness;
+  readonly session?: MiddlewareHandler<AppBindings>;
+  readonly idempotencyStore?: IdempotencyStore;
+  readonly ifMatchExempt?: readonly string[];
 };
 
 /**
@@ -28,7 +33,15 @@ export function createContainer(deps: ContainerDeps): Container {
   const readiness = deps.readiness ?? alwaysReady;
 
   const bus = createEventBus();
-  const http = createHttpApp({ env, logger, clock, readiness });
+  const http = createHttpApp({
+    env,
+    logger,
+    clock,
+    readiness,
+    ...(deps.session === undefined ? {} : { session: deps.session }),
+    ...(deps.idempotencyStore === undefined ? {} : { idempotencyStore: deps.idempotencyStore }),
+    ...(deps.ifMatchExempt === undefined ? {} : { ifMatchExempt: deps.ifMatchExempt }),
+  });
 
   return { ...http, env, logger, bus };
 }

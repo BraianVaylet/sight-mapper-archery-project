@@ -1,7 +1,9 @@
 import { serve } from '@hono/node-server';
 import { createContainer } from './composition-root.js';
 import { EnvError, parseEnv } from './core/config/env.js';
+import { systemClock } from './core/clock/clock.js';
 import { connectMongo, mongoReadiness } from './core/db/connection.js';
+import { createMongoIdempotencyStore } from './core/idempotency/mongo-store.js';
 import { createLogger } from './core/logger/logger.js';
 
 async function start(): Promise<void> {
@@ -21,7 +23,13 @@ async function start(): Promise<void> {
     pretty: env.NODE_ENV === 'development' && env.APP_ENV === 'local',
   });
   const connection = await connectMongo(env.MONGODB_URI, logger);
-  const { app } = createContainer({ env, logger, readiness: mongoReadiness(connection) });
+  const { app } = createContainer({
+    env,
+    logger,
+    readiness: mongoReadiness(connection),
+    idempotencyStore: createMongoIdempotencyStore(connection, systemClock),
+    ifMatchExempt: ['DELETE /api/v1/me/deletion-request'],
+  });
 
   const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
     logger.info({ port: info.port, appEnv: env.APP_ENV }, 'api listening');

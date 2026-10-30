@@ -1,12 +1,15 @@
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
 import { toValidationIssues } from '@sight-mapper/schemas';
-import type { Context } from 'hono';
+import type { ValidationIssue } from '@sight-mapper/types';
+import type { Context, MiddlewareHandler } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { secureHeaders } from 'hono/secure-headers';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { v7 as uuidv7 } from 'uuid';
+import { ifMatchGuard } from '../concurrency/concurrency.js';
+import { idempotency, type IdempotencyStore } from '../idempotency/idempotency.js';
 import type { Clock } from '../clock/clock.js';
 import type { Env } from '../config/env.js';
 import type { Logger } from '../logger/logger.js';
@@ -21,6 +24,12 @@ export type HttpDeps = {
   readonly logger: Logger;
   readonly clock: Clock;
   readonly readiness: Readiness;
+  /** Sets `userId` from the session cookie on `/api/v1/*` (F0-15). */
+  readonly session?: MiddlewareHandler<AppBindings>;
+  /** Backs `Idempotency-Key` on every POST under `/api/v1`. */
+  readonly idempotencyStore?: IdempotencyStore;
+  /** `METHOD path` pairs that change state without a versioned resource, so need no `If-Match`. */
+  readonly ifMatchExempt?: readonly string[];
 };
 
 export type HttpApp = {
@@ -54,14 +63,19 @@ const readyRoute = createRoute({
 });
 
 export function createHttpApp(deps: HttpDeps): HttpApp {
-  const { env, logger, clock, readiness } = deps;
+  const { env, logger, clock, readiness, session, idempotencyStore, ifMatchExempt } = deps;
 
   const app = new OpenAPIHono<AppBindings>({
     // Zod failures on any route become SM-CORE-400-001 with one issue per field.
     defaultHook: (result) => {
-      if (!result.success) {
-        throw new AppError('SM-CORE-400-001', { issues: toValidationIssues(result.error) });
+      if (result.success) return;
+      const issues = toValidationIssues(result.error);
+      const [only] = issues;
+      // A lone malformed id is its own error, so the client can tell it from a bad form.
+      if (issues.length === 1 && only !== undefined && isMalformedId(only)) {
+        throw new AppError('SM-CORE-400-002', { field: only.path.join('.') });
       }
+      throw new AppError('SM-CORE-400-001', { issues });
     },
   });
 
@@ -127,6 +141,13 @@ export function createHttpApp(deps: HttpDeps): HttpApp {
     await next();
   });
 
+  // Under /api/v1: who is calling, then retry safety (POST), then stale-write safety (PATCH/DELETE).
+  if (session !== undefined) app.use('/api/v1/*', session);
+  if (idempotencyStore !== undefined) {
+    app.use('/api/v1/*', idempotency({ store: idempotencyStore, clock }));
+  }
+  app.use('/api/v1/*', ifMatchGuard(ifMatchExempt));
+
   const registry = createRouteRegistry(app);
   registry.register(healthRoute, (c) => c.json({ status: 'ok' as const }, 200), { auth: 'public' });
   registry.register(
@@ -167,6 +188,15 @@ export function createHttpApp(deps: HttpDeps): HttpApp {
   });
 
   return { app, registry };
+}
+
+/** A uuid-format failure on `id`, `fooId` or an element of `fooIds`. */
+function isMalformedId(issue: ValidationIssue): boolean {
+  if (issue.messageKey !== 'validation.invalid_format' || issue.params['format'] !== 'uuid') {
+    return false;
+  }
+  const field = [...issue.path].reverse().find((segment) => typeof segment === 'string');
+  return typeof field === 'string' && /^(id|.+Ids?)$/.test(field);
 }
 
 function toAppError(error: Error): AppError {

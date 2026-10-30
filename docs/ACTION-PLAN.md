@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13 hechas) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14 hechas) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -218,7 +218,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given `pnpm migrate up` dos veces, Then la segunda no hace nada.
 - **Errores nuevos:** `SM-CORE-500-002` · **Datos:** indices de todas las colecciones
 
-### [ ] F0-14 · `apps/api`: idempotencia y concurrencia
+### [x] F0-14 · `apps/api`: idempotencia y concurrencia
 
 - **Modulo:** api/core · **Puntos:** 3 · **Depende de:** F0-13
 - **Descripcion:** middleware `Idempotency-Key` (coleccion con TTL), `ETag`/`If-Match` con

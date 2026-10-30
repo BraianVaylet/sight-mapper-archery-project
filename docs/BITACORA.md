@@ -18,6 +18,48 @@
 
 ---
 
+## 2026-10-30 — Reintentos seguros y escrituras obsoletas rechazadas
+
+**Tareas:** F0-14 · **Commit/PR:** rama `feat/f0-idempotency` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `core/idempotency`: middleware `Idempotency-Key` para todo POST bajo `/api/v1` y su store en Mongo
+  (`idempotencyKeys`, TTL 24 h). Misma clave y mismo pedido repiten la respuesta guardada (con
+  `ETag` y `Location`) y la marcan `Idempotent-Replay: true`; misma clave y otro pedido es `SM-CORE-409-001`.
+- `core/concurrency`: `ETag` fuerte (`"3"`), guarda `If-Match` para PATCH y DELETE (428 si falta, 412
+  si no coincide) y la lista de acciones exentas.
+- `core/db/versioned`: `updateWithVersion` (filtro `{ _id, userId, version }` + `$inc`) y
+  `rethrowDuplicateId` (`_id` repetido es `SM-CORE-409-002`).
+- Un UUID mal formado solo en un campo `id` / `fooId` / `fooIds` es `SM-CORE-400-002` con el campo.
+- `createHttpApp` monta, bajo `/api/v1/*`: sesion (F0-15) → idempotencia → `If-Match`.
+
+### Decisiones
+
+- Solo se guardan respuestas 2xx: un fallo tiene que poder reintentarse con la misma clave.
+- El hash del pedido es sobre metodo, ruta y JSON canonico (orden de claves y espacios no cuentan).
+  La misma clave en otra ruta es un desajuste.
+- Dos pedidos identicos en carrera no se serializan: gana el `_id` unico (`409-002`) y el reintento
+  repite la respuesta. Evita un lock distribuido.
+- Un `If-Match` que no es un ETag nuestro (`*`, `W/"1"`, texto) cuenta como escritura obsoleta (412).
+- `DICCIONARIO` §3.7: se agrego `responseHeaders` a `idempotencyKeys` (spec primero, despues codigo).
+- Un documento ajeno o borrado es 404, nunca 412: no se revela que existe.
+
+### Verificado
+
+- 99 tests de API (97% lineas). Criterios del plan: el mismo POST con la misma clave ×3 deja un documento
+  y devuelve tres respuestas iguales; misma clave con otro cuerpo da `SM-CORE-409-001`; PATCH con
+  version vieja da 412 con `currentVersion`, sin `If-Match` da 428.
+- Contra Mongo real: dos escritores concurrentes con la misma version, uno gana y el otro recibe 412;
+  `updateWithVersion` dentro de una transaccion; el store nunca encuentra la clave de otro usuario.
+
+### Pendiente / deuda
+
+- Enchufar la sesion real (`ctx.userId`) en F0-15; hoy los tests usan una sesion falsa por header.
+- Poner `Idempotency-Key` y `If-Match` automaticos en `@sight-mapper/client` (F0-18).
+
+---
+
 ## 2026-10-30 — Mongo con aislamiento por usuario forzado y migraciones idempotentes
 
 **Tareas:** F0-13 · **Commit/PR:** rama `feat/f0-mongo` · **Tarjeta:** sin tablero (F0-04)
