@@ -12,9 +12,16 @@
     "test:coverage": "vitest run --coverage --passWithNoTests"
   },
   "dependencies": {
+    "@hono/node-server": "catalog:",
+    "@hono/zod-openapi": "catalog:",
+    "@js-temporal/polyfill": "catalog:",
     "@sight-mapper/domain": "workspace:*",
     "@sight-mapper/schemas": "workspace:*",
-    "@sight-mapper/types": "workspace:*"
+    "@sight-mapper/types": "workspace:*",
+    "hono": "catalog:",
+    "pino": "catalog:",
+    "uuid": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:",
@@ -22,6 +29,7 @@
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "@sight-mapper/config": "workspace:*",
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "pino-pretty": "catalog:"
   }
 }

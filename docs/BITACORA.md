@@ -18,6 +18,46 @@
 
 ---
 
+## 2026-10-30 — El nucleo HTTP de la API: errores sin prosa, request id y registro de rutas
+
+**Tareas:** F0-12 · **Commit/PR:** rama `feat/f0-api-core` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `apps/api/src/core`: `config/env` (Zod, reporta todos los problemas sin mostrar valores, rechaza
+  `CORS_ORIGINS` con comodin), `http/errors` (`AppError` con codigo tipado), `http/app` (Hono +
+  `@hono/zod-openapi`), `logger` (Pino con redaccion), `events/bus` (bus en proceso tipado),
+  `registry` (lista unica de rutas), `clock` (reloj inyectable con Temporal).
+- Cadena de middleware: request id (el del cliente si es UUID, si no UUIDv7), log por request,
+  headers de seguridad, CORS explicito con credenciales, limite de body de 64 KB, solo JSON.
+- `/health` (vive) y `/ready` (usa un puerto `Readiness`; Mongo se enchufa en F0-13), OpenAPI en
+  `/api/v1/openapi.json` salvo en prod. `composition-root.ts` y `main.ts` con apagado ordenado.
+
+### Decisiones
+
+- Un unico `onError`: todo lo que no es `AppError` sale como `SM-CORE-500-001` sin mensaje ni stack;
+  el stack solo va al log, con el `requestId`. 401 y 404 se loguean en info, otros 4xx en warn, 5xx en error.
+- Un fallo de Zod en cualquier ruta es `SM-CORE-400-001` con un issue por campo (`toValidationIssues`);
+  un JSON mal formado tambien.
+- El body se detecta con `req.raw.body`, no con `content-length`: un POST de accion sin body (archive,
+  restore) pasa, y un body chunked no esquiva el chequeo de tipo.
+- Variables de auth, Google y email se agregan al esquema en F0-15, no antes.
+
+### Verificado
+
+- 36 tests de integracion y unitarios (96% lineas). Criterios del plan: una ruta que lanza `Error`
+  responde `SM-CORE-500-001` sin stack y el log `error` trae stack y `requestId`; con Mongo caido
+  `/health` da 200 y `/ready` 503 `SM-CORE-503-001` sin filtrar la causa; un body de 100 KB da
+  `SM-CORE-413-001`.
+- Un test descubrio que `app.request` no manda `content-length`: el chequeo 415 original no corria.
+
+### Pendiente / deuda
+
+- Enchufar Mongo a `/ready` (F0-13), la sesion y `ctx.userId` (F0-15), idempotencia y `If-Match` (F0-14).
+- `pino-pretty` solo se usa en local; no se probo el transporte (no hay test para `main.ts`).
+
+---
+
 ## 2026-10-30 — Catalogos ES/EN tipados y traductor sin React
 
 **Tareas:** F0-10 (y un segundo fix de seguridad de F0-08) · **Commit/PR:** rama `feat/f0-i18n` · **Tarjeta:** sin tablero (F0-04)
