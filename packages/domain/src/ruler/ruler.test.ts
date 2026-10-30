@@ -292,3 +292,32 @@ describe('placeMarks — label anti-overlap', () => {
     expect(() => placeMarks(scale, 500, [{ id: 'a', reading: 1 }], 0)).toThrow(DomainError);
   });
 });
+
+describe('buildRuler — resource limits', () => {
+  it('returns for an enormous span whose ticks are all too dense (a loop over the span would time out)', () => {
+    expect(buildRuler({ scale: mm(0, 1e12), lengthPx: 600 })).toEqual([]);
+  });
+
+  it('draws only majors across a wide span when that is all that fits', () => {
+    const ticks = buildRuler({ scale: mm(0, 90_000), lengthPx: 36_000 });
+    expect(ticks).toHaveLength(9001);
+    expect(ticks.every((t) => t.level === 'major')).toBe(true);
+    expect(ticks.at(-1)).toMatchObject({ value: 90_000, positionPx: 36_000 });
+  });
+
+  it('keeps medium and major ticks aligned when minors are dropped and min is off-grid', () => {
+    const ticks = buildRuler({ scale: mm(2.5, 62.5), lengthPx: 239 });
+    expect(ticks.some((t) => t.level === 'minor')).toBe(false);
+    expect(ticks.map((t) => t.value).slice(0, 4)).toEqual([5, 10, 15, 20]);
+    expect(ticks[0]?.level).toBe('medium');
+    expect(ticks[1]?.level).toBe('major');
+  });
+
+  it('rejects a span that would draw too many ticks', () => {
+    expect(() => buildRuler({ scale: mm(0, 100_000), lengthPx: 1_000_000 })).toThrow(DomainError);
+  });
+
+  it('rejects a span that overflows to infinity', () => {
+    expect(() => buildRuler({ scale: mm(-1.7e308, 1.7e308), lengthPx: 600 })).toThrow(DomainError);
+  });
+});

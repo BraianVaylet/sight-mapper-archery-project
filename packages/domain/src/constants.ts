@@ -18,3 +18,5 @@ export const MAX_GRID_ROWS = 10_000;
 
 /** Below this spacing a tick level is not drawn: an unreadable ruler is worse (SIGHT-MATH §10). */
 export const RULER_MIN_TICK_GAP_PX = 4;
+/** Upper bound on ticks per ruler, so a huge span cannot allocate unbounded memory. */
+export const MAX_RULER_TICKS = 10_000;
