@@ -1,0 +1,30 @@
+{
+  "name": "@sight-mapper/pwa",
+  "version": "0.0.0",
+  "private": true,
+  "description": "React 19 PWA",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests"
+  },
+  "dependencies": {
+    "@sight-mapper/domain": "workspace:*",
+    "@sight-mapper/schemas": "workspace:*",
+    "@sight-mapper/types": "workspace:*",
+    "@sight-mapper/i18n": "workspace:*",
+    "@sight-mapper/ui": "workspace:*",
+    "@sight-mapper/client": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "@sight-mapper/config": "workspace:*",
+    "@types/node": "catalog:"
+  }
+}

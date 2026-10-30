@@ -1,0 +1,21 @@
+packages:
+  - apps/*
+  - packages/*
+
+catalog:
+  '@commitlint/cli': ^21.2.4
+  '@commitlint/config-conventional': ^21.2.4
+  '@eslint/js': ^10.0.1
+  '@types/node': ^22.19.0
+  '@vitest/coverage-v8': ~4.1.12
+  eslint: ^10.13.0
+  eslint-plugin-boundaries: ^7.4.0
+  eslint-plugin-i18next: ^6.1.5
+  globals: ^17.13.0
+  husky: ^9.1.7
+  lint-staged: ^17.6.0
+  prettier: ^3.9.10
+  turbo: ^2.11.10
+  typescript: ~6.0.3
+  typescript-eslint: ^8.72.1
+  vitest: ~4.1.12
