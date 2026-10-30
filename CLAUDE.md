@@ -12,8 +12,8 @@ codigo de ahi.
 
 ## Estado
 
-Documentacion completa (2026-10-29). Codigo: no empezado. Siguiente: Fase 0 en
-`docs/ACTION-PLAN.md`.
+Documentacion completa (2026-10-29). Fase 0 en curso: F0-01 (monorepo) y F0-02 (tooling) hechas
+(2026-10-30). Siguiente: F0-05 / F0-07 (dominio) en `docs/ACTION-PLAN.md`.
 
 ## Stack
 

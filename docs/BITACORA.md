@@ -18,6 +18,50 @@
 
 ---
 
+## 2026-10-30 — Monorepo y tooling listos: el repo compila, testea y lintea
+
+**Tareas:** F0-01, F0-02 · **Commit/PR:** sin commit todavia · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- pnpm workspaces + Turborepo 2 (`build`, `dev`, `lint`, `typecheck`, `test`, `test:coverage`),
+  catalogo de versiones en `pnpm-workspace.yaml`, `.nvmrc` (22), `.npmrc`, `.gitignore`,
+  `.gitattributes` (LF), `.env.example`.
+- Esqueletos de `apps/{api,pwa}` y `packages/{domain,schemas,types,i18n,ui,client,config}` con
+  scripts uniformes. Los paquetes compilan a `dist` con `tsc` y los consumen los demas via `exports`.
+- `@sight-mapper/config`: tsconfig `base`/`lib`/`node`/`react` con `strict`,
+  `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`.
+- ESLint flat en la raiz con reglas mecanizadas: grafo de dependencias entre workspaces
+  (ARQUITECTURA §3.1), modulos de la API sin importarse entre si (ADR-002), `domain` puro (sin
+  imports externos, `Date`, `Math.random`, `Temporal.Now`, I/O), sin `any`, sin `console`,
+  `new Date()` solo en `apps/api/src/core/db`, `i18next/no-literal-string` en JSX.
+- Prettier, husky (`pre-commit` con lint-staged, `commit-msg` con commitlint y los scopes de
+  TECNICO §3).
+
+### Decisiones
+
+- TypeScript fijado en **~6.0** y Vitest en **~4.1**: `typescript-eslint` 8 declara soporte
+  `<6.1` (TS 7 es el port nativo) y TECNICO §1 pide Vitest 4. Subir cuando el ecosistema alcance.
+- ESLint de la raiz en vez de `packages/config`: una sola config, sin dependencias implicitas.
+- Prettier ignora `*.md` y `docs/`: reformatear rompe tablas y saltos de linea de los docs.
+
+### Verificado
+
+- Desde cero: `pnpm format:check`, `lint`, `typecheck`, `test:coverage` y `build` en verde (14/14 y
+  8/8 tareas de Turbo).
+- Con archivos descartables: importar `modules/equipment` desde `modules/calculator` falla lint;
+  `new Date()`, `Math.random()`, `any` y `console.log` en `domain` fallan lint; un texto literal en
+  JSX de `ui` falla lint; `feat(foo): x` lo rechaza commitlint y `feat(domain): x` pasa.
+
+### Pendiente / deuda
+
+- Probar el hook `pre-commit` en el primer commit real.
+- Las reglas de capas de modulo (rutas sin Mongoose, repos con `userId`) llegan con F0-12/F0-13.
+- `i18next/no-literal-string` ignora constantes en MAYUSCULAS y todo lo exportado inline
+  (`export const X = ...`): revisar en F0-11 si hace falta endurecerlo.
+
+---
+
 ## 2026-10-29 — Arrancar el proyecto con la documentacion completa y las decisiones cerradas
 
 **Tareas:** previas a F0 · **Commit/PR:** sin commit todavia · **Tarjeta:** sin tablero (F0-04)

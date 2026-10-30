@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | sin iniciar   |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, F0-02 hechas) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -48,7 +48,7 @@ flowchart LR
 Objetivo: un monorepo que compila, testea y despliega; el dominio matematico completo y probado;
 API y PWA esqueleto con login real en staging. **Sin features de negocio todavia.**
 
-### [ ] F0-01 · Monorepo: pnpm + Turborepo + workspaces
+### [x] F0-01 · Monorepo: pnpm + Turborepo + workspaces
 
 - **Modulo:** repo · **Puntos:** 2 · **Depende de:** —
 - **Descripcion:** `pnpm-workspace.yaml`, `turbo.json` (build, dev, lint, typecheck, test,
@@ -60,7 +60,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given `turbo run test`, Then cada paquete corre su suite (vacia) y pasa.
 - **Errores nuevos:** — · **Datos:** —
 
-### [ ] F0-02 · Tooling: TypeScript, ESLint, Prettier, husky, commitlint
+### [x] F0-02 · Tooling: TypeScript, ESLint, Prettier, husky, commitlint
 
 - **Modulo:** repo · **Puntos:** 3 · **Depende de:** F0-01
 - **Descripcion:** `packages/config` con tsconfig base `strict` (+ `noUncheckedIndexedAccess`,
