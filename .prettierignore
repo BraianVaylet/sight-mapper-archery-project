@@ -8,3 +8,4 @@ design
 mockup
 .claude
 *.md
+packages/types/src/errors.generated.ts

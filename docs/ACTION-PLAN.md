@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08 hechas) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09 hechas) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -158,7 +158,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given dos marcas a 2 px, Then sus etiquetas no se superponen y conservan su `y` real.
 - **Errores nuevos:** — · **Datos:** —
 
-### [ ] F0-09 · `@sight-mapper/types` y `@sight-mapper/schemas`
+### [x] F0-09 · `@sight-mapper/types` y `@sight-mapper/schemas`
 
 - **Modulo:** types, schemas · **Puntos:** 3 · **Depende de:** F0-07
 - **Descripcion:** enums ([DICCIONARIO](DICCIONARIO.md) §5), catalogo de errores tipado generado de

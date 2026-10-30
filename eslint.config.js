@@ -182,7 +182,7 @@ export default tseslint.config(
 
   // Tooling files run in Node.
   {
-    files: ['*.config.{js,ts}', '**/*.config.{js,ts}'],
+    files: ['*.config.{js,ts}', '**/*.config.{js,ts}', '**/scripts/**/*.mjs'],
     languageOptions: { globals: { ...globals.node } },
   },
 );

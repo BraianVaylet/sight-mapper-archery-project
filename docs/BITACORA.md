@@ -18,6 +18,45 @@
 
 ---
 
+## 2026-10-30 — Enums, catalogo de errores y schemas Zod compartidos
+
+**Tareas:** F0-09 (y un fix de F0-08) · **Commit/PR:** rama `feat/f0-types-schemas` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/types`: los 13 enums del DICCIONARIO §5 y el catalogo de 50 errores **generado de
+  `docs/errors.md`** (`pnpm --filter @sight-mapper/types generate`). `ErrorCode` es una union:
+  un codigo no declarado no compila. Test de deriva: falla si el catalogo generado no coincide con
+  el markdown.
+- `@sight-mapper/schemas` (Zod 4): arcos, miras (con `SightScale`), sets de flechas, setups,
+  marcas, perfil, preferencias, acceso rapido, paginacion y `toValidationIssues` (Zod a
+  `{ path, messageKey, params }` para `SM-CORE-400-001`).
+- Fix de seguridad en F0-08 (`buildRuler` sin tope de ticks), commit aparte.
+
+### Decisiones
+
+- Los refinements propios devuelven claves `validation.*` como mensaje, nunca prosa; F0-10 debe
+  traducirlas.
+- Campos opcionales aceptan `null` para borrarlos en un PATCH.
+- Los defaults viven solo en el alta: `.partial()` conserva los defaults de Zod y un PATCH sin
+  `pinType` lo habria pisado con `monopin` (bug detectado por un test).
+- `bowType` acepta todo el enum; rechazar lo que no sea `compound` es `SM-BOW-422-001` del caso de uso.
+- `schemas` no importa `domain` (grafo de dependencias): el tamano fijo de `mm`/`cm`/`in` esta
+  repetido y comentado.
+
+### Verificado
+
+- Criterio del plan: `scale.min >= scale.max` falla con issue en `scale.max`; un codigo
+  inexistente no compila (`@ts-expect-error` en test).
+- 29 tests en types y 110 en schemas (100% lineas); lint, typecheck, build y format verdes.
+
+### Pendiente / deuda
+
+- Traducciones ES/EN de `validation.*` y `errors.*` (F0-10).
+- Validar que `measuredAt` no sea futura (+5 min) requiere reloj: va en el caso de uso.
+
+---
+
 ## 2026-10-30 — La regla de la mira se calcula en enteros y no se pisa
 
 **Tareas:** F0-08 · **Commit/PR:** rama `feat/f0-ruler` · **Tarjeta:** sin tablero (F0-04)
