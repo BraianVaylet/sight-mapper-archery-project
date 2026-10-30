@@ -18,6 +18,44 @@
 
 ---
 
+## 2026-10-30 — CI en GitHub Actions con gates de cobertura, auditoria, licencias y secretos
+
+**Tareas:** F0-19 (parcial: sin Lighthouse y sin correr en GitHub) · **Commit/PR:** rama `feat/f0-ci` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `.github/workflows/ci.yml`, dos jobs en cada PR y en `main`: **verify** (`install --frozen-lockfile`,
+  lint, typecheck, format, `test:coverage`, build) y **security** (`pnpm audit --prod` nivel alto,
+  chequeo de licencias, gitleaks sobre el historial).
+- `scripts/check-licenses.mjs`: falla si una dependencia de produccion tiene una licencia fuera de
+  una lista permisiva (MIT, ISC, BSD, Apache-2.0, 0BSD, BlueOak, CC0, Unlicense). Hoy: 52 paquetes, todos permitidos.
+- `.github/pull_request_template.md` con el checklist del DoD (spec §20).
+
+### Decisiones
+
+- Los gates de cobertura por zona viven en el `vitest.config` de cada paquete (domain 95%, schemas 85%,
+  api 80%, i18n/types 80%, client 80%, ui 50%): el CI solo corre `test:coverage` y un umbral incumplido
+  corta con codigo distinto de cero. Un solo lugar por zona, el mismo comando local y en CI.
+- El `mongod` 7.0.24 de los tests se cachea entre corridas (`~/.cache/mongodb-binaries`).
+- Node sale de `.nvmrc` y pnpm de `packageManager`: una sola fuente de version.
+- Permisos minimos (`contents: read`) y cancelacion de corridas viejas de la misma rama.
+
+### Verificado
+
+- Localmente: el chequeo de licencias pasa, y con una lista recortada rechaza ISC y Apache-2.0 nombrando
+  los paquetes (salida 1); `vitest --coverage` con un umbral inalcanzable sale con codigo 1, que es lo que
+  corta el job (criterio: bajar `domain` a 94% falla el CI); el YAML pasa Prettier.
+- **No** se pudo correr el workflow en GitHub (no hay remoto ni el conector de GitHub funciona), asi que
+  los pasos con acciones de terceros no estan probados: `pnpm/action-setup`, `actions/cache`, `gitleaks`.
+
+### Pendiente / deuda
+
+- Lighthouse CI: cuando exista la PWA (F0-17).
+- E2E en PR y en `main` (F1-20), escaneo de dependencias de desarrollo, y fijar las acciones por SHA.
+- Si el repo pasa a una organizacion, `gitleaks-action` pide licencia.
+
+---
+
 ## 2026-10-30 — Cliente HTTP tipado: errores sin prosa, reintentos con criterio y escrituras versionadas
 
 **Tareas:** F0-18 · **Commit/PR:** rama `feat/f0-client` · **Tarjeta:** sin tablero (F0-04)
