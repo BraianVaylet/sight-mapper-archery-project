@@ -18,6 +18,47 @@
 
 ---
 
+## 2026-10-30 — Las unidades se convierten en el borde y vuelven sin perdida
+
+**Tareas:** F0-07 · **Commit/PR:** rama `feat/f0-units` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `packages/domain/src/convert/` ([UNIDADES.md](domain/UNIDADES.md)):
+  - `constants`: M/yd, mm/in, g/gr, m/s por fps, N por lbf y N por kgf, exactas.
+  - `quantity`: `toCanonical` / `fromCanonical` tipados por cantidad (distancia, largo, masa,
+    velocidad, fuerza); la distancia canonica se redondea a 1 mm.
+  - `quantum`: `roundToQuantum`, `decimalsForQuantum` y `formatDecimal` en aritmetica entera
+    de quanta, con separador decimal inyectado.
+  - `scale`: `SightScale`, `readingToMm` / `mmToReading`, `scaleBoundsMm`,
+    `unitSizeFromLength`, `hasPhysicalScale`, `roundReading` / `formatReading`.
+  - `parse`: `parseDecimal` (coma o punto) y `parseImperial` (decimal, fraccion, mixto); devuelven
+    `null`, nunca lanzan, porque es entrada del usuario.
+
+### Decisiones
+
+- `mm`, `cm` e `in` tienen tamano fijo (1, 10, 25.4) aunque `unitSizeMm` diga otra cosa; solo
+  `click` y `custom` usan lo que cargo el arquero (nominal 1 si es `null`).
+- Sin separador de miles: `1.234,5` es ambiguo y se rechaza.
+- El separador decimal lo recibe la funcion; el dominio no usa `Intl` ni conoce locales.
+- `tidy` (12 cifras significativas) limpia ruido de punto flotante en cada conversion.
+
+### Verificado
+
+- 176 tests, 100% de cobertura. Criterios del plan: `20 yd` da `18.288 m` exacto; `custom` 1–9 con
+  10 mm: `3.5` va a `35 mm` y vuelve a `3.5`; `"6 1/4"` es `6.25 in` y `158.75 mm`.
+- Test no negociable #6 con `fast-check`: los 300 000 mm canonicos pasan por yardas y vuelven
+  iguales; toda lectura en la grilla del quantum sobrevive a las cinco unidades de escala; el resto
+  de cantidades vuelve dentro de 1e-6.
+
+### Pendiente / deuda
+
+- Las unidades de equipo por sistema (spec §17.2) siguen siendo la propuesta inicial; se cierran
+  en F1-12.
+- La regla de ticks (F0-08) reutiliza `roundToQuantum` y `scaleBoundsMm`.
+
+---
+
 ## 2026-10-30 — El dominio calcula marcas: pasa exacto por las medidas y extrapola anclado
 
 **Tareas:** F0-05 · **Commit/PR:** rama `feat/f0-domain-model` · **Tarjeta:** sin tablero (F0-04)

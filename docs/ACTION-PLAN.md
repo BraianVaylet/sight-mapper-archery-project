@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05 hechas) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07 hechas) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -132,7 +132,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
     'inconsistent'` con ambas marcas.
 - **Errores nuevos:** `SM-CALC-422-003` · **Datos:** —
 
-### [ ] F0-07 · `@sight-mapper/domain`: unidades
+### [x] F0-07 · `@sight-mapper/domain`: unidades
 
 - **Modulo:** domain · **Puntos:** 5 · **Depende de:** F0-02
 - **Descripcion:** `convert/` segun [UNIDADES.md](domain/UNIDADES.md): constantes exactas, m↔yd,
