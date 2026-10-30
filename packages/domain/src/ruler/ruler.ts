@@ -60,7 +60,8 @@ export function buildRuler(request: RulerRequest): RulerTick[] {
   const { ticksPerUnit, mediumEvery, majorEvery } = TICKS[scale.unit];
   const minT = scale.min * ticksPerUnit;
   const spanT = (scale.max - scale.min) * ticksPerUnit;
-  if (!Number.isFinite(minT) || !Number.isFinite(spanT)) {
+  // Tick indices must be exactly representable, or `first + n * step` could stop advancing.
+  if (!Number.isSafeInteger(Math.trunc(minT)) || !Number.isSafeInteger(Math.trunc(minT + spanT))) {
     throw new DomainError('Scale span is too large to draw');
   }
   const pxPerTick = lengthPx / spanT;
@@ -76,12 +77,13 @@ export function buildRuler(request: RulerRequest): RulerTick[] {
   const last = Math.floor(minT + spanT + TICK_EPSILON);
   // `|| 0` turns the -0 of Math.ceil into 0, so no tick is ever labelled "-0".
   const first = Math.ceil(Math.ceil(minT - TICK_EPSILON) / step) * step || 0;
-  if ((last - first) / step + 1 > MAX_RULER_TICKS) {
-    throw new DomainError('Ruler has too many ticks');
-  }
+  const count = Math.floor((last - first) / step) + 1;
+  if (count > MAX_RULER_TICKS) throw new DomainError('Ruler has too many ticks');
   const ticks: RulerTick[] = [];
 
-  for (let i = first; i <= last; i += step) {
+  // Count-driven: iteration is guaranteed to end at `count`, whatever the float arithmetic does.
+  for (let n = 0; n < count; n++) {
+    const i = first + n * step;
     const level = levelOf(i, mediumEvery, majorEvery);
     if (level === 'medium' && !showMedium) continue;
 

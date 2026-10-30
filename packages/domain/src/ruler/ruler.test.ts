@@ -317,6 +317,11 @@ describe('buildRuler — resource limits', () => {
     expect(() => buildRuler({ scale: mm(0, 100_000), lengthPx: 1_000_000 })).toThrow(DomainError);
   });
 
+  it('rejects indices too large to step exactly instead of spinning', () => {
+    expect(() => buildRuler({ scale: mm(1e17, 1e17 + 1000), lengthPx: 600 })).toThrow(DomainError);
+    expect(() => buildRuler({ scale: mm(-1e17, 1e17), lengthPx: 600 })).toThrow(DomainError);
+  });
+
   it('rejects a span that overflows to infinity', () => {
     expect(() => buildRuler({ scale: mm(-1.7e308, 1.7e308), lengthPx: 600 })).toThrow(DomainError);
   });
