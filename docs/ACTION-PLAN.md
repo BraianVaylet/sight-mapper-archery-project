@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09 hechas) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10 hechas) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -169,7 +169,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given `scale.min ≥ scale.max`, Then el schema de mira falla con `issues` en `scale.max`.
 - **Errores nuevos:** todos los de errors.md §4.1–4.6 quedan tipados · **Datos:** —
 
-### [ ] F0-10 · `@sight-mapper/i18n`
+### [x] F0-10 · `@sight-mapper/i18n`
 
 - **Modulo:** i18n · **Puntos:** 2 · **Depende de:** F0-09
 - **Descripcion:** catalogos `es`/`en` por namespace, tipos de claves, helper de formateo

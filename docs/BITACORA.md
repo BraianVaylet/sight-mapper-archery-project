@@ -18,6 +18,47 @@
 
 ---
 
+## 2026-10-30 — Catalogos ES/EN tipados y traductor sin React
+
+**Tareas:** F0-10 (y un segundo fix de seguridad de F0-08) · **Commit/PR:** rama `feat/f0-i18n` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/i18n`: `locales/es.ts` (fuente de la forma) y `locales/en.ts` (tipado como la misma
+  forma: una clave de mas o de menos no compila). Namespaces `common`, `validation` y `errors` con
+  los 47 `messageKey` del catalogo de errores y las 14 claves `validation.*` de los schemas.
+- `createTranslator(locale)`: `t(clave)` tipado; si el mensaje tiene `{{params}}`, el compilador los
+  exige (se infieren del texto). Sirve tambien en el servidor para los emails (ADR-004).
+- `translateKey(locale, messageKey, params)` para claves que llegan como string (la API): una clave
+  desconocida cae en `errors.core.unexpected`, nunca se muestra una clave cruda.
+- `detectLocale`, `decimalSeparator`, `formatNumber`, `formatDate` / `formatDateTime` con `Intl`.
+- Fix de F0-08: contador entero y limite de enteros seguros en `buildRuler` (con indices cerca de
+  2^53, `i += step` dejaba de avanzar y el tope de ticks no frenaba el bucle).
+
+### Decisiones
+
+- Catalogos en TS y no `.json` (TECNICO §9 actualizado): paridad por compilador y params inferidos.
+- Los placeholders son valores de **presentacion** (`{{maxDistance}}`, `{{min}}`): el cliente convierte
+  los params canonicos (m, mm) a la unidad del arquero antes de interpolar.
+- Voseo es-AR con tildes en la UI (la regla de "sin tildes" es solo para docs). Hay un test contra el tuteo.
+- Fallback de idioma: `es` (mercado principal) cuando el navegador no ofrece ES ni EN.
+- i18n no importa `schemas` (grafo): el test lee los fuentes de `schemas` para verificar que cada
+  clave `validation.*` que emiten tenga traduccion.
+
+### Verificado
+
+- 25 tests, 100% lineas. Criterios del plan: una clave que esta en `es` y no en `en` rompe
+  (compilador y test de paridad); `t(no.existe)` no compila (`@ts-expect-error`); todo codigo de
+  error tiene su clave en ambos idiomas y no sobran mensajes huerfanos.
+
+### Pendiente / deuda
+
+- Los namespaces `auth`, `equipment`, `setups`, `sight`, `doctor`, `account` se llenan con cada pantalla.
+- Integracion con `react-i18next` en F0-17 usando `catalogs` como `resources`.
+- Posible: acotar `min`/`max` de `sightScale` (p. ej. ±1e6) en el diccionario y en los schemas.
+
+---
+
 ## 2026-10-30 — Enums, catalogo de errores y schemas Zod compartidos
 
 **Tareas:** F0-09 (y un fix de F0-08) · **Commit/PR:** rama `feat/f0-types-schemas` · **Tarjeta:** sin tablero (F0-04)

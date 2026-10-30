@@ -218,7 +218,7 @@ Content-Type: application/json
 
 ## 9. i18n
 
-- `@sight-mapper/i18n`: `es.json` y `en.json` con la misma forma; tipos generados para que una clave
+- `@sight-mapper/i18n`: `locales/es.ts` y `locales/en.ts` con la misma forma (TS en vez de JSON: el compilador exige la paridad y se infieren los `{{params}}`); tipos generados para que una clave
   inexistente sea **error de compilacion**. Test que verifica paridad de claves ES/EN.
 - Namespaces: `common`, `auth`, `equipment`, `setups`, `sight`, `calc`, `doctor`, `account`,
   `errors`.
