@@ -1,9 +1,10 @@
 import { serve } from '@hono/node-server';
 import { createContainer } from './composition-root.js';
 import { EnvError, parseEnv } from './core/config/env.js';
+import { connectMongo, mongoReadiness } from './core/db/connection.js';
 import { createLogger } from './core/logger/logger.js';
 
-function start(): void {
+async function start(): Promise<void> {
   let env;
   try {
     env = parseEnv(process.env);
@@ -19,7 +20,8 @@ function start(): void {
     level: env.LOG_LEVEL,
     pretty: env.NODE_ENV === 'development' && env.APP_ENV === 'local',
   });
-  const { app } = createContainer({ env, logger });
+  const connection = await connectMongo(env.MONGODB_URI, logger);
+  const { app } = createContainer({ env, logger, readiness: mongoReadiness(connection) });
 
   const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
     logger.info({ port: info.port, appEnv: env.APP_ENV }, 'api listening');
@@ -27,10 +29,16 @@ function start(): void {
 
   const shutdown = (signal: string): void => {
     logger.info({ signal }, 'shutting down');
-    server.close(() => process.exit(0));
+    server.close(() => {
+      void connection.close().finally(() => process.exit(0));
+    });
   };
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
-start();
+start().catch((error: unknown) => {
+  const reason = error instanceof Error ? error.message : String(error);
+  process.stderr.write(`Failed to start: ${reason}\n`);
+  process.exit(1);
+});

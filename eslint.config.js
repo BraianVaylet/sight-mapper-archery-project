@@ -182,7 +182,13 @@ export default tseslint.config(
 
   // Tooling files run in Node.
   {
-    files: ['*.config.{js,ts}', '**/*.config.{js,ts}', '**/scripts/**/*.mjs'],
+    files: [
+      '*.config.{js,ts}',
+      '**/*.config.{js,ts}',
+      '**/scripts/**/*.mjs',
+      '**/migrate-mongo-config.js',
+      '**/migrations/**/*.js',
+    ],
     languageOptions: { globals: { ...globals.node } },
   },
 );

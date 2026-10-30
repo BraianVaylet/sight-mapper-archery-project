@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12 hechas) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13 hechas) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -204,7 +204,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given un body de 100 KB, Then `SM-CORE-413-001`.
 - **Errores nuevos:** CORE 400/401/404/413/415/500/503 · **Datos:** —
 
-### [ ] F0-13 · `apps/api`: MongoDB, migraciones y aislamiento
+### [x] F0-13 · `apps/api`: MongoDB, migraciones y aislamiento
 
 - **Modulo:** api/core · **Puntos:** 5 · **Depende de:** F0-12
 - **Descripcion:** conexion Mongoose, helper `withTransaction`, `migrate-mongo` con indices de

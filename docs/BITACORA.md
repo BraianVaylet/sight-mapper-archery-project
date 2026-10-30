@@ -18,6 +18,49 @@
 
 ---
 
+## 2026-10-30 — Mongo con aislamiento por usuario forzado y migraciones idempotentes
+
+**Tareas:** F0-13 · **Commit/PR:** rama `feat/f0-mongo` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `apps/api/src/core/db`: `connection` (Mongoose, `withTransaction`, `mongoReadiness` con ping < 1 s),
+  `isolation` (plugin), `soft-delete` (plugin), `base-schema` (`createBusinessSchema`: unica forma de
+  armar un modelo), `temporal` (traductor `Temporal.Instant` / `Date`, unico lugar con `Date`).
+- `migrate-mongo` con `migrations/20261030000000-initial-indexes.js`: todos los indices del
+  DICCIONARIO §4 (unicos parciales con `deletedAt: { $type: null }`, TTL de idempotencia y de `jobRuns`).
+- `main.ts` conecta a Mongo y `/ready` usa el ping real.
+
+### Decisiones
+
+- El plugin de aislamiento falla fuerte (`SM-CORE-500-002`) ante cualquier consulta sin `userId` o con
+  `userId` undefined/null (que matchearia todo); cubre find, update, delete, count, distinct,
+  aggregate (primer `$match`), save, `insertMany` y rechaza `estimatedDocumentCount`.
+- La validacion de `save` va en el hook `validate`: si no, Mongoose tira su propio `ValidationError`
+  antes y el bug de aislamiento sale disfrazado.
+- Timestamps y `version` los pone el repositorio con el reloj inyectado, no Mongoose (`timestamps: false`).
+- `mongodb-memory-server` con `allowBuilds: false`: su `postinstall` descarga un binario; los tests
+  usan el `mongod` 7.0.24 que ya esta en el cache local (`MONGOMS_VERSION` lo cambia en CI).
+
+### Verificado
+
+- 17 tests contra un replica set real: consultas sin `userId` rechazadas, usuario B nunca ve datos
+  de A, soft delete (`deletedAt` null explicito y `withDeleted`), commit y rollback de transacciones,
+  ping con timeout, round trip de Temporal.
+- Criterios del plan: dos marcas con la misma `(userId, setupId, arrowSetId, distanceM)` con una
+  borrada conviven y dos activas dan E11000; igual para arco+mira de un setup; `up` dos veces no
+  hace nada la segunda; `down` deja solo `_id_`.
+- Dos bugs que salieron al correr contra Mongo: un hook `insertMany` con `next` en la firma colgaba si no
+  se lo llamaba, y `create` con sesion exige `ordered: true`.
+
+### Pendiente / deuda
+
+- CI: cachear o fijar el binario de `mongod` (F0-19).
+- `SM-CORE-500-002` deberia disparar una alerta inmediata (F7-C).
+- Los modelos de cada coleccion nacen con su modulo (F1).
+
+---
+
 ## 2026-10-30 — El nucleo HTTP de la API: errores sin prosa, request id y registro de rutas
 
 **Tareas:** F0-12 · **Commit/PR:** rama `feat/f0-api-core` · **Tarjeta:** sin tablero (F0-04)

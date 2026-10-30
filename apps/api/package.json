@@ -9,7 +9,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests",
-    "test:coverage": "vitest run --coverage --passWithNoTests"
+    "test:coverage": "vitest run --coverage --passWithNoTests",
+    "migrate": "migrate-mongo --migrations-dir migrations up"
   },
   "dependencies": {
     "@hono/node-server": "catalog:",
@@ -19,17 +20,20 @@
     "@sight-mapper/schemas": "workspace:*",
     "@sight-mapper/types": "workspace:*",
     "hono": "catalog:",
+    "migrate-mongo": "catalog:",
+    "mongoose": "catalog:",
     "pino": "catalog:",
     "uuid": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "vitest": "catalog:",
-    "@vitest/coverage-v8": "catalog:",
-    "eslint": "catalog:",
     "@sight-mapper/config": "workspace:*",
     "@types/node": "catalog:",
-    "pino-pretty": "catalog:"
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "mongodb-memory-server": "catalog:",
+    "pino-pretty": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
