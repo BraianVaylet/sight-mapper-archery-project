@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14 hechas) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14 hechas; 11 casi) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -178,7 +178,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given una clave que existe en `es` y no en `en`, Then el test falla.
   - Given `t('no.existe')`, Then no compila.
 
-### [ ] F0-11 · `@sight-mapper/ui`: tokens y primitivas
+### [~] F0-11 · `@sight-mapper/ui`: tokens y primitivas
 
 - **Modulo:** ui · **Puntos:** 5 · **Depende de:** F0-02
 - **Descripcion:** tokens dark (del diseño) y light (alto contraste) segun [UX-UI.md](UX-UI.md) §2;

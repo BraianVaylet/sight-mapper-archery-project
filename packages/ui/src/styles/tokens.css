@@ -1,0 +1,65 @@
+/*
+ * Design tokens (docs/UX-UI.md §2). Dark is the design's own theme and the default; light is a
+ * high-contrast variant for use in the sun. `data-theme="dark|light"` forces a theme; without it
+ * the system preference decides. Every text/background pair passes WCAG AA (tokens.test.ts).
+ */
+
+:root {
+  color-scheme: dark;
+  --sm-bg: #10286b;
+  --sm-surface: #24406f;
+  --sm-surface-sunken: #0b1c4a;
+  --sm-border: #7a92c4;
+  --sm-text: #ffffff;
+  --sm-text-muted: #a9b9d8;
+  --sm-accent: #ffcc00;
+  --sm-accent-ink: #10286b;
+  --sm-accent-edge: #8a6d00;
+  --sm-info: #6ec6e6;
+  --sm-danger: #ff8a8a;
+  --sm-warning: #ffb84d;
+  --sm-size-touch: 44px;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --sm-bg: #f6f8fc;
+  --sm-surface: #ffffff;
+  --sm-surface-sunken: #e7ecf6;
+  --sm-border: #5f719c;
+  --sm-text: #10286b;
+  --sm-text-muted: #41547f;
+  --sm-accent: #ffcc00;
+  --sm-accent-ink: #10286b;
+  --sm-accent-edge: #10286b;
+  --sm-info: #0b5c8a;
+  --sm-danger: #b3261e;
+  --sm-warning: #7a4f00;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --sm-bg: #f6f8fc;
+    --sm-surface: #ffffff;
+    --sm-surface-sunken: #e7ecf6;
+    --sm-border: #5f719c;
+    --sm-text: #10286b;
+    --sm-text-muted: #41547f;
+    --sm-accent: #ffcc00;
+    --sm-accent-ink: #10286b;
+    --sm-accent-edge: #10286b;
+    --sm-info: #0b5c8a;
+    --sm-danger: #b3261e;
+    --sm-warning: #7a4f00;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

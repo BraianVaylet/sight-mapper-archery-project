@@ -4,14 +4,18 @@
   "private": true,
   "description": "Design system: tokens and primitives",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./tokens.css": "./src/styles/tokens.css",
+    "./theme.css": "./src/styles/theme.css"
   },
   "files": [
     "dist"
@@ -28,11 +32,23 @@
     "@sight-mapper/types": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "vitest": "catalog:",
+    "@sight-mapper/config": "workspace:*",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
-    "@sight-mapper/config": "workspace:*",
-    "@types/node": "catalog:"
+    "jsdom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

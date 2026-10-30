@@ -30,14 +30,14 @@ cuando este disponible. Se definen como variables CSS en `@sight-mapper/ui` (Tai
 | `--color-bg`          | `#10286B`    | Fondo de pantalla (navy)                                  |
 | `--color-surface`     | `#24406F`    | Cards, secciones, header                                  |
 | `--color-surface-sunken` | `#0B1C4A` | Inputs, regla, grafico                                    |
-| `--color-border`      | `#5B74A6`    | Bordes de cards e inputs                                  |
+| `--color-border`      | `#7A92C4`    | Bordes de cards e inputs                                  |
 | `--color-text`        | `#FFFFFF`    | Texto principal                                           |
 | `--color-text-muted`  | `#A9B9D8`    | Labels secundarios, placeholders                          |
 | `--color-accent`      | `#FFCC00`    | CTA primario, lectura grande, marcas medidas, seleccion   |
 | `--color-accent-ink`  | `#10286B`    | Texto sobre accent                                        |
 | `--color-info`        | `#6EC6E6`    | Links secundarios ("Change", "Show"), marcas calculadas   |
-| `--color-danger`      | a definir    | Errores, Doctor `inconsistent`                            |
-| `--color-warning`     | a definir    | Doctor `suspect`, baja confianza                          |
+| `--color-danger`      | `#FF8A8A` (light `#B3261E`) | Errores, Doctor `inconsistent`                            |
+| `--color-warning`     | `#FFB84D` (light `#7A4F00`) | Doctor `suspect`, baja confianza                          |
 
 ### 2.2 Color — tema light (a diseñar, F0-09/F1-18)
 

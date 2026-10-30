@@ -18,6 +18,51 @@
 
 ---
 
+## 2026-10-30 — Design system: tokens dark/light con contraste AA y 17 primitivas accesibles
+
+**Tareas:** F0-11 (parcial: falta el catalogo visual) · **Commit/PR:** rama `feat/f0-ui` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/ui`: `tokens.css` (dark del diseno, light de alto contraste, "system" = el del SO,
+  `prefers-reduced-motion`) y `theme.css` (mapeo a Tailwind v4 con `@theme inline`: cambiar
+  `data-theme` no recompila). Sin fuentes web: nada que bajar antes del primer pintado.
+- Primitivas: `Button`, `Field`, `NumberField`, `PasswordField`, `Select`, `Segmented`, `SectionCard`,
+  `AppHeader`, `NavDrawer` (+ `NavItem`), `BottomSheet`, `Toast` con deshacer, `InfoAlert`,
+  `StatusBadge`, `EmptyState`, `ErrorState`, `Skeleton`, `UpdatePrompt`, y `useFocusTrap`.
+
+### Decisiones
+
+- Ningun componente trae texto: labels, hints, errores y "Mostrar/Ocultar" llegan por props ya
+  traducidos (lo hace cumplir `i18next/no-literal-string`). El numero decimal y su parseo viven fuera.
+- 44 px **inline** (`touchTarget`), no solo con clases: la garantia vale sin hoja de estilos y se
+  puede testear en jsdom, que no calcula layout.
+- Estado nunca solo por color: seleccion de `Segmented` con tilde, `StatusBadge` con forma distinta por
+  tipo (circulo lleno, rombo, triangulo, cruz), `InfoAlert` con icono por variante.
+- Un item "Proximamente" del drawer sigue enfocable y se anuncia deshabilitado (`aria-disabled`), para que
+  un lector de pantalla sepa que existe y por que no hace nada (RF-X-07).
+- Colores nuevos a definir en UX-UI §2.1: danger `#ff8a8a` / `#b3261e`, warning `#ffb84d` / `#7a4f00`;
+  el borde dark subio de `#5b74a6` (2.2:1 sobre surface) a `#7a92c4` para pasar 3:1.
+- El amarillo en light es solo relleno (1.4:1 sobre blanco): el boton lleva borde navy.
+
+### Verificado
+
+- 95 tests (97% lineas). Criterios del plan: toda primitiva interactiva mide >= 44x44 (test por
+  componente); en ambos temas los pares texto/fondo pasan AA (>= 4.5:1 texto, >= 3:1 bordes) por un
+  test que parsea el CSS real.
+- Drawer y sheet: foco al abrir, Tab y Shift+Tab atrapados, Escape cierra y devuelve el foco.
+
+### Pendiente / deuda
+
+- **Catalogo visual** (sandbox en la PWA en dev): depende de F0-17, no existe la app todavia.
+- No se compilo Tailwind sobre estas clases: se valida cuando la PWA las consuma (F0-17). Tampoco hay
+  axe ni prueba al sol (F1-18, F1-19).
+- Faltan `Ruler`, `MarksTable`, `SetupCard`, `Readout`, `StatusBar`, `DistanceCurve`: llegan con las
+  pantallas de F1.
+- F0-15 (Better Auth) se hace junto con F0-20 (Railway, dominio y Google OAuth).
+
+---
+
 ## 2026-10-30 — Reintentos seguros y escrituras obsoletas rechazadas
 
 **Tareas:** F0-14 · **Commit/PR:** rama `feat/f0-idempotency` · **Tarjeta:** sin tablero (F0-04)
