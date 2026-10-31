@@ -50,7 +50,12 @@ describe('renderAdr', () => {
     assert.match(out, /^# ADR-012 — Usar X$/m);
     assert.match(out, /^- \*\*Estado:\*\* Propuesta$/m);
     assert.match(out, /^- \*\*Fecha:\*\* 2026-10-31$/m);
-    for (const section of ['## Contexto', '## Decision', '## Consecuencias', '## Como se hace cumplir']) {
+    for (const section of [
+      '## Contexto',
+      '## Decision',
+      '## Consecuencias',
+      '## Como se hace cumplir',
+    ]) {
       assert.ok(out.includes(section), section);
     }
     assert.ok(!out.includes('ADR-NNN'));
@@ -59,7 +64,8 @@ describe('renderAdr', () => {
 
 describe('addToIndex', () => {
   it('adds the row after the last one', () => {
-    const readme = '| ADR | T |\n| --- | --- |\n| [000](000-a.md) | A | Aceptada | d |\n| [001](001-b.md) | B | Aceptada | d |\n\nfin\n';
+    const readme =
+      '| ADR | T |\n| --- | --- |\n| [000](000-a.md) | A | Aceptada | d |\n| [001](001-b.md) | B | Aceptada | d |\n\nfin\n';
     const out = addToIndex(readme, { number: 2, slug: 'c', title: 'C', date: '2026-10-31' });
     const lines = out.split('\n');
     assert.equal(lines[4], '| [002](002-c.md) | C | Propuesta | 2026-10-31 |');
@@ -67,7 +73,10 @@ describe('addToIndex', () => {
   });
 
   it('refuses an index it cannot find', () => {
-    assert.throws(() => addToIndex('# nothing', { number: 1, slug: 'a', title: 'A', date: 'd' }), /index table/);
+    assert.throws(
+      () => addToIndex('# nothing', { number: 1, slug: 'a', title: 'A', date: 'd' }),
+      /index table/,
+    );
   });
 });
 
@@ -82,7 +91,11 @@ describe('createAdr', () => {
     const body = readFileSync(file, 'utf8');
     assert.match(body, /^# ADR-012 — Cola offline con IndexedDB$/m);
     const index = readFileSync(join(root, 'docs', 'adr', 'README.md'), 'utf8');
-    assert.ok(index.includes('| [012](012-cola-offline-con-indexeddb.md) | Cola offline con IndexedDB | Propuesta | 2026-10-31 |'));
+    assert.ok(
+      index.includes(
+        '| [012](012-cola-offline-con-indexeddb.md) | Cola offline con IndexedDB | Propuesta | 2026-10-31 |',
+      ),
+    );
     assert.ok(index.indexOf('[011]') < index.indexOf('[012]'));
   });
 
@@ -94,6 +107,9 @@ describe('createAdr', () => {
   });
 
   it('rejects a title with no usable characters', () => {
-    assert.throws(() => createAdr({ root: sandbox(), title: '¡¿?!', date: '2026-10-31' }), /at least one letter/);
+    assert.throws(
+      () => createAdr({ root: sandbox(), title: '¡¿?!', date: '2026-10-31' }),
+      /at least one letter/,
+    );
   });
 });

@@ -29,7 +29,10 @@ export function renderAdr(template, { number, title, date }) {
   const id = String(number).padStart(3, '0');
   return template
     .replace('# ADR-NNN — <Titulo en forma de decision>', `# ADR-${id} — ${title}`)
-    .replace('- **Estado:** Propuesta | Aceptada | Reemplazada por ADR-xxx | Deprecada', '- **Estado:** Propuesta')
+    .replace(
+      '- **Estado:** Propuesta | Aceptada | Reemplazada por ADR-xxx | Deprecada',
+      '- **Estado:** Propuesta',
+    )
     .replace('- **Fecha:** YYYY-MM-DD', `- **Fecha:** ${date}`);
 }
 
@@ -61,14 +64,19 @@ export function createAdr({ root = ROOT, title, date }) {
   writeFileSync(file, renderAdr(template, { number, title: trimmed, date }));
 
   const readmePath = join(dir, 'README.md');
-  writeFileSync(readmePath, addToIndex(readFileSync(readmePath, 'utf8'), { number, slug, title: trimmed, date }));
+  writeFileSync(
+    readmePath,
+    addToIndex(readFileSync(readmePath, 'utf8'), { number, slug, title: trimmed, date }),
+  );
   return file;
 }
 
 function main(argv) {
   const dateIndex = argv.indexOf('--date');
   const date =
-    dateIndex === -1 ? new Intl.DateTimeFormat('en-CA').format(Date.now()) : (argv[dateIndex + 1] ?? '');
+    dateIndex === -1
+      ? new Intl.DateTimeFormat('en-CA').format(Date.now())
+      : (argv[dateIndex + 1] ?? '');
   const title = argv.filter((arg, i) => !arg.startsWith('--') && i !== dateIndex + 1).join(' ');
   if (title.trim() === '') {
     process.stderr.write('Usage: node scripts/new-adr.mjs "Decision title" [--date YYYY-MM-DD]\n');
@@ -81,4 +89,5 @@ function main(argv) {
   process.stdout.write(`${createAdr({ title, date })}\n`);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main(process.argv.slice(2));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
+  main(process.argv.slice(2));
