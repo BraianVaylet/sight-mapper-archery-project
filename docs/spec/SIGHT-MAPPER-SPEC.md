@@ -435,8 +435,9 @@ Plan de tareas: [ACTION-PLAN.md](../ACTION-PLAN.md).
 2. **Unidades de presentacion del equipo.** Propuesta: siguen el sistema elegido (imperial: in, lb,
    gr, fps; metrico: cm/mm, kg, g, m/s). Alternativa: siempre unidades de industria (in, lb, gr,
    fps), que es lo que usa el rubro incluso en paises metricos. Se decide en F1-12 con usuarios.
-3. **Umbrales del Mark Doctor.** `DOCTOR_K = 3`, minimo absoluto 1 mm o el quantum. Se calibran con
-   los datos reales del autor en F0-05/F1-11.
+3. **Umbrales del Mark Doctor.** Calibrados el 2026-10-31 con dos sets reales: tolerancia absoluta de
+   4 mm (o el quantum) y ×2.5 en los extremos; el desvio estimado de los datos (`K·σ`) se descarto porque
+   con 5 marcas tapa al error (SIGHT-MATH §8.3). Provisorio: son 2 sets; recalibrar con mas datos.
 4. **Merchant of Record** (F5): Lemon Squeezy o Paddle vs Stripe + Mercado Pago.
 5. **Portugues:** preparado por ADR-004, no abierto. Se decide con datos de trafico.
 6. **Reloj o widget:** una PWA no puede. Se evalua despues de F7 si aparece demanda.

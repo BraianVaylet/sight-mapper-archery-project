@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14, 18, 03 hechas; 11 y 19 casi) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14, 18, 03, 06, 21 hechas; 11 y 19 casi) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -118,12 +118,12 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Cobertura ≥ 95%.
 - **Errores nuevos:** `SM-CALC-422-001/002/004/005` · **Datos:** —
 
-### [ ] F0-06 · `@sight-mapper/domain`: Mark Doctor
+### [x] F0-06 · `@sight-mapper/domain`: Mark Doctor
 
 - **Modulo:** domain · **Puntos:** 5 · **Depende de:** F0-05, F0-21
 - **Descripcion:** monotonia por direccion de escala (desde 2 marcas) y residuos leave-one-out con
-  umbral robusto (desde 5), segun SIGHT-MATH §7–8. Calibracion inicial de `DOCTOR_K`,
-  `DOCTOR_MIN_ABS_MM`, `DOCTOR_ENDPOINT_FACTOR` con los fixtures reales (F0-21).
+  umbral absoluto (desde 5), segun SIGHT-MATH §7–8. Calibracion de `DOCTOR_MIN_ABS_MM` y
+  `DOCTOR_ENDPOINT_FACTOR` con los fixtures reales (F0-21).
 - **Criterios:**
   - Given los sets reales del autor marcados como buenos, Then `status = 'ok'` en todos.
   - Given un set bueno con +1 unidad de escala inyectada en una marca interior, Then esa marca es
@@ -298,7 +298,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given prod, Then solo se despliega por promocion manual.
 - **Errores nuevos:** — · **Datos:** clusters
 
-### [ ] F0-21 · Fixtures de datos reales del autor
+### [x] F0-21 · Fixtures de datos reales del autor
 
 - **Modulo:** domain (tests) · **Puntos:** 2 · **Depende de:** —
 - **Descripcion:** extraer de los proyectos previos (SQLite de `bv-bow-sight`) los sets de marcas

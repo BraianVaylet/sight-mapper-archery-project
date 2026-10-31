@@ -18,6 +18,55 @@
 
 ---
 
+## 2026-10-31 — Mark Doctor calibrado con datos reales: el desvio estimado de los datos no servia
+
+**Tareas:** F0-06, F0-21 · **Commit/PR:** rama `feat/f0-doctor` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/domain/doctor` ([SIGHT-MATH.md](domain/SIGHT-MATH.md) §7–8): `diagnose(marks, { direction, quantumMm })`.
+  Monotonia desde 2 marcas (cada par fuera de sentido o igual es `inconsistent` sobre **ambas**) y residuos
+  leave-one-out contra una parabola ajustada sin la marca, desde 5. Devuelve `status`, `level`
+  (`none` / `monotonicity` / `full`), residuo y umbral de cada marca, la peor (`suspect`, "volver a tirar"),
+  las secundarias y los pares rotos.
+- Fixtures reales del autor (F0-21): `packages/domain/test/fixtures/real-sets.json` — Gold Tip Hunter 400
+  (bueno) y Gold Tip Pierce 400 (dudoso), mira de 0 a 10 cm, paso de 1 mm, 20–60 m. Solo distancia, lectura y escala.
+
+### Decisiones
+
+- **Umbral absoluto, no derivado de los datos.** La spec preveia `K·σ` con MAD de los propios residuos. Con 5
+  marcas no hay `K` que sirva (medido): con `K ≤ 1` acusa casi todo (338 de 402 sets limpios con `K = 0.5`) y con
+  `K ≥ 1.5` no detecta ni un error de ±1 unidad: la marca mala arrastra las otras cuatro, el desvio estimado
+  sube y tapa al error. Se descarto `DOCTOR_K`; queda `DOCTOR_MIN_ABS_MM = 4` (o el quantum) y
+  `DOCTOR_ENDPOINT_FACTOR = 2.5`. La spec (§8, decision abierta 3) se actualizo primero.
+- **Tolerancia fisica en mm:** un set muy ruidoso señala varias marcas, en vez de volver el umbral relativo a un ruido que no se puede medir bien.
+- **Pierce: solo se codifica lo que se sabe.** El autor lo marco dudoso pero no dijo cual marca. La expectativa
+  es: no `inconsistent`, y si el Doctor señala una marca, es la de 40 m o la de 50 m. El zigzag es de 1–2 mm (uno o dos pasos de la mira).
+- Distancias e ids repetidos en el Doctor son `DomainError` (bug de quien llama).
+
+### Verificado
+
+- 247 tests de domain (99.7% lineas). Criterios del plan: el set bueno da `ok` con todos los residuos bajo su
+  umbral; `±10 mm` inyectado en cada marca interior de Hunter → esa marca es `suspect` y la peor (6 de 6),
+  ±5 mm en la del medio tambien, y ±1/±2 mm no se acusan; una marca mas lejana con lectura menor, con
+  `direction = down`, da `inconsistent` con ambas marcas.
+- Barrido de calibracion con ruido uniforme de ±1.5 mm (602 sets): 2 falsos positivos con 4 mm / ×2.5; deteccion
+  interior 12/12 con ±10 mm, 10/12 con ±5, 6/12 con ±4, 2/12 con ±3.
+- Propiedades con fast-check: datos exactamente sobre una parabola creciente nunca se acusan; con ±1 mm de ruido
+  y pendiente realista tampoco; el informe es coherente para cualquier entrada.
+- Una propiedad encontro que con pasos menores que el ruido el orden se invierte y la monotonia acusa con razon:
+  el generador se acoto a pasos reales (≥ 8 mm por 10 m).
+
+### Pendiente / deuda
+
+- **Solo 2 sets de 5 marcas.** Recalibrar con mas sets, sobre todo uno con un error evidente (y con mas de 5 marcas,
+  donde un desvio estimado podria volver a servir).
+- Los extremos casi no se pueden juzgar por residuo con 5 marcas: un error grande ahi lo detecta la monotonia.
+- Falta saber cual marca de Pierce duda el autor.
+- La pantalla del Doctor es F1-11.
+
+---
+
 ## 2026-10-31 — Herramientas del repo para Claude: agentes, comandos, hooks y CLAUDE.md locales
 
 **Tareas:** F0-03 (y dos fixes del review de seguridad: cliente y CI) · **Commit/PR:** rama `feat/f0-claude-config` · **Tarjeta:** sin tablero (F0-04)

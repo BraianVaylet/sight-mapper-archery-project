@@ -1,0 +1,39 @@
+{
+  "source": "Measured by the author, 2026-10-31. Only distance, reading and scale: no personal data.",
+  "sight": "Ultraview Side 1",
+  "scale": {
+    "unit": "cm",
+    "unitSizeMm": null,
+    "min": 0,
+    "max": 10,
+    "resolution": 0.1,
+    "direction": "down"
+  },
+  "sets": [
+    {
+      "id": "goldtip-hunter-400",
+      "label": "good",
+      "note": "The author trusts all five marks.",
+      "marks": [
+        { "distanceM": 20, "reading": 0.3 },
+        { "distanceM": 30, "reading": 0.8 },
+        { "distanceM": 40, "reading": 1.6 },
+        { "distanceM": 50, "reading": 2.6 },
+        { "distanceM": 60, "reading": 3.6 }
+      ]
+    },
+    {
+      "id": "goldtip-pierce-400",
+      "label": "doubtful",
+      "note": "The step from 40 m to 50 m is smaller (0.7) than the one before (0.8). The author marked the set doubtful but did not say which mark (40 m or 50 m), so the expectation is only: not inconsistent, and if the Doctor points at a mark it is one of those two.",
+      "suspectCandidates": [40, 50],
+      "marks": [
+        { "distanceM": 20, "reading": 0.4 },
+        { "distanceM": 30, "reading": 1.0 },
+        { "distanceM": 40, "reading": 1.8 },
+        { "distanceM": 50, "reading": 2.5 },
+        { "distanceM": 60, "reading": 3.5 }
+      ]
+    }
+  ]
+}

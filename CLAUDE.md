@@ -13,9 +13,9 @@ codigo de ahi.
 ## Estado
 
 Documentacion completa (2026-10-29). **Fase 0 en curso** (ver `docs/ACTION-PLAN.md`): hechas F0-01,
-02, 03, 05, 07, 08, 09, 10, 12, 13, 14 y 18; casi F0-11 (ui, falta el catalogo visual) y F0-19 (CI,
+02, 03, 05, 06, 07, 08, 09, 10, 12, 13, 14, 18 y 21; casi F0-11 (ui, falta el catalogo visual) y F0-19 (CI,
 sin correr en GitHub). F0-15 (auth) se hace junto con F0-20 (Railway, dominio, Google). Bloqueadas
-F0-04 y F0-20; F0-06 (Doctor) espera los fixtures de F0-21 (datos reales del autor).
+F0-04 y F0-20. El Mark Doctor (F0-06) esta calibrado con solo 2 sets reales: recalibrar con mas.
 
 Herramientas del repo: `.claude/` (agentes `spec-reviewer`, `domain-reviewer`,
 `security-reviewer`, `test-writer`; comandos `/adr`, `/bitacora`, `/new-task`, `/new-module`; hooks

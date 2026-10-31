@@ -34,3 +34,11 @@ export type {
   RulerTick,
   TickLevel,
 } from './ruler/ruler.js';
+export { diagnose } from './doctor/doctor.js';
+export type {
+  DoctorLevel,
+  DoctorMark,
+  DoctorOptions,
+  DoctorReport,
+  DoctorStatus,
+} from './doctor/doctor.js';
