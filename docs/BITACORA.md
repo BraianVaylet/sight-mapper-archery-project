@@ -18,6 +18,53 @@
 
 ---
 
+## 2026-10-31 — Herramientas del repo para Claude: agentes, comandos, hooks y CLAUDE.md locales
+
+**Tareas:** F0-03 (y dos fixes del review de seguridad: cliente y CI) · **Commit/PR:** rama `feat/f0-claude-config` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `.claude/hooks/guard-write.mjs` (PreToolUse sobre Write/Edit/MultiEdit): **bloquea** el contenido con
+  forma de secreto (AWS, clave privada, Google, GitHub, Slack, Stripe, Resend, credenciales en una URL de
+  conexion, asignaciones `SECRET=...`) y **pide confirmacion** antes de tocar `docs/spec/` y
+  `packages/domain/src/`. `.claude/hooks/format.mjs` (PostToolUse) corre Prettier sobre lo escrito.
+- Agentes de rol cerrado: `spec-reviewer`, `domain-reviewer`, `security-reviewer` (solo lectura) y
+  `test-writer`. Comandos: `/adr`, `/bitacora`, `/new-task`, `/new-module`.
+- `scripts/new-adr.mjs`: lo que hace `/adr` (numera, crea desde la plantilla, agrega al indice).
+- `CLAUDE.md` en `apps/api`, `apps/pwa` y `packages/domain` con las reglas de cada zona.
+- `pnpm test:scripts` (tests del script y de los hooks) y su paso en el CI.
+- Fixes del review automatico: cliente (ids y acciones codificados en la ruta, rutas con `..`, `?`, `#`
+  rechazadas; `ApiError` guarda el status HTTP real, un 401 sin envelope dispara `onUnauthenticated` y un
+  4xx sin envelope no se reintenta) y CI (todas las acciones fijadas por SHA de commit).
+
+### Decisiones
+
+- El guard de secretos **no tiene archivos exentos**: ni tests, ni docs, ni `.env.example`. Los tests arman
+  las claves falsas en tiempo de ejecucion (`AKIA + ...`) para que el literal no exista. El mensaje nunca
+  repite lo encontrado.
+- Un hook que no puede leer su entrada **deja pasar**: un hook roto no debe trabar el editor.
+- Un secreto en `docs/spec` o en el dominio se **bloquea**, no se pregunta.
+- `/trello-sync` no se crea: no hay tablero (F0-04 bloqueada).
+- ESLint permite `Date` en `scripts/` y `.claude/` (la fecha de un ADR); en codigo de app sigue prohibido.
+
+### Verificado
+
+- 41 tests de tooling: 10 del script de ADR (numeracion, slug sin acentos, plantilla, indice, en un
+  directorio temporal que no toca el repo) y 31 de los hooks (cada patron de secreto bloquea con salida 2
+  sin repetir el valor; contenido normal, placeholders y URLs con `${...}` pasan; las rutas sensibles
+  devuelven `permissionDecision: ask`; entrada ilegible no bloquea). Criterios del plan: un string con forma
+  de API key bloquea la escritura; `/adr "titulo"` crea `docs/adr/NNN-titulo.md` y lo indexa.
+- **No** se probo en vivo dentro de Claude Code que el `settings.json` cargue los hooks (se leen al iniciar
+  la sesion): hay que abrir una sesion nueva y escribir una clave falsa para ver el bloqueo.
+
+### Pendiente / deuda
+
+- Probar los hooks y los comandos en una sesion nueva.
+- El patron de asignacion (`SECRET = "..."`) puede dar falsos positivos con ejemplos largos: ajustar con uso.
+- `/trello-sync` cuando F0-04 se desbloquee.
+
+---
+
 ## 2026-10-30 — CI en GitHub Actions con gates de cobertura, auditoria, licencias y secretos
 
 **Tareas:** F0-19 (parcial: sin Lighthouse y sin correr en GitHub) · **Commit/PR:** rama `feat/f0-ci` · **Tarjeta:** sin tablero (F0-04)

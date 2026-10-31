@@ -2,7 +2,7 @@
 
 > Una decision por archivo. Una ADR aceptada **no se re-litiga**: si cambia el contexto, se escribe
 > una nueva que la reemplaza (`Reemplazada por ADR-xxx`) y la vieja se conserva.
-> Plantilla: [`TEMPLATE.md`](TEMPLATE.md). Comando: `/adr` (F0-03).
+> Plantilla: [`TEMPLATE.md`](TEMPLATE.md). Comando: `/adr "titulo"` (crea el archivo desde la plantilla y lo agrega al indice).
 
 | ADR                                             | Titulo                                                    | Estado     | Fecha      |
 | ----------------------------------------------- | --------------------------------------------------------- | ---------- | ---------- |

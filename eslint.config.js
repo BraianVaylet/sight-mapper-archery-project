@@ -180,12 +180,19 @@ export default tseslint.config(
     },
   },
 
+  // Repo tooling (scripts, hooks) is not app code: it may read the clock (the ADR date).
+  {
+    files: ['scripts/**', '.claude/**'],
+    rules: { 'no-restricted-syntax': 'off' },
+  },
+
   // Tooling files run in Node.
   {
     files: [
       '*.config.{js,ts}',
       '**/*.config.{js,ts}',
       '**/scripts/**/*.mjs',
+      '.claude/**/*.mjs',
       '**/migrate-mongo-config.js',
       '**/migrations/**/*.js',
     ],

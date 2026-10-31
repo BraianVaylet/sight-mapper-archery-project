@@ -59,6 +59,10 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Repo tooling: the /adr script and the Claude hooks (secrets guard).
+      - name: Tooling tests
+        run: pnpm test:scripts
+
   security:
     name: Dependencies, licenses, secrets
     runs-on: ubuntu-latest
