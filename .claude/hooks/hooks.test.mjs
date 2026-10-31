@@ -29,7 +29,7 @@ describe('secrets are blocked (exit 2) and never echoed', () => {
     it(name, () => {
       const result = runHook(write('apps/api/src/config.ts', `const x = '${secret}';`));
       assert.equal(result.status, 2, result.stdout + result.stderr);
-      assert.match(result.stderr, /Blocked: this write contains what looks like/);
+      assert.match(result.stderr, /Blocked: this write would leave what looks like/);
       assert.ok(!result.stderr.includes(secret), 'the message must not repeat the secret');
       assert.ok(!result.stdout.includes(secret));
     });
@@ -76,7 +76,7 @@ describe('ordinary content passes', () => {
 });
 
 describe('sensitive paths ask the user (permissionDecision: ask)', () => {
-  for (const file of ['docs/spec/SIGHT-MAPPER-SPEC.md', 'packages/domain/src/model/pchip.ts', 'C:\\repo\\packages\\domain\\src\\index.ts']) {
+  for (const file of ['docs/spec/SIGHT-MAPPER-SPEC.md', 'packages/domain/src/model/pchip.ts', 'packages\\domain\\src\\index.ts']) {
     it(file, () => {
       const result = runHook(write(file, 'harmless'));
       assert.equal(result.status, 0);

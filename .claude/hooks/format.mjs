@@ -4,7 +4,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { extname, resolve } from 'node:path';
+import { extname, isAbsolute, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const FORMATTED = new Set(['.ts', '.tsx', '.js', '.mjs', '.cjs', '.json', '.css', '.yaml', '.yml']);
@@ -17,18 +17,25 @@ export function shouldFormat(file) {
     !/(^|\/)(pnpm-lock\.yaml|errors\.generated\.ts)$/.test(normalised);
 }
 
+/** True when `file` resolves to a place inside `projectDir`: Prettier must not read configs elsewhere. */
+export function isInsideProject(file, projectDir) {
+  const rel = relative(resolve(projectDir), resolve(projectDir, file));
+  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel);
+}
+
 function main(input) {
   const file = input?.tool_input?.file_path;
-  if (typeof file !== 'string' || !shouldFormat(file) || !existsSync(file)) return;
-
   const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  if (typeof file !== 'string' || !isInsideProject(file, projectDir)) return;
+  const target = resolve(projectDir, file);
+  if (!shouldFormat(target) || !existsSync(target)) return;
   let prettier;
   try {
     prettier = createRequire(resolve(projectDir, 'package.json')).resolve('prettier/bin/prettier.cjs');
   } catch {
     return; // dependencies not installed yet
   }
-  spawnSync(process.execPath, [prettier, '--write', '--log-level', 'silent', file], {
+  spawnSync(process.execPath, [prettier, '--write', '--log-level', 'silent', target], {
     cwd: projectDir,
     stdio: 'ignore',
   });

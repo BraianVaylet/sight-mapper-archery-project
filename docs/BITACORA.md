@@ -42,6 +42,13 @@
 - El guard de secretos **no tiene archivos exentos**: ni tests, ni docs, ni `.env.example`. Los tests arman
   las claves falsas en tiempo de ejecucion (`AKIA + ...`) para que el literal no exista. El mensaje nunca
   repite lo encontrado.
+- **Segunda pasada (review automatico de los hooks).** El guard de escritura es una comodidad del editor, no
+  la barrera: un comando de shell, un IDE o un pegado escriben sin pasar por el. La barrera real es
+  `scripts/scan-staged-secrets.mjs` en el pre-commit (mira solo las lineas agregadas del diff y reporta
+  archivo y linea, nunca el texto) mas gitleaks en el CI. El guard ahora mira el **archivo resultante**
+  (aplica `old_string`/`new_string` y MultiEdit) y bloquea solo secretos **nuevos**, asi un secreto partido
+  en dos ediciones no pasa y un archivo que ya tenia uno no queda inutilizable; las rutas se resuelven contra
+  el proyecto (`..`, `./`, barras, mayusculas) antes de comparar; el formateo no sale del proyecto.
 - Un hook que no puede leer su entrada **deja pasar**: un hook roto no debe trabar el editor.
 - Un secreto en `docs/spec` o en el dominio se **bloquea**, no se pregunta.
 - `/trello-sync` no se crea: no hay tablero (F0-04 bloqueada).
@@ -49,7 +56,8 @@
 
 ### Verificado
 
-- 41 tests de tooling: 10 del script de ADR (numeracion, slug sin acentos, plantilla, indice, en un
+- 59 tests de tooling (41 + 18 de la segunda pasada: secretos partidos, rutas, formateo acotado, escaner de diff;
+  ademas se probo a mano: un secreto falso en staging hace salir al escaner con 1 y la limpieza con 0). Primera version, 41 tests: 10 del script de ADR (numeracion, slug sin acentos, plantilla, indice, en un
   directorio temporal que no toca el repo) y 31 de los hooks (cada patron de secreto bloquea con salida 2
   sin repetir el valor; contenido normal, placeholders y URLs con `${...}` pasan; las rutas sensibles
   devuelven `permissionDecision: ask`; entrada ilegible no bloquea). Criterios del plan: un string con forma
