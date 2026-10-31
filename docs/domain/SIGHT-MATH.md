@@ -179,6 +179,12 @@ Lo que se midio (leave-one-out, 5 marcas):
 - **Los extremos** se predicen extrapolando y con 5 marcas casi no se pueden juzgar por residuo: un error
   grande ahi lo detecta la monotonia (§7), no el residuo.
 
+**Un caso real que el Doctor no puede resolver:** en el set dudoso (Gold Tip Pierce 400) el autor duda de la
+marca de 40 m. El Doctor la ubica primera entre las marcas interiores por desvio, pero a solo 1.17 mm de la
+tendencia de las otras cuatro, casi lo mismo que la marca de 50 m del set bueno (1.05 mm). Con estos datos
+ninguna tolerancia separa una de otra: bajarla lo bastante para señalar la de Pierce señalaria tambien la
+buena. Es el limite del metodo con 5 marcas y un error de 1–2 mm, no un fallo de calibracion.
+
 **Limites honestos:** son 2 sets y 5 marcas cada uno. El umbral de 4 mm es fisico (milimetros de la
 escala), no relativo: un set muy ruidoso senala varias marcas. Con mas marcas (≥ 8) un desvio estimado de
 los datos podria volver a ser util; no hay datos para calibrarlo todavia. Hay que recalibrar cuando haya

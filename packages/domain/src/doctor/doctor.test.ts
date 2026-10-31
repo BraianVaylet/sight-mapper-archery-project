@@ -47,15 +47,25 @@ describe('the author’s real sets (F0-21)', () => {
     for (const r of report.residuals) expect(Math.abs(r.residualMm)).toBeLessThan(r.thresholdMm);
   });
 
-  it('the doubtful set is not inconsistent; if the Doctor points at a mark it is 40 m or 50 m', () => {
+  it('the author doubts the 40 m mark of the doubtful set: the ranking points at it, but it is under the tolerance', () => {
+    const doubtful = fixtures.sets[1] as { suspectMark: number };
     const report = diagnose(pierce, options);
-    expect(report.status).not.toBe('inconsistent');
-    const doubtful = fixtures.sets[1] as { suspectCandidates: number[] };
-    const candidates = doubtful.suspectCandidates.map((d) => `${d}m`);
-    if (report.suspect !== undefined) expect(candidates).toContain(report.suspect.markId);
-    // the 40-50 m zigzag is 1-2 mm: a step or two of the sight, inside normal measuring noise
-    const worst = Math.max(...report.residuals.map((r) => Math.abs(r.residualMm)));
-    expect(worst).toBeLessThan(2);
+    expect(report.status).toBe('ok');
+    expect(report.monotonicity).toEqual([]);
+
+    // Among the interior marks, the one the author doubts deviates the most from the trend...
+    const interior = report.residuals.slice(1, -1);
+    const largest = interior.reduce((a, b) =>
+      Math.abs(b.residualMm) > Math.abs(a.residualMm) ? b : a,
+    );
+    expect(largest.markId).toBe(`${doubtful.suspectMark}m`);
+
+    // ...but only by about a millimetre. A good set has interior residuals of the same size, so a
+    // tolerance low enough to flag this mark would flag the good one too.
+    const goodInterior = diagnose(hunter, options).residuals.slice(1, -1);
+    const goodWorst = Math.max(...goodInterior.map((r) => Math.abs(r.residualMm)));
+    expect(Math.abs(largest.residualMm)).toBeLessThan(DOCTOR_MIN_ABS_MM);
+    expect(Math.abs(largest.residualMm) - goodWorst).toBeLessThan(0.5);
   });
 
   it('is independent of the order the marks arrive in', () => {

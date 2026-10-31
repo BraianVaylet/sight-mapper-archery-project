@@ -40,8 +40,9 @@
   sube y tapa al error. Se descarto `DOCTOR_K`; queda `DOCTOR_MIN_ABS_MM = 4` (o el quantum) y
   `DOCTOR_ENDPOINT_FACTOR = 2.5`. La spec (§8, decision abierta 3) se actualizo primero.
 - **Tolerancia fisica en mm:** un set muy ruidoso señala varias marcas, en vez de volver el umbral relativo a un ruido que no se puede medir bien.
-- **Pierce: solo se codifica lo que se sabe.** El autor lo marco dudoso pero no dijo cual marca. La expectativa
-  es: no `inconsistent`, y si el Doctor señala una marca, es la de 40 m o la de 50 m. El zigzag es de 1–2 mm (uno o dos pasos de la mira).
+- **Pierce: el autor duda de la marca de 40 m, y el Doctor no puede señalarla.** Es la mas desviada de las interiores
+  (1.17 mm), pero casi igual que la de 50 m del set bueno (1.05 mm): ninguna tolerancia las separa sin acusar tambien
+  al set bueno. El test lo fija asi: estado `ok`, el ranking apunta a 40 m, y el desvio esta bajo la tolerancia.
 - Distancias e ids repetidos en el Doctor son `DomainError` (bug de quien llama).
 
 ### Verificado
@@ -62,7 +63,8 @@
 - **Solo 2 sets de 5 marcas.** Recalibrar con mas sets, sobre todo uno con un error evidente (y con mas de 5 marcas,
   donde un desvio estimado podria volver a servir).
 - Los extremos casi no se pueden juzgar por residuo con 5 marcas: un error grande ahi lo detecta la monotonia.
-- Falta saber cual marca de Pierce duda el autor.
+- Un error de 1–2 mm con 5 marcas no se distingue del ruido normal; para esos casos hace falta mas informacion
+  (mas marcas, o repetir el tiro de esa distancia).
 - La pantalla del Doctor es F1-11.
 
 ---

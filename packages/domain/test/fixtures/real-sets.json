@@ -25,8 +25,8 @@
     {
       "id": "goldtip-pierce-400",
       "label": "doubtful",
-      "note": "The step from 40 m to 50 m is smaller (0.7) than the one before (0.8). The author marked the set doubtful but did not say which mark (40 m or 50 m), so the expectation is only: not inconsistent, and if the Doctor points at a mark it is one of those two.",
-      "suspectCandidates": [40, 50],
+      "note": "The step from 40 m to 50 m is smaller (0.7) than the one before (0.8). The author doubts the 40 m mark. Its deviation from the trend of the other four is only about 1.2 mm, the same size as the 1.05 mm of the 50 m mark of the good set, so by the numbers alone it cannot be told apart from normal measuring noise.",
+      "suspectMark": 40,
       "marks": [
         { "distanceM": 20, "reading": 0.4 },
         { "distanceM": 30, "reading": 1.0 },
