@@ -304,3 +304,71 @@ describe('timeout and cancellation', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 });
+
+describe('401 and retry by transport status', () => {
+  const html = (status: number) => stub(() => new Response('<html>denied</html>', { status }));
+
+  it('a 401 with no envelope (a proxy page) still calls onUnauthenticated', async () => {
+    const onUnauthenticated = vi.fn();
+    const s = html(401);
+    const error = await createHttpClient({ baseUrl: base, fetch: s.fetch, onUnauthenticated })
+      .get('/me')
+      .catch((e: unknown) => e);
+    expect(onUnauthenticated).toHaveBeenCalledTimes(1);
+    expect(error).toMatchObject({ code: 'SM-NET-500-001', status: 401 });
+  });
+
+  it('a non-envelope 4xx keeps its real status and is never retried', async () => {
+    const { shouldRetry } = await import('./retry.js');
+    for (const status of [400, 401, 403, 404, 409]) {
+      const error = await createHttpClient({ baseUrl: base, fetch: html(status).fetch })
+        .get('/x')
+        .catch((e: unknown) => e);
+      expect(error, String(status)).toMatchObject({ status });
+      expect(shouldRetry(0, error), String(status)).toBe(false);
+    }
+  });
+
+  it('a non-envelope 5xx and 429 are retried', async () => {
+    const { shouldRetry } = await import('./retry.js');
+    for (const status of [429, 500, 502, 503]) {
+      const error = await createHttpClient({ baseUrl: base, fetch: html(status).fetch })
+        .get('/x')
+        .catch((e: unknown) => e);
+      expect(shouldRetry(0, error), String(status)).toBe(true);
+    }
+  });
+
+  it('an envelope error carries the status that arrived, not just the code’s', async () => {
+    const s = stub(() => json(envelope('SM-CORE-500-001', 'errors.core.unexpected'), 502));
+    const error = await createHttpClient({ baseUrl: base, fetch: s.fetch })
+      .get('/x')
+      .catch((e: unknown) => e);
+    expect(error).toMatchObject({ code: 'SM-CORE-500-001', status: 502 });
+  });
+});
+
+describe('request path safety', () => {
+  it.each(['/bows/..', '/bows/../me', '/bows/./x', '/bows?x=1', '/bows#frag', '/bows\\x'])(
+    'refuses %j before touching the network',
+    async (path) => {
+      const s = stub(() => json({}));
+      const error = await createHttpClient({ baseUrl: base, fetch: s.fetch })
+        .get(path)
+        .catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(TypeError);
+      expect(s.calls).toHaveLength(0);
+    },
+  );
+
+  it('accepts normal and encoded paths', async () => {
+    const s = stub(() => json({}));
+    const http = createHttpClient({ baseUrl: base, fetch: s.fetch });
+    await http.get('/bows/019a3c5f-7b1d-7e55-8f0e-0c4c1b9f2a77/archive');
+    await http.get('/bows/a%2Fb%3Fx%23y');
+    expect(s.calls.map((c) => c.url)).toEqual([
+      `${base}/bows/019a3c5f-7b1d-7e55-8f0e-0c4c1b9f2a77/archive`,
+      `${base}/bows/a%2Fb%3Fx%23y`,
+    ]);
+  });
+});

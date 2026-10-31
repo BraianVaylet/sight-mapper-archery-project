@@ -94,3 +94,12 @@ describe('ApiError', () => {
     expect(new ApiError({ code: 'SM-NET-503-001', cause }).cause).toBe(cause);
   });
 });
+
+describe('shouldRetry by transport status', () => {
+  it('uses the HTTP status that arrived, over the code', () => {
+    expect(shouldRetry(0, new ApiError({ code: 'SM-NET-500-001', httpStatus: 401 }))).toBe(false);
+    expect(shouldRetry(0, new ApiError({ code: 'SM-NET-500-001', httpStatus: 403 }))).toBe(false);
+    expect(shouldRetry(0, new ApiError({ code: 'SM-NET-500-001', httpStatus: 502 }))).toBe(true);
+    expect(shouldRetry(0, new ApiError({ code: 'SM-CORE-500-001', httpStatus: 418 }))).toBe(false);
+  });
+});

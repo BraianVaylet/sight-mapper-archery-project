@@ -312,6 +312,28 @@ describe('update (test #7 from the client)', () => {
   });
 });
 
+describe('ids in the path', () => {
+  it('encodes an id and an action so they cannot change the route', async () => {
+    const { server, wrapper } = setup();
+    const action = renderHook(() => things.useAction(), { wrapper });
+    await act(async () => {
+      await action.result.current.run('a/b?x#y', 'arch ive').catch(() => undefined);
+    });
+    expect(server.seen[0]?.path).toBe('/things/a%2Fb%3Fx%23y/arch%20ive');
+  });
+
+  it('refuses an id that is a dot segment', async () => {
+    const { server, wrapper } = setup();
+    const remove = renderHook(() => things.useRemove(), { wrapper });
+    const error = await act(async () =>
+      remove.result.current.mutateAsync({ id: '..' }).catch((e: unknown) => e),
+    );
+    expect(error).toBeInstanceOf(TypeError);
+    expect(server.seen.every((s) => s.method === 'GET')).toBe(true);
+    expect(server.seen.some((s) => s.method === 'DELETE')).toBe(false);
+  });
+});
+
 describe('remove and action', () => {
   it('deletes with the cached version and forgets the detail', async () => {
     const { server, client, wrapper } = setup();

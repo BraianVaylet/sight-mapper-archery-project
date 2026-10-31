@@ -67,6 +67,7 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
     if (!isOnline()) throw new ApiError({ code: 'SM-NET-503-001' });
     // Like fetch: a request cancelled before it starts never leaves.
     opts.signal?.throwIfAborted();
+    assertSafePath(path);
 
     const headers: Record<string, string> = { Accept: 'application/json' };
     if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
@@ -102,9 +103,14 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
 
       if (!response.ok) {
         const error =
-          parseErrorEnvelope(text) ??
-          new ApiError({ code: 'SM-NET-500-001', params: { status: response.status } });
-        if (error.code === 'SM-CORE-401-001') onUnauthenticated?.();
+          parseErrorEnvelope(text, response.status) ??
+          new ApiError({
+            code: 'SM-NET-500-001',
+            params: { status: response.status },
+            httpStatus: response.status,
+          });
+        // By the status that arrived, not only by the envelope: a proxy can answer 401 with HTML.
+        if (response.status === 401 || error.code === 'SM-CORE-401-001') onUnauthenticated?.();
         throw error;
       }
       return parseBody(text, opts.schema);
@@ -136,6 +142,18 @@ function parseBody<T>(text: string, schema: z.ZodType<T> | undefined): T {
   const parsed = schema.safeParse(json);
   if (!parsed.success) throw new ApiError({ code: 'SM-NET-500-001', cause: parsed.error });
   return parsed.data;
+}
+
+/**
+ * A path is a fixed route plus encoded ids. Anything that could climb out of it (`..`), start a
+ * query (`?`) or a fragment (`#`) is a caller bug and never reaches the network.
+ */
+function assertSafePath(path: string): void {
+  for (const segment of path.split('/')) {
+    if (segment === '..' || segment === '.' || /[?#\\]/.test(segment)) {
+      throw new TypeError(`Unsafe request path: ${path}`);
+    }
+  }
 }
 
 function buildUrl(baseUrl: string, path: string, query: Query | undefined): string {

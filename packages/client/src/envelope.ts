@@ -20,7 +20,7 @@ const envelope = z.object({
  * A code this build does not know (the server is newer) is kept as `SM-CORE-500-001` with the
  * server's own `messageKey`, so the archer sees the specific message if the catalog has it.
  */
-export function parseErrorEnvelope(text: string): ApiError | null {
+export function parseErrorEnvelope(text: string, httpStatus?: number): ApiError | null {
   let json: unknown;
   try {
     json = JSON.parse(text);
@@ -36,5 +36,6 @@ export function parseErrorEnvelope(text: string): ApiError | null {
     messageKey,
     params,
     requestId,
+    httpStatus,
   });
 }

@@ -12,7 +12,8 @@ const MAX_RETRY_AFTER_MS = 30_000;
  */
 export function shouldRetry(failureCount: number, error: unknown): boolean {
   if (failureCount >= MAX_RETRIES || !isApiError(error)) return false;
-  if (error.isNetwork) return true;
+  // By the HTTP status that arrived: a non-envelope 401 from a proxy must not be retried as if it
+  // were a network blip. Client-born network errors carry 503/504/500, so they retry here too.
   return error.status === 429 || error.status >= 500;
 }
 

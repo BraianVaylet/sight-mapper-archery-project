@@ -7,6 +7,8 @@ export type ApiErrorInit = {
   requestId?: string | undefined;
   /** The key the server sent, which may be newer than this build's catalog. */
   messageKey?: string | undefined;
+  /** The HTTP status that arrived. Defaults to the status the code stands for. */
+  httpStatus?: number | undefined;
   cause?: unknown;
 };
 
@@ -19,6 +21,7 @@ export class ApiError extends Error {
   readonly messageKey: ErrorMessageKey | string;
   readonly params: Readonly<Record<string, unknown>>;
   readonly requestId: string | undefined;
+  readonly status: number;
 
   constructor(init: ApiErrorInit) {
     super(init.code, init.cause === undefined ? undefined : { cause: init.cause });
@@ -27,10 +30,8 @@ export class ApiError extends Error {
     this.messageKey = init.messageKey ?? ERROR_CATALOG[init.code].messageKey;
     this.params = init.params ?? {};
     this.requestId = init.requestId;
-  }
-
-  get status(): number {
-    return ERROR_CATALOG[this.code].status;
+    // The transport status wins: a 401 from a proxy that sent no envelope is still a 401.
+    this.status = init.httpStatus ?? ERROR_CATALOG[init.code].status;
   }
 
   /** Born in the client, not sent by the API. */

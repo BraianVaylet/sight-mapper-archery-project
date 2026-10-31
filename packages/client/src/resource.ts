@@ -10,6 +10,9 @@ import type { ApiError } from './api-error.js';
 import type { Query } from './http.js';
 import { useHttp } from './provider.js';
 
+/** An id or action as one path segment: `/` or `?` inside it cannot change the route. */
+const segment = encodeURIComponent;
+
 export type Versioned = { readonly id: string; readonly version: number };
 
 export type Page<R> = { items: R[]; nextCursor: string | null };
@@ -69,7 +72,7 @@ export function createResourceHooks<
     const http = useHttp();
     return useQuery<R, ApiError>({
       queryKey: keys.detail(id ?? ''),
-      queryFn: ({ signal }) => http.get(`${path}/${id ?? ''}`, { signal, schema }),
+      queryFn: ({ signal }) => http.get(`${path}/${segment(id ?? '')}`, { signal, schema }),
       enabled: id !== undefined,
     });
   }
@@ -97,7 +100,7 @@ export function createResourceHooks<
     if (known !== undefined) return known;
     const fresh = await client.fetchQuery({
       queryKey: keys.detail(id),
-      queryFn: ({ signal }) => http.get<R>(`${path}/${id}`, { signal, schema }),
+      queryFn: ({ signal }) => http.get<R>(`${path}/${segment(id)}`, { signal, schema }),
     });
     return fresh.version;
   }
@@ -107,7 +110,7 @@ export function createResourceHooks<
     const client = useQueryClient();
     return useMutation<R, ApiError, { id: string; patch: U }, { previous: R | undefined }>({
       mutationFn: async ({ id, patch }) =>
-        http.patch(`${path}/${id}`, {
+        http.patch(`${path}/${segment(id)}`, {
           body: patch,
           version: await versionFor(client, http, id),
           schema,
@@ -136,7 +139,9 @@ export function createResourceHooks<
     const client = useQueryClient();
     return useMutation<undefined, ApiError, { id: string }>({
       mutationFn: async ({ id }) => {
-        await http.delete(`${path}/${id}`, { version: await versionFor(client, http, id) });
+        await http.delete(`${path}/${segment(id)}`, {
+          version: await versionFor(client, http, id),
+        });
         return undefined;
       },
       onSuccess: (_result, { id }) => client.removeQueries({ queryKey: keys.detail(id) }),
@@ -158,7 +163,7 @@ export function createResourceHooks<
       { id: string; action: string; idempotencyKey: string }
     >({
       mutationFn: ({ id, action, idempotencyKey }) =>
-        http.post(`${path}/${id}/${action}`, { idempotencyKey }),
+        http.post(`${path}/${segment(id)}/${segment(action)}`, { idempotencyKey }),
       onSettled: (_data, _error, { id }) =>
         Promise.all([
           client.invalidateQueries({ queryKey: keys.detail(id) }),
