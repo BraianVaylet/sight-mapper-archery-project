@@ -51,10 +51,10 @@ describe('the guard of private screens', () => {
   });
 
   it('keeps reset and verify reachable whatever the session', async () => {
-    const api = signedIn();
-    renderApp('/verify-email?token=abc', api.fetch);
+    renderApp('/verify-email?error=INVALID_TOKEN', signedIn().fetch);
     expect(await screen.findByRole('heading', { name: 'Verificar email' })).toBeInTheDocument();
-    expect(api.calls).toEqual([]);
+    renderApp('/reset-password?token=abc', signedIn().fetch);
+    expect(await screen.findByRole('heading', { name: 'Nueva contraseña' })).toBeInTheDocument();
   });
 });
 

@@ -1,4 +1,5 @@
 export * from './account.js';
+export * from './auth.js';
 export * from './calculator.js';
 export {
   DEFAULT_PAGE_SIZE,

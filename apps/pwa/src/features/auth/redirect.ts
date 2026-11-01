@@ -30,3 +30,9 @@ export const redirectSearch = z.object({
 export const tokenSearch = z.object({
   token: z.string().max(512).optional().catch(undefined),
 });
+
+/** `?error=` is added by the API when a link from an email did not work. */
+const errorParam = z.string().max(64).optional().catch(undefined);
+
+export const verifySearch = z.object({ error: errorParam });
+export const resetSearch = tokenSearch.extend({ error: errorParam });

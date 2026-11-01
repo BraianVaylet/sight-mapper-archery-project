@@ -18,9 +18,9 @@
 
 ---
 
-## 2026-11-01 — La PWA tiene esqueleto: tema, idioma, rutas con guard y service worker
+## 2026-11-01 — La PWA tiene esqueleto y pantallas de auth: tema, idioma, rutas con guard y service worker
 
-**Tareas:** F0-17 (etapa 1 de 3) · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)
+**Tareas:** F0-17 (etapas 1 y 2 de 3) · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)
 
 ### Que se hizo
 
@@ -35,7 +35,14 @@
   dependencias), `UpdateBanner` ("Hay una version nueva · Actualizar"), `/api/*` nunca sale del cache.
 - Errores: `RouteError` por ruta (mensaje traducido desde `messageKey`, reintentar que re-corre los guards, `requestId`),
   `NotFound`, `Splash` (la primera carga no deja pantalla en blanco mientras el guard consulta).
-- Claves ES/EN nuevas: `app`, `theme`, `language`, `screens`.
+- Claves ES/EN nuevas: `app`, `theme`, `language`, `screens`, `auth`, `validation.auth.*`.
+- **Pantallas de auth** (TanStack Form + Zod compartido): sign-in (email **o** usuario, mostrar/ocultar clave, `?redirect=`), sign-up (errores
+  409 en el campo que corresponde), forgot (misma respuesta exista o no el email), reset (token del enlace, enlace muerto → "Pedir otro"),
+  verify (con sesion = verificado; `?error=` = enlace fallido + reenviar). `@sight-mapper/schemas` suma `signUpForm`, `signInForm`,
+  `emailForm`, `resetPasswordForm` (mismas cotas que la API); `toValidationIssues` ahora acepta una clave `validation.*` como mensaje de
+  cualquier chequeo, no solo de `custom`.
+- Los enlaces de los emails abren la API, que verifica y redirige a `/verify-email` (con la sesion ya abierta) o a `/reset-password?token=`
+  (`?error=` si fallo): `callbackURL`/`redirectTo` salen del origen de la PWA.
 
 ### Decisiones
 
@@ -45,13 +52,14 @@
 
 ### Verificado
 
-- 33 tests de la PWA (guard con y sin sesion, redirect seguro, reintento, 404, pie con tema e idioma, banner de
-  actualizacion) con cobertura 96 % lineas; lint, typecheck y `vite build` limpios (SW con 41 entradas precacheadas).
+- 58 tests de la PWA (guard con y sin sesion, redirect seguro, reintento, 404, pie con tema e idioma, banner de
+  actualizacion y los cinco flujos de auth con `fetch` falso, en ES y EN) con cobertura 98 % lineas; lint, typecheck y `vite build` limpios (SW con 41 entradas precacheadas).
 - Dev server en el navegador integrado: splash, y error traducido con "Reintentar" cuando la API esta apagada.
 
 ### Pendiente / deuda
 
-- Etapas 2 (pantallas de auth contra la API real) y 3 (banco de pruebas con la regla y los sets del autor).
+- Etapa 3 (banco de pruebas con la regla y los sets del autor, y `pnpm dev` con Mongo temporal) y probar el flujo de auth contra la API real.
+- Falta el boton "Entrar con Google": necesita la consola de Google (F0-20) y saber si el proveedor esta activo.
 - Lighthouse instalable y E2E de registro → verificacion → login necesitan Chrome/Playwright (descarga, pedir permiso).
 
 ---

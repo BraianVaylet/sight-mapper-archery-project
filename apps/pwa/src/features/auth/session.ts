@@ -26,6 +26,9 @@ export const sessionQuery = (authHttp: HttpClient) =>
     staleTime: 60_000,
   });
 
-/** After sign-in, sign-out or an expired session: the next guard asks the server again. */
-export const resetSession = (queryClient: QueryClient) =>
-  queryClient.invalidateQueries({ queryKey: sessionKey });
+/**
+ * Forgets who was signed in (sign-in, sign-out, an expired session): the next guard asks the server.
+ * Removed, not just invalidated: `ensureQueryData` serves stale data without asking again.
+ */
+export const forgetSession = (queryClient: QueryClient) =>
+  queryClient.removeQueries({ queryKey: sessionKey });

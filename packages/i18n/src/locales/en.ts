@@ -13,6 +13,7 @@ export const en: Messages = {
     retry: 'Retry',
     close: 'Close',
     back: 'Back',
+    requestId: 'Request ID:',
     loading: 'Loading…',
   },
   app: {
@@ -68,6 +69,50 @@ export const en: Messages = {
     profile: 'Account',
     sandbox: 'Test bench',
   },
+  auth: {
+    email: 'Email',
+    identifier: 'Email or username',
+    username: 'Username',
+    usernameHint: '3 to 30 characters: lowercase letters, numbers, dot or underscore.',
+    password: 'Password',
+    passwordHint: 'At least 8 characters.',
+    confirmPassword: 'Repeat the password',
+    showPassword: 'Show',
+    hidePassword: 'Hide',
+    signIn: {
+      submit: 'Sign in',
+      forgot: 'Forgot your password?',
+      noAccount: 'No account yet?',
+      resend: 'Resend verification',
+    },
+    signUp: {
+      submit: 'Create account',
+      haveAccount: 'Already have an account?',
+      checkEmailTitle: 'Check your email',
+      checkEmailBody: 'We sent a link to {{email}} to activate your account. It expires in 1 hour.',
+    },
+    forgot: {
+      intro: 'Enter your email and we will send you a link to choose a new password.',
+      submit: 'Send link',
+      sent: 'If the email exists, we sent you a link. It expires in 1 hour.',
+      back: 'Back to sign in',
+    },
+    reset: {
+      intro: 'Choose a new password.',
+      submit: 'Save password',
+      done: 'Done: your password changed. Sign in with the new one.',
+      askAgain: 'Ask for another link',
+    },
+    verify: {
+      pendingBody:
+        'Open the link we sent you to activate your account. If it did not arrive, ask for another.',
+      doneTitle: 'Email verified',
+      doneBody: 'Your account is active.',
+      goHome: 'Go home',
+      resend: 'Resend verification',
+      resent: 'If the email exists and still needs verifying, we sent you another link.',
+    },
+  },
   email: {
     verify: {
       subject: 'Verify your email for Sight Mapper',
@@ -87,6 +132,14 @@ export const en: Messages = {
     },
   },
   validation: {
+    required: 'Fill in this field.',
+    auth: {
+      email: 'Enter a valid email.',
+      username: 'Use 3 to 30 characters: lowercase letters, numbers, dot or underscore.',
+      passwordTooShort: 'Use at least 8 characters.',
+      passwordTooLong: 'Use at most 128 characters.',
+      passwordMismatch: 'The passwords do not match.',
+    },
     custom: 'Invalid value.',
     invalid_type: 'Invalid type.',
     invalid_format: 'Invalid format.',

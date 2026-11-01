@@ -20,7 +20,7 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
           reset();
         }}
         requestId={requestId}
-        requestIdLabel="ID"
+        requestIdLabel={t('common.requestId')}
       />
       <p className="text-center">
         <Link to="/" className="font-ui text-info underline">

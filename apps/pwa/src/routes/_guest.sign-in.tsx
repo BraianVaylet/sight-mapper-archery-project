@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { SignInScreen } from '../features/auth/sign-in-screen.js';
 
 export const Route = createFileRoute('/_guest/sign-in')({
-  component: () => <Placeholder screen="signIn" />,
+  component: function SignInRoute() {
+    const { redirect } = Route.useSearch();
+    return <SignInScreen redirect={redirect} />;
+  },
 });

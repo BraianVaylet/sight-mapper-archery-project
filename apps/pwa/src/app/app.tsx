@@ -2,8 +2,9 @@ import { ClientProvider, queryClientConfig } from '@sight-mapper/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, useRouterState, type RouterHistory } from '@tanstack/react-router';
 import { createAppRouter, type AppRouter } from '../router.js';
-import { sessionKey } from '../features/auth/session.js';
+import { forgetSession } from '../features/auth/session.js';
 import { createApiClients, type ApiClients } from './api.js';
+import { ClientsProvider } from './clients.js';
 import { I18nProvider } from './i18n.js';
 import { Splash } from './route-error.js';
 
@@ -32,7 +33,7 @@ export function createApp({ origin, fetch, history }: AppOptions = {}): App {
     ...(origin === undefined ? {} : { origin }),
     ...(fetch === undefined ? {} : { fetch }),
     onUnauthenticated: () => {
-      void queryClient.invalidateQueries({ queryKey: sessionKey });
+      forgetSession(queryClient);
       void holder.router?.invalidate();
     },
   });
@@ -54,10 +55,12 @@ export function AppRoot({ app }: { app: App }) {
   return (
     <QueryClientProvider client={app.queryClient}>
       <ClientProvider http={app.clients.http}>
-        <I18nProvider>
-          <RouterProvider router={app.router} />
-          <InitialSplash router={app.router} />
-        </I18nProvider>
+        <ClientsProvider clients={app.clients}>
+          <I18nProvider>
+            <RouterProvider router={app.router} />
+            <InitialSplash router={app.router} />
+          </I18nProvider>
+        </ClientsProvider>
       </ClientProvider>
     </QueryClientProvider>
   );

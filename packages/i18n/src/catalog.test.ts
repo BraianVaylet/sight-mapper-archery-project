@@ -33,7 +33,13 @@ describe('ES / EN parity', () => {
   });
 
   // Names that do not translate: the product, and each language written in itself.
-  const SAME_IN_BOTH = new Set(['common.appName', 'language.es', 'language.en', 'screens.doctor']);
+  const SAME_IN_BOTH = new Set([
+    'common.appName',
+    'language.es',
+    'language.en',
+    'screens.doctor',
+    'auth.email',
+  ]);
 
   it('has no empty messages and no Spanish copied into English', () => {
     for (const [key, message] of english) {

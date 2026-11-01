@@ -5,15 +5,16 @@ const CUSTOM_KEY = /^validation\.[A-Za-z]+(\.[A-Za-z]+)*$/;
 
 /**
  * Turns a Zod error into the `issues` of `SM-CORE-400-001` (errors.md §2): a path to mark the
- * field and a message key with params, never prose. Refinements in this package already carry a
- * `validation.*` key; Zod's own checks map to `validation.<code>` with their limits as params.
+ * field and a message key with params, never prose. Refinements and checks in this package already
+ * carry a `validation.*` key as their message; Zod's own checks map to `validation.<code>` with
+ * their limits as params.
  */
 export function toValidationIssues(error: z.ZodError): ValidationIssue[] {
   return error.issues.map((issue) => {
     const path = issue.path.map((segment) =>
       typeof segment === 'number' ? segment : String(segment),
     );
-    if (issue.code === 'custom' && CUSTOM_KEY.test(issue.message)) {
+    if (CUSTOM_KEY.test(issue.message)) {
       return { path, messageKey: issue.message, params: {} };
     }
     return { path, messageKey: `validation.${issue.code}`, params: paramsOf(issue) };

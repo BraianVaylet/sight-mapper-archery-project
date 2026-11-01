@@ -1,6 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { resetSearch } from '../features/auth/redirect.js';
+import { ResetScreen } from '../features/auth/reset-screen.js';
 
 export const Route = createFileRoute('/reset-password')({
-  component: () => <Placeholder screen="resetPassword" />,
+  validateSearch: resetSearch,
+  component: function ResetRoute() {
+    const { token, error } = Route.useSearch();
+    return <ResetScreen token={token} failed={error !== undefined} />;
+  },
 });

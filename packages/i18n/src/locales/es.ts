@@ -15,6 +15,7 @@ export const es = {
     retry: 'Reintentar',
     close: 'Cerrar',
     back: 'Volver',
+    requestId: 'ID de la consulta:',
     loading: 'Cargando…',
   },
   app: {
@@ -70,6 +71,49 @@ export const es = {
     profile: 'Cuenta',
     sandbox: 'Banco de pruebas',
   },
+  auth: {
+    email: 'Email',
+    identifier: 'Email o usuario',
+    username: 'Usuario',
+    usernameHint: 'De 3 a 30 caracteres: minúsculas, números, punto o guion bajo.',
+    password: 'Contraseña',
+    passwordHint: 'Al menos 8 caracteres.',
+    confirmPassword: 'Repetí la contraseña',
+    showPassword: 'Mostrar',
+    hidePassword: 'Ocultar',
+    signIn: {
+      submit: 'Entrar',
+      forgot: '¿Olvidaste tu contraseña?',
+      noAccount: '¿No tenés cuenta?',
+      resend: 'Reenviar verificación',
+    },
+    signUp: {
+      submit: 'Crear cuenta',
+      haveAccount: '¿Ya tenés cuenta?',
+      checkEmailTitle: 'Revisá tu correo',
+      checkEmailBody: 'Te enviamos un enlace a {{email}} para activar tu cuenta. Vence en 1 hora.',
+    },
+    forgot: {
+      intro: 'Ingresá tu email y te enviamos un enlace para elegir una contraseña nueva.',
+      submit: 'Enviar enlace',
+      sent: 'Si el email existe, te enviamos un enlace. Vence en 1 hora.',
+      back: 'Volver a iniciar sesión',
+    },
+    reset: {
+      intro: 'Elegí una contraseña nueva.',
+      submit: 'Guardar contraseña',
+      done: 'Listo: tu contraseña cambió. Iniciá sesión con la nueva.',
+      askAgain: 'Pedir otro enlace',
+    },
+    verify: {
+      pendingBody: 'Abrí el enlace que te enviamos para activar tu cuenta. Si no llegó, pedí otro.',
+      doneTitle: 'Email verificado',
+      doneBody: 'Tu cuenta está activa.',
+      goHome: 'Ir al inicio',
+      resend: 'Reenviar verificación',
+      resent: 'Si el email existe y falta verificarlo, te enviamos otro enlace.',
+    },
+  },
   email: {
     verify: {
       subject: 'Verificá tu email en Sight Mapper',
@@ -89,6 +133,14 @@ export const es = {
     },
   },
   validation: {
+    required: 'Completá este campo.',
+    auth: {
+      email: 'Ingresá un email válido.',
+      username: 'Usá de 3 a 30 caracteres: minúsculas, números, punto o guion bajo.',
+      passwordTooShort: 'Usá al menos 8 caracteres.',
+      passwordTooLong: 'Usá como máximo 128 caracteres.',
+      passwordMismatch: 'Las contraseñas no coinciden.',
+    },
     custom: 'Valor no válido.',
     invalid_type: 'Tipo de dato no válido.',
     invalid_format: 'Formato no válido.',

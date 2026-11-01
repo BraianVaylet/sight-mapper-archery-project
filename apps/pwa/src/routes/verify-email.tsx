@@ -1,6 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { verifySearch } from '../features/auth/redirect.js';
+import { VerifyScreen } from '../features/auth/verify-screen.js';
 
 export const Route = createFileRoute('/verify-email')({
-  component: () => <Placeholder screen="verifyEmail" />,
+  validateSearch: verifySearch,
+  component: function VerifyRoute() {
+    const { error } = Route.useSearch();
+    return <VerifyScreen failed={error !== undefined} />;
+  },
 });
