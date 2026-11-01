@@ -20,7 +20,7 @@
 | Logs          | Pino (JSON) · `pino-pretty` solo en dev                                                   |
 | Email         | Resend                                                                                    |
 | Front         | React 19 · TanStack Router / Query / Form / Table · Tailwind v4 · Zustand · Nuqs · Motion |
-| i18n          | i18next + react-i18next, claves tipadas                                                   |
+| i18n          | Catalogos tipados de `@sight-mapper/i18n` (`createTranslator`) con `I18nProvider` propio    |
 | PWA           | `vite-plugin-pwa` (Workbox), `registerType: 'prompt'`                                     |
 | Graficos      | SVG propio para la regla; curva con SVG propio (sin libreria de charts en el MVP)         |
 | Testing       | Vitest 4 · Testing Library · MSW · `mongodb-memory-server` (replset) · Playwright · fast-check |

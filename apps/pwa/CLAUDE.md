@@ -1,7 +1,7 @@
 # apps/pwa — React 19 + TanStack + Tailwind v4
 
-Contexto raiz en `../../CLAUDE.md`. **La app todavia no existe** (F0-17): hoy es un esqueleto
-vacio. Este archivo fija las reglas antes de que haya codigo.
+Contexto raiz en `../../CLAUDE.md`. Hoy existen el esqueleto (providers, tema, i18n, router con
+guard, service worker) y las rutas de FUNCIONAL §1.1 como placeholders (F0-17).
 
 ## Forma prevista (ARQUITECTURA §5)
 

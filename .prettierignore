@@ -9,3 +9,4 @@ mockup
 .claude
 *.md
 packages/types/src/errors.generated.ts
+apps/pwa/src/routeTree.gen.ts

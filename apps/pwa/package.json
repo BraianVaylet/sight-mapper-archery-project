@@ -5,7 +5,9 @@
   "description": "React 19 PWA",
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests",
@@ -17,7 +19,15 @@
     "@sight-mapper/types": "workspace:*",
     "@sight-mapper/i18n": "workspace:*",
     "@sight-mapper/ui": "workspace:*",
-    "@sight-mapper/client": "workspace:*"
+    "@sight-mapper/client": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-form": "catalog:",
+    "zustand": "catalog:",
+    "zod": "catalog:",
+    "workbox-window": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:",
@@ -25,6 +35,19 @@
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "@sight-mapper/config": "workspace:*",
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "vite": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "tailwindcss": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@tanstack/router-plugin": "catalog:",
+    "vite-plugin-pwa": "catalog:",
+    "workbox-build": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "jsdom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@testing-library/jest-dom": "catalog:"
   }
 }

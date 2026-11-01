@@ -255,7 +255,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given una ruta registrada sin fixture de ataque, Then la suite falla.
   - Given dos instancias del scheduler, Then el job corre una sola vez por ventana.
 
-### [ ] F0-17 · `apps/pwa`: esqueleto y pantallas de auth
+### [~] F0-17 · `apps/pwa`: esqueleto y pantallas de auth
 
 - **Modulo:** pwa · **Puntos:** 8 · **Depende de:** F0-10, F0-11, F0-15, F0-18
 - **Descripcion:** Vite + React 19, TanStack Router (rutas de FUNCIONAL §1.1 como placeholders),

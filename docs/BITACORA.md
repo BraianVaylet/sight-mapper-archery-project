@@ -18,6 +18,44 @@
 
 ---
 
+## 2026-11-01 — La PWA tiene esqueleto: tema, idioma, rutas con guard y service worker
+
+**Tareas:** F0-17 (etapa 1 de 3) · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `apps/pwa` con Vite 8 + React 19 + Tailwind v4 (tokens y tema de `@sight-mapper/ui`), TanStack Router file-based
+  (todas las rutas de FUNCIONAL §1.1 como placeholders con su titulo), TanStack Query + `ClientProvider`.
+- **Guard por sesion:** `_app` exige sesion (`GET /api/auth/get-session` via Query, una consulta por sesion de uso) y manda a
+  `/sign-in?redirect=`; `_guest` saca de sign-in/sign-up a quien ya entro. `safeRedirect` solo admite rutas de la app (no hay open
+  redirect). Un 401 de la API invalida la sesion y re-corre los guards.
+- **Tema** dark/light/sistema (Zustand + `localStorage` con `try/catch`; script en `index.html` aplica el tema antes del primer
+  pintado) e **idioma** ES/EN, ambos desde un pie siempre visible, tambien antes de entrar. Version visible.
+- **PWA:** `vite-plugin-pwa` con `registerType: 'prompt'`, manifest, iconos generados por `scripts/make-icons.mjs` (sin
+  dependencias), `UpdateBanner` ("Hay una version nueva · Actualizar"), `/api/*` nunca sale del cache.
+- Errores: `RouteError` por ruta (mensaje traducido desde `messageKey`, reintentar que re-corre los guards, `requestId`),
+  `NotFound`, `Splash` (la primera carga no deja pantalla en blanco mientras el guard consulta).
+- Claves ES/EN nuevas: `app`, `theme`, `language`, `screens`.
+
+### Decisiones
+
+- **i18n propio, no `react-i18next`:** `@sight-mapper/i18n` ya da claves y params tipados y `translateKey`; un `I18nProvider` de 30
+  lineas lo expone. Una libreria mas no sumaba nada. Se actualizo TECNICO §1 (esto cierra la nota "react-i18next en F0-17").
+- `/api` por el proxy de Vite en desarrollo: mismo origen, la cookie de sesion no necesita CORS.
+
+### Verificado
+
+- 33 tests de la PWA (guard con y sin sesion, redirect seguro, reintento, 404, pie con tema e idioma, banner de
+  actualizacion) con cobertura 96 % lineas; lint, typecheck y `vite build` limpios (SW con 41 entradas precacheadas).
+- Dev server en el navegador integrado: splash, y error traducido con "Reintentar" cuando la API esta apagada.
+
+### Pendiente / deuda
+
+- Etapas 2 (pantallas de auth contra la API real) y 3 (banco de pruebas con la regla y los sets del autor).
+- Lighthouse instalable y E2E de registro → verificacion → login necesitan Chrome/Playwright (descarga, pedir permiso).
+
+---
+
 ## 2026-11-01 — Suite de aislamiento sobre el registro de rutas y scheduler con lock por ventana
 
 **Tareas:** F0-16 · **Commit/PR:** rama `feat/f0-isolation-jobs` · **Tarjeta:** sin tablero (F0-04)
