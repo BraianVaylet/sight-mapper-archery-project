@@ -12,6 +12,12 @@ const baseEnv: Env = {
   APP_ENV: 'local',
   PORT: 3000,
   MONGODB_URI: 'mongodb://localhost/test',
+  BETTER_AUTH_SECRET: 't'.repeat(40),
+  BETTER_AUTH_URL: 'http://localhost:3000',
+  GOOGLE_CLIENT_ID: undefined,
+  GOOGLE_CLIENT_SECRET: undefined,
+  RESEND_API_KEY: undefined,
+  EMAIL_FROM: undefined,
   CORS_ORIGINS: ['http://localhost:5173'],
   LOG_LEVEL: 'debug',
 };

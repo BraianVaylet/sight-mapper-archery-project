@@ -1,9 +1,11 @@
+import type { Locale } from '@sight-mapper/types';
+
 /**
  * Events between modules (DOMINIO §5). Modules never import each other: they publish here and
  * the composition root wires who listens (ADR-002). Payloads carry ids, never entities.
  */
 export type EventMap = {
-  UserRegistered: { readonly userId: string };
+  UserRegistered: { readonly userId: string; readonly locale: Locale };
   SetupDeleted: { readonly userId: string; readonly setupId: string };
   SetupRestored: { readonly userId: string; readonly setupId: string };
   SightScaleChanged: { readonly userId: string; readonly sightId: string };

@@ -26,6 +26,7 @@ async function start(): Promise<void> {
   const { app } = createContainer({
     env,
     logger,
+    connection,
     readiness: mongoReadiness(connection),
     idempotencyStore: createMongoIdempotencyStore(connection, systemClock),
     ifMatchExempt: ['DELETE /api/v1/me/deletion-request'],

@@ -11,7 +11,7 @@ const allowedWorkspaceImports = {
   i18n: ['types'],
   ui: ['domain', 'types'],
   client: ['schemas', 'types'],
-  api: ['domain', 'schemas', 'types'],
+  api: ['domain', 'schemas', 'types', 'i18n'],
   pwa: ['domain', 'schemas', 'types', 'i18n', 'ui', 'client'],
 };
 const workspaceNames = [...Object.keys(allowedWorkspaceImports), 'config'];

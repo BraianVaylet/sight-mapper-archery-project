@@ -15,6 +15,24 @@ export const en: Messages = {
     back: 'Back',
     loading: 'Loading…',
   },
+  email: {
+    verify: {
+      subject: 'Verify your email for Sight Mapper',
+      heading: 'Confirm your email',
+      body: 'Hi {{name}}, confirm your email with this button to activate your account. The link expires in 1 hour.',
+      cta: 'Verify email',
+      fallback: 'If the button does not work, copy this link into your browser:',
+      ignore: 'If you did not create an account, ignore this message.',
+    },
+    reset: {
+      subject: 'Reset your Sight Mapper password',
+      heading: 'Choose a new password',
+      body: 'Hi {{name}}, you asked to reset your password. The link works once and expires in 1 hour.',
+      cta: 'Choose a new password',
+      fallback: 'If the button does not work, copy this link into your browser:',
+      ignore: 'If you did not ask for this, ignore this message: your password does not change.',
+    },
+  },
   validation: {
     custom: 'Invalid value.',
     invalid_type: 'Invalid type.',

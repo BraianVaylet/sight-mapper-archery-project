@@ -72,10 +72,12 @@ flowchart BT
   i18n[i18n] --> types
   ui[ui] --> domain & types
   client[client] --> schemas & types
-  api[apps/api] --> domain & schemas & types
+  api[apps/api] --> domain & schemas & types & i18n
   pwa[apps/pwa] --> domain & schemas & types & i18n & ui & client
 ```
 
+- `api` depende de `i18n` solo para renderizar en el idioma del arquero los emails que el servidor
+  envia (verificacion, recupero; ADR-004). Los errores de la API siguen siendo claves, nunca prosa.
 - `domain` no depende de **nada** (ni de `types`): es la pieza mas estable.
 - Ningun paquete depende de una app. `ui` no conoce `client` (se le inyectan datos).
 - Lo verifica ESLint (`import/no-restricted-paths` + `boundaries`) y lo valida el CI.

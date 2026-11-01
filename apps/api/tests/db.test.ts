@@ -196,11 +196,11 @@ describe('migrations', () => {
 
   it('applies the indexes once and does nothing the second time', async () => {
     const first = await run(({ db, client }) => up(db, client));
-    expect(first).toEqual(['20261030000000-initial-indexes.js']);
+    expect(first).toEqual(['20261030000000-initial-indexes.js', '20261101000000-auth-indexes.js']);
     const second = await run(({ db, client }) => up(db, client));
     expect(second).toEqual([]);
     const applied = await run(({ db }) => status(db));
-    expect(applied.filter((m) => m.appliedAt !== 'PENDING')).toHaveLength(1);
+    expect(applied.filter((m) => m.appliedAt !== 'PENDING')).toHaveLength(2);
   });
 
   it('creates the indexes of the data dictionary', async () => {
@@ -262,7 +262,49 @@ describe('migrations', () => {
     });
   });
 
-  it('reverts cleanly', async () => {
+  it('creates the indexes Better Auth relies on, with a username unique only when present', async () => {
+    const indexes = async (collection: string) =>
+      run(({ db }) => db.collection(collection).indexes());
+    const names = async (collection: string) => (await indexes(collection)).map((i) => i.name);
+    expect(await names('user')).toEqual(
+      expect.arrayContaining(['email_unique', 'username_unique']),
+    );
+    expect(await names('session')).toEqual(
+      expect.arrayContaining(['token_unique', 'user', 'expires_ttl']),
+    );
+    expect(await names('account')).toEqual(expect.arrayContaining(['user', 'provider_account']));
+    expect(await names('verification')).toEqual(
+      expect.arrayContaining(['identifier', 'expires_ttl']),
+    );
+
+    const username = (await indexes('user')).find((i) => i.name === 'username_unique');
+    expect(username?.unique).toBe(true);
+    expect(username?.partialFilterExpression).toEqual({ username: { $type: 'string' } });
+  });
+
+  it('lets users without a username (Google) coexist, but not two with the same username', async () => {
+    await run(async ({ db }) => {
+      const users = db.collection('user');
+      await users.insertOne({ email: 'g1@example.com' });
+      await users.insertOne({ email: 'g2@example.com' });
+      await users.insertOne({ email: 'u1@example.com', username: 'same' });
+      await expect(
+        users.insertOne({ email: 'u2@example.com', username: 'same' }),
+      ).rejects.toMatchObject({ code: 11000 });
+      await expect(users.insertOne({ email: 'g1@example.com' })).rejects.toMatchObject({
+        code: 11000,
+      });
+    });
+  });
+
+  it('reverts one migration at a time', async () => {
+    const authFirst = await run(({ db, client }) => down(db, client));
+    expect(authFirst).toEqual(['20261101000000-auth-indexes.js']);
+    expect((await run(({ db }) => db.collection('user').indexes())).map((i) => i.name)).toEqual([
+      '_id_',
+    ]);
+    expect((await run(({ db }) => db.collection('marks').indexes())).length).toBeGreaterThan(1);
+
     const reverted = await run(({ db, client }) => down(db, client));
     expect(reverted).toEqual(['20261030000000-initial-indexes.js']);
     const names = (await run(({ db }) => db.collection('marks').indexes())).map((i) => i.name);

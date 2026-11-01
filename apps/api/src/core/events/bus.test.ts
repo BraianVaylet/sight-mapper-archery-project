@@ -21,8 +21,8 @@ describe('event bus', () => {
     const seen: unknown[] = [];
     bus.on('UserRegistered', (payload) => void seen.push(payload));
     bus.on('AccountPurged', () => void seen.push('wrong'));
-    await bus.publish('UserRegistered', { userId: 'u1' });
-    expect(seen).toEqual([{ userId: 'u1' }]);
+    await bus.publish('UserRegistered', { userId: 'u1', locale: 'es' });
+    expect(seen).toEqual([{ userId: 'u1', locale: 'es' }]);
   });
 
   it('does nothing when nobody listens', async () => {

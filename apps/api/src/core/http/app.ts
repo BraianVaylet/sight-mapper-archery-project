@@ -8,6 +8,7 @@ import { HTTPException } from 'hono/http-exception';
 import { secureHeaders } from 'hono/secure-headers';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { v7 as uuidv7 } from 'uuid';
+import { toAuthError } from '../auth/errors.js';
 import { ifMatchGuard } from '../concurrency/concurrency.js';
 import { idempotency, type IdempotencyStore } from '../idempotency/idempotency.js';
 import type { Clock } from '../clock/clock.js';
@@ -26,6 +27,8 @@ export type HttpDeps = {
   readonly readiness: Readiness;
   /** Sets `userId` from the session cookie on `/api/v1/*` (F0-15). */
   readonly session?: MiddlewareHandler<AppBindings>;
+  /** Better Auth's handler, mounted on `/api/auth/*` (ADR-007). */
+  readonly authHandler?: (request: Request) => Promise<Response>;
   /** Backs `Idempotency-Key` on every POST under `/api/v1`. */
   readonly idempotencyStore?: IdempotencyStore;
   /** `METHOD path` pairs that change state without a versioned resource, so need no `If-Match`. */
@@ -63,7 +66,8 @@ const readyRoute = createRoute({
 });
 
 export function createHttpApp(deps: HttpDeps): HttpApp {
-  const { env, logger, clock, readiness, session, idempotencyStore, ifMatchExempt } = deps;
+  const { env, logger, clock, readiness, session, authHandler, idempotencyStore, ifMatchExempt } =
+    deps;
 
   const app = new OpenAPIHono<AppBindings>({
     // Zod failures on any route become SM-CORE-400-001 with one issue per field.
@@ -140,6 +144,16 @@ export function createHttpApp(deps: HttpDeps): HttpApp {
     }
     await next();
   });
+
+  // Identity lives under /api/auth and answers in our error envelope: a failure from Better Auth
+  // becomes an `SM-AUTH-*` / `SM-CORE-*` code, a success (cookies, redirects) passes through.
+  if (authHandler !== undefined) {
+    app.on(['GET', 'POST'], '/api/auth/*', async (c) => {
+      const response = await authHandler(c.req.raw);
+      if (response.status >= 400) throw await toAuthError(response);
+      return response;
+    });
+  }
 
   // Under /api/v1: who is calling, then retry safety (POST), then stale-write safety (PATCH/DELETE).
   if (session !== undefined) app.use('/api/v1/*', session);

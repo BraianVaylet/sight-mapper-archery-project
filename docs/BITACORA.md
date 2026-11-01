@@ -18,6 +18,66 @@
 
 ---
 
+## 2026-11-01 — Autenticacion: registro, verificacion, login por email o usuario, reset y sesion
+
+**Tareas:** F0-15 (parcial: Google configurado pero sin probar) · **Commit/PR:** rama `feat/f0-auth` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `core/auth`: Better Auth 1.7 sobre Mongo (adaptador con transacciones): email + contraseña (minimo 8),
+  plugin `username` (3–30, `[a-z0-9._]`), **verificacion obligatoria** antes de la primera sesion, reset por
+  enlace de un solo uso de 1 h que revoca las demas sesiones, cookie `httpOnly` `SameSite=Lax`, limite de
+  intentos (5 en 15 min por IP en login, registro, recupero y reenvio), Google si estan las dos variables.
+- `/api/auth/*` responde en nuestro envelope: los errores de Better Auth pasan a `SM-AUTH-*` o `SM-CORE-*`
+  (`toAuthError`), sin prosa del proveedor; los exitos (cookies, redirecciones) pasan tal cual.
+- `sessionMiddleware`: la cookie se vuelve `ctx.userId` bajo `/api/v1/*`, y es el unico lugar donde entra una
+  identidad. Sin sesion, `SM-CORE-401-001` (salvo `openapi.json`).
+- Emails ES/EN (`email.*` en los catalogos) con un puerto `EmailSender`: Resend por HTTP en staging y prod; en
+  local sin clave, el enlace se escribe en el log.
+- `modules/account`: `UserRegistered` → `ensureProfile` (idempotente, con la carrera resuelta por el indice
+  unico). Locale del navegador → metrico para `es`, imperial para `en`; tema `system`.
+- Variables nuevas validadas al arrancar (`BETTER_AUTH_SECRET` ≥ 32, `BETTER_AUTH_URL`, Google, Resend, `EMAIL_FROM`):
+  fuera de `local` el email real es obligatorio. Segunda migracion con los indices de `user`, `session`, `account`
+  y `verification` (username unico solo si existe, TTL de sesiones y verificaciones).
+- `api` ahora depende de `i18n` (grafo, ARQUITECTURA §3.1 y ESLint actualizados primero).
+
+### Decisiones
+
+- **Registrar un email que ya existe devuelve exito generico** (Better Auth lo hace y hashea la contraseña igual,
+  para que ni el tiempo delate la cuenta). Mi test esperaba un 409 y lo corregi: es mejor que mi diseño.
+  `SM-AUTH-409-001` queda sin emitirse con verificacion obligatoria (nota en errors.md y ADR-007).
+- El limite es por IP y ruta (lo que ofrece Better Auth, ADR-007), no por identificador como decia TECNICO §4.
+- El email se envia **sin esperarlo**: un servidor de correo lento no delata que direcciones existen. Un fallo se
+  loguea y el arquero puede pedirlo de nuevo.
+- Los logs de Better Auth (traen emails en info) pasan por Pino con redaccion, solo warn y error.
+- El perfil se crea por evento pero **no es obligatorio que el evento funcione**: `ensureProfile` es idempotente y se
+  vuelve a llamar donde haga falta, asi un fallo al registrarse no deja una cuenta sin perfil para siempre.
+
+### Verificado
+
+- 172 tests de API. Criterios del plan: registro valido → `user`, `profile` y un email (verificado en la base);
+  login por email y por username funcionan, sin verificar da `SM-AUTH-403-001`; con 5 fallos el siguiente es
+  `SM-CORE-429-001` con `retryAfterS` (y ni la clave correcta pasa, y otra IP no se ve afectada); ningun log
+  contiene contraseñas, token de sesion ni token del enlace, a lo largo de un ciclo completo de cuenta.
+- La sesion: sin cookie 401; cookie falsa 401; con cookie el id es el del arquero aunque el path y el query traigan
+  otro `userId`; dos arqueros, dos ids; cerrar sesion la invalida; reset revoca las sesiones previas y el enlace es
+  de un solo uso.
+- **Arranque real** (`dist/main.js`, Mongo temporal, HTTP de verdad): 401 sin sesion → registro → enlace en el log →
+  login antes de verificar da 403 → verificar (302 al callback) → login por email y por usuario → cookie
+  `httpOnly` y `SameSite=Lax` → `get-session` → perfil en la base → la contraseña no aparece en el log.
+- Bugs que cazaron los tests: `BY_CODE[constructor]` resolvia por la cadena de prototipos (ahora `Object.hasOwn`);
+  el hook de secretos bloqueo mi propio literal de prueba (se arma en runtime).
+
+### Pendiente / deuda
+
+- **Google** esta cableado pero **sin probar**: necesita la consola de OAuth y el dominio (F0-20).
+- Rate limit en memoria: con mas de una instancia cada una cuenta aparte; si se escala, pasar a base de datos.
+- `X-Forwarded-For` se confia tal cual: vale solo detras del proxy de Railway.
+- El enlace de verificacion apunta a la API y redirige al `callbackURL` de la PWA; las pantallas son F0-17.
+- `GET /me` y las preferencias (F1-01) usaran `ensureProfile`.
+
+---
+
 ## 2026-10-31 — Mark Doctor calibrado con datos reales: el desvio estimado de los datos no servia
 
 **Tareas:** F0-06, F0-21 · **Commit/PR:** rama `feat/f0-doctor` · **Tarjeta:** sin tablero (F0-04)

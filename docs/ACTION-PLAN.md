@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14, 18, 03, 06, 21 hechas; 11 y 19 casi) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14, 18, 03, 06, 21 hechas; 11, 15 y 19 casi) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -231,7 +231,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
 - **Errores nuevos:** `SM-CORE-400-002`, `409-001/002`, `412-001`, `428-001` · **Datos:**
   `idempotencyKeys`
 
-### [ ] F0-15 · `apps/api`: Better Auth
+### [~] F0-15 · `apps/api`: Better Auth
 
 - **Modulo:** api/auth, account · **Puntos:** 5 · **Depende de:** F0-13
 - **Descripcion:** Better Auth con adaptador Mongo: email+password, `username`, Google,

@@ -17,6 +17,24 @@ export const es = {
     back: 'Volver',
     loading: 'Cargando…',
   },
+  email: {
+    verify: {
+      subject: 'Verificá tu email en Sight Mapper',
+      heading: 'Confirmá tu email',
+      body: 'Hola {{name}}, para activar tu cuenta confirmá tu email con este botón. El enlace vence en 1 hora.',
+      cta: 'Verificar email',
+      fallback: 'Si el botón no funciona, copiá este enlace en tu navegador:',
+      ignore: 'Si no creaste una cuenta, ignorá este mensaje.',
+    },
+    reset: {
+      subject: 'Restablecé tu contraseña de Sight Mapper',
+      heading: 'Elegí una contraseña nueva',
+      body: 'Hola {{name}}, pediste restablecer tu contraseña. El enlace es de un solo uso y vence en 1 hora.',
+      cta: 'Elegir contraseña nueva',
+      fallback: 'Si el botón no funciona, copiá este enlace en tu navegador:',
+      ignore: 'Si no lo pediste, ignorá este mensaje: tu contraseña no cambia.',
+    },
+  },
   validation: {
     custom: 'Valor no válido.',
     invalid_type: 'Tipo de dato no válido.',
