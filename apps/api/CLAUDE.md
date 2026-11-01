@@ -39,11 +39,20 @@ Hoy existe `core/`; los modulos llegan con F0-15 y F1.
   (en `onError`).
 - **Variables de entorno:** se agregan a `core/config/env.ts` (Zod) y a `.env.example` sin valor.
 
+## Jobs
+
+`core/jobs`: un job es `{ name, intervalMs, run }`, **idempotente**, que devuelve solo conteos. Se registra en
+`composition-root.ts`. Corre una vez por ventana en todas las instancias (lock en `jobLocks`) y deja su fila en
+`jobRuns`. Un job que cruza usuarios usa el driver, no un modelo con aislamiento, y no lee datos de nadie.
+
 ## Probar
 
 ```
 pnpm --filter @sight-mapper/api test:coverage    # umbral 80%
 ```
+
+**Toda ruta con sesion necesita su ataque** en `tests/isolation.test.ts` (`productionAttacks`): la suite recorre el
+registro y falla si una ruta con `auth: 'session'` no tiene uno. Lo escribis en el mismo cambio que la ruta.
 
 Cada ruta con recurso necesita tres tests: aislamiento (B pide lo de A → 404), idempotencia
 (misma clave ×3 → un documento) y escritura obsoleta (`If-Match` viejo → 412). Los tests de BD

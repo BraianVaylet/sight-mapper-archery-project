@@ -24,7 +24,8 @@ first and ask.
 5. Add the module's collections to the migration (a new file in `apps/api/migrations/`, never an
    edit of an old one) with `userId` leading every index.
 6. Write the isolation, idempotency and stale-write tests before the routes (see the
-   `test-writer` agent).
+   `test-writer` agent). Add one attack per session route to `productionAttacks` in
+   `apps/api/tests/isolation.test.ts`: the suite fails a session route without one.
 
 Finish by running `pnpm lint` and `pnpm typecheck`, and by trying to import the new module from
 another one to see the lint rule fail. Do not finish with the rule unproven.

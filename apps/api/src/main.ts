@@ -23,7 +23,7 @@ async function start(): Promise<void> {
     pretty: env.NODE_ENV === 'development' && env.APP_ENV === 'local',
   });
   const connection = await connectMongo(env.MONGODB_URI, logger);
-  const { app } = createContainer({
+  const { app, scheduler } = createContainer({
     env,
     logger,
     connection,
@@ -32,12 +32,15 @@ async function start(): Promise<void> {
     ifMatchExempt: ['DELETE /api/v1/me/deletion-request'],
   });
 
+  scheduler?.start();
+
   const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
     logger.info({ port: info.port, appEnv: env.APP_ENV }, 'api listening');
   });
 
   const shutdown = (signal: string): void => {
     logger.info({ signal }, 'shutting down');
+    scheduler?.stop();
     server.close(() => {
       void connection.close().finally(() => process.exit(0));
     });

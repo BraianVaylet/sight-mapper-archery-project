@@ -8,6 +8,8 @@ import { systemClock, type Clock } from './core/clock/clock.js';
 import type { Env } from './core/config/env.js';
 import type { DbConnection } from './core/db/connection.js';
 import { createEventBus, type EventBus } from './core/events/bus.js';
+import { purgeIdempotencyKeys } from './core/jobs/purge-idempotency-keys.js';
+import { createScheduler, type Scheduler } from './core/jobs/scheduler.js';
 import { createHttpApp, type HttpApp } from './core/http/app.js';
 import { alwaysReady, type AppBindings, type Readiness } from './core/http/context.js';
 import type { IdempotencyStore } from './core/idempotency/idempotency.js';
@@ -17,6 +19,8 @@ export type Container = HttpApp & {
   readonly env: Env;
   readonly logger: Logger;
   readonly bus: EventBus;
+  /** Present with a database connection; `main` starts it. */
+  readonly scheduler?: Scheduler;
 };
 
 export type ContainerDeps = {
@@ -48,6 +52,7 @@ export function createContainer(deps: ContainerDeps): Container {
   const bus = createEventBus();
   let session = deps.session;
   let authHandler: ((request: Request) => Promise<Response>) | undefined;
+  let scheduler: Scheduler | undefined;
 
   if (connection !== undefined) {
     const ensureProfile = createEnsureProfile({
@@ -68,6 +73,7 @@ export function createContainer(deps: ContainerDeps): Container {
       logger,
     });
     authHandler = auth.handler;
+    scheduler = createScheduler({ connection, clock, logger, jobs: [purgeIdempotencyKeys] });
     session ??= sessionMiddleware(auth.sessions);
   }
 
@@ -82,7 +88,7 @@ export function createContainer(deps: ContainerDeps): Container {
     ...(deps.ifMatchExempt === undefined ? {} : { ifMatchExempt: deps.ifMatchExempt }),
   });
 
-  return { ...http, env, logger, bus };
+  return { ...http, env, logger, bus, ...(scheduler === undefined ? {} : { scheduler }) };
 }
 
 function defaultEmailSender(env: Env, logger: Logger): EmailSender {

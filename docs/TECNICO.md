@@ -268,7 +268,11 @@ responde pero no puede leer nada no esta listo.
 ## 13. Jobs
 
 Scheduler in-process (`core/jobs`), un tick por minuto, lock por job en `jobLocks` con
-`lockedUntil` (si hay varias instancias, corre una). Cada job es idempotente y escribe `jobRuns`.
+`lockedUntil` (si hay varias instancias, corre una). El lock se toma con una sola escritura atomica y se
+sostiene **hasta el fin de la ventana** del job (`intervalMs`): corre una vez por ventana en todas las
+instancias, y un job que termina antes no lo repite otra instancia mas lenta. Si el dueño cae, la ventana
+siguiente lo corre de nuevo. Cada job es idempotente y escribe `jobRuns` (estado, duracion, conteos y el
+mensaje del error, sin stack; el stack va al log).
 Lista en la spec §12.
 
 ## 14. Presupuestos de rendimiento

@@ -13,7 +13,7 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14, 18, 03, 06, 21 hechas; 11, 15 y 19 casi) |
+| F0   | Fundaciones       | 21     | 80     | en curso (F0-01, 02, 05, 07, 08, 09, 10, 12, 13, 14, 18, 03, 06, 21 hechas; 11, 15 y 19 casi; 16 hecha) |
 | F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
@@ -245,7 +245,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
 - **Errores nuevos:** `SM-AUTH-*`, `SM-CORE-429-001` · **Datos:** `user`, `session`, `account`,
   `verification`, `profiles`
 
-### [ ] F0-16 · Suite de aislamiento y scheduler de jobs
+### [x] F0-16 · Suite de aislamiento y scheduler de jobs
 
 - **Modulo:** api · **Puntos:** 3 · **Depende de:** F0-14, F0-15
 - **Descripcion:** suite parametrizada sobre el registro de rutas (test no negociable #1) +

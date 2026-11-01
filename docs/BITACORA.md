@@ -18,6 +18,51 @@
 
 ---
 
+## 2026-11-01 — Suite de aislamiento sobre el registro de rutas y scheduler con lock por ventana
+
+**Tareas:** F0-16 · **Commit/PR:** rama `feat/f0-isolation-jobs` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Suite de aislamiento** (test no negociable #1): `checkIsolation` recorre el registro de rutas; toda ruta con
+  `auth: session` necesita un *ataque* (el arquero B intenta alcanzar lo que hizo A). Una ruta sin ataque, un ataque
+  de una ruta que no existe y un ataque que revienta son violaciones. `expectForeign404` exige 404 `SM-CORE-404-002`:
+  ni 403 ni el dato. `productionAttacks` esta vacio hoy (no hay rutas de negocio) y cada modulo suma los suyos.
+- **API de ejemplo** con las cinco formas de ruta (crear, listar, leer, editar, borrar) en dos versiones: `scoped` y
+  `leaky` (una tabla para todos). Prueba que la suite detecta el error clasico.
+- **Scheduler** `core/jobs`: `runDue()` (un tick), `start()` / `stop()`, lock por job en `jobLocks` y fila en
+  `jobRuns`. Primer job: `purgeIdempotencyKeys` (cada hora, devuelve cuantas borro). Cableado en el contenedor y en
+  `main.ts` (arranca con el servidor, se detiene al apagar, `unref` para no retenerlo).
+
+### Decisiones
+
+- **El lock dura hasta el fin de la ventana**, no hasta que el job termina: es una sola escritura atomica que solo
+  coincide con un lock vencido, y insertar sobre uno vivo choca con la unicidad de `_id`, que significa "lo tiene otro".
+  Asi corre una vez por ventana aunque termine rapido, y una instancia mas lenta no lo repite. Si el dueño cae, la
+  ventana siguiente lo corre otra vez: por eso los jobs son idempotentes. TECNICO §13 actualizado.
+- `jobRuns.error` guarda el mensaje, no el stack: la coleccion se puede consultar; el stack va al log.
+- `purgeIdempotencyKeys` usa el driver y cruza usuarios a proposito (borra por vencimiento, no lee nada de nadie). El
+  indice TTL ya hace lo mismo cada minuto sin dejar rastro; el job lo hace visible y sirve donde el monitor TTL este apagado.
+
+### Verificado
+
+- 198 tests de API (95.6% de lineas, 88% de ramas; umbral 80%). Criterios del plan: una ruta de sesion sin fixture hace
+  fallar la suite (y la unica ruta sin ataque es la que se nombra); con dos instancias el job corre **una sola vez** por
+  ventana, y con cinco compitiendo tambien (contra Mongo real).
+- La ventana abre exactamente cuando vence el lock (59.999 s no, 60 s si); cada job tiene su lock; un job que falla se
+  registra con su mensaje, no frena a los demas y no se reintenta dentro de la ventana; `start()` dos veces no crea dos
+  timers y `stop()` detiene los ticks.
+- La suite pasa sobre la API `scoped` y marca las cinco rutas de la `leaky`; el job borra las llaves vencidas de todos
+  los arqueros, conserva las vivas y la que vence justo ahora, y es idempotente.
+
+### Pendiente / deuda
+
+- Sin rutas de negocio la suite todavia no prueba nada real en produccion: se vuelve exigente con F1-02 en adelante.
+- La suite no comprueba "sin sesion = 401" por ruta; eso lo cubre el test del middleware (`auth.test.ts`).
+- Falta el resto de los jobs de la spec §12 (`purgeDeletedSetups`, `purgeDeletedAccounts`, retencion de `jobRuns`): llegan con F1.
+
+---
+
 ## 2026-11-01 — Autenticacion: registro, verificacion, login por email o usuario, reset y sesion
 
 **Tareas:** F0-15 (parcial: Google configurado pero sin probar) · **Commit/PR:** rama `feat/f0-auth` · **Tarjeta:** sin tablero (F0-04)
