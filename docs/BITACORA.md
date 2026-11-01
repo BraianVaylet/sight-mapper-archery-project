@@ -20,7 +20,7 @@
 
 ## 2026-11-01 — La PWA tiene esqueleto y pantallas de auth: tema, idioma, rutas con guard y service worker
 
-**Tareas:** F0-17 (etapas 1 y 2 de 3) · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)
+**Tareas:** F0-17 (etapas 1 y 2 de 3, y avance de la 3) · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)
 
 ### Que se hizo
 
@@ -58,7 +58,8 @@
 
 ### Pendiente / deuda
 
-- Etapa 3 (banco de pruebas con la regla y los sets del autor, y `pnpm dev` con Mongo temporal) y probar el flujo de auth contra la API real.
+- Etapa 3, a medias: `pnpm dev:local` (Mongo temporal + migraciones + API + PWA; imprime los links de los emails) y `/sandbox` (solo en desarrollo: regla SVG con los dos sets reales, tabla, Mark Doctor y catalogo de componentes) existen y compilan, pero **no tienen tests** y `/sandbox` no se vio todavia en el navegador (un Vite viejo con NODE_ENV=production lo ocultaba; ya corregido). El flujo real registro → link → verificado SI se probo a mano contra la API.
+- Corregido de paso: el script `migrate` del API usaba una opcion inexistente de migrate-mongo 14 y nunca habia corrido.
 - Falta el boton "Entrar con Google": necesita la consola de Google (F0-20) y saber si el proveedor esta activo.
 - Lighthouse instalable y E2E de registro → verificacion → login necesitan Chrome/Playwright (descarga, pedir permiso).
 

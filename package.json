@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "test:scripts": "node --test \"scripts/**/*.test.mjs\" \".claude/hooks/*.test.mjs\""
+    "test:scripts": "node --test \"scripts/**/*.test.mjs\" \".claude/hooks/*.test.mjs\"",
+    "dev:local": "node scripts/dev-local.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "catalog:",

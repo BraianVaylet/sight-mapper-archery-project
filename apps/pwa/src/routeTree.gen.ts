@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
@@ -47,6 +48,11 @@ const GuestRoute = GuestRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SandboxRoute = SandboxRouteImport.update({
+  id: '/sandbox',
+  path: '/sandbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -169,6 +175,7 @@ const AppSetupsSetupIdPrintRoute = AppSetupsSetupIdPrintRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sandbox': typeof SandboxRoute
   '/verify-email': typeof VerifyEmailRoute
   '/profile': typeof AppProfileRoute
   '/trash': typeof AppTrashRoute
@@ -195,6 +202,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sandbox': typeof SandboxRoute
   '/verify-email': typeof VerifyEmailRoute
   '/profile': typeof AppProfileRoute
   '/trash': typeof AppTrashRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/sandbox': typeof SandboxRoute
   '/verify-email': typeof VerifyEmailRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/trash': typeof AppTrashRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/reset-password'
+    | '/sandbox'
     | '/verify-email'
     | '/profile'
     | '/trash'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/reset-password'
+    | '/sandbox'
     | '/verify-email'
     | '/profile'
     | '/trash'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_guest'
     | '/reset-password'
+    | '/sandbox'
     | '/verify-email'
     | '/_app/profile'
     | '/_app/trash'
@@ -334,6 +346,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   GuestRoute: typeof GuestRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SandboxRoute: typeof SandboxRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
 }
 
@@ -358,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sandbox': {
+      id: '/sandbox'
+      path: '/sandbox'
+      fullPath: '/sandbox'
+      preLoaderRoute: typeof SandboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/verify-email': {
@@ -588,6 +608,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   GuestRoute: GuestRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
+  SandboxRoute: SandboxRoute,
   VerifyEmailRoute: VerifyEmailRoute,
 }
 export const routeTree = rootRouteImport

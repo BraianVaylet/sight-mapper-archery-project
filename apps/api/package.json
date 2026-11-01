@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage --passWithNoTests",
-    "migrate": "migrate-mongo --migrations-dir migrations up"
+    "migrate": "migrate-mongo up"
   },
   "dependencies": {
     "@hono/node-server": "catalog:",

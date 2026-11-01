@@ -32,13 +32,17 @@ describe('ES / EN parity', () => {
     }
   });
 
-  // Names that do not translate: the product, and each language written in itself.
+  // Names and symbols that do not translate: the product, each language written in itself, units.
   const SAME_IN_BOTH = new Set([
     'common.appName',
     'language.es',
     'language.en',
     'screens.doctor',
     'auth.email',
+    'sandbox.table.meters',
+    'sandbox.doctor.title',
+    'sandbox.catalog.optionOne',
+    'sandbox.catalog.imperial',
   ]);
 
   it('has no empty messages and no Spanish copied into English', () => {
