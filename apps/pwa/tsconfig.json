@@ -5,5 +5,5 @@
     "noEmit": true,
     "types": ["vite/client", "vite-plugin-pwa/react", "node"]
   },
-  "include": ["src", "test", "*.config.ts"]
+  "include": ["src", "test", "e2e", "*.config.ts"]
 }

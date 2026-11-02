@@ -7,6 +7,7 @@ allowBuilds:
   mongodb-memory-server: false
 
 catalog:
+  '@playwright/test': ^1.64.1
   vite: ^8.3.5
   '@vitejs/plugin-react': ^6.1.2
   tailwindcss: ^4.3.3

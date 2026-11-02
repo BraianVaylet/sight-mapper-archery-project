@@ -5,6 +5,7 @@
 // sent: the verification and reset links are printed here, because that is where you need them.
 // Everything, data included, disappears when you stop it with Ctrl+C.
 import { spawn, spawnSync } from 'node:child_process';
+import { appendFileSync, mkdirSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -51,6 +52,15 @@ function relay(line) {
   }
   if (entry.msg === 'email (not sent)') {
     const link = /https?:\/\/\S+/.exec(String(entry.text ?? ''))?.[0];
+    // The end-to-end tests read the link from here instead of from the console.
+    const mailFile = process.env.SM_DEV_MAIL_FILE;
+    if (mailFile !== undefined && mailFile !== '') {
+      mkdirSync(dirname(mailFile), { recursive: true });
+      appendFileSync(
+        mailFile,
+        `${JSON.stringify({ to: entry.to, subject: entry.subject, link })}\n`,
+      );
+    }
     say(`\n  email to ${entry.to}: ${entry.subject}\n  open this link: ${link ?? '(no link)'}\n`);
   } else if (entry.msg === 'api listening') {
     say(`[api] listening on http://localhost:${entry.port}`);

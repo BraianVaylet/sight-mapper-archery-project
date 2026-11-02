@@ -20,7 +20,7 @@
 
 ## 2026-11-01 — La PWA tiene esqueleto y pantallas de auth: tema, idioma, rutas con guard y service worker
 
-**Tareas:** F0-17 (etapas 1, 2 y 3 de 3; faltan Lighthouse, E2E y Google) · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)
+**Tareas:** F0-17 · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)
 
 ### Que se hizo
 
@@ -59,7 +59,8 @@
 ### Pendiente / deuda
 
 - Etapa 3 hecha: `pnpm dev:local` (Mongo temporal + migraciones + API + PWA; imprime los links de los emails) y `/sandbox` (solo en desarrollo: regla SVG con los dos sets reales, tabla, Mark Doctor y catalogo de componentes, visto en el navegador). El flujo real registro → link → verificado se probo a mano contra la API.
-- Falta para cerrar F0-17: Lighthouse instalable y E2E smoke (necesitan Chrome/Playwright: descarga, pedir permiso) y el boton de Google (F0-20).
+- **E2E con Playwright** (Chromium descargado con permiso; 360 y 1440): registro → link del email (`dev:local` lo escribe en `SM_DEV_MAIL_FILE`) → verificado → Home → login por usuario, y clave mala sin decir que parte fallo. **Instalable:** Lighthouse 13 ya no tiene categoria PWA, asi que se le pregunta a Chrome (`Page.getInstallabilityErrors`) sobre el build: sin errores, manifest standalone con iconos maskable, SW activo y `/api/*` fuera del cache. 10 tests, pasan.
+- Queda fuera de F0-17 el boton "Entrar con Google": depende de la consola de Google (F0-20).
 - Corregido de paso: el script `migrate` del API usaba una opcion inexistente de migrate-mongo 14 y nunca habia corrido.
 - Falta el boton "Entrar con Google": necesita la consola de Google (F0-20) y saber si el proveedor esta activo.
 - Lighthouse instalable y E2E de registro → verificacion → login necesitan Chrome/Playwright (descarga, pedir permiso).
