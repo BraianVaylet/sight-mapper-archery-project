@@ -47,6 +47,10 @@ describe('ES / EN parity', () => {
     'bows.form.letOffPct',
     'bows.form.axleToAxleMm',
     'bows.form.braceHeightMm',
+    'sights.form.pinMonopin',
+    'sights.form.pinDualpin',
+    'sights.form.pinMultipin',
+    'sights.form.unitClick',
   ]);
 
   it('has no empty messages and no Spanish copied into English', () => {

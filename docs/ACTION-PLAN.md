@@ -329,7 +329,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-BOW-01, HU-EQP-01. Aislamiento incluido.
 - **Errores nuevos:** `SM-BOW-409-001`, `SM-BOW-422-001` · **Datos:** `bows`
 
-### [ ] F1-03 · Miras con escala nativa
+### [~] F1-03 · Miras con escala nativa
 
 - **Modulo:** equipment/sights, pwa · **Puntos:** 8 · **Depende de:** F1-02
 - **Descripcion:** API + form de mira redefinido (UX-UI §4.4): unidad, tamaño de unidad (o largo

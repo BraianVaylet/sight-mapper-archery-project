@@ -18,6 +18,44 @@
 
 ---
 
+## 2026-11-02 — El arquero carga su mira con su escala real y la cambia sin perder marcas
+
+**Tareas:** F1-03 · **Commit/PR:** rama `feat/f1-sights` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **API (`equipment`):** las miras con el mismo patron que los arcos (listado por cursor, alta idempotente, detalle con `usage`, PATCH con
+  `If-Match`, archivar/desarchivar, borrado blando protegido por `SM-SGT-409-001`) mas la escala. Un cambio de unidad o de tamaño de
+  unidad en una mira con marcas pide `scaleChangeStrategy` (`keepReadings` / `keepPositions`, `SM-SGT-409-003`); un cambio que deja marcas
+  fuera de la escala se rechaza entero (`SM-SGT-409-002`, con cuantas y el nuevo rango en mm). Cambiar solo rango, resolucion o direccion no
+  pide nada. La escala se guarda y se reemplaza como un valor entero.
+- **`SightMarksPort`** (`count`, `countOutside`, `rescale`) lo declara `equipment` y hoy no ve marcas; `createContainer` lo recibe inyectado.
+- **PWA:** `/sights`, `/sights/new`, `/sights/{id}`. El formulario tiene unidad (mm, cm, in, clicks, personalizada), minimo, maximo, paso, direccion,
+  tipo de pin; para click/personalizada, el tamaño de una unidad **o** el largo fisico entre minimo y maximo (1 a 9 sobre 80 mm = 10 mm),
+  el recorrido en mm, el aviso "sin tamaño de unidad" y la **vista previa de la regla** (el mismo `Ruler` del dominio). Si la API pide estrategia,
+  abre una hoja con las dos opciones y reenvia.
+
+### Decisiones
+
+- `SM-SGT-422-001` (fijar tamaño en mm/cm/in) queda sin uso: lo cubre el schema compartido, que lo rechaza como 400 en el campo `unitSizeMm` antes de
+  llegar al caso de uso. Hay que decidir si se borra el codigo de errors.md o si el schema pasa a 422.
+- `scaleMeaningChanged` mira unidad y tamaño efectivo: pasar de `cm` a `mm` cambia el significado de una lectura aunque el rango sea el mismo.
+
+### Verificado
+
+- API: 268 tests (27 nuevos: escala custom/click/direccion, validaciones por campo, idempotencia ×3, estrategia, marcas fuera de rango sin escribir nada,
+  412/428, borrado protegido, aislamiento) con cobertura 97 %.
+- PWA: 141 tests (20 de la logica del formulario con valores a mano, 13 de pantallas); lint y typecheck limpios.
+
+### Pendiente / deuda
+
+- **El cambio de escala y la reescritura de marcas todavia no son una sola transaccion:** no hay marcas hasta F1-07. Cuando existan, `updateSight` y
+  `rescale` deben correr en una transaccion y el test no negociable #5 (HU-SGT-02) debe probarlo con marcas reales.
+- Falta correrlo a mano en el navegador y un E2E de arco + mira.
+- El patron de `equipment` ya se copio dos veces: al llegar a las flechas (F1-04) conviene extraer repositorio, rutas y casos de uso genericos.
+
+---
+
 ## 2026-11-02 — El arquero carga, edita, archiva y borra sus arcos
 
 **Tareas:** F1-02 · **Commit/PR:** rama `feat/f1-bows` · **Tarjeta:** sin tablero (F0-04)

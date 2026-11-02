@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { SightFormScreen } from '../features/equipment/sight-form-screen.js';
 
 export const Route = createFileRoute('/_app/sights/$id')({
-  component: () => <Placeholder screen="sights" />,
+  component: function SightRoute() {
+    const { id } = Route.useParams();
+    return <SightFormScreen id={id} />;
+  },
 });

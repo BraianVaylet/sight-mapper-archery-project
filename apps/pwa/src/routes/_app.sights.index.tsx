@@ -1,6 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { SightsScreen } from '../features/equipment/sights-screen.js';
 
-export const Route = createFileRoute('/_app/sights/')({
-  component: () => <Placeholder screen="sights" />,
-});
+export const Route = createFileRoute('/_app/sights/')({ component: SightsScreen });
