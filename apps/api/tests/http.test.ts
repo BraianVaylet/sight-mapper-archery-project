@@ -214,6 +214,28 @@ describe('body rules', () => {
     expect((await envelope(res)).error.code).toBe('SM-CORE-415-001');
   });
 
+  it('lets a body-less action POST through when the server frames it with a stream (found by the E2E)', async () => {
+    const { app } = build();
+    // What a browser sends for `POST /x/archive`: an empty stream and `Content-Length: 0`, no type.
+    const res = await app.request('/test/action', {
+      method: 'POST',
+      headers: { 'content-length': '0' },
+      body: '',
+    });
+    expect(res.status).toBe(404);
+    expect((await envelope(res)).error.code).toBe('SM-CORE-404-001');
+  });
+
+  it('still rejects a non-JSON body that does declare a length', async () => {
+    const { app } = build();
+    const res = await app.request('/test/echo', {
+      method: 'POST',
+      headers: { 'content-type': 'text/plain', 'content-length': '6' },
+      body: 'name=x',
+    });
+    expect(res.status).toBe(415);
+  });
+
   it('lets an action POST without a body through (archive, restore)', async () => {
     const { app } = build();
     const res = await app.request('/test/action', { method: 'POST' });

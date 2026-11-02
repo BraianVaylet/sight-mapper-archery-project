@@ -55,6 +55,11 @@ describe('ES / EN parity', () => {
     'arrows.form.gpi',
     'arrows.form.nock',
     'arrows.form.vanes',
+    'setups.home.joined',
+    'setups.home.sightLine',
+    'setups.home.pinMonopin',
+    'setups.home.pinDualpin',
+    'setups.home.pinMultipin',
   ]);
 
   it('has no empty messages and no Spanish copied into English', () => {

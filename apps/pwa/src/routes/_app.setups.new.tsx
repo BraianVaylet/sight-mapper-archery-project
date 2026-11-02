@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { SetupFormScreen } from '../features/setups/setup-form-screen.js';
 
 export const Route = createFileRoute('/_app/setups/new')({
-  component: () => <Placeholder screen="newSetup" />,
+  component: () => <SetupFormScreen id={undefined} />,
 });

@@ -134,8 +134,9 @@ export function createHttpApp(deps: HttpDeps): HttpApp {
 
   // Only JSON in: a body of any other type is rejected before a route sees it.
   app.use(async (c, next) => {
-    // `raw.body` is null when the request carries no body, however it was framed.
-    const hasBody = c.req.raw.body !== null;
+    // A real server always hands over a stream for a POST, even a body-less one (an archive, a
+    // restore): what says there is no body is the `Content-Length: 0` every browser sends.
+    const hasBody = c.req.raw.body !== null && c.req.header('content-length') !== '0';
     const isJson = (c.req.header('content-type') ?? '')
       .toLowerCase()
       .startsWith('application/json');

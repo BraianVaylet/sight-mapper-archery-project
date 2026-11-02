@@ -18,6 +18,54 @@
 
 ---
 
+## 2026-11-02 — El arquero arma setups, los ve en el Home y los manda a la papelera
+
+**Tareas:** F1-05 · **Commit/PR:** rama `feat/f1-setups` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **API (`calculator`, segundo modulo con negocio):** `GET/POST /setups`, `GET/PATCH/DELETE /setups/{id}`, `archive`/`unarchive`,
+  `GET /setups/trash` y `POST /setups/{id}/restore`. Un setup junta 1 arco, 1 mira y 1..N sets de flechas del arquero y **activos**
+  (`SM-STP-422-001`, con el tipo y el id que fallo); el par (arco, mira) es unico entre los vivos (`SM-STP-409-001`, con el setup que lo tiene);
+  editar admite nombre, favorito y flechas (agregar exige activas; quitar una con marcas se rechaza, `SM-STP-409-002`; arco y mira nunca cambian).
+  El Home ordena favoritos primero y luego la ultima edicion, con cursor propio. Cada setup sale con su arco, su mira (con escala), sus
+  flechas y la cantidad de marcas.
+- **Papelera:** borrar manda a la papelera (soft delete, `If-Match`), `/trash` dice cuando se elimina (+30 dias), restaurar dentro de los 30 dias
+  o `SM-STP-410-001`, y si otro setup tomo el par mientras tanto la restauracion falla con `SM-STP-409-001`. El job diario
+  `purgeDeletedSetups` borra de verdad lo que lleva mas de 30 dias (cruza arqueros por el driver, idempotente).
+- **Puertos reales:** `EquipmentReadPort` (el calculador lee equipo) y el conteo de uso (equipo le pregunta al calculador) se cablean en
+  `composition-root.ts` sin que ningun modulo importe al otro. Con eso el borrado protegido de arcos, miras y flechas **ya ve los setups**:
+  responde 409 con cuantos setups y marcas dependen del componente (un setup archivado sigue contando; uno en la papelera, no).
+- **PWA:** Home (`/`) con tarjetas y estrella optimista, `/setups/new` (select de arco y mira, casillas de flechas, "+ Cargar uno nuevo",
+  oferta de agregar las flechas al setup existente), `/setups/{id}/edit` (par fijo, nombre, flechas, archivar, mandar a la papelera) y `/trash`.
+
+### Decisiones
+
+- Las marcas llegan en F1-07: `SetupMarksPort` responde "ninguna" hoy, y las reglas que dependen de ellas ya preguntan a traves del puerto
+  (conteo del Home, RN-STP-05, uso de componentes). La cascada de papelera a marcas (RN-STP-06) y su purga quedan para esa tarea.
+- La estrella serializa los cambios (`scope`) y toma la version de la cache cuando le toca, para no chocar con su propia version.
+
+### Verificado
+
+- API: 322 tests (33 nuevos: crear con equipo real, ordenes del Home y paginado con favoritos, 409/422/412/428, borrado protegido contra setups
+  reales, papelera con 30 dias, job de purga, aislamiento de las nueve rutas = test no negociable #4) con cobertura 96 %.
+- PWA: 181 tests; **E2E real, 12 de 12 en 360 y 1440**, incluido el flujo nuevo: registrarse, cargar arco, mira y flechas, armar el setup,
+  favorito, par repetido rechazado, arco en uso que no se borra, papelera y restaurar.
+
+### Encontrado por el E2E (no lo veian los tests con `fetch` falso)
+
+- Un **POST sin cuerpo** (archivar, desarchivar, restaurar) contra el servidor real daba `SM-CORE-415-001`: Node entrega siempre un stream para
+  un POST y el middleware lo tomaba por un cuerpo sin tipo. Ahora un `Content-Length: 0` cuenta como "sin cuerpo". Afectaba a **todas** las
+  acciones de archivar desde que se hicieron; hay un test que falla sin el arreglo.
+
+### Pendiente / deuda
+
+- `SM-STP-422-002` (quedar sin flechas) no se emite: el schema compartido ya lo rechaza como 400 antes de llegar al caso de uso.
+- El acceso rapido (RN-STP-07, "si su setup se borra, se limpia") entra con F1-15.
+- Falta la pantalla de la mira (`/setups/{id}`, hoy placeholder) y el menu lateral con el acceso a miras/arcos/flechas (F1-06).
+
+---
+
 ## 2026-11-02 — Arcos y miras pasan a las piezas comunes del equipo
 
 **Tareas:** refactor de F1-02, F1-03 y F1-04 · **Commit/PR:** rama `refactor/equipment-shared` · **Tarjeta:** sin tablero (F0-04)

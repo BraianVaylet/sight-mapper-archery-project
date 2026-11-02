@@ -1,6 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { TrashScreen } from '../features/setups/trash-screen.js';
 
-export const Route = createFileRoute('/_app/trash')({
-  component: () => <Placeholder screen="trash" />,
-});
+export const Route = createFileRoute('/_app/trash')({ component: TrashScreen });

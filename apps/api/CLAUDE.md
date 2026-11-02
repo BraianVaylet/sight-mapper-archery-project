@@ -13,7 +13,7 @@ tests/          integracion contra un replica set real (mongodb-memory-server)
 migrations/     migrate-mongo; un archivo nuevo por cambio, nunca editar uno viejo
 ```
 
-Hoy existen `core/`, `modules/account` (perfil, `/me`) y `modules/equipment` (arcos, miras y sets de flechas; piezas comunes en `component-*`); miras, flechas y `calculator` llegan con F1.
+Hoy existen `core/`, `modules/account` (perfil, `/me`) y `modules/equipment` (arcos, miras y sets de flechas; piezas comunes en `component-*`) y `modules/calculator` (setups y papelera; las marcas llegan con F1-07); miras, flechas y `calculator` llegan con F1.
 
 ## Reglas de esta app
 

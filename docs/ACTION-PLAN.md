@@ -345,7 +345,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-ARW-01, HU-EQP-01.
 - **Errores nuevos:** `SM-ARW-409-001` · **Datos:** `arrowSets`
 
-### [ ] F1-05 · Setups, Home y papelera
+### [x] F1-05 · Setups, Home y papelera
 
 - **Modulo:** calculator/setups, pwa · **Puntos:** 8 · **Depende de:** F1-03, F1-04
 - **Descripcion:** API de setups (TECNICO §5.4), implementacion real de `ComponentUsagePort` y
