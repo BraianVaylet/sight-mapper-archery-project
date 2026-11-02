@@ -6,6 +6,17 @@ import {
   createUpdatePreferences,
   registerAccountRoutes,
 } from './modules/account/index.js';
+import {
+  createBowRepositories,
+  createChangeBowStatus,
+  createCreateBow,
+  createDeleteBow,
+  createGetBow,
+  createListBows,
+  createUpdateBow,
+  registerBowRoutes,
+  type ComponentUsagePort,
+} from './modules/equipment/index.js';
 import type { RouteRegistry } from './core/registry/registry.js';
 import { createAuth } from './core/auth/auth.js';
 import { createLogEmailSender, createResendSender, type EmailSender } from './core/auth/email.js';
@@ -44,6 +55,8 @@ export type ContainerDeps = {
   readonly session?: MiddlewareHandler<AppBindings>;
   readonly idempotencyStore?: IdempotencyStore;
   readonly ifMatchExempt?: readonly string[];
+  /** How many setups and marks use a bow. The calculator module provides it; until then, zero. */
+  readonly componentUsage?: ComponentUsagePort;
 };
 
 /**
@@ -65,8 +78,21 @@ export function createContainer(deps: ContainerDeps): Container {
     const profiles = createProfileRepositories(connection);
     const ensureProfile = createEnsureProfile({ profiles, newId: uuidv7, clock });
     const updatePreferences = createUpdatePreferences({ profiles, ensureProfile, clock });
+    // Until the calculator module exists nothing uses a bow: the port answers zero (F1-05 swaps it).
+    const usage: ComponentUsagePort = deps.componentUsage ?? {
+      bowUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
+    };
+    const bows = createBowRepositories(connection);
     registerModuleRoutes = (registry) => {
       registerAccountRoutes(registry, { ensureProfile, updatePreferences });
+      registerBowRoutes(registry, {
+        listBows: createListBows({ bows }),
+        getBow: createGetBow({ bows, usage }),
+        createBow: createCreateBow({ bows, clock }),
+        updateBow: createUpdateBow({ bows, clock }),
+        changeBowStatus: createChangeBowStatus({ bows, clock }),
+        deleteBow: createDeleteBow({ bows, usage, clock }),
+      });
     };
     // Awaited, so a failure reaches the publisher (which logs it) instead of an unhandled rejection.
     bus.on('UserRegistered', async ({ userId, locale }) => {

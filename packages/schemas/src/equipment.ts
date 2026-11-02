@@ -164,3 +164,7 @@ export const componentUsage = z.object({
   marks: z.int().min(0),
 });
 export type ComponentUsage = z.infer<typeof componentUsage>;
+
+/** `GET /bows/:id`: the bow plus what uses it (the delete is refused while setups do). */
+export const bowDetail = bow.extend({ usage: componentUsage });
+export type BowDetail = z.infer<typeof bowDetail>;

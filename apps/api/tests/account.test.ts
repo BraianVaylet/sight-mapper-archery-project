@@ -6,7 +6,7 @@ import { createContainer } from '../src/composition-root.js';
 import { fixedClock } from '../src/core/clock/clock.js';
 import { connectMongo } from '../src/core/db/connection.js';
 import { createLogger } from '../src/core/logger/logger.js';
-import { accountAttacks } from './attacks/account.js';
+import { productionAttacks } from './attacks/index.js';
 import { fakeSession, testEnv } from './helpers/app.js';
 import { checkIsolation } from './helpers/isolation.js';
 import { startReplSet } from './helpers/mongo.js';
@@ -176,8 +176,8 @@ describe('PATCH /me/preferences', () => {
 
 describe('isolation of the account routes (spec 13)', () => {
   it('keeps one archer out of reach of another, route by route', async () => {
-    expect(await checkIsolation(container.app, container.registry.routes, accountAttacks)).toEqual(
-      [],
-    );
+    expect(
+      await checkIsolation(container.app, container.registry.routes, productionAttacks),
+    ).toEqual([]);
   });
 });
