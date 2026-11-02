@@ -43,6 +43,10 @@ describe('ES / EN parity', () => {
     'sandbox.doctor.title',
     'sandbox.catalog.optionOne',
     'sandbox.catalog.imperial',
+    // Archery terms the sport keeps in English in both languages.
+    'bows.form.letOffPct',
+    'bows.form.axleToAxleMm',
+    'bows.form.braceHeightMm',
   ]);
 
   it('has no empty messages and no Spanish copied into English', () => {

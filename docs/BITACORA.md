@@ -18,6 +18,45 @@
 
 ---
 
+## 2026-11-02 — El arquero carga, edita, archiva y borra sus arcos
+
+**Tareas:** F1-02 · **Commit/PR:** rama `feat/f1-bows` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **API (`equipment`, primer modulo con negocio):** `GET/POST /bows`, `GET/PATCH/DELETE /bows/{id}`, `POST /bows/{id}/archive|unarchive`.
+  Listado paginado por cursor opaco `(updatedAt, _id)` (`core/db/cursor.ts`), `active` por defecto y el mas reciente primero; alta
+  idempotente con `id` del cliente; PATCH con `If-Match` (`null` borra un campo; dejar sin fabricante *y* sin modelo es 400);
+  archivar/desarchivar como transiciones; borrado blando que un arco usado por setups rechaza con `SM-BOW-409-001` (con
+  `setups` y `marks`). Solo compuesto por ahora (`SM-BOW-422-001`).
+- **`ComponentUsagePort`** lo declara `equipment` y hoy responde cero; `createContainer` lo recibe inyectado, asi que cuando
+  exista `calculator` (F1-05) solo cambia el cableado.
+- **Aislamiento:** los siete endpoints tienen su ataque (`tests/attacks/bows.ts`) y `tests/attacks/index.ts` junta los de todos los
+  modulos para que el registro completo se verifique contra el contenedor real.
+- **PWA:** `/bows` (activos/archivados, estado vacio, carga y error, archivar desde la lista), `/bows/new` y `/bows/{id}` (formulario en tres
+  secciones, unidades por sistema: mm/kg/m·s⁻¹ o in/lb/fps con fracciones `6 1/4`, validado con el mismo schema que la API, borrar con
+  confirmacion y, si hay setups, `Archivar en su lugar`). El formulario espera al perfil para no cambiar de unidad bajo los dedos.
+
+### Decisiones
+
+- Unidades de equipo: metrico en **mm / kg / m·s⁻¹**, imperial en **in / lb / fps** (la propuesta inicial de UNIDADES §1; sigue abierta en spec §17.2).
+- La logica del formulario (`bow-form.logic.ts`) es pura y se prueba aparte: texto → canonico (`toCanonical`/`parseImperial`) → schema compartido.
+- Borrar un arco no tiene "Deshacer": no hay `restore` para equipo en la API; el borrado pide confirmacion y lo usado se archiva.
+
+### Verificado
+
+- API: 241 tests (29 nuevos de arcos: alta, idempotencia ×3, 409/422/400 por campo, paginado sin repetir ni saltear, 412/428, nulos, archivar,
+  borrado protegido y blando, aislamiento) con cobertura 97 %.
+- PWA: 108 tests (16 de la logica del formulario con valores calculados a mano, 13 de pantallas); lint y typecheck limpios.
+
+### Pendiente / deuda
+
+- Probar el flujo en el navegador y con el E2E real (no se corrio en esta tarea).
+- El formulario no muestra aun el aviso "Alguien lo cambio antes" con los datos nuevos en pantalla: el 412 refresca la cache y el error se ve arriba.
+- Faltan sets de miras y flechas (F1-03, F1-04): el patron de `equipment` esta listo para repetirse.
+
+---
+
 ## 2026-11-02 — El arquero elige tema, idioma y unidades, y la eleccion lo sigue a otro dispositivo
 
 **Tareas:** F1-01 · **Commit/PR:** ramas `feat/f1-preferences` · **Tarjeta:** sin tablero (F0-04)

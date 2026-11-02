@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { BowFormScreen } from '../features/equipment/bow-form-screen.js';
 
 export const Route = createFileRoute('/_app/bows/new')({
-  component: () => <Placeholder screen="bows" />,
+  component: () => <BowFormScreen id={undefined} />,
 });

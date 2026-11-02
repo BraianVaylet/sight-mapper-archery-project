@@ -320,7 +320,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-ACC-04 (FUNCIONAL §3.1).
 - **Errores nuevos:** — · **Datos:** `profiles`
 
-### [ ] F1-02 · Arcos (compuesto)
+### [x] F1-02 · Arcos (compuesto)
 
 - **Modulo:** equipment/bows, pwa · **Puntos:** 5 · **Depende de:** F0-16, F0-17
 - **Descripcion:** API completa (TECNICO §5.3), listado, detalle, form de `New bow — Full form.png`
