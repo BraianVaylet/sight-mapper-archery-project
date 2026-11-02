@@ -13,7 +13,7 @@ tests/          integracion contra un replica set real (mongodb-memory-server)
 migrations/     migrate-mongo; un archivo nuevo por cambio, nunca editar uno viejo
 ```
 
-Hoy existe `core/`; los modulos llegan con F0-15 y F1.
+Hoy existen `core/` y `modules/account` (perfil, `GET /me`, `PATCH /me/preferences`); el resto llega con F1.
 
 ## Reglas de esta app
 

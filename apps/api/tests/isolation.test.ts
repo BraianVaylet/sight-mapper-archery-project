@@ -23,7 +23,8 @@ const FIVE = [
 describe('the production routes (test #1, spec §13)', () => {
   /**
    * Every module that registers a session route adds its attacks here, in the same change. The
-   * list is empty today because no business route exists yet.
+   * account routes need a database to exist, so their attacks run against the real container in
+   * `account.test.ts` (`checkIsolation` fails any session route without one).
    */
   const productionAttacks: Attack[] = [];
 

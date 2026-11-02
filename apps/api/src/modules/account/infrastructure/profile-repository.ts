@@ -1,8 +1,9 @@
-import { Schema } from 'mongoose';
+import { Schema, type Model } from 'mongoose';
 import { createBusinessSchema } from '../../../core/db/base-schema.js';
 import type { DbConnection } from '../../../core/db/connection.js';
 import { fromDate, toDate } from '../../../core/db/temporal.js';
-import type { Profile, ProfileRepositories } from '../domain/profile.js';
+import { updateWithVersion } from '../../../core/db/versioned.js';
+import type { PreferencesPatch, Profile, ProfileRepositories } from '../domain/profile.js';
 
 const MONGO_DUPLICATE_KEY = 11000;
 
@@ -43,6 +44,13 @@ const toProfile = (row: Row): Profile => ({
   updatedAt: fromDate(row.updatedAt),
 });
 
+/** `{ theme: undefined }` must not become a write: Mongo would store a null. */
+const definedOnly = (patch: PreferencesPatch): Record<string, string> =>
+  Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined)) as Record<
+    string,
+    string
+  >;
+
 /** Every query carries the user id fixed here; the isolation plugin refuses one that does not. */
 export function createProfileRepositories(connection: DbConnection): ProfileRepositories {
   const Model = connection.model('Profile', schema);
@@ -72,6 +80,16 @@ export function createProfileRepositories(connection: DbConnection): ProfileRepo
             if ((error as { code?: number }).code === MONGO_DUPLICATE_KEY) return false;
             throw error;
           }
+        },
+        async updatePreferences(id, patch, expectedVersion, now) {
+          const row = await updateWithVersion(
+            Model as unknown as Model<Row>,
+            { userId, id },
+            expectedVersion,
+            { $set: { ...definedOnly(patch), updatedAt: toDate(now) } },
+            'profile',
+          );
+          return toProfile(row);
         },
       };
     },

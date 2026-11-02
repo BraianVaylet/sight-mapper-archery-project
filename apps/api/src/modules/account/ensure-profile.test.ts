@@ -13,6 +13,7 @@ function memory(options: { loseRaceOnce?: boolean } = {}) {
   const profiles: ProfileRepositories = {
     forUser: (userId) => ({
       findOwn: () => Promise.resolve(rows.get(userId) ?? null),
+      updatePreferences: () => Promise.reject(new Error('not used here')),
       insert(profile) {
         if (options.loseRaceOnce && !raced) {
           raced = true;
@@ -95,6 +96,7 @@ describe('ensureProfile', () => {
       forUser: () => ({
         findOwn: () => Promise.resolve(null),
         insert: () => Promise.resolve(false),
+        updatePreferences: () => Promise.reject(new Error('not used here')),
       }),
     };
     await expect(

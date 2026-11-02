@@ -1,6 +1,12 @@
 import type { MiddlewareHandler } from 'hono';
 import { v7 as uuidv7 } from 'uuid';
-import { createEnsureProfile, createProfileRepositories } from './modules/account/index.js';
+import {
+  createEnsureProfile,
+  createProfileRepositories,
+  createUpdatePreferences,
+  registerAccountRoutes,
+} from './modules/account/index.js';
+import type { RouteRegistry } from './core/registry/registry.js';
 import { createAuth } from './core/auth/auth.js';
 import { createLogEmailSender, createResendSender, type EmailSender } from './core/auth/email.js';
 import { sessionMiddleware } from './core/auth/session.js';
@@ -53,13 +59,15 @@ export function createContainer(deps: ContainerDeps): Container {
   let session = deps.session;
   let authHandler: ((request: Request) => Promise<Response>) | undefined;
   let scheduler: Scheduler | undefined;
+  let registerModuleRoutes: ((registry: RouteRegistry) => void) | undefined;
 
   if (connection !== undefined) {
-    const ensureProfile = createEnsureProfile({
-      profiles: createProfileRepositories(connection),
-      newId: uuidv7,
-      clock,
-    });
+    const profiles = createProfileRepositories(connection);
+    const ensureProfile = createEnsureProfile({ profiles, newId: uuidv7, clock });
+    const updatePreferences = createUpdatePreferences({ profiles, ensureProfile, clock });
+    registerModuleRoutes = (registry) => {
+      registerAccountRoutes(registry, { ensureProfile, updatePreferences });
+    };
     // Awaited, so a failure reaches the publisher (which logs it) instead of an unhandled rejection.
     bus.on('UserRegistered', async ({ userId, locale }) => {
       await ensureProfile(userId, locale);
@@ -87,6 +95,8 @@ export function createContainer(deps: ContainerDeps): Container {
     ...(deps.idempotencyStore === undefined ? {} : { idempotencyStore: deps.idempotencyStore }),
     ...(deps.ifMatchExempt === undefined ? {} : { ifMatchExempt: deps.ifMatchExempt }),
   });
+
+  registerModuleRoutes?.(http.registry);
 
   return { ...http, env, logger, bus, ...(scheduler === undefined ? {} : { scheduler }) };
 }
