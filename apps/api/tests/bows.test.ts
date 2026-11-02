@@ -41,6 +41,7 @@ beforeAll(async () => {
       bowUsage: (_userId, bowId) =>
         Promise.resolve(usageByBow.get(bowId) ?? { setups: 0, marks: 0 }),
       sightUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
+      arrowSetUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
     },
   });
 }, 120_000);

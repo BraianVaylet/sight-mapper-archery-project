@@ -7,7 +7,13 @@ import {
   registerAccountRoutes,
 } from './modules/account/index.js';
 import {
+  createArrowSetRepositories,
   createBowRepositories,
+  createComponentUseCases,
+  createCreateArrowSet,
+  createUpdateArrowSet,
+  registerArrowSetRoutes,
+  type ArrowSetUsagePort,
   createChangeSightStatus,
   createCreateSight,
   createDeleteSight,
@@ -66,7 +72,7 @@ export type ContainerDeps = {
   readonly idempotencyStore?: IdempotencyStore;
   readonly ifMatchExempt?: readonly string[];
   /** How many setups and marks use a bow. The calculator module provides it; until then, zero. */
-  readonly componentUsage?: ComponentUsagePort & SightUsagePort;
+  readonly componentUsage?: ComponentUsagePort & SightUsagePort & ArrowSetUsagePort;
   /** The marks that live on a sight. The calculator module provides it; until then, none. */
   readonly sightMarks?: SightMarksPort;
 };
@@ -91,10 +97,12 @@ export function createContainer(deps: ContainerDeps): Container {
     const ensureProfile = createEnsureProfile({ profiles, newId: uuidv7, clock });
     const updatePreferences = createUpdatePreferences({ profiles, ensureProfile, clock });
     // Until the calculator module exists nothing uses a bow: the port answers zero (F1-05 swaps it).
-    const usage: ComponentUsagePort & SightUsagePort = deps.componentUsage ?? {
+    const usage: ComponentUsagePort & SightUsagePort & ArrowSetUsagePort = deps.componentUsage ?? {
       bowUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
       sightUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
+      arrowSetUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
     };
+    const arrowSets = createArrowSetRepositories(connection);
     const sightMarks: SightMarksPort = deps.sightMarks ?? {
       count: () => Promise.resolve(0),
       countOutside: () => Promise.resolve(0),
@@ -111,6 +119,17 @@ export function createContainer(deps: ContainerDeps): Container {
         updateBow: createUpdateBow({ bows, clock }),
         changeBowStatus: createChangeBowStatus({ bows, clock }),
         deleteBow: createDeleteBow({ bows, usage, clock }),
+      });
+      registerArrowSetRoutes(registry, {
+        shared: createComponentUseCases({
+          repositories: arrowSets,
+          usage: usage.arrowSetUsage,
+          clock,
+          resource: 'arrow set',
+          inUseCode: 'SM-ARW-409-001',
+        }),
+        create: createCreateArrowSet({ arrowSets, clock }),
+        update: createUpdateArrowSet({ arrowSets, clock }),
       });
       registerSightRoutes(registry, {
         listSights: createListSights({ sights }),

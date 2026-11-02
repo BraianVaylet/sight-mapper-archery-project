@@ -22,3 +22,9 @@ export type {
 } from './domain/sight.js';
 export { createSightRepositories } from './infrastructure/sight-repository.js';
 export { registerSightRoutes } from './infrastructure/sight-routes.js';
+export { createComponentUseCases } from './application/component-use-cases.js';
+export { createCreateArrowSet } from './application/create-arrow-set.js';
+export { createUpdateArrowSet } from './application/update-arrow-set.js';
+export type { ArrowSet, ArrowSetRepositories, ArrowSetUsagePort } from './domain/arrow-set.js';
+export { createArrowSetRepositories } from './infrastructure/arrow-set-repository.js';
+export { registerArrowSetRoutes } from './infrastructure/arrow-set-routes.js';

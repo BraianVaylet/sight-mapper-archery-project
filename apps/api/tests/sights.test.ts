@@ -40,6 +40,7 @@ beforeAll(async () => {
     idempotencyStore: createMongoIdempotencyStore(connection, clock),
     componentUsage: {
       bowUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
+      arrowSetUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
       sightUsage: (_userId, sightId) =>
         Promise.resolve(usageBySight.get(sightId) ?? { setups: 0, marks: 0 }),
     },

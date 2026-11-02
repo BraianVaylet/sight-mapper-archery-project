@@ -172,3 +172,7 @@ export type BowDetail = z.infer<typeof bowDetail>;
 /** `GET /sights/:id`: the sight plus what uses it. */
 export const sightDetail = sight.extend({ usage: componentUsage });
 export type SightDetail = z.infer<typeof sightDetail>;
+
+/** `GET /arrow-sets/:id`: the set plus what uses it. */
+export const arrowSetDetail = arrowSet.extend({ usage: componentUsage });
+export type ArrowSetDetail = z.infer<typeof arrowSetDetail>;
