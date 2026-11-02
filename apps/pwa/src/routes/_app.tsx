@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { ProfileSync } from '../features/account/profile-sync.js';
 import { sessionQuery } from '../features/auth/session.js';
 
 /** Everything behind the session. The guard asks the server; the API still decides every call. */
@@ -11,5 +12,10 @@ export const Route = createFileRoute('/_app')({
       throw redirect({ to: '/sign-in', search: { redirect: location.href } });
     }
   },
-  component: Outlet,
+  component: () => (
+    <>
+      <ProfileSync />
+      <Outlet />
+    </>
+  ),
 });

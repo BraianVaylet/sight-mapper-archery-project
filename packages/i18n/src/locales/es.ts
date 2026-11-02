@@ -124,6 +124,13 @@ export const es = {
       header: 'Encabezado',
     },
   },
+  appearance: {
+    intro: 'Los cambios se ven al instante y se guardan en tu cuenta.',
+    group: 'Preferencias',
+    units: 'Unidades',
+    metric: 'Métrico (metros)',
+    imperial: 'Imperial (yardas)',
+  },
   theme: {
     label: 'Tema',
     system: 'Del sistema',

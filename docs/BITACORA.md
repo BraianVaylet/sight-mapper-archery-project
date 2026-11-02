@@ -18,6 +18,41 @@
 
 ---
 
+## 2026-11-02 — El arquero elige tema, idioma y unidades, y la eleccion lo sigue a otro dispositivo
+
+**Tareas:** F1-01 · **Commit/PR:** ramas `feat/f1-preferences` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **API (`account`):** `GET /api/v1/me` devuelve el perfil (preferencias, acceso rapido, baja pedida, `version`) y lo crea
+  en la primera lectura con el idioma del navegador (es → metrico, en → imperial); `PATCH /api/v1/me/preferences` cambia solo
+  lo enviado, exige `If-Match` (412 con la version actual si quedo vieja, 428 si falta) y responde con el `ETag` nuevo.
+  Las dos rutas entran en la suite de aislamiento (`tests/attacks/account.ts`) y se prueban contra un replica set real.
+- **PWA:** pantalla *Apariencia* (`/settings/appearance`) con tema, idioma y unidades, y el pie de pagina tambien guarda en el
+  perfil cuando hay sesion. El cambio se ve al instante (cache optimista de Query), se guarda detras con la version que
+  tiene la cache, los cambios rapidos van en serie (`scope`) para no chocar con su propia version, y si falla vuelve
+  atras y explica por que. `ProfileSync` toma tema e idioma del perfil al entrar (ADR-004).
+
+### Decisiones
+
+- El perfil no lleva `id` ni `userId` en el cable: es el de la sesion (ADR-000), y por eso el cliente usa hooks propios y no
+  `createResourceHooks`.
+- `PreferencesPatch` admite `undefined` por clave (`exactOptionalPropertyTypes`) y el repositorio descarta esas claves: Mongo no
+  guarda nulls por accidente.
+
+### Verificado
+
+- API: 212 tests (14 nuevos de `/me`: defaults por idioma, un perfil por arquero, 412/428/400, sin sesion → 401, aislamiento).
+- PWA: 79 tests (7 nuevos: preferencias del perfil mandan sobre el dispositivo, cambio al instante, idioma sin recargar,
+  unidades, dos cambios seguidos con versiones 1 y 2, rollback con error, pie de pagina).
+
+### Pendiente / deuda
+
+- Las unidades todavia no cambian ningun numero en pantalla: eso es F1-12 (sistema imperial completo).
+- `minClientVersion` de `GET /me` (TECNICO §9) no esta; entra cuando haya un criterio para forzar actualizar.
+
+---
+
 ## 2026-11-01 — La PWA tiene esqueleto y pantallas de auth: tema, idioma, rutas con guard y service worker
 
 **Tareas:** F0-17 · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)

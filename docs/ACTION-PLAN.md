@@ -312,7 +312,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
 
 Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MAPPER-SPEC.md).
 
-### [ ] F1-01 · Preferencias y Apariencia
+### [x] F1-01 · Preferencias y Apariencia
 
 - **Modulo:** account, pwa · **Puntos:** 3 · **Depende de:** F0-17
 - **Descripcion:** `GET /me`, `PATCH /me/preferences`; pantalla Apariencia (tema, idioma,

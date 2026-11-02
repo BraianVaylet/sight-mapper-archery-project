@@ -122,6 +122,13 @@ export const en: Messages = {
       header: 'Header',
     },
   },
+  appearance: {
+    intro: 'Changes show at once and are saved to your account.',
+    group: 'Preferences',
+    units: 'Units',
+    metric: 'Metric (metres)',
+    imperial: 'Imperial (yards)',
+  },
   theme: {
     label: 'Theme',
     system: 'System',

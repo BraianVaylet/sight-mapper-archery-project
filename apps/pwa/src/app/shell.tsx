@@ -2,28 +2,28 @@ import { Segmented } from '@sight-mapper/ui';
 import { LOCALES } from '@sight-mapper/types';
 import type { ReactNode } from 'react';
 import { useI18n } from './i18n.js';
+import { usePreferenceActions } from '../features/account/use-preference-actions.js';
 import { THEMES, usePreferences } from './preferences.js';
 
 /** Theme, language and version: always reachable, also before signing in. */
 export function PreferencesBar() {
   const { t } = useI18n();
   const theme = usePreferences((state) => state.theme);
-  const setTheme = usePreferences((state) => state.setTheme);
   const locale = usePreferences((state) => state.locale);
-  const setLocale = usePreferences((state) => state.setLocale);
+  const actions = usePreferenceActions();
 
   return (
     <div className="flex flex-wrap items-end justify-center gap-4 p-4">
       <Segmented
         label={t('theme.label')}
         value={theme}
-        onChange={setTheme}
+        onChange={actions.theme}
         options={THEMES.map((value) => ({ value, label: t(`theme.${value}`) }))}
       />
       <Segmented
         label={t('language.label')}
         value={locale}
-        onChange={setLocale}
+        onChange={actions.locale}
         options={LOCALES.map((value) => ({ value, label: t(`language.${value}`) }))}
       />
     </div>
