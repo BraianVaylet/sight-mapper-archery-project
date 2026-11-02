@@ -3,6 +3,9 @@
 Contexto raiz en `../../CLAUDE.md`. Hoy existen el esqueleto (providers, tema, i18n, router con
 guard, service worker) y las rutas de FUNCIONAL §1.1 como placeholders (F0-17).
 
+Para probar todo en local: `pnpm dev:local` desde la raiz (Mongo temporal, API y PWA; los links de
+los emails salen en la consola). `/sandbox` solo existe en desarrollo.
+
 ## Forma prevista (ARQUITECTURA §5)
 
 ```

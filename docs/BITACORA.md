@@ -20,7 +20,7 @@
 
 ## 2026-11-01 — La PWA tiene esqueleto y pantallas de auth: tema, idioma, rutas con guard y service worker
 
-**Tareas:** F0-17 (etapas 1 y 2 de 3, y avance de la 3) · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)
+**Tareas:** F0-17 (etapas 1, 2 y 3 de 3; faltan Lighthouse, E2E y Google) · **Commit/PR:** rama `feat/f0-pwa` · **Tarjeta:** sin tablero (F0-04)
 
 ### Que se hizo
 
@@ -52,13 +52,14 @@
 
 ### Verificado
 
-- 58 tests de la PWA (guard con y sin sesion, redirect seguro, reintento, 404, pie con tema e idioma, banner de
+- 72 tests de la PWA (guard con y sin sesion, redirect seguro, reintento, 404, pie con tema e idioma, banner de
   actualizacion y los cinco flujos de auth con `fetch` falso, en ES y EN) con cobertura 98 % lineas; lint, typecheck y `vite build` limpios (SW con 41 entradas precacheadas).
 - Dev server en el navegador integrado: splash, y error traducido con "Reintentar" cuando la API esta apagada.
 
 ### Pendiente / deuda
 
-- Etapa 3, a medias: `pnpm dev:local` (Mongo temporal + migraciones + API + PWA; imprime los links de los emails) y `/sandbox` (solo en desarrollo: regla SVG con los dos sets reales, tabla, Mark Doctor y catalogo de componentes) existen y compilan, pero **no tienen tests** y `/sandbox` no se vio todavia en el navegador (un Vite viejo con NODE_ENV=production lo ocultaba; ya corregido). El flujo real registro → link → verificado SI se probo a mano contra la API.
+- Etapa 3 hecha: `pnpm dev:local` (Mongo temporal + migraciones + API + PWA; imprime los links de los emails) y `/sandbox` (solo en desarrollo: regla SVG con los dos sets reales, tabla, Mark Doctor y catalogo de componentes, visto en el navegador). El flujo real registro → link → verificado se probo a mano contra la API.
+- Falta para cerrar F0-17: Lighthouse instalable y E2E smoke (necesitan Chrome/Playwright: descarga, pedir permiso) y el boton de Google (F0-20).
 - Corregido de paso: el script `migrate` del API usaba una opcion inexistente de migrate-mongo 14 y nunca habia corrido.
 - Falta el boton "Entrar con Google": necesita la consola de Google (F0-20) y saber si el proveedor esta activo.
 - Lighthouse instalable y E2E de registro → verificacion → login necesitan Chrome/Playwright (descarga, pedir permiso).
