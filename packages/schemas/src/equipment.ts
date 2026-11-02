@@ -168,3 +168,7 @@ export type ComponentUsage = z.infer<typeof componentUsage>;
 /** `GET /bows/:id`: the bow plus what uses it (the delete is refused while setups do). */
 export const bowDetail = bow.extend({ usage: componentUsage });
 export type BowDetail = z.infer<typeof bowDetail>;
+
+/** `GET /sights/:id`: the sight plus what uses it. */
+export const sightDetail = sight.extend({ usage: componentUsage });
+export type SightDetail = z.infer<typeof sightDetail>;

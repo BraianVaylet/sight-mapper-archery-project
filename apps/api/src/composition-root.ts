@@ -8,6 +8,16 @@ import {
 } from './modules/account/index.js';
 import {
   createBowRepositories,
+  createChangeSightStatus,
+  createCreateSight,
+  createDeleteSight,
+  createGetSight,
+  createListSights,
+  createSightRepositories,
+  createUpdateSight,
+  registerSightRoutes,
+  type SightMarksPort,
+  type SightUsagePort,
   createChangeBowStatus,
   createCreateBow,
   createDeleteBow,
@@ -56,7 +66,9 @@ export type ContainerDeps = {
   readonly idempotencyStore?: IdempotencyStore;
   readonly ifMatchExempt?: readonly string[];
   /** How many setups and marks use a bow. The calculator module provides it; until then, zero. */
-  readonly componentUsage?: ComponentUsagePort;
+  readonly componentUsage?: ComponentUsagePort & SightUsagePort;
+  /** The marks that live on a sight. The calculator module provides it; until then, none. */
+  readonly sightMarks?: SightMarksPort;
 };
 
 /**
@@ -79,9 +91,16 @@ export function createContainer(deps: ContainerDeps): Container {
     const ensureProfile = createEnsureProfile({ profiles, newId: uuidv7, clock });
     const updatePreferences = createUpdatePreferences({ profiles, ensureProfile, clock });
     // Until the calculator module exists nothing uses a bow: the port answers zero (F1-05 swaps it).
-    const usage: ComponentUsagePort = deps.componentUsage ?? {
+    const usage: ComponentUsagePort & SightUsagePort = deps.componentUsage ?? {
       bowUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
+      sightUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
     };
+    const sightMarks: SightMarksPort = deps.sightMarks ?? {
+      count: () => Promise.resolve(0),
+      countOutside: () => Promise.resolve(0),
+      rescale: () => Promise.resolve(),
+    };
+    const sights = createSightRepositories(connection);
     const bows = createBowRepositories(connection);
     registerModuleRoutes = (registry) => {
       registerAccountRoutes(registry, { ensureProfile, updatePreferences });
@@ -92,6 +111,14 @@ export function createContainer(deps: ContainerDeps): Container {
         updateBow: createUpdateBow({ bows, clock }),
         changeBowStatus: createChangeBowStatus({ bows, clock }),
         deleteBow: createDeleteBow({ bows, usage, clock }),
+      });
+      registerSightRoutes(registry, {
+        listSights: createListSights({ sights }),
+        getSight: createGetSight({ sights, usage }),
+        createSight: createCreateSight({ sights, clock }),
+        updateSight: createUpdateSight({ sights, marks: sightMarks, clock }),
+        changeSightStatus: createChangeSightStatus({ sights, clock }),
+        deleteSight: createDeleteSight({ sights, usage, clock }),
       });
     };
     // Awaited, so a failure reaches the publisher (which logs it) instead of an unhandled rejection.

@@ -7,3 +7,18 @@ export { createUpdateBow } from './application/update-bow.js';
 export type { Bow, BowRepositories, ComponentUsagePort } from './domain/bow.js';
 export { createBowRepositories } from './infrastructure/bow-repository.js';
 export { registerBowRoutes } from './infrastructure/bow-routes.js';
+export { createChangeSightStatus } from './application/change-sight-status.js';
+export { createCreateSight } from './application/create-sight.js';
+export { createDeleteSight } from './application/delete-sight.js';
+export { createGetSight } from './application/get-sight.js';
+export { createListSights } from './application/list-sights.js';
+export { createUpdateSight } from './application/update-sight.js';
+export type {
+  ScaleChange,
+  Sight,
+  SightMarksPort,
+  SightRepositories,
+  SightUsagePort,
+} from './domain/sight.js';
+export { createSightRepositories } from './infrastructure/sight-repository.js';
+export { registerSightRoutes } from './infrastructure/sight-routes.js';
