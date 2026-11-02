@@ -15,6 +15,8 @@ export type ComponentCollection = {
   readonly resource: string;
   /** The fields the archer describes, flat on the document. The rest is `ComponentMeta`. */
   readonly definition: SchemaDefinition;
+  /** Shapes a value on its way to the database (a sight's scale is stored without nulls). */
+  readonly store?: (name: string, value: unknown) => unknown;
 };
 
 type Row = Record<string, unknown> & {
@@ -46,6 +48,7 @@ export function createComponentRepositories<E extends ComponentMeta, Patch exten
   options: ComponentCollection,
 ): ComponentRepositories<E, Patch> {
   const { connection, modelName, collection, resource, definition } = options;
+  const store = options.store ?? ((_name: string, value: unknown) => value);
   const fieldNames = Object.keys(definition).filter((name) => !['status'].includes(name));
   const schema = createBusinessSchema(
     { status: { type: String, required: true, default: 'active' }, ...definition },
@@ -108,9 +111,11 @@ export function createComponentRepositories<E extends ComponentMeta, Patch exten
 
         async insert(entity) {
           const described = Object.fromEntries(
-            Object.entries(entity).filter(
-              ([name, value]) => !META_KEYS.has(name) && value !== undefined && value !== null,
-            ),
+            Object.entries(entity)
+              .filter(
+                ([name, value]) => !META_KEYS.has(name) && value !== undefined && value !== null,
+              )
+              .map(([name, value]) => [name, store(name, value)]),
           );
           try {
             await Docs.create({
@@ -133,7 +138,7 @@ export function createComponentRepositories<E extends ComponentMeta, Patch exten
           for (const [name, value] of Object.entries(patch)) {
             if (value === undefined) continue;
             if (value === null) unset[name] = 1;
-            else set[name] = value;
+            else set[name] = store(name, value);
           }
           const row = await updateWithVersion(
             Docs,

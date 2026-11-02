@@ -14,21 +14,13 @@ import {
   createUpdateArrowSet,
   registerArrowSetRoutes,
   type ArrowSetUsagePort,
-  createChangeSightStatus,
   createCreateSight,
-  createDeleteSight,
-  createGetSight,
-  createListSights,
   createSightRepositories,
   createUpdateSight,
   registerSightRoutes,
   type SightMarksPort,
   type SightUsagePort,
-  createChangeBowStatus,
   createCreateBow,
-  createDeleteBow,
-  createGetBow,
-  createListBows,
   createUpdateBow,
   registerBowRoutes,
   type ComponentUsagePort,
@@ -113,12 +105,15 @@ export function createContainer(deps: ContainerDeps): Container {
     registerModuleRoutes = (registry) => {
       registerAccountRoutes(registry, { ensureProfile, updatePreferences });
       registerBowRoutes(registry, {
-        listBows: createListBows({ bows }),
-        getBow: createGetBow({ bows, usage }),
-        createBow: createCreateBow({ bows, clock }),
-        updateBow: createUpdateBow({ bows, clock }),
-        changeBowStatus: createChangeBowStatus({ bows, clock }),
-        deleteBow: createDeleteBow({ bows, usage, clock }),
+        shared: createComponentUseCases({
+          repositories: bows,
+          usage: usage.bowUsage,
+          clock,
+          resource: 'bow',
+          inUseCode: 'SM-BOW-409-001',
+        }),
+        create: createCreateBow({ bows, clock }),
+        update: createUpdateBow({ bows, clock }),
       });
       registerArrowSetRoutes(registry, {
         shared: createComponentUseCases({
@@ -132,12 +127,15 @@ export function createContainer(deps: ContainerDeps): Container {
         update: createUpdateArrowSet({ arrowSets, clock }),
       });
       registerSightRoutes(registry, {
-        listSights: createListSights({ sights }),
-        getSight: createGetSight({ sights, usage }),
-        createSight: createCreateSight({ sights, clock }),
-        updateSight: createUpdateSight({ sights, marks: sightMarks, clock }),
-        changeSightStatus: createChangeSightStatus({ sights, clock }),
-        deleteSight: createDeleteSight({ sights, usage, clock }),
+        shared: createComponentUseCases({
+          repositories: sights,
+          usage: usage.sightUsage,
+          clock,
+          resource: 'sight',
+          inUseCode: 'SM-SGT-409-001',
+        }),
+        create: createCreateSight({ sights, clock }),
+        update: createUpdateSight({ sights, marks: sightMarks, clock }),
       });
     };
     // Awaited, so a failure reaches the publisher (which logs it) instead of an unhandled rejection.

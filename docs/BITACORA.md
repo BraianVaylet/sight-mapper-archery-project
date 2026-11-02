@@ -18,6 +18,34 @@
 
 ---
 
+## 2026-11-02 — Arcos y miras pasan a las piezas comunes del equipo
+
+**Tareas:** refactor de F1-02, F1-03 y F1-04 · **Commit/PR:** rama `refactor/equipment-shared` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- Arcos y miras dejan de tener su propio repositorio, listar/leer/archivar/borrar y siete rutas: usan `createComponentRepositories`,
+  `createComponentUseCases` y `registerComponentRoutes`, igual que los sets de flechas. Cada tipo conserva solo lo suyo: los campos, el alta y
+  la edicion (arco: solo compuesto y nunca sin nombre; mira: la escala y la estrategia de cambio).
+- El repositorio generico aprendio una sola cosa: `store`, un gancho para dar forma a un valor antes de guardarlo (la escala de la mira se
+  guarda sin `null`).
+- Se borran 8 archivos de casos de uso y se achican repositorios y rutas: **126 lineas nuevas, 875 borradas**.
+
+### Decisiones
+
+- Sin cambios de comportamiento ni de contrato: los 289 tests de API pasan **sin editar ninguno**, incluida la suite de aislamiento y las rutas
+  de OpenAPI.
+
+### Verificado
+
+- API: 289 tests, cobertura 97 %; lint y typecheck limpios. La PWA no se toca.
+
+### Pendiente / deuda
+
+- `ComponentUsagePort`, `SightUsagePort` y `ArrowSetUsagePort` son tres puertos casi iguales: F1-05 los junta cuando el calculador los implemente.
+
+---
+
 ## 2026-11-02 — El arquero carga sus sets de flechas y el equipo comparte sus piezas
 
 **Tareas:** F1-04 · **Commit/PR:** rama `feat/f1-arrows` · **Tarjeta:** sin tablero (F0-04)
@@ -36,7 +64,7 @@
 
 ### Decisiones
 
-- Los arcos y las miras **todavia no usan** las piezas genericas del API: se migran en una tarea aparte, con sus tests como red (los de
+- Los arcos y las miras ya usan las piezas genericas del API (migrados en `refactor/equipment-shared`; los tests de
   arcos y miras son 56 y no se tocaron).
 - Pesos en metrico: **g**; imperial: **gr** (UNIDADES §1, propuesta inicial; spec §17.2 sigue abierta).
 
@@ -48,7 +76,7 @@
 
 ### Pendiente / deuda
 
-- Migrar bows y sights a `createComponentRepositories` / `createComponentUseCases` / `registerComponentRoutes` (borra ~400 lineas).
+- ~~Migrar bows y sights a las piezas genericas~~: hecho en la entrada siguiente de arriba.
 - Falta correrlo a mano en el navegador y un E2E que cargue arco, mira y flechas.
 - Siguiente: F1-05 (setups, Home y papelera), que da la implementacion real de `ComponentUsagePort`.
 
