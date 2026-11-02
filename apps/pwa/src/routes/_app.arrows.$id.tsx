@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { ArrowFormScreen } from '../features/equipment/arrow-form-screen.js';
 
 export const Route = createFileRoute('/_app/arrows/$id')({
-  component: () => <Placeholder screen="arrows" />,
+  component: function ArrowRoute() {
+    const { id } = Route.useParams();
+    return <ArrowFormScreen id={id} />;
+  },
 });

@@ -51,6 +51,10 @@ describe('ES / EN parity', () => {
     'sights.form.pinDualpin',
     'sights.form.pinMultipin',
     'sights.form.unitClick',
+    'arrows.form.spine',
+    'arrows.form.gpi',
+    'arrows.form.nock',
+    'arrows.form.vanes',
   ]);
 
   it('has no empty messages and no Spanish copied into English', () => {

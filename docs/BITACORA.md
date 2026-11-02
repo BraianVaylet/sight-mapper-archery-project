@@ -18,6 +18,42 @@
 
 ---
 
+## 2026-11-02 — El arquero carga sus sets de flechas y el equipo comparte sus piezas
+
+**Tareas:** F1-04 · **Commit/PR:** rama `feat/f1-arrows` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **API (`/api/v1/arrow-sets`):** las siete rutas del equipo (listado por cursor, alta idempotente, detalle con `usage`, PATCH con
+  `If-Match`, archivar/desarchivar, borrado blando protegido por `SM-ARW-409-001`). Solo el nombre es obligatorio; el resto es
+  "dejá vacío lo que no mediste", y `null` en un PATCH borra el campo (el nombre no se puede borrar).
+- **Piezas compartidas, escritas una sola vez** (ya se habia copiado dos veces con arcos y miras): `ComponentRepository` y
+  `createComponentRepositories` (persistencia plana con cursor, version y soft delete), `createComponentUseCases` (leer, listar, archivar,
+  borrar protegido) y `registerComponentRoutes` (las siete rutas con su OpenAPI). Un set solo agrega sus campos y su alta/edicion.
+- **PWA:** `/arrows`, `/arrows/new`, `/arrows/{id}`. Formulario con los datos principales y pesos a la vista y "Más datos" plegable
+  (vanes, nock, velocidad medida, notas). Unidades por sistema: g / mm / m·s⁻¹ o gr / in / fps (con fracciones de pulgada); spine, GPI y
+  cantidad de vanes no se convierten. `units.ts` junta la conversion que antes vivia dentro del formulario de arcos, que ahora la usa.
+
+### Decisiones
+
+- Los arcos y las miras **todavia no usan** las piezas genericas del API: se migran en una tarea aparte, con sus tests como red (los de
+  arcos y miras son 56 y no se tocaron).
+- Pesos en metrico: **g**; imperial: **gr** (UNIDADES §1, propuesta inicial; spec §17.2 sigue abierta).
+
+### Verificado
+
+- API: 289 tests (21 nuevos de sets: solo nombre, medidas opcionales, idempotencia ×3, 409/400 por campo, paginado, 412/428, nulos, archivar,
+  borrado protegido y blando, aislamiento) con cobertura 97 %.
+- PWA: 162 tests (10 de la logica con conversiones a mano — 29 1/8 in = 739,775 mm, 100 gr = 6,4799 g, 270 fps = 82,296 m/s — y 11 de pantallas).
+
+### Pendiente / deuda
+
+- Migrar bows y sights a `createComponentRepositories` / `createComponentUseCases` / `registerComponentRoutes` (borra ~400 lineas).
+- Falta correrlo a mano en el navegador y un E2E que cargue arco, mira y flechas.
+- Siguiente: F1-05 (setups, Home y papelera), que da la implementacion real de `ComponentUsagePort`.
+
+---
+
 ## 2026-11-02 — El arquero carga su mira con su escala real y la cambia sin perder marcas
 
 **Tareas:** F1-03 · **Commit/PR:** rama `feat/f1-sights` · **Tarjeta:** sin tablero (F0-04)

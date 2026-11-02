@@ -1,10 +1,5 @@
-import {
-  fromCanonical,
-  parseDecimal,
-  parseImperial,
-  toCanonical,
-  type DecimalSeparator,
-} from '@sight-mapper/domain';
+import type { DecimalSeparator } from '@sight-mapper/domain';
+import { readQuantity, showQuantity, unitOf } from './units.js';
 import {
   createBow,
   toValidationIssues,
@@ -33,37 +28,7 @@ export type NumberFieldName = (typeof NUMBER_FIELDS)[number]['name'];
 export type TextFieldName = (typeof TEXT_FIELDS)[number];
 export type BowFormValues = Record<NumberFieldName | TextFieldName | 'camType', string>;
 
-type Quantity = (typeof NUMBER_FIELDS)[number]['quantity'];
-
-/** What the archer types in, per system: mm / kg / m/s, or in / lb / fps. */
-export function unitOf(quantity: Quantity, system: UnitSystem): string {
-  const metric = system === 'metric';
-  switch (quantity) {
-    case 'length':
-      return metric ? 'mm' : 'in';
-    case 'force':
-      return metric ? 'kg' : 'lb';
-    case 'speed':
-      return metric ? 'm/s' : 'fps';
-    case 'percent':
-      return '%';
-  }
-}
-
-/** The unit tokens of the domain converter for each quantity and system. */
-function converter(quantity: Quantity, system: UnitSystem) {
-  const metric = system === 'metric';
-  switch (quantity) {
-    case 'length':
-      return { quantity: 'length', unit: metric ? 'mm' : 'in' } as const;
-    case 'force':
-      return { quantity: 'force', unit: metric ? 'kg' : 'lb' } as const;
-    case 'speed':
-      return { quantity: 'speed', unit: metric ? 'mps' : 'fps' } as const;
-    case 'percent':
-      return null;
-  }
-}
+export { unitOf };
 
 export const emptyValues = (): BowFormValues => ({
   nickname: '',
@@ -83,12 +48,6 @@ export const emptyValues = (): BowFormValues => ({
   dLoopLengthMm: '',
 });
 
-/** Two decimals at most: enough for 6.25 in or 62.5 lb, and no 0.30000000000000004. */
-function display(value: number, separator: DecimalSeparator): string {
-  const text = String(Number(value.toFixed(2)));
-  return separator === ',' ? text.replace('.', ',') : text;
-}
-
 /** A stored bow (canonical units) as the text the archer sees in their system. */
 export function toFormValues(
   bow: Partial<Bow> | undefined,
@@ -102,11 +61,7 @@ export function toFormValues(
   for (const { name, quantity } of NUMBER_FIELDS) {
     const stored = bow[name];
     if (stored === undefined || stored === null) continue;
-    const convert = converter(quantity, system);
-    values[name] = display(
-      convert === null ? stored : fromCanonical(convert.quantity, stored, convert.unit as never),
-      separator,
-    );
+    values[name] = showQuantity(stored, quantity, system, separator);
   }
   return values;
 }
@@ -145,15 +100,12 @@ export function toBowInput(values: BowFormValues, system: UnitSystem, id: string
       clears.push(name);
       continue;
     }
-    const fractions = system === 'imperial' && quantity === 'length';
-    const typed = fractions ? parseImperial(text) : parseDecimal(text);
+    const typed = readQuantity(text, quantity, system);
     if (typed === null) {
       errors[name] = { ...NOT_A_NUMBER, path: [name] };
       continue;
     }
-    const convert = converter(quantity, system);
-    draft[name] =
-      convert === null ? typed : toCanonical(convert.quantity, typed, convert.unit as never);
+    draft[name] = typed;
   }
 
   const parsed = createBow.safeParse(draft);

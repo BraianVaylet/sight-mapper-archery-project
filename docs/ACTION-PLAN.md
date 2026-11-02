@@ -338,7 +338,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-SGT-01, HU-SGT-02. Test no negociable #5.
 - **Errores nuevos:** `SM-SGT-409-001/002/003`, `SM-SGT-422-001` · **Datos:** `sights`
 
-### [ ] F1-04 · Sets de flechas
+### [x] F1-04 · Sets de flechas
 
 - **Modulo:** equipment/arrows, pwa · **Puntos:** 3 · **Depende de:** F1-02
 - **Descripcion:** API + listado + form de `New arrow set — Form.png` con seccion "Mas datos".
