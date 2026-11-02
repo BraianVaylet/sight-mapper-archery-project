@@ -7,7 +7,20 @@ import {
   registerAccountRoutes,
 } from './modules/account/index.js';
 import {
+  createCheckComponents,
+  createComponentUsage,
+  createCreateSetup,
+  createSetupRepositories,
+  createSetupUseCases,
+  createSetupViews,
+  createUpdateSetup,
+  purgeDeletedSetups,
+  registerSetupRoutes,
+  type SetupMarksPort,
+} from './modules/calculator/index.js';
+import {
   createArrowSetRepositories,
+  createEquipmentReader,
   createBowRepositories,
   createComponentUseCases,
   createCreateArrowSet,
@@ -67,6 +80,8 @@ export type ContainerDeps = {
   readonly componentUsage?: ComponentUsagePort & SightUsagePort & ArrowSetUsagePort;
   /** The marks that live on a sight. The calculator module provides it; until then, none. */
   readonly sightMarks?: SightMarksPort;
+  /** The marks of each setup (F1-07 implements it); until then, none. */
+  readonly setupMarks?: SetupMarksPort;
 };
 
 /**
@@ -88,22 +103,38 @@ export function createContainer(deps: ContainerDeps): Container {
     const profiles = createProfileRepositories(connection);
     const ensureProfile = createEnsureProfile({ profiles, newId: uuidv7, clock });
     const updatePreferences = createUpdatePreferences({ profiles, ensureProfile, clock });
-    // Until the calculator module exists nothing uses a bow: the port answers zero (F1-05 swaps it).
-    const usage: ComponentUsagePort & SightUsagePort & ArrowSetUsagePort = deps.componentUsage ?? {
-      bowUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
-      sightUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
-      arrowSetUsage: () => Promise.resolve({ setups: 0, marks: 0 }),
-    };
     const arrowSets = createArrowSetRepositories(connection);
+    const sights = createSightRepositories(connection);
+    const bows = createBowRepositories(connection);
+    const setups = createSetupRepositories(connection);
+
+    // No marks exist until F1-07: both ports answer "none", and the setup rules that need them
+    // already ask through them.
     const sightMarks: SightMarksPort = deps.sightMarks ?? {
       count: () => Promise.resolve(0),
       countOutside: () => Promise.resolve(0),
       rescale: () => Promise.resolve(),
     };
-    const sights = createSightRepositories(connection);
-    const bows = createBowRepositories(connection);
+    const setupMarks: SetupMarksPort = deps.setupMarks ?? {
+      countBySetup: () => Promise.resolve(new Map()),
+      countForArrowSet: () => Promise.resolve(0),
+    };
+
+    // Equipment asks the calculator how much leans on a component (ADR-008); the calculator asks
+    // equipment who each component is. Neither imports the other: only this file knows both.
+    const equipment = createEquipmentReader({ bows, sights, arrowSets });
+    const usage: ComponentUsagePort & SightUsagePort & ArrowSetUsagePort =
+      deps.componentUsage ?? createComponentUsage({ setups, marks: setupMarks });
+    const check = createCheckComponents(equipment);
+    const views = createSetupViews({ equipment, marks: setupMarks });
     registerModuleRoutes = (registry) => {
       registerAccountRoutes(registry, { ensureProfile, updatePreferences });
+      registerSetupRoutes(registry, {
+        shared: createSetupUseCases({ setups, clock }),
+        views,
+        create: createCreateSetup({ setups, check, clock }),
+        update: createUpdateSetup({ setups, marks: setupMarks, check, clock }),
+      });
       registerBowRoutes(registry, {
         shared: createComponentUseCases({
           repositories: bows,
@@ -151,7 +182,12 @@ export function createContainer(deps: ContainerDeps): Container {
       logger,
     });
     authHandler = auth.handler;
-    scheduler = createScheduler({ connection, clock, logger, jobs: [purgeIdempotencyKeys] });
+    scheduler = createScheduler({
+      connection,
+      clock,
+      logger,
+      jobs: [purgeIdempotencyKeys, purgeDeletedSetups],
+    });
     session ??= sessionMiddleware(auth.sessions);
   }
 

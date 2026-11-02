@@ -1,4 +1,4 @@
-import { MARK_ORIGINS } from '@sight-mapper/types';
+import { MARK_ORIGINS, PIN_TYPES } from '@sight-mapper/types';
 import { z } from 'zod';
 import {
   bounded,
@@ -10,6 +10,7 @@ import {
   text,
   uuidv7,
 } from './common.js';
+import { sightScale } from './equipment.js';
 
 // -------------------------------------------------------------- setups
 
@@ -92,3 +93,42 @@ export const listMarksQuery = z.object({ arrowSetId: uuidv7 });
 export type ListMarksQuery = z.infer<typeof listMarksQuery>;
 
 export const MAX_MARKS_PER_PAIR = 500;
+
+// ------------------------------------------------- setups as the app reads them
+
+/** How a component is shown inside a setup. `status` lets a card say "arco archivado". */
+const refStatus = { id: uuidv7, status: componentStatus };
+const refNames = {
+  nickname: optional(text(1, 40)),
+  manufacturer: optional(text(1, 60)),
+  model: optional(text(1, 60)),
+};
+
+export const bowRef = z.object({ ...refStatus, ...refNames });
+export type BowRef = z.infer<typeof bowRef>;
+
+export const sightRef = z.object({
+  ...refStatus,
+  ...refNames,
+  pinType: z.enum(PIN_TYPES),
+  scale: sightScale,
+});
+export type SightRef = z.infer<typeof sightRef>;
+
+export const arrowSetRef = z.object({ ...refStatus, name: z.string() });
+export type ArrowSetRef = z.infer<typeof arrowSetRef>;
+
+/** A setup with its bow, sight (with its scale) and arrow sets, and how many marks it holds. */
+export const setupView = setup.extend({
+  bow: bowRef,
+  sight: sightRef,
+  arrowSets: z.array(arrowSetRef),
+  marksCount: z.int().min(0),
+});
+export type SetupView = z.infer<typeof setupView>;
+
+/** A setup in the trash: when it will be purged for good (30 days after it was deleted). */
+export const trashedSetupView = setupView.extend({ purgeAt: isoDateTime });
+export type TrashedSetupView = z.infer<typeof trashedSetupView>;
+
+export const TRASH_DAYS = 30;

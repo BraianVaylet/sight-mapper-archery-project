@@ -109,6 +109,12 @@ export function createComponentRepositories<E extends ComponentMeta, Patch exten
           return row === null ? null : toEntity(row);
         },
 
+        async findMany(ids) {
+          if (ids.length === 0) return [];
+          const rows = await Docs.find({ userId, _id: { $in: [...ids] } }).lean<Row[]>();
+          return rows.map(toEntity);
+        },
+
         async insert(entity) {
           const described = Object.fromEntries(
             Object.entries(entity)

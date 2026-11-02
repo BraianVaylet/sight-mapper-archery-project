@@ -25,6 +25,8 @@ export type ComponentPage<E> = { readonly items: readonly E[]; readonly nextCurs
 export type ComponentRepository<E extends ComponentMeta, Patch extends object> = {
   list(query: ComponentQuery): Promise<ComponentPage<E>>;
   find(id: string): Promise<E | null>;
+  /** The ones of these ids that are this archer's and not deleted, in no particular order. */
+  findMany(ids: readonly string[]): Promise<readonly E[]>;
   /** A repeated `id` is `SM-CORE-409-002`. */
   insert(entity: E): Promise<void>;
   /** `null` clears a field, absent leaves it. Stale `expectedVersion` is `SM-CORE-412-001`. */
