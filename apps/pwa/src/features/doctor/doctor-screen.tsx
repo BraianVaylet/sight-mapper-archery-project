@@ -20,7 +20,7 @@ import { componentName } from '../equipment/names.js';
 import { useSetupName } from '../setups/home-screen.js';
 import { Ruler, type RulerMark } from '../sight/ruler.js';
 import { useSightData } from '../sight/sight-data.js';
-import { distanceIn } from '../sight/sight.logic.js';
+import { formatDistance } from '../sight/sight.logic.js';
 import { WithSetup } from '../sight/with-setup.js';
 import { doctorView, type DoctorRowState } from './doctor.logic.js';
 import { describeError } from '../../app/errors.js';
@@ -50,10 +50,7 @@ function DoctorView({ setup, arrowSetId }: { setup: SetupView; arrowSetId: strin
   const view = doctorView(marks, analysis, scale);
 
   const unit = t(system === 'metric' ? 'sight.distanceUnitMetric' : 'sight.distanceUnitImperial');
-  const showDistance = (m: number) => {
-    const d = distanceIn(m, system);
-    return `${formatNumber(d, locale, Number.isInteger(d) ? 0 : 1)} ${unit}`;
-  };
+  const showDistance = (m: number) => formatDistance(m, system, locale, unit);
   const scaleUnit = t(`doctor.unit.${scale.unit}`);
   // One digit finer than the sight's quantum: a deviation of 0,04 must not read as 0,0.
   const digits = decimalsForQuantum(scale.resolution) + 1;

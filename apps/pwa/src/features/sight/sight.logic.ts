@@ -19,7 +19,9 @@ import {
   type MarkKind,
   type SightScale,
 } from '@sight-mapper/domain';
+import { formatNumber } from '@sight-mapper/i18n';
 import type { Mark, SightRef } from '@sight-mapper/schemas';
+import type { Locale } from '@sight-mapper/types';
 import type { UnitSystem } from '@sight-mapper/types';
 
 export { CALC_MIN_MARKS_DOCTOR, CALC_MIN_MARKS_INTERPOLATE };
@@ -57,6 +59,21 @@ export function readReading(text: string, scale: SightScale): number | null {
 /** Metres in the archer's unit, for the table and the readout: `40` m or `43,74` yd. */
 export function distanceIn(distanceM: number, system: UnitSystem): number {
   return system === 'metric' ? distanceM : fromCanonical('distance', distanceM, 'yd');
+}
+
+/**
+ * A distance for the archer, in their unit and with a decimal only when it matters: `20 yd` for
+ * 18.288 m, `21,9 yd` for 20 m, `45,5 m`. `unit` is the label (`m` or `yd`) from the catalog.
+ */
+export function formatDistance(
+  distanceM: number,
+  system: UnitSystem,
+  locale: Locale,
+  unit: string,
+): string {
+  const distance = distanceIn(distanceM, system);
+  const whole = Number.isInteger(Number(distance.toFixed(2)));
+  return `${formatNumber(distance, locale, whole ? 0 : 1)} ${unit}`;
 }
 
 export type Tier = 'none' | 'interpolate' | 'extrapolate';

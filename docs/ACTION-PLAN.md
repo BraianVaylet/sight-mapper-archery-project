@@ -403,7 +403,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   regla y tabla desde 2 marcas.
 - **Criterios:** HU-CAL-04.
 
-### [ ] F1-12 · Sistema imperial completo
+### [x] F1-12 · Sistema imperial completo
 
 - **Modulo:** pwa, domain · **Puntos:** 3 · **Depende de:** F1-02..F1-10
 - **Descripcion:** cerrar la decision abierta §17.2 (unidades de equipo por sistema) con 2–3

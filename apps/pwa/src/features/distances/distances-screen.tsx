@@ -1,7 +1,6 @@
-import { formatReading, parseDecimal, type CalcErrorCode } from '@sight-mapper/domain';
+import { formatReading, parseDecimal } from '@sight-mapper/domain';
 import { formatNumber } from '@sight-mapper/i18n';
 import type { SetupView } from '@sight-mapper/schemas';
-import { ERROR_CATALOG } from '@sight-mapper/types';
 import {
   Button,
   ErrorState,
@@ -21,8 +20,9 @@ import { componentName } from '../equipment/names.js';
 import { useSetupName } from '../setups/home-screen.js';
 import { WithSetup } from '../sight/with-setup.js';
 import { Ruler, type RulerMark } from '../sight/ruler.js';
+import { calcFailureText } from '../sight/calc-failure.js';
 import { useSightData } from '../sight/sight-data.js';
-import { distanceIn, readingOf, type Reading } from '../sight/sight.logic.js';
+import { distanceIn, formatDistance, readingOf, type Reading } from '../sight/sight.logic.js';
 import { DistanceCurve } from './distance-curve.js';
 import {
   buildGrid,
@@ -88,10 +88,9 @@ function DistancesView({
   const unit = t(system === 'metric' ? 'sight.distanceUnitMetric' : 'sight.distanceUnitImperial');
   const showUnitDistance = (distance: number) =>
     `${formatNumber(distance, locale, Number.isInteger(distance) ? 0 : 1)} ${unit}`;
-  const showDistance = (m: number) => showUnitDistance(distanceIn(m, system));
+  const showDistance = (m: number) => formatDistance(m, system, locale, unit);
   const readingText = (r: Reading) => (r.ok ? formatReading(r.reading, scale, separator) : '—');
-  const explainFailure = (r: Reading) =>
-    r.ok ? '' : translate(ERROR_CATALOG[r.code as CalcErrorCode].messageKey, r.params);
+  const explainFailure = (r: Reading) => calcFailureText(translate, r, { system, locale, scale });
 
   // --- what is on screen: the URL, with what the marks suggest where it says nothing -----------
   const step: Step = stepParam !== undefined && isStep(stepParam) ? stepParam : DEFAULT_STEP;

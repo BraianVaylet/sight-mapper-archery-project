@@ -83,7 +83,7 @@ Convenciones de todas las colecciones de negocio:
 | `deletedAt`  | `Date \| null`          | `null` explicito al crear (lo necesitan los indices parciales) |
 
 "Pres. metrico / imperial" = unidad en la que se **muestra y se ingresa** segun `unitSystem`
-(decision abierta §17.2 de la spec). Lo canonico es lo que se guarda.
+(spec §17.2, cerrada provisoriamente en F1-12). Lo canonico es lo que se guarda.
 
 ### 3.1 `bows`
 

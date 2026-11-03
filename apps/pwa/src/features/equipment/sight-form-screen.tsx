@@ -17,6 +17,7 @@ import {
 import { useNavigate } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { describeError } from '../../app/errors.js';
+import { useUnitSystem } from '../account/profile.js';
 import { useI18n } from '../../app/i18n.js';
 import { fieldError } from '../auth/form-utils.js';
 import { Ruler } from '../sight/ruler.js';
@@ -62,6 +63,7 @@ export function SightFormScreen({ id }: { id: string | undefined }) {
 
 function SightForm({ sight }: { sight: SightResource | undefined }) {
   const { t, locale, translate } = useI18n();
+  const system = useUnitSystem();
   const navigate = useNavigate();
   const separator = decimalSeparator(locale);
   const [newSightId] = useState(() => newId());
@@ -132,7 +134,9 @@ function SightForm({ sight }: { sight: SightResource | undefined }) {
       </h1>
 
       {failure === null || strategyError ? null : (
-        <InfoAlert variant="danger">{describeError(translate, failure).text}</InfoAlert>
+        <InfoAlert variant="danger">
+          {describeError(translate, failure, { system, locale }).text}
+        </InfoAlert>
       )}
       {sight?.usage === undefined ? null : (
         <InfoAlert variant="info">{t('sights.form.usage', sight.usage)}</InfoAlert>
@@ -323,7 +327,9 @@ function SightForm({ sight }: { sight: SightResource | undefined }) {
               : t('sights.form.deleteBody')}
           </p>
           {blockedDelete ? (
-            <InfoAlert variant="danger">{describeError(translate, remove.error).text}</InfoAlert>
+            <InfoAlert variant="danger">
+              {describeError(translate, remove.error, { system, locale }).text}
+            </InfoAlert>
           ) : null}
           <div className="flex flex-wrap gap-3">
             {blockedDelete ? (

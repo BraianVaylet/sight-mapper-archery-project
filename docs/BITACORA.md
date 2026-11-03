@@ -18,6 +18,41 @@
 
 ---
 
+## 2026-11-03 — El flujo critico funciona entero en yardas y pulgadas, y los errores de la API ya no muestran llaves sin reemplazar
+
+**Tareas:** F1-12 · **Commit/PR:** rama `feat/f1-imperial` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Auditoria del flujo en imperial** (preferencia → arco con `6 1/4` → mira → flechas → setup → marcas → intermedias → Doctor). Los formularios de equipo ya estaban (F1-02..04); las
+  pantallas de la mira, distancias y Doctor mostraban las distancias en yardas pero con tres formatos distintos (la mira siempre con un decimal: "20,0 yd").
+  Ahora un solo `formatDistance`: yardas enteras sin decimal (`20 yd`), con un decimal si no lo son (`21,9 yd`, para 20 m).
+- **Bug de fondo, tambien en metrico:** la API manda los params en unidades canonicas (`distanceM`, `minMm`, `maxMm`, `maxDistanceM`, `purgeAt`) y las plantillas usan `{{distance}}`,
+  `{{min}}`, `{{max}}`, `{{maxDistance}}`; nadie los convertia, asi que el mensaje salia con `{{distance}}` literal (y, de haberse reemplazado, en metros aunque el arquero use yardas).
+  `describeError` y `displayParams` aceptan ahora las unidades del arquero (`system`, `locale`, la escala de la mira en pantalla) y convierten: distancias a m/yd, limites de lectura a la
+  unidad de la mira (o a mm/in si no hay mira a mano), instantes a fecha. Tambien los motivos de fallo del calculo (`SM-CALC-*`) en las pantallas de la mira y de distancias.
+- **Decision §17.2 (unidades de equipo por sistema):** cerrada **provisoriamente** con la propuesta ya implementada (siguen el sistema elegido). No se consulto a 2–3 arqueros como pedia
+  la tarea: queda escrito en la spec, ADR-005, DICCIONARIO y UNIDADES, y se reabre si la beta lo pide.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La unidad de la escala de la mira (cm, mm, in, clicks) es la de la mira, no del sistema: no cambia con la preferencia (UNIDADES §1).
+- Un error de la API sobre una longitud sin mira a mano (`SM-SGT-409-002`) se muestra en mm o in segun el sistema.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Test exhaustivo: **todo codigo de `ERROR_CATALOG`**, con params de muestra, en es y en, metrico e imperial, no deja ningun `{{…}}` (encontro `maxDistance`).
+- Pantallas en imperial (9 tests): marcas, distancia tipada en yardas que viaja en metros (50 yd → 45,72 m), steppers, duplicado y rechazo de la API en yardas y lecturas, intermedias sobre
+  yardas enteras, consulta libre, Doctor, y ninguna distancia en metros en pantalla. PWA 302 tests.
+- E2E 16/16 en la pila real (360 y 1440): imperial de punta a punta con recarga (20/30/40 yd vuelven como se tiparon).
+
+### Pendiente / deuda
+
+- Consultar a arqueros por §17.2 cuando haya beta.
+- Las fracciones de pulgada solo se aceptan en longitudes de equipo (F1-02) y en lecturas de miras en `in`; la distancia en yardas es decimal.
+
+---
+
 ## 2026-11-03 — El Mark Doctor tiene pantalla: señala la marca mal medida, dice cuanto se aparta y no toca nada
 
 **Tareas:** F1-11 · **Commit/PR:** rama `feat/f1-doctor` · **Tarjeta:** sin tablero (F0-04)

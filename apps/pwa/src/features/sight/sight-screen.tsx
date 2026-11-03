@@ -1,6 +1,5 @@
 import { isApiError } from '@sight-mapper/client';
-import { formatReading, type CalcErrorCode } from '@sight-mapper/domain';
-import { ERROR_CATALOG } from '@sight-mapper/types';
+import { formatReading } from '@sight-mapper/domain';
 import { formatNumber } from '@sight-mapper/i18n';
 import type { CreateMark, Mark, SetupView } from '@sight-mapper/schemas';
 import {
@@ -23,6 +22,7 @@ import { useI18n } from '../../app/i18n.js';
 import { componentName } from '../equipment/names.js';
 import { useSetupName } from '../setups/home-screen.js';
 import { setupHooks } from '../setups/setups.js';
+import { calcFailureText } from './calc-failure.js';
 import { cachedMark, useMarkActions } from './marks.js';
 import type { MarkFormValues } from './mark-form.logic.js';
 import { MarkSheet } from './mark-sheet.js';
@@ -31,6 +31,7 @@ import { useSightData } from './sight-data.js';
 import {
   CALC_MIN_MARKS_INTERPOLATE,
   distanceIn,
+  formatDistance,
   doctorProgress,
   readingOf,
   showReading,
@@ -212,8 +213,7 @@ function SightView({
   const [undoError, setUndoError] = useState(false);
 
   const unit = t(system === 'metric' ? 'sight.distanceUnitMetric' : 'sight.distanceUnitImperial');
-  const showDistance = (m: number) =>
-    `${formatNumber(distanceIn(m, system), locale, system === 'metric' && Number.isInteger(m) ? 0 : 1)} ${unit}`;
+  const showDistance = (m: number) => formatDistance(m, system, locale, unit);
   const readingText = (r: Reading) => (r.ok ? formatReading(r.reading, scale, separator) : '—');
 
   const selectedM = distanceParam ?? marks[0]?.distanceM;
@@ -258,7 +258,8 @@ function SightView({
   ];
 
   // --- saving: the list takes the change first (RF-X-04) --------------------------------------
-  const explain = (error: unknown) => describeError(translate, error).text;
+  const units = { system, locale, scale };
+  const explain = (error: unknown) => describeError(translate, error, units).text;
 
   const remember = (message: string, undo: () => Promise<unknown>) => {
     setUndoError(false);
@@ -431,10 +432,7 @@ function SightView({
               ) : null}
               {!selected.ok ? (
                 <span className="text-sm text-muted">
-                  {translate(
-                    ERROR_CATALOG[selected.code as CalcErrorCode].messageKey,
-                    selected.params,
-                  )}
+                  {calcFailureText(translate, selected, units)}
                 </span>
               ) : null}
             </div>

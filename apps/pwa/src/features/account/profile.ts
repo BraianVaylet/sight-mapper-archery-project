@@ -1,6 +1,7 @@
 import { isApiError, useHttp } from '@sight-mapper/client';
 import { profile, type Profile, type UpdatePreferences } from '@sight-mapper/schemas';
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { UnitSystem } from '@sight-mapper/types';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const profileKey = ['me'] as const;
 
@@ -11,6 +12,12 @@ export const profileQuery = (http: ReturnType<typeof useHttp>) =>
     queryFn: ({ signal }) => http.get('/me', { schema: profile, signal }),
     staleTime: 5 * 60_000,
   });
+
+/** The archer's unit system; metric until the profile arrives. */
+export function useUnitSystem(): UnitSystem {
+  const http = useHttp();
+  return useQuery(profileQuery(http)).data?.unitSystem ?? 'metric';
+}
 
 const versionOf = (current: Profile | undefined) =>
   current === undefined ? {} : { version: current.version };
