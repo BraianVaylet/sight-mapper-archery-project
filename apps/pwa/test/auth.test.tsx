@@ -74,14 +74,14 @@ describe('sign-in', () => {
 
   it('goes back to where the archer was heading', async () => {
     const api = sessionServer();
-    const { app } = renderApp('/setups/abc/doctor', api.fetch);
+    const { app } = renderApp('/setups/abc/print', api.fetch);
     await screen.findByRole('heading', { name: 'Iniciar sesión' });
     await type('Email o usuario', 'ana');
     await type('Contraseña', PASSWORD);
     await userEvent.click(screen.getByRole('button', { name: 'Entrar' }));
 
-    expect(await screen.findByRole('heading', { name: 'Mark Doctor' })).toBeInTheDocument();
-    expect(app.router.state.location.pathname).toBe('/setups/abc/doctor');
+    expect(await screen.findByRole('heading', { name: 'Listado imprimible' })).toBeInTheDocument();
+    expect(app.router.state.location.pathname).toBe('/setups/abc/print');
   });
 
   it('does not say which of the two was wrong', async () => {

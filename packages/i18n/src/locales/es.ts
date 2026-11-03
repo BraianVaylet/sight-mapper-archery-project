@@ -432,6 +432,31 @@ export const es = {
     needsTitle: 'Todavía no alcanza para calcular',
     rulerTitle: 'La regla de la mira',
   },
+  doctor: {
+    back: 'La mira',
+    intro:
+      'El Doctor compara cada marca con la tendencia de las otras y señala la que probablemente salió mal medida. No cambia ni borra nada: decidís vos.',
+    needs: 'El Doctor necesita al menos {{need}} marcas para revisar. Tenés {{count}}.',
+    verdictOk: 'Tus marcas son consistentes',
+    verdictOkHint: 'Ninguna se aparta de la tendencia de las otras más de lo que se tolera.',
+    verdictSuspect: 'Una marca se aparta de la tendencia',
+    verdictInconsistent: 'Hay marcas que se mueven en sentido contrario',
+    limitedHint:
+      'Con menos de {{need}} marcas el Doctor solo comprueba el sentido de las lecturas. Con {{need}} o más también compara cada una con la tendencia de las otras.',
+    reshoot: 'Volvé a tirar {{distance}}: se aparta {{delta}} de la tendencia.',
+    fix: 'Ir a la marca de {{distance}}',
+    alsoOff: 'También se apartan, pero menos: {{list}}.',
+    wrongWay: 'Las marcas de {{from}} y {{to}} se mueven en sentido contrario: revisalas las dos.',
+    tableTitle: 'Desvío de cada marca',
+    tableCaption: 'Desvío de cada marca respecto de la tendencia de las otras',
+    tableHint:
+      'Cada marca se compara con la curva ajustada sin ella. El desvío está en la unidad de tu mira.',
+    deviation: 'Desvío',
+    tolerance: 'Tolera',
+    statusOk: 'Coherente',
+    statusOff: 'Se aparta',
+    unit: { mm: 'mm', cm: 'cm', in: 'in', click: 'clicks', custom: 'unid.' },
+  },
   mark: {
     newTitle: 'Nueva marca',
     editTitle: 'Editar marca',

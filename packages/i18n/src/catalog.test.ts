@@ -65,6 +65,10 @@ describe('ES / EN parity', () => {
     'sight.distanceUnitMetric',
     'sight.distanceUnitImperial',
     'sight.estimated',
+    'doctor.unit.mm',
+    'doctor.unit.cm',
+    'doctor.unit.in',
+    'doctor.unit.click',
   ]);
 
   it('has no empty messages and no Spanish copied into English', () => {

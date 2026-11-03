@@ -431,6 +431,31 @@ export const en: Messages = {
     needsTitle: 'Not enough to calculate yet',
     rulerTitle: 'The sight ruler',
   },
+  doctor: {
+    back: 'The sight',
+    intro:
+      'The Doctor compares each mark with the trend of the others and points at the one that was probably measured wrong. It changes and deletes nothing: you decide.',
+    needs: 'The Doctor needs at least {{need}} marks to check. You have {{count}}.',
+    verdictOk: 'Your marks are consistent',
+    verdictOkHint: 'None strays from the trend of the others by more than is tolerated.',
+    verdictSuspect: 'One mark strays from the trend',
+    verdictInconsistent: 'Some marks move the wrong way',
+    limitedHint:
+      'With fewer than {{need}} marks the Doctor only checks the direction of the readings. With {{need}} or more it also compares each one with the trend of the others.',
+    reshoot: 'Re-shoot {{distance}}: it is {{delta}} off the trend.',
+    fix: 'Go to the mark at {{distance}}',
+    alsoOff: 'These also stray, but less: {{list}}.',
+    wrongWay: 'The marks at {{from}} and {{to}} move the wrong way: check both.',
+    tableTitle: 'How far each mark is off',
+    tableCaption: 'How far each mark is from the trend of the others',
+    tableHint:
+      'Each mark is compared with the curve fitted without it. The deviation is in your sight’s unit.',
+    deviation: 'Deviation',
+    tolerance: 'Tolerance',
+    statusOk: 'Consistent',
+    statusOff: 'Strays',
+    unit: { mm: 'mm', cm: 'cm', in: 'in', click: 'clicks', custom: 'units' },
+  },
   mark: {
     newTitle: 'New mark',
     editTitle: 'Edit mark',

@@ -18,6 +18,40 @@
 
 ---
 
+## 2026-11-03 — El Mark Doctor tiene pantalla: señala la marca mal medida, dice cuanto se aparta y no toca nada
+
+**Tareas:** F1-11 · **Commit/PR:** rama `feat/f1-doctor` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Pantalla `/setups/$setupId/doctor`** (`?arrowSet=`): veredicto arriba ("Tus marcas son consistentes", "Una marca se aparta de la tendencia" o "Hay marcas que se
+  mueven en sentido contrario"), "Volve a tirar {distancia}: se aparta {x} cm de la tendencia" con la magnitud **en la unidad de la mira** (no en mm), enlace "Ir a la marca de
+  {distancia}" que lleva a la pantalla de la mira con esa marca elegida (ahi se edita y se reemplaza), las otras marcas que tambien se apartan, la tabla con el desvio firmado y la
+  tolerancia de cada marca, y la regla con anillo de advertencia en las señaladas.
+- **`doctor.logic.ts`:** pasa el informe del dominio (mm) a lo que lee el arquero (unidades de la escala), por marca: desvio, tolerancia y estado (`ok`, `suspect`, `secondary`,
+  `inconsistent`). Desde 2 marcas revisa el sentido de las lecturas y lo dice; la tendencia (leave-one-out) recien desde 5, y la pantalla lo avisa ("Con menos de 5 marcas…").
+- **Desde la mira:** el boton Doctor se habilita con 5 marcas y conserva el set de flechas; antes muestra `n/5`.
+- **`WithSetup`:** el envoltorio de carga/error del setup, comun a las pantallas de herramientas (distancias y Doctor lo usan).
+
+### Decisiones (con link a ADR si corresponde)
+
+- El desvio se muestra con un digito mas que la resolucion de la mira (0,98 cm, no 1,0): uno de 0,04 no puede leerse como 0,0.
+- El Doctor solo lee: ninguna llamada de escritura; corregir es ir a la mira y reemplazar la marca (flujo ya hecho en F1-09).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Logica (6 tests): conjunto consistente, marca 0,8 cm fuera de tendencia, entrada intacta, sentido contrario con 3 marcas, orden.
+- Pantalla (8 tests): umbral, consistente, señalada con su magnitud, solo GET, salto a la marca, sentido contrario con aviso de alcance, acceso desde la mira (con y sin 5 marcas).
+- E2E 14/14 en la pila real: 3 → 5 marcas, Doctor "consistente", se falsea el 50 m a 3,5 y el Doctor la señala; captura revisada a 360 px.
+
+### Pendiente / deuda
+
+- Con un error grande el modelo (parabola sin una marca) tambien pone "Se aparta" a varias marcas sanas, lejos de la mala; la principal sale bien arriba. Es de la calibracion del dominio
+  (F0-06, solo 2 sets reales): recalibrar con mas sets antes de afinar el texto de las secundarias.
+- Imprimir (F1-14) sigue siendo placeholder.
+
+---
+
 ## 2026-11-03 — Intermedias, curva y consulta libre: el arquero ve la lectura de cualquier distancia sin tocar sus marcas
 
 **Tareas:** F1-10 · **Commit/PR:** rama `feat/f1-distances` · **Tarjeta:** sin tablero (F0-04)

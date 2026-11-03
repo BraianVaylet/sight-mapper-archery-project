@@ -395,7 +395,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   confianza y fuera de escala.
 - **Criterios:** HU-CAL-01, HU-CAL-02, HU-CAL-03.
 
-### [ ] F1-11 · Mark Doctor
+### [x] F1-11 · Mark Doctor
 
 - **Modulo:** pwa (doctor) · **Puntos:** 3 · **Depende de:** F1-08, F0-06
 - **Descripcion:** pantalla del Doctor (sin diseño previo: boceto en la tarea), residuos por marca,

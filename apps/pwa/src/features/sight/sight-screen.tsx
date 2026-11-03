@@ -158,7 +158,7 @@ function ToolButton({
 }: {
   label: string;
   badge?: string;
-  to?: '/setups/$setupId/doctor' | '/setups/$setupId/print';
+  to?: '/setups/$setupId/print';
   setupId: string;
 }) {
   const className = TOOL_CLASS;
@@ -378,7 +378,14 @@ function SightView({
         <ToolButton setupId={setup.id} label={t('sight.weather')} badge={t('sight.soon')} />
         <DistancesTool setupId={setup.id} arrowSetId={arrowId} count={analysis.count} />
         {progress.ready ? (
-          <ToolButton setupId={setup.id} label={t('sight.doctor')} to="/setups/$setupId/doctor" />
+          <Link
+            to="/setups/$setupId/doctor"
+            params={{ setupId: setup.id }}
+            search={arrowId === undefined ? {} : { arrowSet: arrowId }}
+            className={`${TOOL_CLASS} text-text`}
+          >
+            {t('sight.doctor')}
+          </Link>
         ) : (
           <ToolButton
             setupId={setup.id}

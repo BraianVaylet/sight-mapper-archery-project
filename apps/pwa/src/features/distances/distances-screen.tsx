@@ -19,7 +19,7 @@ import { describeError } from '../../app/errors.js';
 import { useI18n } from '../../app/i18n.js';
 import { componentName } from '../equipment/names.js';
 import { useSetupName } from '../setups/home-screen.js';
-import { setupHooks } from '../setups/setups.js';
+import { WithSetup } from '../sight/with-setup.js';
 import { Ruler, type RulerMark } from '../sight/ruler.js';
 import { useSightData } from '../sight/sight-data.js';
 import { distanceIn, readingOf, type Reading } from '../sight/sight.logic.js';
@@ -54,28 +54,9 @@ export type DistancesScreenProps = {
 };
 
 export function DistancesScreen({ setupId, ...rest }: DistancesScreenProps) {
-  const { t, translate } = useI18n();
-  const detail = setupHooks.useDetail(setupId);
-
-  if (detail.isPending) {
-    return (
-      <div aria-busy="true" className="flex flex-col gap-3">
-        <Skeleton className="h-8 w-1/2" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
-  if (detail.isError) {
-    return (
-      <ErrorState
-        title={t('sight.loadError')}
-        description={describeError(translate, detail.error).text}
-        retryLabel={t('common.retry')}
-        onRetry={() => void detail.refetch()}
-      />
-    );
-  }
-  return <DistancesView setup={detail.data} {...rest} />;
+  return (
+    <WithSetup setupId={setupId}>{(setup) => <DistancesView setup={setup} {...rest} />}</WithSetup>
+  );
 }
 
 function ReadingBadge({ reading }: { reading: Reading }) {

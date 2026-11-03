@@ -5,6 +5,8 @@ import { signUpAndVerify } from './helpers.js';
 test('measure marks on the sight screen, read an estimate between them, replace and undo', async ({
   page,
 }) => {
+  // The whole core flow in one go, with the equipment built first: more than the 30 s default.
+  test.setTimeout(90_000);
   await signUpAndVerify(page);
 
   await page.goto('/bows/new');
@@ -97,4 +99,35 @@ test('measure marks on the sight screen, read an estimate between them, replace 
   // Back on the sight screen the marks are as they were.
   await page.getByRole('link', { name: /La mira/ }).click();
   await expect(page.getByText('Marcas: 3 · 20–40 m')).toBeVisible();
+
+  // The Doctor opens at 5 marks: consistent ones are called consistent...
+  await expect(page.getByText('Doctor').locator('..')).toContainText('3/5');
+  for (const [distance, reading] of [
+    ['50', '2,6'],
+    ['60', '3,6'],
+  ] as const) {
+    await page.getByRole('button', { name: '+ Agregar marca' }).click();
+    await page.getByLabel('Distancia', { exact: true }).fill(distance);
+    await page.getByLabel('Lectura', { exact: true }).fill(reading);
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(
+      page.getByRole('button', { name: `Elegir la marca de ${distance} m` }),
+    ).toBeVisible();
+  }
+  await page.getByRole('link', { name: 'Doctor' }).click();
+  await expect(page.getByRole('heading', { name: 'Tus marcas son consistentes' })).toBeVisible();
+
+  // ...and one that strays is pointed at, with the way to correct it. Nothing is changed.
+  await page.getByRole('link', { name: /La mira/ }).click();
+  await page.getByRole('button', { name: 'Editar la marca de 50 m' }).click();
+  await page.getByLabel('Lectura', { exact: true }).fill('3,5');
+  await page.getByRole('button', { name: 'Guardar' }).click();
+  await expect(page.getByText('Marca actualizada')).toBeVisible();
+  await page.getByRole('link', { name: 'Doctor' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Una marca se aparta de la tendencia' }),
+  ).toBeVisible();
+  await expect(page.getByText(/^Volvé a tirar \d+ m: se aparta/)).toBeVisible();
+  await page.getByRole('button', { name: /^Ir a la marca de/ }).click();
+  await expect(page.getByText('Marcas: 5 · 20–60 m')).toBeVisible();
 });
