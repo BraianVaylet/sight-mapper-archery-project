@@ -18,6 +18,47 @@
 
 ---
 
+## 2026-11-03 — Las marcas existen: se cargan, editan, borran y deshacen, y el resto del sistema las ve
+
+**Tareas:** F1-07, y cierra la parte transaccional de F1-03 y de F1-05 · **Commit/PR:** rama `feat/f1-menu-marks` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **API (`calculator`):** `POST /marks`, `PATCH /marks/{id}`, `DELETE /marks/{id}`, `POST /marks/{id}/restore` y `GET /setups/{id}/marks?arrowSetId=`
+  (el par completo, mas cercana primero, tope 500, sin paginar). Reglas: el setup es del arquero y esta vivo (404); el set de flechas es del setup
+  (`SM-MARK-422-002`); la lectura cae dentro de la escala **de la mira leida en ese momento** (`SM-MARK-422-001` con minMm/maxMm; los extremos valen);
+  distancia unica por par (`SM-MARK-409-001` con el id de la existente) y `replace: true` hace que la existente tome la nueva lectura (200, queda una sola);
+  fecha no futura con 5 minutos de tolerancia; editar no cambia setup ni set de flechas, mover a una distancia ocupada es 409 salvo `replace`
+  (que manda la otra a la papelera); borrar es blando y **deshacer** vale 30 dias (`SM-MARK-410-001`) y falla si la distancia se volvio a tomar.
+- **Transacciones de verdad** (`core/db/transaction.ts`, `transactionAsyncLocalStorage`): lo que se escribe por los repositorios dentro de `transact(...)`
+  confirma junto o no confirma, sin pasar sesiones por todos lados. Se usan en: alta con reemplazo, edicion con `replace`, **mandar un setup a la papelera
+  con sus marcas y restaurarlo (RN-STP-06)** y **cambiar la escala de una mira con sus marcas (HU-SGT-02)**.
+- **Puertos reales:** el conteo de marcas del Home, la regla RN-STP-05 (quitar un set con marcas), el uso de componentes (cuantas marcas pierde borrar un arco,
+  una mira o un set; solo las de ese set de flechas) y el cambio de escala de una mira ya no son simulaciones: salen de la coleccion `marks`.
+  `keepReadings` mueve cada posicion por `nuevoTamaño / viejoTamaño` en una sola actualizacion; `keepPositions` no toca nada; si algo quedaria fuera de la
+  escala nueva se rechaza entero (`SM-SGT-409-002`).
+- **Cascada y purga:** al restaurar un setup vuelven solo las marcas que se fueron con el (`deletedWithSetup`): una borrada antes por su cuenta sigue borrada.
+  `purgeDeletedSetups` tambien elimina las marcas borradas hace mas de 30 dias.
+
+### Decisiones
+
+- `replace: true` conserva el id de la marca existente (sube su version) en vez de crear una nueva: asi queda una sola y el cliente toma la respuesta.
+- El texto de "la fecha es futura" es la clave `validation.mark.measuredAtFuture` (ES/EN) sobre el campo `measuredAt`.
+
+### Verificado
+
+- API: **369 tests** (44 de marcas contra el replica set real, sin simular nada: alta, idempotencia ×3, extremos de la escala, 404/422/400 por campo, reemplazo,
+  412/428, deshacer, cascada de papelera, uso de componentes, RN-STP-05, cambio de escala con `keepReadings`/`keepPositions`/rechazo, purga, aislamiento de las
+  cinco rutas; mas 3 de la transaccion con rollback) con cobertura 96 %. E2E real 12/12 con la API nueva; lint y typecheck limpios.
+
+### Pendiente / deuda
+
+- La lectura de la escala y la escritura de la marca no son una sola operacion aislada: entre ambas otro dispositivo podria cambiar la escala de la mira (ventana de
+  milisegundos; el cambio de escala, a su vez, revalida y reescribe las marcas que ya existen).
+- Falta toda la interfaz de marcas: pantalla de la mira, regla, tabla y hoja de nueva marca (F1-08, F1-09).
+
+---
+
 ## 2026-11-03 — El menu lateral: contadores, navegacion y cerrar sesion
 
 **Tareas:** F1-06 · **Commit/PR:** rama `feat/f1-menu-marks` · **Tarjeta:** sin tablero (F0-04)

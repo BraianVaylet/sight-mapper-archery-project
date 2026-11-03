@@ -1,12 +1,15 @@
 import { scaleBoundsMm, unitSizeMm } from '@sight-mapper/domain';
 import type { SightScaleInput, UpdateSight } from '@sight-mapper/schemas';
 import { AppError } from '../../../core/http/errors.js';
+import type { Transact } from '../../../core/db/transaction.js';
 import type { Clock, Sight, SightMarksPort, SightRepositories } from '../domain/sight.js';
 
 export type UpdateSightDeps = {
   readonly sights: SightRepositories;
   readonly marks: SightMarksPort;
   readonly clock: Clock;
+  /** The sight and its marks change together or not at all. */
+  readonly transact: Transact;
 };
 
 /**
@@ -53,16 +56,17 @@ export function createUpdateSight(deps: UpdateSightDeps) {
       }
     }
 
-    const updated = await repository.update(id, fields, expectedVersion, deps.clock.now());
-    // The marks follow the scale. Both writes become one transaction when the calculator
-    // module owns the marks (F1-07); until then there are none to rewrite.
-    if (marks > 0 && meaningChanged) {
-      await deps.marks.rescale(userId, id, {
-        from: current.scale,
-        to: next,
-        strategy: scaleChangeStrategy,
-      });
-    }
-    return updated;
+    // The marks follow the scale, in the same transaction: a failure leaves both as they were.
+    return deps.transact(async () => {
+      const updated = await repository.update(id, fields, expectedVersion, deps.clock.now());
+      if (marks > 0 && meaningChanged) {
+        await deps.marks.rescale(userId, id, {
+          from: current.scale,
+          to: next,
+          strategy: scaleChangeStrategy,
+        });
+      }
+      return updated;
+    });
   };
 }

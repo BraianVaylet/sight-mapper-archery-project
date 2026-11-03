@@ -2,6 +2,7 @@ import type { Attack } from '../helpers/isolation.js';
 import { accountAttacks } from './account.js';
 import { arrowSetAttacks } from './arrow-sets.js';
 import { bowAttacks } from './bows.js';
+import { markAttacks } from './marks.js';
 import { setupAttacks } from './setups.js';
 import { sightAttacks } from './sights.js';
 
@@ -15,4 +16,5 @@ export const productionAttacks: Attack[] = [
   ...sightAttacks,
   ...arrowSetAttacks,
   ...setupAttacks,
+  ...markAttacks,
 ];

@@ -472,6 +472,7 @@ export const es = {
     },
     mark: {
       distancePrecision: 'La distancia admite hasta 3 decimales.',
+      measuredAtFuture: 'La fecha no puede ser futura.',
     },
     preferences: {
       empty: 'Indicá al menos una preferencia.',

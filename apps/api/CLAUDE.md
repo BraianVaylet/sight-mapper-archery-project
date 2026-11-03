@@ -13,7 +13,8 @@ tests/          integracion contra un replica set real (mongodb-memory-server)
 migrations/     migrate-mongo; un archivo nuevo por cambio, nunca editar uno viejo
 ```
 
-Hoy existen `core/`, `modules/account` (perfil, `/me`) y `modules/equipment` (arcos, miras y sets de flechas; piezas comunes en `component-*`) y `modules/calculator` (setups y papelera; las marcas llegan con F1-07); miras, flechas y `calculator` llegan con F1.
+Hoy existen `core/`, `modules/account` (perfil, `/me`), `modules/equipment` (arcos, miras y sets de flechas; piezas comunes en `component-*`) y
+`modules/calculator` (setups, papelera y marcas). Lo que debe confirmar junto se envuelve en `transact(...)` (`core/db/transaction.ts`).
 
 ## Reglas de esta app
 

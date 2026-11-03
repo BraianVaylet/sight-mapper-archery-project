@@ -7,6 +7,8 @@ export type DbConnection = Connection;
 /** Opens the connection. The replica set is required for transactions (ADR-009). */
 export async function connectMongo(uri: string, logger: Logger): Promise<DbConnection> {
   mongoose.set('strictQuery', true);
+  // Operations made inside `connection.transaction()` join it without being handed a session.
+  mongoose.set('transactionAsyncLocalStorage', true);
   const connection = await mongoose
     .createConnection(uri, { serverSelectionTimeoutMS: 5_000, autoIndex: false })
     .asPromise();

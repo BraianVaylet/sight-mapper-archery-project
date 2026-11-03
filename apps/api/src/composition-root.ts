@@ -8,6 +8,14 @@ import {
 } from './modules/account/index.js';
 import {
   createCheckComponents,
+  createCreateMark,
+  createMarkChecks,
+  createMarkRepositories,
+  createMarkUseCases,
+  createSetupMarks,
+  createSightMarks,
+  createUpdateMark,
+  registerMarkRoutes,
   createComponentUsage,
   createCreateSetup,
   createSetupRepositories,
@@ -45,6 +53,7 @@ import { sessionMiddleware } from './core/auth/session.js';
 import { systemClock, type Clock } from './core/clock/clock.js';
 import type { Env } from './core/config/env.js';
 import type { DbConnection } from './core/db/connection.js';
+import { createTransact } from './core/db/transaction.js';
 import { createEventBus, type EventBus } from './core/events/bus.js';
 import { purgeIdempotencyKeys } from './core/jobs/purge-idempotency-keys.js';
 import { createScheduler, type Scheduler } from './core/jobs/scheduler.js';
@@ -108,17 +117,14 @@ export function createContainer(deps: ContainerDeps): Container {
     const bows = createBowRepositories(connection);
     const setups = createSetupRepositories(connection);
 
-    // No marks exist until F1-07: both ports answer "none", and the setup rules that need them
-    // already ask through them.
-    const sightMarks: SightMarksPort = deps.sightMarks ?? {
-      count: () => Promise.resolve(0),
-      countOutside: () => Promise.resolve(0),
-      rescale: () => Promise.resolve(),
-    };
-    const setupMarks: SetupMarksPort = deps.setupMarks ?? {
-      countBySetup: () => Promise.resolve(new Map()),
-      countForArrowSet: () => Promise.resolve(0),
-    };
+    const marks = createMarkRepositories(connection);
+    const transact = createTransact(connection);
+
+    // The marks are the calculator's, and equipment and the setups ask about them through ports.
+    // Tests may hand in their own to give a setup or a sight marks without recording any.
+    const setupMarks: SetupMarksPort = deps.setupMarks ?? createSetupMarks({ marks });
+    const sightMarks: SightMarksPort =
+      deps.sightMarks ?? createSightMarks({ setups, marks, clock });
 
     // Equipment asks the calculator how much leans on a component (ADR-008); the calculator asks
     // equipment who each component is. Neither imports the other: only this file knows both.
@@ -127,13 +133,19 @@ export function createContainer(deps: ContainerDeps): Container {
       deps.componentUsage ?? createComponentUsage({ setups, marks: setupMarks });
     const check = createCheckComponents(equipment);
     const views = createSetupViews({ equipment, marks: setupMarks });
+    const markChecks = createMarkChecks({ setups, equipment, clock });
     registerModuleRoutes = (registry) => {
       registerAccountRoutes(registry, { ensureProfile, updatePreferences });
       registerSetupRoutes(registry, {
-        shared: createSetupUseCases({ setups, clock }),
+        shared: createSetupUseCases({ setups, marks: setupMarks, clock, transact }),
         views,
         create: createCreateSetup({ setups, check, clock }),
         update: createUpdateSetup({ setups, marks: setupMarks, check, clock }),
+      });
+      registerMarkRoutes(registry, {
+        shared: createMarkUseCases({ marks, checks: markChecks, clock }),
+        create: createCreateMark({ marks, checks: markChecks, clock, transact }),
+        update: createUpdateMark({ marks, checks: markChecks, clock, transact }),
       });
       registerBowRoutes(registry, {
         shared: createComponentUseCases({
@@ -166,7 +178,7 @@ export function createContainer(deps: ContainerDeps): Container {
           inUseCode: 'SM-SGT-409-001',
         }),
         create: createCreateSight({ sights, clock }),
-        update: createUpdateSight({ sights, marks: sightMarks, clock }),
+        update: createUpdateSight({ sights, marks: sightMarks, clock, transact }),
       });
     };
     // Awaited, so a failure reaches the publisher (which logs it) instead of an unhandled rejection.

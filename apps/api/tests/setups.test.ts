@@ -46,6 +46,9 @@ beforeAll(async () => {
         ),
       countForArrowSet: (_userId, setupId, arrowSetId) =>
         Promise.resolve(marksOf(setupId).get(arrowSetId) ?? 0),
+      // The cascade to real marks is proved in marks.test.ts; here only the setup rules are under test.
+      trashBySetup: () => Promise.resolve(),
+      restoreBySetup: () => Promise.resolve(),
     },
   });
 }, 120_000);

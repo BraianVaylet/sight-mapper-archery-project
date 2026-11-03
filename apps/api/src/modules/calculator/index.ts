@@ -13,3 +13,10 @@ export type {
 export { createSetupRepositories } from './infrastructure/setup-repository.js';
 export { registerSetupRoutes } from './infrastructure/setup-routes.js';
 export { purgeDeletedSetups } from './infrastructure/purge-deleted-setups.js';
+export { createCreateMark } from './application/create-mark.js';
+export { createMarkChecks } from './application/mark-checks.js';
+export { createSetupMarks, createSightMarks } from './application/mark-ports.js';
+export { createMarkUseCases } from './application/mark-use-cases.js';
+export { createUpdateMark } from './application/update-mark.js';
+export { createMarkRepositories } from './infrastructure/mark-repository.js';
+export { registerMarkRoutes } from './infrastructure/mark-routes.js';

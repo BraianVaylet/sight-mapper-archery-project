@@ -472,6 +472,7 @@ export const en: Messages = {
     },
     mark: {
       distancePrecision: 'Distance allows up to 3 decimals.',
+      measuredAtFuture: 'The date cannot be in the future.',
     },
     preferences: {
       empty: 'Specify at least one preference.',

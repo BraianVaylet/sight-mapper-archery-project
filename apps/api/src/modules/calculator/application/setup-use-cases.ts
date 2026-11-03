@@ -2,9 +2,22 @@ import { Temporal } from '@js-temporal/polyfill';
 import { TRASH_DAYS } from '@sight-mapper/schemas';
 import type { ComponentStatus } from '@sight-mapper/types';
 import { AppError } from '../../../core/http/errors.js';
-import type { Clock, SetupPage, SetupQuery, SetupRepositories } from '../domain/setup.js';
+import type { Transact } from '../../../core/db/transaction.js';
+import type {
+  Clock,
+  SetupMarksPort,
+  SetupPage,
+  SetupQuery,
+  SetupRepositories,
+} from '../domain/setup.js';
 
-export type SetupUseCasesDeps = { readonly setups: SetupRepositories; readonly clock: Clock };
+export type SetupUseCasesDeps = {
+  readonly setups: SetupRepositories;
+  readonly marks: SetupMarksPort;
+  readonly clock: Clock;
+  /** A setup and its marks go to the trash, and come back, together (RN-STP-06). */
+  readonly transact: Transact;
+};
 
 /** When a setup deleted at `deletedAt` is purged for good. */
 export const purgeAt = (deletedAt: Temporal.Instant): Temporal.Instant =>
@@ -12,7 +25,7 @@ export const purgeAt = (deletedAt: Temporal.Instant): Temporal.Instant =>
 
 /** Reading, archiving, the trash and the restore: the setup rules that need no component. */
 export function createSetupUseCases(deps: SetupUseCasesDeps) {
-  const { setups, clock } = deps;
+  const { setups, marks, clock, transact } = deps;
   const notFound = () => new AppError('SM-CORE-404-002', { resource: 'setup' });
 
   return {
@@ -29,11 +42,15 @@ export function createSetupUseCases(deps: SetupUseCasesDeps) {
     changeStatus: (userId: string, id: string, status: ComponentStatus) =>
       setups.forUser(userId).setStatus(id, status, clock.now()),
 
-    /** RF-STP-06: the setup goes to the trash; its marks follow when they exist (F1-07). */
+    /** RF-STP-06, RN-STP-06: the setup and its marks go to the trash in one transaction. */
     async moveToTrash(userId: string, id: string, expectedVersion: number): Promise<void> {
       const repository = setups.forUser(userId);
       if ((await repository.find(id)) === null) throw notFound();
-      await repository.moveToTrash(id, expectedVersion, clock.now());
+      const now = clock.now();
+      await transact(async () => {
+        await repository.moveToTrash(id, expectedVersion, now);
+        await marks.trashBySetup(userId, id, now);
+      });
     },
 
     listTrash: (userId: string) => setups.forUser(userId).listTrash(),
@@ -51,7 +68,12 @@ export function createSetupUseCases(deps: SetupUseCasesDeps) {
       // unique index settles a race; this answers the common case with the setup that has it.
       const taken = await repository.findByPair(trashed.bowId, trashed.sightId);
       if (taken !== null) throw new AppError('SM-STP-409-001', { existingSetupId: taken.id });
-      return repository.restore(id, now);
+      // The marks that went with the setup come back with it; one deleted by itself earlier stays deleted.
+      return transact(async () => {
+        const restored = await repository.restore(id, now);
+        await marks.restoreBySetup(userId, id, now);
+        return restored;
+      });
     },
   };
 }

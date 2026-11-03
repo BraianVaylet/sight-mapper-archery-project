@@ -85,14 +85,17 @@ export type EquipmentReadPort = {
 };
 
 /**
- * The marks of a setup. They arrive with F1-07; until then there are none, and the setup rules
- * that depend on them (RN-STP-05, the count on the Home) already ask through this port.
+ * The marks of a setup, as the setup rules need them: the count on the Home, RN-STP-05, and the
+ * trash cascade (RN-STP-06). The mark module implements it.
  */
 export type SetupMarksPort = {
   /** Live marks per setup, for the Home. A setup with none is absent or zero. */
   countBySetup(userId: string, setupIds: readonly string[]): Promise<ReadonlyMap<string, number>>;
   /** Live marks of one setup measured with one arrow set (RN-STP-05). */
   countForArrowSet(userId: string, setupId: string, arrowSetId: string): Promise<number>;
+  /** RN-STP-06: the marks go to the trash with their setup, and come back with it. */
+  trashBySetup(userId: string, setupId: string, now: Temporal.Instant): Promise<void>;
+  restoreBySetup(userId: string, setupId: string, now: Temporal.Instant): Promise<void>;
 };
 
 export type Clock = { now(): Temporal.Instant };
