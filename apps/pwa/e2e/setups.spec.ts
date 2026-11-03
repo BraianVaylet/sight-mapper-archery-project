@@ -38,7 +38,9 @@ test('load a bow, a sight and arrows, build a setup, star it, trash it and bring
   await page.getByLabel('Mira').selectOption({ label: 'Ultraview' });
   await page.getByRole('checkbox', { name: 'Hunter 400' }).check();
   await page.getByRole('button', { name: 'Guardar' }).click();
-  await expect(page.getByRole('heading', { name: 'Mira' })).toBeVisible();
+  // Saving lands on the sight screen of the new setup.
+  await expect(page.getByRole('heading', { name: 'Caza' })).toBeVisible();
+  await expect(page.getByText('Todavía no hay marcas')).toBeVisible();
 
   // The Home shows it; the star is immediate.
   await page.goto('/');

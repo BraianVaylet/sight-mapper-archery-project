@@ -19,8 +19,9 @@ src/features/   auth · setups · sight · distances · doctor · print · equip
 - **Sin logica de negocio en componentes.** Los calculos viven en `@sight-mapper/domain`; los
   componentes llaman y muestran. El numero que ve el arquero es siempre
   `domain` → `convert/` → texto.
-- **Frontera de estado:** TanStack Query = servidor · Zustand = UI efimera · Nuqs = URL (la
-  distancia y el set de flechas elegidos viven en la URL). Nunca copiar datos del servidor a Zustand.
+- **Frontera de estado:** TanStack Query = servidor · Zustand = UI efimera · URL = search params
+  de TanStack Router con `validateSearch` (Zod), sin Nuqs (la distancia y el set de flechas elegidos
+  viven en la URL; el cambio se hace con `navigate({ replace: true })`). Nunca copiar datos del servidor a Zustand.
 - **Datos por `@sight-mapper/client`:** `createResourceHooks` ya manda `Idempotency-Key` y
   `If-Match`; no hacer `fetch` a mano. Todo componente que trae datos acepta un cliente inyectable
   (`ClientProvider`) para poder probarlo.

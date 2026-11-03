@@ -60,6 +60,11 @@ describe('ES / EN parity', () => {
     'setups.home.pinMonopin',
     'setups.home.pinDualpin',
     'setups.home.pinMultipin',
+    'sight.doctor',
+    'sight.doctorNeeds',
+    'sight.distanceUnitMetric',
+    'sight.distanceUnitImperial',
+    'sight.estimated',
   ]);
 
   it('has no empty messages and no Spanish copied into English', () => {

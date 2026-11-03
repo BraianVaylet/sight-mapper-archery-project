@@ -14,6 +14,8 @@ export type RulerMark = {
   readonly measured: boolean;
   /** Already formatted, e.g. `20 m` or `≈ 25 m`. */
   readonly label: string;
+  /** The Doctor points at it: a warning ring besides the shape (never colour alone). */
+  readonly suspect?: boolean;
 };
 
 export type RulerProps = {
@@ -24,6 +26,10 @@ export type RulerProps = {
   /** Formats a tick value in the archer's unit and decimal separator. */
   formatValue: (value: number) => string;
   lengthPx?: number;
+  /** The mark that is picked: it gets a ring. */
+  selectedId?: string | undefined;
+  /** Tapping a mark picks it. The table beside the ruler is the keyboard and screen-reader way. */
+  onSelect?: ((id: string) => void) | undefined;
 };
 
 const PAD = 14;
@@ -37,7 +43,15 @@ const TICK_LENGTH: Record<TickLevel, number> = { minor: 8, medium: 14, major: 22
  * from the domain, so what is drawn is what the archer would read. Measured and estimated differ
  * by shape and line style, never by colour alone (UX-UI §1.3).
  */
-export function Ruler({ scale, marks, label, formatValue, lengthPx = 480 }: RulerProps) {
+export function Ruler({
+  scale,
+  marks,
+  label,
+  formatValue,
+  lengthPx = 480,
+  selectedId,
+  onSelect,
+}: RulerProps) {
   const ticks = buildRuler({ scale, lengthPx });
   const placed = placeMarks(
     scale,
@@ -93,7 +107,34 @@ export function Ruler({ scale, marks, label, formatValue, lengthPx = 480 }: Rule
           if (mark === undefined) return null;
           const y = positionOf(mark.reading, scale, lengthPx);
           return (
-            <g key={spot.id} data-mark={mark.measured ? 'measured' : 'estimated'}>
+            <g
+              key={spot.id}
+              data-mark={mark.measured ? 'measured' : 'estimated'}
+              data-selected={spot.id === selectedId ? 'true' : undefined}
+              onClick={onSelect === undefined ? undefined : () => onSelect(spot.id)}
+              className={onSelect === undefined ? undefined : 'cursor-pointer'}
+            >
+              {/* A generous target for a thumb; invisible. */}
+              <rect x={AXIS_X - 70} y={y - 12} width={80} height={24} fill="transparent" />
+              {spot.id === selectedId ? (
+                <circle
+                  cx={AXIS_X - 52}
+                  cy={y}
+                  r={10}
+                  className="fill-none stroke-text"
+                  strokeWidth={2}
+                />
+              ) : null}
+              {mark.suspect ? (
+                <circle
+                  cx={AXIS_X - 52}
+                  cy={y}
+                  r={13}
+                  className="fill-none stroke-warning"
+                  strokeWidth={2}
+                  strokeDasharray="2 2"
+                />
+              ) : null}
               <line
                 x1={AXIS_X - 52}
                 x2={AXIS_X}

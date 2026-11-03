@@ -120,7 +120,11 @@ function setupsServer(
     'GET /api/v1/sights': page(options.sights ?? [sight()]),
     'GET /api/v1/arrow-sets': page(options.arrowSets ?? [arrows(), arrows(ARROW_2, 'Pierce 400')]),
     [`GET /api/v1/setups/${SETUP_ID}`]: () => json(setup()),
-    'POST /api/v1/setups': record(() => json(setup({ id: SETUP_2 }), 201)),
+    'POST /api/v1/setups': record(() => json(setup({ id: SETUP_2, name: 'Torneo' }), 201)),
+    // Saving opens the sight screen of the new setup: its detail and its (empty) marks.
+    // (the id is the one the client made up, hence the wildcard)
+    'GET /api/v1/setups/*': () => json(setup({ id: SETUP_2, name: 'Torneo' })),
+    'GET /api/v1/setups/*/marks': () => json({ items: [] }),
     [`PATCH /api/v1/setups/${SETUP_ID}`]: async (request) => {
       const body = (await request.clone().json()) as { isFavorite?: boolean };
       sent.push({
@@ -298,7 +302,8 @@ describe('New setup (HU-STP-01)', () => {
     await userEvent.click(screen.getByRole('checkbox', { name: 'Pierce 400' }));
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
 
-    expect(await screen.findByRole('heading', { name: 'Mira' })).toBeInTheDocument();
+    // Saving opens the sight screen of the new setup (F1-08), named as the archer named it.
+    expect(await screen.findByRole('heading', { name: 'Torneo', level: 1 })).toBeInTheDocument();
     expect(posted(api)?.body).toMatchObject({
       name: 'Torneo',
       bowId: BOW_ID,

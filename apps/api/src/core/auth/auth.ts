@@ -12,8 +12,19 @@ import type { SessionReader } from './session.js';
 
 export const AUTH_BASE_PATH = '/api/auth';
 
-/** Attempts allowed per IP in this window on the endpoints that can be guessed or abused. */
-const SENSITIVE = { window: 15 * 60, max: 5 } as const;
+/**
+ * Attempts allowed per IP in 15 minutes on the endpoints that can be guessed or abused. Only on a
+ * laptop (`pnpm dev:local`: `APP_ENV=local`, not under test) the cap is lifted: the E2E suite signs
+ * up a new archer per test from one address. Every hosted environment and every API test keeps the
+ * real limit.
+ */
+export function sensitiveLimit(env: Pick<Env, 'APP_ENV' | 'NODE_ENV'>): {
+  window: number;
+  max: number;
+} {
+  const onLaptop = env.APP_ENV === 'local' && env.NODE_ENV !== 'test';
+  return { window: 15 * 60, max: onLaptop ? 1000 : 5 };
+}
 const HOUR_S = 60 * 60;
 
 export type AuthDeps = {
@@ -39,6 +50,7 @@ export function createAuth(deps: AuthDeps): AuthModule {
   const { env, connection, emails, bus, logger } = deps;
   const client = connection.getClient();
   const secureCookies = env.APP_ENV !== 'local';
+  const SENSITIVE = sensitiveLimit(env);
 
   // Sending is not awaited: a slow mail server must not tell an attacker which addresses exist.
   // A failure is logged, and the archer can ask for the email again.

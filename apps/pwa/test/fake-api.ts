@@ -25,9 +25,16 @@ export const ANA = {
   session: { id: 's1' },
 };
 
+/** A route key with a `*` matches any one path segment: ids the client makes up cannot be listed. */
+const matchesWildcard = (pattern: string, key: string): boolean =>
+  pattern.includes('*') &&
+  new RegExp(`^${pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]+')}$`).test(
+    key,
+  );
+
 /**
  * A `fetch` that answers by `METHOD /path`. A request nobody planned fails the test loudly
- * instead of reaching a real network.
+ * instead of reaching a real network. An exact key wins; otherwise a key with `*` may match.
  */
 export function fakeApi(routes: Record<string, Handler>) {
   const calls: string[] = [];
@@ -35,7 +42,8 @@ export function fakeApi(routes: Record<string, Handler>) {
     const request = new Request(input, init);
     const key = `${request.method} ${new URL(request.url).pathname}`;
     calls.push(key);
-    const handler = routes[key];
+    const handler =
+      routes[key] ?? Object.entries(routes).find(([pattern]) => matchesWildcard(pattern, key))?.[1];
     if (handler === undefined) throw new Error(`unplanned request: ${key}`);
     return handler(request);
   };

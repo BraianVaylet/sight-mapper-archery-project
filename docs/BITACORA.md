@@ -18,6 +18,55 @@
 
 ---
 
+## 2026-11-03 — La pantalla de la mira: se ven las marcas, se lee la estimacion y se cargan, editan y borran con deshacer
+
+**Tareas:** F1-08, F1-09 · **Commit/PR:** rama `feat/f1-sight-screen` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Pantalla (`/setups/$setupId`):** nombre del setup, selector de flechas, herramientas (Viento y Clima "Proximamente" como botones `aria-disabled`,
+  Doctor con `n/5` hasta tener 5 marcas, Imprimir desde la primera), lectura grande de la distancia elegida (`≈` y "Calculada" si no es medida),
+  `Ruler` SVG y tabla de marcas sincronizadas (clic en la marca de la regla o en la fila; flechas arriba/abajo en la tabla), leyenda, estado vacio con
+  los dos pasos, barra de estado y boton "+ Agregar marca". El estado vive en la URL: `?arrowSet=` y `?d=` (en metros).
+- **Hoja de marca:** `BottomSheet` con distancia en la unidad del arquero y lectura en la escala de la mira, steppers ± de una resolucion (la
+  distancia de a 1), teclado numerico, nota y fecha. Valida en el cliente lo mismo que la API (0 < d <= 300 m, lectura dentro de la escala, nota <= 200).
+- **Guardado optimista** (`marks.ts`): la marca entra en la lista antes de que conteste el servidor, el toast ofrece "Deshacer" (alta → borra, edicion →
+  vuelve al valor anterior, borrado → restaura); si falla, la lista vuelve como estaba y la hoja reabre con lo que el arquero habia escrito y el motivo.
+  `SM-MARK-409-001` abre el dialogo "¿Reemplazar la marca?" y confirma con `replace: true`.
+- **`apps/pwa/src/app/device-time.ts`:** unico archivo de la PWA que construye un `Date` (reloj y zona del dispositivo), con su excepcion en ESLint, como el
+  traductor de persistencia de la API.
+- **Regla en la API (solo laptop):** el limite de 5 altas/ingresos cada 15 min por IP se levanta con `APP_ENV=local` y `NODE_ENV≠test` (`sensitiveLimit`,
+  con test); sin eso el E2E, que da de alta un arquero por prueba desde una sola IP, se bloquea solo. En todo ambiente hosteado y bajo test sigue en 5.
+
+### Decisiones (con link a ADR si corresponde)
+
+- **Sin Nuqs:** el router ya valida y tipa los search params (`validateSearch` con Zod), asi que una segunda capa sobre lo mismo no aporta. La frontera de
+  estado no cambia. Actualizados `ARQUITECTURA.md §5.1` y `apps/pwa/CLAUDE.md`.
+- La version para `If-Match` sale de la cache, pero se **lee antes de mutar** (ver bugs).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Logica pura con el set real "Hunter" del autor (20 m 0,3 · 30 m 0,8 · 40 m 1,6…); 50 marcas calculadas en < 16 ms (RNF-02, con test).
+- Pantalla y hoja con un servidor falso con estado que **exige `If-Match`** como el real (13 tests); PWA 240, API 372, i18n 25; lint y typecheck limpios.
+- E2E en la pila real (Mongo temporal, API, build de produccion) en 360 y 1440: 14/14, con el flujo completo cargar 3 marcas → estimacion en 35 m →
+  reemplazo por 409 → recarga → borrar → Deshacer.
+
+### Bugs que el E2E encontro y los tests unitarios no
+
+1. **Guardar una marca en una distancia ya usada rompia la pantalla** ("Marks must have unique distances"): el guardado optimista metia el duplicado en la
+   cache y el modelo lo rechaza. Ahora un alta sin `replace` en una distancia ocupada no escribe nada optimista; el 409 abre el dialogo.
+2. **Borrar una marca salia sin `If-Match`** (428): el `onMutate` la sacaba de la cache antes de que `mutationFn` leyera su version. La version viaja ahora
+   en las variables. El servidor falso del test ahora tambien lo exige.
+3. El E2E de setups buscaba el titulo "Mira", que ya no existe: guardar un setup aterriza en su pantalla de la mira.
+
+### Pendiente / deuda
+
+- F1-10 (intermedias, curva y consulta libre), F1-11 (pantalla del Doctor), F1-14 (imprimir) y F1-15 (acceso rapido, con limpieza al borrar un setup).
+- Cobertura de `features/sight` 89 % lineas: faltan ramas de teclado de la tabla y el 412 de la hoja de edicion (la API ya lo cubre).
+- Las herramientas Viento/Clima son solo el boton; no hay spec de esas pantallas todavia.
+
+---
+
 ## 2026-11-03 — Las marcas existen: se cargan, editan, borran y deshacen, y el resto del sistema las ve
 
 **Tareas:** F1-07, y cierra la parte transaccional de F1-03 y de F1-05 · **Commit/PR:** rama `feat/f1-menu-marks` · **Tarjeta:** sin tablero (F0-04)

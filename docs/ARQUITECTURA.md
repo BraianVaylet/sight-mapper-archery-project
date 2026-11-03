@@ -180,7 +180,10 @@ apps/pwa/src/
 | ------------------------------ | ------------------------- | --------------------------------------- |
 | Del servidor                   | **TanStack Query**        | setups, marcas, equipo, perfil          |
 | De UI efimero                  | **Zustand**               | drawer abierto, hoja de marca abierta   |
-| Compartible / recargable       | **Nuqs** (URL)            | `arrowSet`, `d`, `step`, `from`, `to`   |
+| Compartible / recargable       | **URL** (search params)   | `arrowSet`, `d`, `step`, `from`, `to`   |
+
+> El router ya tipa y valida los search params (`validateSearch` con Zod en cada ruta, F1-08), asi
+> que **Nuqs no se agrega**: seria una segunda capa sobre lo mismo. La frontera no cambia.
 | Derivado                       | `useMemo` + `domain`      | modelo, intermedias, Doctor             |
 
 🔴 Nunca duplicar estado de servidor en Zustand. Lo calculado **no se guarda en ningun store**: se

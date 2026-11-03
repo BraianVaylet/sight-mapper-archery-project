@@ -370,7 +370,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-MRK-01..03 del lado API. Aislamiento + idempotencia + escritura obsoleta.
 - **Errores nuevos:** `SM-MARK-*` · **Datos:** `marks`
 
-### [ ] F1-08 · Pantalla de la mira
+### [x] F1-08 · Pantalla de la mira
 
 - **Modulo:** pwa (sight) · **Puntos:** 8 · **Depende de:** F1-07, F0-08
 - **Descripcion:** segun `UV slider — Full marks.png` y UX-UI §4.2: readout, selector de flechas,
@@ -379,7 +379,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   alternativa accesible.
 - **Criterios:** HU-MRK-04. Calculo de 50 marcas < 16 ms (RNF-02).
 
-### [ ] F1-09 · Hoja de nueva/editar marca
+### [x] F1-09 · Hoja de nueva/editar marca
 
 - **Modulo:** pwa (sight) · **Puntos:** 5 · **Depende de:** F1-08
 - **Descripcion:** `BottomSheet` con distancia (unidad del arquero) y lectura (escala de la mira),

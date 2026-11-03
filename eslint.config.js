@@ -170,6 +170,12 @@ export default tseslint.config(
     },
   },
 
+  // The one place of the PWA that reads the device clock and zone.
+  {
+    files: ['apps/pwa/src/app/device-time.ts'],
+    rules: { 'no-restricted-syntax': 'off' },
+  },
+
   // User-facing strings live in catalogs (CLAUDE.md, regla 10).
   {
     files: ['apps/pwa/**/*.tsx', 'packages/ui/**/*.tsx'],
