@@ -1,7 +1,7 @@
-import { isApiError, useHttp } from '@sight-mapper/client';
+import { isApiError } from '@sight-mapper/client';
 import { formatReading, type CalcErrorCode } from '@sight-mapper/domain';
 import { ERROR_CATALOG } from '@sight-mapper/types';
-import { decimalSeparator, formatNumber } from '@sight-mapper/i18n';
+import { formatNumber } from '@sight-mapper/i18n';
 import type { CreateMark, Mark, SetupView } from '@sight-mapper/schemas';
 import {
   BottomSheet,
@@ -15,26 +15,25 @@ import {
   StatusBadge,
   Toast,
 } from '@sight-mapper/ui';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useMemo, useState, type KeyboardEvent } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { describeError } from '../../app/errors.js';
 import { useI18n } from '../../app/i18n.js';
-import { profileQuery } from '../account/profile.js';
 import { componentName } from '../equipment/names.js';
 import { useSetupName } from '../setups/home-screen.js';
 import { setupHooks } from '../setups/setups.js';
-import { cachedMark, useMarkActions, useMarks } from './marks.js';
+import { cachedMark, useMarkActions } from './marks.js';
 import type { MarkFormValues } from './mark-form.logic.js';
 import { MarkSheet } from './mark-sheet.js';
 import { Ruler, type RulerMark } from './ruler.js';
+import { useSightData } from './sight-data.js';
 import {
-  analyse,
+  CALC_MIN_MARKS_INTERPOLATE,
   distanceIn,
   doctorProgress,
   readingOf,
   showReading,
-  toScale,
   type Reading,
 } from './sight.logic.js';
 
@@ -111,6 +110,46 @@ function ReadingBadge({
   );
 }
 
+const TOOL_CLASS =
+  'inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-sm border border-border px-3 font-ui text-base';
+
+/** Intermediates and the curve: from two marks on; before that, visible and announced as unavailable. */
+function DistancesTool({
+  setupId,
+  arrowSetId,
+  count,
+}: {
+  setupId: string;
+  arrowSetId: string | undefined;
+  count: number;
+}) {
+  const { t } = useI18n();
+  if (count < CALC_MIN_MARKS_INTERPOLATE) {
+    return (
+      <button
+        type="button"
+        aria-disabled="true"
+        className={`${TOOL_CLASS} cursor-not-allowed text-muted`}
+      >
+        <span>{t('sight.distances')}</span>
+        <span className="rounded-sm border border-border px-2 py-0.5 text-xs text-muted">
+          {`${count}/${CALC_MIN_MARKS_INTERPOLATE}`}
+        </span>
+      </button>
+    );
+  }
+  return (
+    <Link
+      to="/setups/$setupId/distances"
+      params={{ setupId }}
+      search={arrowSetId === undefined ? {} : { arrowSet: arrowSetId }}
+      className={`${TOOL_CLASS} text-text`}
+    >
+      {t('sight.distances')}
+    </Link>
+  );
+}
+
 function ToolButton({
   label,
   badge,
@@ -122,8 +161,7 @@ function ToolButton({
   to?: '/setups/$setupId/doctor' | '/setups/$setupId/print';
   setupId: string;
 }) {
-  const className =
-    'inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-sm border border-border px-3 font-ui text-base';
+  const className = TOOL_CLASS;
   const content = (
     <>
       <span>{label}</span>
@@ -159,22 +197,14 @@ function SightView({
   distanceM: distanceParam,
 }: { setup: SetupView } & Omit<SightScreenProps, 'setupId'>) {
   const { t, locale, translate } = useI18n();
-  const http = useHttp();
   const client = useQueryClient();
   const navigate = useNavigate();
   const nameOf = useSetupName();
-  const profile = useQuery(profileQuery(http));
-  const system = profile.data?.unitSystem ?? 'metric';
-  const separator = decimalSeparator(locale);
-
-  const arrowId =
-    setup.arrowSets.find((set) => set.id === arrowParam)?.id ?? setup.arrowSets[0]?.id;
-  const marksQuery = useMarks(setup.id, arrowId);
+  const { system, separator, arrowId, marksQuery, marks, scale, analysis } = useSightData(
+    setup,
+    arrowParam,
+  );
   const actions = useMarkActions(setup.id, arrowId ?? '');
-  const marks = useMemo(() => marksQuery.data?.items ?? [], [marksQuery.data]);
-
-  const scale = useMemo(() => toScale(setup.sight), [setup.sight]);
-  const analysis = useMemo(() => analyse(marks, scale), [marks, scale]);
 
   const [sheet, setSheet] = useState<SheetState | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
@@ -346,6 +376,7 @@ function SightView({
       <div role="group" aria-label={t('sight.tools')} className="flex flex-wrap gap-2">
         <ToolButton setupId={setup.id} label={t('sight.wind')} badge={t('sight.soon')} />
         <ToolButton setupId={setup.id} label={t('sight.weather')} badge={t('sight.soon')} />
+        <DistancesTool setupId={setup.id} arrowSetId={arrowId} count={analysis.count} />
         {progress.ready ? (
           <ToolButton setupId={setup.id} label={t('sight.doctor')} to="/setups/$setupId/doctor" />
         ) : (

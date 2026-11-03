@@ -18,6 +18,43 @@
 
 ---
 
+## 2026-11-03 — Intermedias, curva y consulta libre: el arquero ve la lectura de cualquier distancia sin tocar sus marcas
+
+**Tareas:** F1-10 · **Commit/PR:** rama `feat/f1-distances` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Pantalla `/setups/$setupId/distances`:** distancia elegida y su lectura arriba (con `≈`, "Calculada", baja confianza y fuera de escala), consulta libre
+  ("Ver lectura"), controles desde / hasta / paso (1, 2, 5, 10 en la unidad del arquero), curva, tabla y la regla de la mira al final con los mismos numeros.
+  Estado en la URL: `arrowSet`, `d` (metros), `step`, `from`, `to` (en la unidad del arquero).
+- **Grilla** (`distances.logic.ts`): `from + k * step` en la unidad del arquero (en yardas: 25, 30, 35 yd, no metros convertidos), cada fila preguntada al modelo.
+  Una distancia que las marcas no permiten (2 marcas, fuera de rango: `SM-CALC-422-002`) sale en su fila con el motivo, no como un hueco. Rango invertido o de mas de
+  200 filas: aviso, sin tabla. El rango por defecto va de la marca mas cercana a la mas lejana, en unidades enteras.
+- **Curva** (`DistanceCurve`, SVG): medida = punto lleno sobre linea solida; calculada = rombo sobre linea punteada (nunca solo color); la consulta libre es un
+  rombo aparte que no es una marca; guias punteadas a los ejes en la distancia elegida; la tabla es la alternativa accesible. La geometria (escalas, ticks "redondos",
+  cortes donde no hay respuesta) es aritmetica pura y esta testeada.
+- **Desde la mira:** boton "Intermedias" en las herramientas (de 2 marcas en adelante, con `n/2` antes), conserva el set de flechas. `useSightData` comparte entre
+  ambas pantallas la unidad, el set, las marcas y el analisis.
+
+### Decisiones (con link a ADR si corresponde)
+
+- Sin acordeones: las secciones son `SectionCard` siempre abiertas (el celular las lee de corrido y no hay estado que recordar). Si el diseño final los pide, es un cambio de presentacion.
+- `from`/`to` en la unidad del arquero y `d` en metros canonicos: un link compartido entre un arquero metrico y uno imperial muestra el mismo numero de la tabla pero no la misma distancia fisica. Aceptado: el rango es una preferencia de vista, la distancia elegida si es fisica.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Logica (20 tests, con el set real "Hunter"): grilla en m y yd, tier con 2 marcas, consulta libre que no cambia ninguna marca, geometria y ticks.
+- Pantalla (14 tests): umbral de 2 marcas, medidas exactas como se cargaron y estimadas con `≈`, linea solida vs punteada, paso y rango en la URL, yardas, motivo por fila, consulta libre
+  solo con GET (ninguna escritura), validaciones, acceso desde la mira. PWA 274 tests; lint y typecheck limpios.
+- E2E 14/14 en la pila real (360 y 1440): desde la mira → intermedias → consulta de 33 m → recarga → vuelta con las marcas intactas. Captura revisada a 360 px.
+
+### Pendiente / deuda
+
+- El boton "Imprimir" (F1-14) y el Doctor (F1-11) siguen siendo placeholders.
+- El selector de paso en 360 px usa solo el numero (la unidad va en la etiqueta del grupo) porque "5 m" partia en dos lineas.
+
+---
+
 ## 2026-11-03 — La pantalla de la mira: se ven las marcas, se lee la estimacion y se cargan, editan y borran con deshacer
 
 **Tareas:** F1-08, F1-09 · **Commit/PR:** rama `feat/f1-sight-screen` · **Tarjeta:** sin tablero (F0-04)

@@ -77,4 +77,24 @@ test('measure marks on the sight screen, read an estimate between them, replace 
   await expect(page.getByRole('button', { name: 'Elegir la marca de 30 m' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Deshacer' }).click();
   await expect(page.getByRole('button', { name: 'Elegir la marca de 30 m' })).toBeVisible();
+
+  // Intermediates: 20 to 40 m every 5 m, the measured ones as loaded, the rest estimated.
+  await page.getByRole('link', { name: 'Intermedias' }).click();
+  await expect(page.getByRole('heading', { name: 'Distancias', level: 1 })).toBeVisible();
+  await expect(page.getByRole('img', { name: /^Curva:/ })).toBeVisible();
+  await expect(page.getByRole('row')).toHaveCount(6); // header + 20, 25, 30, 35, 40
+  await expect(page.getByRole('row').filter({ hasText: '25 m' })).toContainText('≈');
+  await expect(page.getByRole('row').filter({ hasText: '30 m' })).not.toContainText('≈');
+
+  // A free query: an estimate, kept in the URL, and no mark changed.
+  await page.getByLabel('Distancia', { exact: true }).fill('33');
+  await page.getByRole('button', { name: 'Ver lectura' }).click();
+  await expect(page.getByText(/^33 m/).first()).toContainText('≈');
+  await page.reload();
+  await expect(page.getByText(/^33 m/).first()).toContainText('≈');
+  await expect(page.getByRole('row')).toHaveCount(6);
+
+  // Back on the sight screen the marks are as they were.
+  await page.getByRole('link', { name: /La mira/ }).click();
+  await expect(page.getByText('Marcas: 3 · 20–40 m')).toBeVisible();
 });

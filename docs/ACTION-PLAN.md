@@ -387,7 +387,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   reemplazo ante `SM-MARK-409-001`; manejo de 412.
 - **Criterios:** HU-MRK-01, HU-MRK-02, HU-MRK-03. Guardado percibido < 100 ms.
 
-### [ ] F1-10 · Intermedias, curva y consulta libre
+### [x] F1-10 · Intermedias, curva y consulta libre
 
 - **Modulo:** pwa (distances) · **Puntos:** 5 · **Depende de:** F1-08, F0-05
 - **Descripcion:** segun `Calculate distances — Curve.png`: desde/hasta/paso (1/2/5/10, en m o yd),
