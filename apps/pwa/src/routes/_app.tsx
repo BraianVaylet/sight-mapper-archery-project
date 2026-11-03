@@ -1,6 +1,7 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import { ProfileSync } from '../features/account/profile-sync.js';
 import { sessionQuery } from '../features/auth/session.js';
+import { AppFrame } from '../features/menu/app-frame.js';
 
 /** Everything behind the session. The guard asks the server; the API still decides every call. */
 export const Route = createFileRoute('/_app')({
@@ -15,7 +16,7 @@ export const Route = createFileRoute('/_app')({
   component: () => (
     <>
       <ProfileSync />
-      <Outlet />
+      <AppFrame />
     </>
   ),
 });

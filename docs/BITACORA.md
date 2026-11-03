@@ -18,6 +18,36 @@
 
 ---
 
+## 2026-11-03 — El menu lateral: contadores, navegacion y cerrar sesion
+
+**Tareas:** F1-06 · **Commit/PR:** rama `feat/f1-menu-marks` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `AppFrame` envuelve toda pantalla con sesion: encabezado con el boton del menu (44 px, siempre visible) y `NavDrawer`. El menu lista Tus
+  setups, Arcos, Miras y Flechas **con su contador**, Estadisticas (deshabilitada, con "Proximamente": se anuncia como inactiva y no navega),
+  Papelera, Apariencia, Cuenta, Cerrar sesion y la hora de la ultima sincronizacion. Marca la pantalla actual con `aria-current`.
+- Foco atrapado y cierre con Escape vienen del `NavDrawer` de `@sight-mapper/ui` (ya probado ahi); aca se prueba el uso real.
+- **Cerrar sesion:** `POST /api/auth/sign-out`, se olvida la sesion, se navega a sign-in y **despues** se vacia la cache de Query, para que ningun dato
+  de un arquero quede en memoria para el siguiente en el mismo dispositivo. Si falla, el menu sigue abierto y lo dice.
+- El estado "menu abierto" es Zustand (`ui-store.ts`): UI efimera, nada del servidor.
+
+### Decisiones
+
+- Los contadores son la cantidad de activos de cada lista (hasta 100): no hay un endpoint de totales y no hace falta para el MVP.
+- Vaciar la cache va despues de navegar: hacerlo antes dejaba a las consultas del propio encabezado volver a pedir datos.
+
+### Verificado
+
+- 9 tests del menu (cerrado por defecto, contadores 2/1/3, Estadisticas inactiva, Escape y foco, navegacion y `aria-current`, cuenta y apariencia,
+  cerrar sesion completo y su falla, ingles); PWA 190 tests; E2E real 12/12; lint y typecheck limpios.
+
+### Pendiente / deuda
+
+- `/profile` sigue siendo un placeholder (F1-16: exportar datos y baja).
+
+---
+
 ## 2026-11-02 — El arquero arma setups, los ve en el Home y los manda a la papelera
 
 **Tareas:** F1-05 · **Commit/PR:** rama `feat/f1-setups` · **Tarjeta:** sin tablero (F0-04)

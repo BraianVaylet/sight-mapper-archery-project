@@ -355,7 +355,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-STP-01, HU-STP-02, HU-STP-04. Test no negociable #4.
 - **Errores nuevos:** `SM-STP-*` · **Datos:** `setups`
 
-### [ ] F1-06 · Menu lateral
+### [x] F1-06 · Menu lateral
 
 - **Modulo:** pwa · **Puntos:** 2 · **Depende de:** F1-05
 - **Descripcion:** `NavDrawer` del diseño: contadores de arcos/miras/flechas, Statistics
