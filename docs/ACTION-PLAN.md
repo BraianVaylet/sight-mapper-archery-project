@@ -425,7 +425,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-CAL-05; "Guardar como PDF" en Chrome y Safari produce una hoja A4/Letter sin
   cortes.
 
-### [ ] F1-15 · Acceso rapido
+### [x] F1-15 · Acceso rapido
 
 - **Modulo:** account, pwa · **Puntos:** 2 · **Depende de:** F1-08
 - **Descripcion:** `PUT /me/quick-access`, accion "Abrir siempre aca", redireccion al boot, limpieza

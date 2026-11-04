@@ -1,6 +1,10 @@
 import { createRoute } from '@hono/zod-openapi';
 import { detectLocale } from '@sight-mapper/i18n';
-import { profile, updatePreferences as updatePreferencesBody } from '@sight-mapper/schemas';
+import {
+  profile,
+  putQuickAccess,
+  updatePreferences as updatePreferencesBody,
+} from '@sight-mapper/schemas';
 import type { Locale } from '@sight-mapper/types';
 import type { Context } from 'hono';
 import { parseLanguages } from '../../../core/auth/auth.js';
@@ -8,7 +12,7 @@ import { expectedVersion, setEtag } from '../../../core/concurrency/concurrency.
 import { AppError } from '../../../core/http/errors.js';
 import type { AppBindings } from '../../../core/http/context.js';
 import type { RouteRegistry } from '../../../core/registry/registry.js';
-import type { PreferencesPatch, Profile } from '../domain/profile.js';
+import type { PreferencesPatch, Profile, QuickAccess } from '../domain/profile.js';
 
 export type AccountRoutesDeps = {
   readonly ensureProfile: (userId: string, locale: Locale) => Promise<Profile>;
@@ -18,9 +22,17 @@ export type AccountRoutesDeps = {
     patch: PreferencesPatch,
     expectedVersion: number,
   ) => Promise<Profile>;
+  readonly setQuickAccess: (
+    userId: string,
+    fallbackLocale: Locale,
+    quickAccess: QuickAccess | null,
+    expectedVersion: number,
+  ) => Promise<Profile>;
 };
 
-const json = <S extends typeof profile | typeof updatePreferencesBody>(schema: S) => ({
+const json = <S extends typeof profile | typeof updatePreferencesBody | typeof putQuickAccess>(
+  schema: S,
+) => ({
   'application/json': { schema },
 });
 
@@ -75,6 +87,28 @@ export function registerAccountRoutes(registry: RouteRegistry, deps: AccountRout
     }),
     async (c) => {
       const updated = await deps.updatePreferences(
+        owner(c),
+        browserLocale(c),
+        c.req.valid('json'),
+        expectedVersion(c),
+      );
+      setEtag(c, updated);
+      return c.json(toWire(updated), 200);
+    },
+    { auth: 'session' },
+  );
+
+  registry.register(
+    createRoute({
+      method: 'put',
+      path: '/api/v1/me/quick-access',
+      tags: ['account'],
+      summary: 'Set the setup and arrow set the app opens on, or clear it with null',
+      request: { body: { required: true, content: json(putQuickAccess) } },
+      responses: { 200: { description: 'The profile, updated', content: json(profile) } },
+    }),
+    async (c) => {
+      const updated = await deps.setQuickAccess(
         owner(c),
         browserLocale(c),
         c.req.valid('json'),

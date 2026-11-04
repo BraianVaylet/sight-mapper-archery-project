@@ -3,6 +3,7 @@ import { TRASH_DAYS } from '@sight-mapper/schemas';
 import type { ComponentStatus } from '@sight-mapper/types';
 import { AppError } from '../../../core/http/errors.js';
 import type { Transact } from '../../../core/db/transaction.js';
+import type { EventBus } from '../../../core/events/bus.js';
 import type {
   Clock,
   SetupMarksPort,
@@ -17,6 +18,8 @@ export type SetupUseCasesDeps = {
   readonly clock: Clock;
   /** A setup and its marks go to the trash, and come back, together (RN-STP-06). */
   readonly transact: Transact;
+  /** `SetupDeleted` goes out when a setup goes to the trash (the account clears its quick access). */
+  readonly bus: Pick<EventBus, 'publish'>;
 };
 
 /** When a setup deleted at `deletedAt` is purged for good. */
@@ -25,7 +28,7 @@ export const purgeAt = (deletedAt: Temporal.Instant): Temporal.Instant =>
 
 /** Reading, archiving, the trash and the restore: the setup rules that need no component. */
 export function createSetupUseCases(deps: SetupUseCasesDeps) {
-  const { setups, marks, clock, transact } = deps;
+  const { setups, marks, clock, transact, bus } = deps;
   const notFound = () => new AppError('SM-CORE-404-002', { resource: 'setup' });
 
   return {
@@ -50,6 +53,8 @@ export function createSetupUseCases(deps: SetupUseCasesDeps) {
       await transact(async () => {
         await repository.moveToTrash(id, expectedVersion, now);
         await marks.trashBySetup(userId, id, now);
+        // Inside the transaction: the setup and what leans on it go together, or not at all.
+        await bus.publish('SetupDeleted', { userId, setupId: id });
       });
     },
 

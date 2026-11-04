@@ -19,6 +19,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { useState, type KeyboardEvent } from 'react';
 import { describeError } from '../../app/errors.js';
 import { useI18n } from '../../app/i18n.js';
+import { QuickAccessToggle } from '../account/quick-access-toggle.js';
 import { componentName } from '../equipment/names.js';
 import { useSetupName } from '../setups/home-screen.js';
 import { setupHooks } from '../setups/setups.js';
@@ -348,6 +349,8 @@ function SightView({
           options={arrowOptions}
         />
       )}
+
+      <QuickAccessToggle setupId={setup.id} arrowSetId={arrowId} />
 
       <div role="group" aria-label={t('sight.tools')} className="flex flex-wrap gap-2">
         <ToolButton label={t('sight.wind')} badge={t('sight.soon')} />

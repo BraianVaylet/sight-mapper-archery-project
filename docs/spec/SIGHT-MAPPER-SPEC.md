@@ -307,7 +307,7 @@ REST bajo `/api/v1/*`. Better Auth en `/api/auth/*`. Fuera de prefijo: `/health`
   🔴 **La API no manda prosa.** Manda `messageKey` y `params`; el idioma lo resuelve el cliente. →
   [ADR-004](../adr/004-i18n.md) · [errors.md](../errors.md)
 
-- `Idempotency-Key` obligatoria en todo `POST`. `If-Match: <version>` obligatoria en `PATCH` y
+- `Idempotency-Key` obligatoria en todo `POST`. `If-Match: <version>` obligatoria en `PATCH`, `PUT` y
   `DELETE`.
 
 ## 10. Requisitos no funcionales

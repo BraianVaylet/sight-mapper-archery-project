@@ -1,5 +1,10 @@
 import { isApiError, useHttp } from '@sight-mapper/client';
-import { profile, type Profile, type UpdatePreferences } from '@sight-mapper/schemas';
+import {
+  profile,
+  type Profile,
+  type QuickAccess,
+  type UpdatePreferences,
+} from '@sight-mapper/schemas';
 import type { UnitSystem } from '@sight-mapper/types';
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -51,6 +56,46 @@ export function useUpdatePreferences() {
       if (isApiError(error) && error.status === 412) {
         void queryClient.invalidateQueries({ queryKey: profileKey });
       }
+    },
+    onSuccess: (updated) => queryClient.setQueryData(profileKey, updated),
+  });
+}
+
+/** What the app opens on, or `null`. Server state: it is read from the profile, never copied. */
+export function useQuickAccess(): QuickAccess | null | undefined {
+  const http = useHttp();
+  return useQuery(profileQuery(http)).data?.quickAccess;
+}
+
+/**
+ * "Always open here" (HU-STP-03): the cache shows the new pair at once, `PUT /me/quick-access`
+ * follows with the version the cache holds, and a failure puts the old one back. It shares the
+ * scope of the preferences: both change the same profile, so each must carry the version the
+ * previous one made.
+ */
+export function useSetQuickAccess() {
+  const http = useHttp();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    scope: { id: 'preferences' },
+    mutationFn: (quickAccess: QuickAccess | null) =>
+      http.put('/me/quick-access', {
+        body: quickAccess,
+        schema: profile,
+        ...versionOf(queryClient.getQueryData<Profile>(profileKey)),
+      }),
+    onMutate: async (quickAccess) => {
+      await queryClient.cancelQueries({ queryKey: profileKey });
+      const previous = queryClient.getQueryData<Profile>(profileKey);
+      if (previous !== undefined)
+        queryClient.setQueryData(profileKey, { ...previous, quickAccess });
+      return { previous };
+    },
+    onError: (error, _quickAccess, context) => {
+      if (context?.previous !== undefined) queryClient.setQueryData(profileKey, context.previous);
+      // Someone else changed it first, or the setup is gone: read the profile again.
+      if (isApiError(error)) void queryClient.invalidateQueries({ queryKey: profileKey });
     },
     onSuccess: (updated) => queryClient.setQueryData(profileKey, updated),
   });

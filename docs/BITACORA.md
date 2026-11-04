@@ -18,6 +18,43 @@
 
 ---
 
+## 2026-11-05 — Acceso rapido: la app abre directo en la mira de siempre, y si el setup se borra, abre en el Home
+
+**Tareas:** F1-15 · **Commit/PR:** rama `feat/f1-quick-access` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **API (`account`):** `PUT /api/v1/me/quick-access` con `{ setupId, arrowSetId }` o `null` para limpiar. El setup tiene que ser un setup **vivo del arquero** (si es ajeno, inexistente o esta en la
+  papelera: 404 `SM-CORE-404-002`, igual que cualquier recurso ajeno) y el set de flechas uno **de ese setup** (`SM-ACC-422-001`). Es uno por arquero (RN-STP-07): elegir otro reemplaza.
+  La cuenta le pregunta al calculador por un puerto (`SetupLookupPort`, implementado por `createSetupLookup`); no se importan.
+- **Limpieza por evento:** el calculador publica `SetupDeleted` **dentro de la transaccion** que manda el setup y sus marcas a la papelera; la cuenta escucha (`bus.on` en la raiz de composicion) y limpia
+  el acceso rapido si apuntaba a ese setup, con el `version` del perfil subido. Restaurar el setup no lo devuelve.
+- **PWA:** boton **"Abrir siempre acá"** en la pantalla de la mira (`aria-pressed`, con tilde ademas del color; "Se abre siempre acá" cuando esta activo; tocarlo de nuevo lo limpia), con guardado
+  optimista y reversion si el servidor lo rechaza. Comparte `scope` con las preferencias: las dos cambian el mismo perfil y cada una lleva la version de la anterior.
+- **Al abrir la app:** el guard de `_app` redirige a `/setups/:id?arrowSet=` **solo la primera vez** que se llega a `/` tras la sesion (tambien despues de iniciar sesion): volver al Home luego, o entrar
+  por un link a otra pantalla, no redirige. Una precarga (pasar el mouse por un link) no gasta ese "primer arranque". Si el perfil no llega en 2,5 s, o falla, abre en el Home.
+- **`If-Match` tambien en `PUT`** (guard, spec, TECNICO §4, CLAUDE.md): el perfil es un recurso versionado y un PUT que lo reemplaza no puede ser last-write-wins silencioso (ADR-006).
+
+### Decisiones (con link a ADR si corresponde)
+
+- La limpieza va por evento sincronico dentro de la transaccion (DOMINIO §5, `SetupDeleted`), no por un chequeo al leer: asi el perfil nunca queda apuntando a un setup que no existe.
+- Un acceso rapido cuyo set de flechas ya no esta en el setup (se saco despues) abre igual el setup, en su primer set: la pantalla ya cae al primero cuando el de la URL no existe.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- API (+14 tests, 387 en total): poner, reemplazar, limpiar con `null`, set ajeno al setup 422, setup ajeno / inexistente / en la papelera 404, 412 y 428, validacion del body, sesion; la papelera limpia el
+  acceso rapido (y solo el que apuntaba ahi), restaurar no lo devuelve, y el perfil de otro arquero no se toca. Ataque de aislamiento nuevo para la ruta (B apunta a un setup de A → 404).
+- PWA (+11 tests, 359): boton activo / inactivo / limpiar / reemplazar / rechazo con reversion; arranque directo a la mira con el set, Home sin acceso rapido, volver al Home no redirige, link a otra pantalla no
+  redirige, despues de iniciar sesion, perfil ilegible abre el Home, set que ya no esta.
+- E2E 22/22 en la pila real (360 y 1440): marcar, abrir la app → cae en la mira, recargar, volver al Home, borrar el setup → abre en el Home, restaurar → no vuelve.
+
+### Pendiente / deuda
+
+- Si el set de flechas del acceso rapido se quita del setup, el servidor no limpia nada (no hay evento de eso): la PWA lo tolera, y el siguiente "Abrir siempre acá" lo reemplaza.
+- F1-16 (perfil: exportar datos y baja) es lo que sigue en `account`; `/profile` sigue siendo el unico placeholder.
+
+---
+
 ## 2026-11-04 — El listado imprimible: la hoja de papelito sale en una pagina, en blanco y negro
 
 **Tareas:** F1-14 · **Commit/PR:** rama `feat/f1-print` · **Tarjeta:** sin tablero (F0-04)

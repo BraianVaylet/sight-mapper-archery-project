@@ -1,8 +1,10 @@
 import type { MiddlewareHandler } from 'hono';
 import { v7 as uuidv7 } from 'uuid';
 import {
+  createClearQuickAccessOfSetup,
   createEnsureProfile,
   createProfileRepositories,
+  createSetQuickAccess,
   createUpdatePreferences,
   registerAccountRoutes,
 } from './modules/account/index.js';
@@ -18,6 +20,7 @@ import {
   registerMarkRoutes,
   createComponentUsage,
   createCreateSetup,
+  createSetupLookup,
   createSetupRepositories,
   createSetupUseCases,
   createSetupViews,
@@ -116,6 +119,14 @@ export function createContainer(deps: ContainerDeps): Container {
     const sights = createSightRepositories(connection);
     const bows = createBowRepositories(connection);
     const setups = createSetupRepositories(connection);
+    // The account asks the calculator which arrow sets a setup has; it never imports it (ADR-002).
+    const setQuickAccess = createSetQuickAccess({
+      profiles,
+      ensureProfile,
+      setups: createSetupLookup({ setups }),
+      clock,
+    });
+    const clearQuickAccessOfSetup = createClearQuickAccessOfSetup({ profiles, clock });
 
     const marks = createMarkRepositories(connection);
     const transact = createTransact(connection);
@@ -135,9 +146,9 @@ export function createContainer(deps: ContainerDeps): Container {
     const views = createSetupViews({ equipment, marks: setupMarks });
     const markChecks = createMarkChecks({ setups, equipment, clock });
     registerModuleRoutes = (registry) => {
-      registerAccountRoutes(registry, { ensureProfile, updatePreferences });
+      registerAccountRoutes(registry, { ensureProfile, updatePreferences, setQuickAccess });
       registerSetupRoutes(registry, {
-        shared: createSetupUseCases({ setups, marks: setupMarks, clock, transact }),
+        shared: createSetupUseCases({ setups, marks: setupMarks, clock, transact, bus }),
         views,
         create: createCreateSetup({ setups, check, clock }),
         update: createUpdateSetup({ setups, marks: setupMarks, check, clock }),
@@ -182,6 +193,10 @@ export function createContainer(deps: ContainerDeps): Container {
       });
     };
     // Awaited, so a failure reaches the publisher (which logs it) instead of an unhandled rejection.
+    // RN-STP-07: a deleted setup takes its quick access with it. Runs inside the trash transaction.
+    bus.on('SetupDeleted', async ({ userId, setupId }) => {
+      await clearQuickAccessOfSetup(userId, setupId);
+    });
     bus.on('UserRegistered', async ({ userId, locale }) => {
       await ensureProfile(userId, locale);
     });

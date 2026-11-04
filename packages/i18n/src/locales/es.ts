@@ -457,6 +457,13 @@ export const es = {
     statusOff: 'Se aparta',
     unit: { mm: 'mm', cm: 'cm', in: 'in', click: 'clicks', custom: 'unid.' },
   },
+  quickAccess: {
+    off: 'Abrir siempre acá',
+    on: 'Se abre siempre acá',
+    hintOff: 'La app se abre directo en esta mira, con este set de flechas.',
+    hintOn: 'Tocá de nuevo para que la app vuelva a abrir en Tus setups.',
+    error: 'No pudimos guardar el acceso rápido.',
+  },
   print: {
     back: 'La mira',
     intro:

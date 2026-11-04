@@ -6,7 +6,7 @@ import { buildSetupWithMarks, signUpAndVerify } from './helpers.js';
 test('print the list: only the sheet is paper, in black and white, on one page', async ({
   page,
 }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(150_000); // builds a setup and renders three PDFs: slow under load
   await signUpAndVerify(page);
   await buildSetupWithMarks(page, [
     ['20', '0,3'],

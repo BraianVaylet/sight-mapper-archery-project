@@ -456,6 +456,13 @@ export const en: Messages = {
     statusOff: 'Off trend',
     unit: { mm: 'mm', cm: 'cm', in: 'in', click: 'clicks', custom: 'units' },
   },
+  quickAccess: {
+    off: 'Always open here',
+    on: 'Always opens here',
+    hintOff: 'The app opens straight on this sight, with this arrow set.',
+    hintOn: 'Tap again and the app opens on Your setups instead.',
+    error: 'We could not save the quick access.',
+  },
   print: {
     back: 'The sight',
     intro:

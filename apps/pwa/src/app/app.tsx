@@ -37,7 +37,7 @@ export function createApp({ origin, fetch, history }: AppOptions = {}): App {
       void holder.router?.invalidate();
     },
   });
-  const router = createAppRouter({ queryClient, clients }, history);
+  const router = createAppRouter({ queryClient, clients, boot: { pending: true } }, history);
   holder.router = router;
   return { queryClient, clients, router };
 }

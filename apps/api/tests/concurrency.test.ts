@@ -131,7 +131,12 @@ describe('malformed ids', () => {
     return container.app;
   };
   const put = (app: ReturnType<typeof build>, path: string, body: unknown) =>
-    app.request(path, { method: 'PUT', headers: headers(), body: JSON.stringify(body) });
+    app.request(path, {
+      method: 'PUT',
+      // A PUT says which version it saw, like PATCH and DELETE.
+      headers: { ...headers(), 'if-match': '"1"' },
+      body: JSON.stringify(body),
+    });
 
   it('a lone malformed id in the body is SM-CORE-400-002 naming the field', async () => {
     const res = await put(build(), `/api/v1/ids/${ID_A}`, { id: 'not-a-uuid' });

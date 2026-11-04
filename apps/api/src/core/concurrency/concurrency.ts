@@ -2,7 +2,7 @@ import type { Context, MiddlewareHandler } from 'hono';
 import type { AppBindings } from '../http/context.js';
 import { AppError } from '../http/errors.js';
 
-const WRITE_METHODS = new Set(['PATCH', 'DELETE']);
+const WRITE_METHODS = new Set(['PATCH', 'PUT', 'DELETE']);
 const IF_MATCH = /^"(\d+)"$/;
 
 /** `"3"`: a strong validator, the resource `version` between quotes (TECNICO §4). */
@@ -16,7 +16,7 @@ export function setEtag(c: Context<AppBindings>, resource: { readonly version: n
 }
 
 /**
- * PATCH and DELETE must say which version they saw (`If-Match`), so a stale write fails with
+ * PATCH, PUT and DELETE must say which version they saw (`If-Match`), so a stale write fails with
  * 412 instead of overwriting someone else's change (ADR-006). A missing header is 428; a header
  * that is not one of our ETags cannot match anything, so it is a stale write too.
  *

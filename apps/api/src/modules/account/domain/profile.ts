@@ -44,6 +44,27 @@ export type ProfileRepository = {
     expectedVersion: number,
     now: Temporal.Instant,
   ): Promise<Profile>;
+  /** Sets or clears the quick access, if the profile is still at `expectedVersion` (`SM-CORE-412-001`). */
+  setQuickAccess(
+    id: string,
+    quickAccess: QuickAccess | null,
+    expectedVersion: number,
+    now: Temporal.Instant,
+  ): Promise<Profile>;
+  /** Clears the quick access if it points at this setup; `true` when it did. Idempotent. */
+  clearQuickAccessOf(setupId: string, now: Temporal.Instant): Promise<boolean>;
+};
+
+/** The pair the app opens on start (RN-STP-07: at most one per archer). */
+export type QuickAccess = NonNullable<Profile['quickAccess']>;
+
+/**
+ * Declared here, implemented by the calculator through the composition root: the account module
+ * only needs to know which arrow sets a live setup of this archer has. `null` when there is no
+ * such setup (not theirs, not there, or in the trash).
+ */
+export type SetupLookupPort = {
+  arrowSetIdsOf(userId: string, setupId: string): Promise<readonly string[] | null>;
 };
 
 export type ProfileRepositories = { forUser(userId: string): ProfileRepository };

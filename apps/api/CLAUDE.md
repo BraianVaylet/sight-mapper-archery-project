@@ -29,7 +29,7 @@ Hoy existen `core/`, `modules/account` (perfil, `/me`), `modules/equipment` (arc
   `docs/errors.md` (tipo `ErrorCode`). Nada de `try/catch` que trague: se traduce a `AppError` o
   sube. La respuesta lleva claves, nunca prosa ni stack.
 - **Escrituras:** POST pasa por `Idempotency-Key` (ya montado bajo `/api/v1`); PATCH/DELETE por
-  `If-Match` (`expectedVersion(c)`); actualizar con `updateWithVersion` (404 si no es tuyo, 412 si
+  `If-Match` (`expectedVersion(c)`; tambien el `PUT`); actualizar con `updateWithVersion` (404 si no es tuyo, 412 si
   la version es vieja). Un `_id` repetido es `rethrowDuplicateId` → `SM-CORE-409-002`.
 - **Respuestas con recurso:** `setEtag(c, recurso)` y el recurso incluye `version`.
 - **Reloj inyectado** (`Clock`), nunca `Date`; `Date` solo vive en `core/db/temporal.ts`.

@@ -82,7 +82,7 @@ pre-escritura bloquea patrones de secretos.
 | Paginacion         | `?limit=` (1–100, default 25) y `?cursor=` opaco. Nunca `skip`                             |
 | IDs                | UUIDv7 del cliente en el body de `POST` (`id`). Se valida version y timestamp razonable    |
 | Idempotencia       | `Idempotency-Key` **obligatoria** en `POST`; misma clave + mismo cuerpo → misma respuesta; misma clave + otro cuerpo → `SM-CORE-409-001`. TTL 24 h |
-| Concurrencia       | Respuestas incluyen `version` y header `ETag: "<version>"`. `PATCH`/`DELETE` exigen `If-Match` (`SM-CORE-428-001` si falta, `SM-CORE-412-001` si no coincide) |
+| Concurrencia       | Respuestas incluyen `version` y header `ETag: "<version>"`. `PATCH`/`PUT`/`DELETE` exigen `If-Match` (`SM-CORE-428-001` si falta, `SM-CORE-412-001` si no coincide) |
 | Recurso ajeno      | `404` (`SM-CORE-404-002`), nunca `403`                                                     |
 | Soft delete        | `DELETE` marca `deletedAt`; las lecturas lo excluyen salvo endpoints de papelera           |
 | Transiciones       | Endpoints de accion: `POST /:id/archive`, `/unarchive`, `/restore`. Nunca `PATCH { status }` |
@@ -205,8 +205,9 @@ Content-Type: application/json
   - `registerType: 'prompt'` → `UpdatePrompt` "Hay una version nueva · Actualizar".
 - Version visible: `VITE_APP_VERSION` en login y Perfil. `GET /api/v1/me` devuelve
   `minClientVersion`; si la PWA es menor, fuerza actualizar.
-- **Acceso rapido:** al boot, si `profile.quickAccess` existe, el router redirige a
-  `/setups/:id?arrowSet=`.
+- **Acceso rapido:** al **abrir la app** (la primera pantalla tras la sesion, tambien despues de entrar),
+  si cae en `/` y `profile.quickAccess` existe, el router redirige a `/setups/:id?arrowSet=`. Volver al
+  Home despues, o entrar por un link a otra pantalla, no redirige. Sin perfil en 2,5 s la app abre en el Home.
 - **Optimismo:** `useMutation` con `onMutate` (escribe en cache), `onError` (rollback + toast con
   `t(messageKey, params)`), `onSettled` (invalida). Toast con "Deshacer" llama al endpoint inverso
   (`restore` o `DELETE`).

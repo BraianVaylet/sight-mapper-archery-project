@@ -7,6 +7,7 @@ import {
   type UpdateSetup,
 } from '@sight-mapper/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { profileKey } from '../account/profile.js';
 import { z } from 'zod';
 
 /** Every call to `/setups` (list, detail, add, edit, archive, send to the trash) from one factory. */
@@ -52,6 +53,8 @@ export function useSendToTrash() {
     sendToTrash: async (id: string) => {
       await remove.mutateAsync({ id });
       await client.invalidateQueries({ queryKey: trashKey });
+      // The API clears a quick access that pointed at it (RN-STP-07): the profile has changed.
+      await client.invalidateQueries({ queryKey: profileKey });
     },
   };
 }

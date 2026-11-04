@@ -91,6 +91,23 @@ export function createProfileRepositories(connection: DbConnection): ProfileRepo
           );
           return toProfile(row);
         },
+        async setQuickAccess(id, quickAccess, expectedVersion, now) {
+          const row = await updateWithVersion(
+            Model as unknown as Model<Row>,
+            { userId, id },
+            expectedVersion,
+            { $set: { quickAccess, updatedAt: toDate(now) } },
+            'profile',
+          );
+          return toProfile(row);
+        },
+        async clearQuickAccessOf(setupId, now) {
+          const result = await Model.updateOne(
+            { userId, 'quickAccess.setupId': setupId },
+            { $set: { quickAccess: null, updatedAt: toDate(now) }, $inc: { version: 1 } },
+          );
+          return result.modifiedCount > 0;
+        },
       };
     },
   };
