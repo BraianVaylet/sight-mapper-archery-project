@@ -45,7 +45,7 @@
 ### Pendiente / deuda
 
 - **Todo lo que depende de F0-20**: staging, prod y Atlas para promover, probar el restore y correr las metricas.
-- **Canal de feedback** para la prueba con arqueros: a decidir (correo, grupo de WhatsApp o issues).
+- **Canal de feedback**: decidido, issues de GitHub con la plantilla `archer-feedback.yml` (sin contraseñas ni sesion). Ojo: los arqueros necesitan cuenta de GitHub, o se los carga el autor a mano.
 - **La prueba con 5–10 arqueros** y las metricas a los 14 dias.
 
 ---

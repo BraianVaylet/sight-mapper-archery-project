@@ -57,6 +57,8 @@ MONGODB_URI='<usuario de solo lectura de prod>' node scripts/metrics.mjs --since
   siguiente salida al campo.
 - Preguntas despues de la salida: ¿la lectura que mostro era la que fijaste? ¿algo te freno? ¿que
   te falto?
-- Canal de feedback: **pendiente de decidir** (correo, grupo de WhatsApp o issues).
+- Canal de feedback: **issues de GitHub**, con la plantilla "Archer feedback"
+  (`.github/ISSUE_TEMPLATE/archer-feedback.yml`). Hace falta una cuenta de GitHub; el arquero que no
+  tenga cuenta se lo cuenta al autor, que abre el issue por el.
 - Cada comentario se tria en `docs/ACTION-PLAN.md`: bug (a la fase actual), mejora (a la epica que
   corresponda) o descartado (con el motivo en la BITACORA).
