@@ -1,4 +1,4 @@
-import { formatReading, parseDecimal } from '@sight-mapper/domain';
+import { formatReading } from '@sight-mapper/domain';
 import { formatNumber } from '@sight-mapper/i18n';
 import type { SetupView } from '@sight-mapper/schemas';
 import {
@@ -7,7 +7,6 @@ import {
   InfoAlert,
   NumberField,
   SectionCard,
-  Segmented,
   Select,
   Skeleton,
   StatusBadge,
@@ -24,17 +23,8 @@ import { calcFailureText } from '../sight/calc-failure.js';
 import { useSightData } from '../sight/sight-data.js';
 import { distanceIn, formatDistance, readingOf, type Reading } from '../sight/sight.logic.js';
 import { DistanceCurve } from './distance-curve.js';
-import {
-  buildGrid,
-  curveGeometry,
-  DEFAULT_STEP,
-  defaultRange,
-  freeQuery,
-  isStep,
-  STEPS,
-  type FreeQuery,
-  type Step,
-} from './distances.logic.js';
+import { RangeFields, useRange } from './range-controls.js';
+import { buildGrid, curveGeometry, freeQuery, type FreeQuery } from './distances.logic.js';
 
 /** Marker glyphs: not words, so they stay out of the catalogs. */
 const GLYPH = { filled: '● ', estimate: '◇ ' } as const;
@@ -93,17 +83,6 @@ function DistancesView({
   const explainFailure = (r: Reading) => calcFailureText(translate, r, { system, locale, scale });
 
   // --- what is on screen: the URL, with what the marks suggest where it says nothing -----------
-  const step: Step = stepParam !== undefined && isStep(stepParam) ? stepParam : DEFAULT_STEP;
-  const base = defaultRange(marks, system, step);
-  const [typed, setTyped] = useState<{ from?: string; to?: string }>({});
-  const valueOf = (name: 'from' | 'to'): number => {
-    const text = typed[name];
-    if (text !== undefined) return parseDecimal(text) ?? Number.NaN;
-    return (name === 'from' ? fromParam : toParam) ?? base[name];
-  };
-  const range = { from: valueOf('from'), to: valueOf('to'), step };
-  const grid = buildGrid(analysis, range, system);
-
   const go = (search: Record<string, unknown>) =>
     void navigate({
       to: '/setups/$setupId/distances',
@@ -111,12 +90,16 @@ function DistancesView({
       search: (previous: Record<string, unknown>) => ({ ...previous, ...search }),
       replace: true,
     });
-  /** The typed value becomes the URL's once the archer leaves the field; a bad one is dropped. */
-  const commit = (name: 'from' | 'to') => {
-    const parsed = typed[name] === undefined ? undefined : parseDecimal(typed[name]);
-    setTyped((current) => ({ ...current, [name]: undefined }));
-    if (parsed !== undefined && parsed !== null && parsed > 0) go({ [name]: parsed });
-  };
+  const rangeState = useRange({
+    marks,
+    system,
+    step: stepParam,
+    from: fromParam,
+    to: toParam,
+    go,
+  });
+  const { range } = rangeState;
+  const grid = buildGrid(analysis, range, system);
 
   // --- the selected distance and the free query --------------------------------------------------
   const selected = distanceM === undefined ? undefined : analysis.readingAt(distanceM);
@@ -278,28 +261,7 @@ function DistancesView({
           </SectionCard>
 
           <SectionCard title={t('distances.rangeTitle')}>
-            <div className="grid grid-cols-2 gap-3">
-              <NumberField
-                label={t('distances.from')}
-                unit={unit}
-                value={typed.from ?? String(range.from)}
-                onChange={(event) => setTyped((c) => ({ ...c, from: event.target.value }))}
-                onBlur={() => commit('from')}
-              />
-              <NumberField
-                label={t('distances.to')}
-                unit={unit}
-                value={typed.to ?? String(range.to)}
-                onChange={(event) => setTyped((c) => ({ ...c, to: event.target.value }))}
-                onBlur={() => commit('to')}
-              />
-            </div>
-            <Segmented
-              label={`${t('distances.step')} (${unit})`}
-              options={STEPS.map((s) => ({ value: String(s), label: String(s) }))}
-              value={String(step)}
-              onChange={(value) => go({ step: Number(value) })}
-            />
+            <RangeFields state={rangeState} unit={unit} />
 
             {!grid.ok ? (
               <InfoAlert variant="warning">

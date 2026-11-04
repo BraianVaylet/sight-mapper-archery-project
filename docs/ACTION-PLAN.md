@@ -417,7 +417,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   ingles), formatos por locale, emails EN.
 - **Criterios:** recorrer el flujo critico en EN sin un string en español; test de paridad verde.
 
-### [ ] F1-14 · Listado imprimible
+### [x] F1-14 · Listado imprimible
 
 - **Modulo:** pwa (print) · **Puntos:** 3 · **Depende de:** F1-10
 - **Descripcion:** ruta `/setups/:id/print` con CSS de impresion: encabezado, tabla con paso

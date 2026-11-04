@@ -47,3 +47,48 @@ export async function signUpAndVerify(page: Page): Promise<Archer> {
   await expect(page.getByRole('heading', { name: 'Tus setups' })).toBeVisible();
   return archer;
 }
+
+/**
+ * A bow, a sight in cm (0 to 10, steps of 0.1), a set of arrows and a setup that joins them, with
+ * the given marks (distance in the archer's unit, reading on the sight). Leaves the browser on the
+ * sight screen of the new setup. For specs that start from "an archer with marks".
+ */
+export async function buildSetupWithMarks(
+  page: Page,
+  marks: readonly (readonly [distance: string, reading: string])[],
+): Promise<void> {
+  await page.goto('/bows/new');
+  await page.getByLabel('Fabricante').fill('Hoyt');
+  await page.getByLabel('Modelo').fill('Alpha');
+  await page.getByRole('button', { name: 'Guardar' }).click();
+  await expect(page.getByRole('heading', { name: 'Hoyt Alpha' })).toBeVisible();
+
+  await page.goto('/sights/new');
+  await page.getByLabel('Modelo').fill('Ultraview');
+  await page.getByLabel('Mínimo').fill('0');
+  await page.getByLabel('Máximo').fill('10');
+  await page.getByLabel('Paso más chico').fill('0,1');
+  await page.getByRole('button', { name: 'Guardar' }).click();
+  await expect(page.getByRole('heading', { name: 'Ultraview' })).toBeVisible();
+
+  await page.goto('/arrows/new');
+  await page.getByLabel('Nombre corto').fill('Hunter 400');
+  await page.getByRole('button', { name: 'Guardar' }).click();
+  await expect(page.getByRole('heading', { name: 'Hunter 400' })).toBeVisible();
+
+  await page.goto('/setups/new');
+  await page.getByLabel('Nombre (opcional)').fill('Caza');
+  await page.getByLabel('Arco').selectOption({ label: 'Hoyt Alpha' });
+  await page.getByLabel('Mira').selectOption({ label: 'Ultraview' });
+  await page.getByRole('checkbox', { name: 'Hunter 400' }).check();
+  await page.getByRole('button', { name: 'Guardar' }).click();
+  await expect(page.getByText('Todavía no hay marcas')).toBeVisible();
+
+  for (const [distance, reading] of marks) {
+    await page.getByRole('button', { name: '+ Agregar marca' }).click();
+    await page.getByLabel('Distancia', { exact: true }).fill(distance);
+    await page.getByLabel('Lectura', { exact: true }).fill(reading);
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('button', { name: /^Elegir la marca de/ }).last()).toBeVisible();
+  }
+}

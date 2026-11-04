@@ -30,3 +30,48 @@
     outline-offset: 2px;
   }
 }
+
+/*
+ * Paper (HU-CAL-05): only the printable sheet comes out. The frame, the footer, the controls and
+ * anything floating are gone, the page is white with black ink whatever the theme, and a row never
+ * splits across two pages. Nothing here relies on colour: the sheet is readable in black and white.
+ */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  header,
+  footer,
+  nav,
+  [role='dialog'],
+  a[href='#main'],
+  .no-print,
+  .fixed {
+    display: none !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .print-sheet {
+    border: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-sheet tr {
+    break-inside: avoid;
+  }
+
+  .print-sheet thead {
+    display: table-header-group;
+  }
+}

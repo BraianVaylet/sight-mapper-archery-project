@@ -18,6 +18,40 @@
 
 ---
 
+## 2026-11-04 — El listado imprimible: la hoja de papelito sale en una pagina, en blanco y negro
+
+**Tareas:** F1-14 · **Commit/PR:** rama `feat/f1-print` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Pantalla `/setups/$setupId/print`** (`?arrowSet=`, `step`, `from`, `to`): arriba, lo que no es papel (volver, set de flechas, desde / hasta / paso, boton **Imprimir** que abre el dialogo del
+  navegador, aviso de "Guardar como PDF"); abajo, la hoja: titulo, nombre del setup, arco, mira, flechas, fecha, unidad y paso, la tabla distancia → lectura y las notas al pie.
+- **Blanco y negro:** lo medido va en negrita y sin simbolo; lo calculado lleva `≈`; lo que conviene confirmar en el campo (poca confianza o fuera de la escala) lleva `*`. Las notas al pie
+  explican solo los simbolos que la hoja usa. Una distancia que las marcas no permiten estimar **no se imprime como adivinanza**: se deja afuera y la hoja dice cuantas.
+- **CSS de impresion** (`styles.css`): solo sale la hoja; fuera cabecera, pie, menu, dialogos, controles y todo lo flotante; pagina blanca con tinta negra aunque el tema sea oscuro; una fila
+  no se parte entre paginas y el encabezado de la tabla se repite.
+- **Rango compartido:** `useRange` y `RangeFields` (desde / hasta / paso con su estado en la URL) salen de la pantalla de distancias y las comparten las dos.
+- **Desde la mira:** "Imprimir" se habilita con 1 marca y conserva el set de flechas; antes muestra `0/1`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La fecha de la hoja es la del dispositivo al abrir la pantalla (`device-time.ts`), no la de la ultima marca: es el dia en que se imprimio.
+- Sin acordeon ni vista previa aparte: la hoja que se ve en pantalla es la que sale en papel.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Logica (6 tests): medidas exactas, estimadas con `≈`, `*`, omitidas contadas, rango invertido.
+- Pantalla (14 tests): encabezado, filas, notas al pie solo con lo usado, paso y rango en la URL, boton que llama a `window.print`, controles fuera de la hoja, sin marcas, rango sin sentido, yardas.
+- E2E en la pila real (360 y 1440): con medio `print` emulado el pie, la cabecera, el boton y los controles desaparecen y el cuerpo es blanco con tinta negra; **PDF de Chromium en A4 y en
+  Letter: 1 pagina** con 9 filas, y mas de una con 41 (el contador no es decorativo). Captura de la hoja revisada. PWA 348 tests; lint y typecheck limpios.
+
+### Pendiente / deuda
+
+- "Guardar como PDF" en Safari no se probo (solo Chromium); el CSS es estandar (`@media print`, `break-inside`).
+- Imprimir el **tape** a escala real es F2 (MAKER); esto es la hoja de papelito.
+
+---
+
 ## 2026-11-04 — La app entera se puede usar en ingles: una sola ortografia, ningun texto en español y emails marcados por idioma
 
 **Tareas:** F1-13 · **Commit/PR:** rama `feat/f1-english` · **Tarjeta:** sin tablero (F0-04)

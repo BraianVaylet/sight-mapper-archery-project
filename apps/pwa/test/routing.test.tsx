@@ -11,17 +11,17 @@ const signedOut = () => fakeApi({ 'GET /api/auth/get-session': () => json(null) 
 describe('the guard of private screens', () => {
   it('sends someone without a session to sign-in, remembering where they were going', async () => {
     const api = signedOut();
-    const { app } = renderApp('/setups/abc/print', api.fetch);
+    const { app } = renderApp('/profile', api.fetch);
 
     expect(await screen.findByRole('heading', { name: 'Iniciar sesión' })).toBeInTheDocument();
     expect(app.router.state.location.pathname).toBe('/sign-in');
-    expect(app.router.state.location.search).toEqual({ redirect: '/setups/abc/print' });
+    expect(app.router.state.location.search).toEqual({ redirect: '/profile' });
   });
 
   it('lets a signed-in archer reach the private screens', async () => {
     const api = signedIn();
-    renderApp('/setups/abc/print', api.fetch);
-    expect(await screen.findByRole('heading', { name: 'Listado imprimible' })).toBeInTheDocument();
+    renderApp('/profile', api.fetch);
+    expect(await screen.findByRole('heading', { name: 'Cuenta' })).toBeInTheDocument();
   });
 
   it('asks the server once for several screens, not on every navigation', async () => {

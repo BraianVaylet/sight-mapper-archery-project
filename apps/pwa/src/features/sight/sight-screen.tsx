@@ -151,44 +151,19 @@ function DistancesTool({
   );
 }
 
-function ToolButton({
-  label,
-  badge,
-  to,
-  setupId,
-}: {
-  label: string;
-  badge?: string;
-  to?: '/setups/$setupId/print';
-  setupId: string;
-}) {
-  const className = TOOL_CLASS;
-  const content = (
-    <>
-      <span>{label}</span>
-      {badge === undefined ? null : (
-        <span className="rounded-sm border border-border px-2 py-0.5 text-xs text-muted">
-          {badge}
-        </span>
-      )}
-    </>
-  );
-  if (to === undefined) {
-    // Visible, announced as unavailable, and goes nowhere (RF-X-07).
-    return (
-      <button
-        type="button"
-        aria-disabled="true"
-        className={`${className} cursor-not-allowed text-muted`}
-      >
-        {content}
-      </button>
-    );
-  }
+/** A tool that is not available yet: visible, announced as unavailable, and goes nowhere (RF-X-07). */
+function ToolButton({ label, badge }: { label: string; badge: string }) {
   return (
-    <Link to={to} params={{ setupId }} className={`${className} text-text`}>
-      {content}
-    </Link>
+    <button
+      type="button"
+      aria-disabled="true"
+      className={`${TOOL_CLASS} cursor-not-allowed text-muted`}
+    >
+      <span>{label}</span>
+      <span className="rounded-sm border border-border px-2 py-0.5 text-xs text-muted">
+        {badge}
+      </span>
+    </button>
   );
 }
 
@@ -375,8 +350,8 @@ function SightView({
       )}
 
       <div role="group" aria-label={t('sight.tools')} className="flex flex-wrap gap-2">
-        <ToolButton setupId={setup.id} label={t('sight.wind')} badge={t('sight.soon')} />
-        <ToolButton setupId={setup.id} label={t('sight.weather')} badge={t('sight.soon')} />
+        <ToolButton label={t('sight.wind')} badge={t('sight.soon')} />
+        <ToolButton label={t('sight.weather')} badge={t('sight.soon')} />
         <DistancesTool setupId={setup.id} arrowSetId={arrowId} count={analysis.count} />
         {progress.ready ? (
           <Link
@@ -389,15 +364,21 @@ function SightView({
           </Link>
         ) : (
           <ToolButton
-            setupId={setup.id}
             label={t('sight.doctor')}
             badge={t('sight.doctorNeeds', { have: progress.have, need: progress.need })}
           />
         )}
         {marks.length > 0 ? (
-          <ToolButton setupId={setup.id} label={t('sight.print')} to="/setups/$setupId/print" />
+          <Link
+            to="/setups/$setupId/print"
+            params={{ setupId: setup.id }}
+            search={arrowId === undefined ? {} : { arrowSet: arrowId }}
+            className={`${TOOL_CLASS} text-text`}
+          >
+            {t('sight.print')}
+          </Link>
         ) : (
-          <ToolButton setupId={setup.id} label={t('sight.print')} badge="0/1" />
+          <ToolButton label={t('sight.print')} badge="0/1" />
         )}
       </div>
 
