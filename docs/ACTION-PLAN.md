@@ -410,7 +410,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   arqueros, aplicar en todos los forms y vistas, fracciones en la entrada.
 - **Criterios:** recorrer el flujo critico entero en imperial sin ver una unidad metrica.
 
-### [ ] F1-13 · Ingles completo
+### [x] F1-13 · Ingles completo
 
 - **Modulo:** i18n, pwa · **Puntos:** 3 · **Depende de:** F1-11
 - **Descripcion:** revision de todos los textos EN (tono de producto, terminos de arqueria en

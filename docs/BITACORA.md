@@ -18,6 +18,40 @@
 
 ---
 
+## 2026-11-04 — La app entera se puede usar en ingles: una sola ortografia, ningun texto en español y emails marcados por idioma
+
+**Tareas:** F1-13 · **Commit/PR:** rama `feat/f1-english` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Auditoria:** el catalogo EN no tenia español (todo falso positivo). Lo que si estaba mal era la **ortografia mezclada**: britanica (colour, favourite, metres, catalogue) en un producto cuyo
+  publico de ingles usa yardas, libras y fps. Se unifica en **ingles americano** (color, favorite, meters, millimeters, catalog) y se ajustan terminos poco naturales: "Sign out" junto a "Sign in" (era
+  "Log out"), "off the trend" / "Off trend" en el Doctor (era "strays").
+- **Emails:** ya salian en el idioma del arquero (ADR-004); ahora el HTML lleva `<div lang="en|es">` (lectores de pantalla y correctores) y el mismo test lo verifica.
+- **Manifest y meta description:** la PWA es una sola, no puede tener manifest por idioma: la descripcion pasa a ser bilingue ("Marcas de mira para arqueros · Sight marks for archers"),
+  en lugar de ingles suelto con `lang: es`.
+- **Guardas permanentes** en el test de paridad: ni ortografia britanica ni letras o signos solo-españoles en el catalogo EN.
+
+### Decisiones (con link a ADR si corresponde)
+
+- Ingles americano, no britanico: coherente con `Intl` `en` y con el publico imperial. Si aparece beta del Reino Unido, un `en-GB` es un catalogo nuevo (ADR-004 lo permite).
+- El selector de idioma muestra "Español" en español aunque la pantalla este en ingles: es el nombre del idioma en si mismo, y es correcto.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Test que renderiza **las 19 pantallas privadas y las 5 publicas** con perfil `en` (y la hoja de marca con sus errores): ningun texto, `aria-label`, `title` ni `placeholder` con palabras o signos de
+  español, ningun `{{…}}`, `<html lang="en">` y punto decimal (0.3, no 0,3). 26 tests.
+- E2E en la pila real (360 y 1440) con un navegador en en-US: alta, correo (link), equipo, setup, 5 marcas en yardas con punto decimal, dialogo de reemplazo, intermedias, Doctor, cerrar sesion y error
+  de credenciales, escaneando español en cada pantalla. 18/18 en total.
+- PWA 328 tests, i18n 27, API (auth) 38; lint y typecheck limpios.
+
+### Pendiente / deuda
+
+- El perfil nuevo toma el idioma del `Accept-Language` y en ingles arranca imperial: es la regla de `defaultPreferences` (spec); no se cambio.
+- Revision de tono por una persona de habla inglesa: el texto es mio, no de un nativo. Pendiente para la beta.
+
+---
+
 ## 2026-11-03 — El flujo critico funciona entero en yardas y pulgadas, y los errores de la API ya no muestran llaves sin reemplazar
 
 **Tareas:** F1-12 · **Commit/PR:** rama `feat/f1-imperial` · **Tarjeta:** sin tablero (F0-04)

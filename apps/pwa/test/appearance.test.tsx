@@ -70,7 +70,7 @@ describe('Appearance (HU-ACC-04)', () => {
 
     await userEvent.click(radio('English'));
     expect(await screen.findByRole('heading', { name: 'Appearance' })).toBeInTheDocument();
-    expect(radio('Metric (metres)')).toBeInTheDocument();
+    expect(radio('Metric (meters)')).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('en');
     await waitFor(() => expect(api.patches[0]?.body).toEqual({ locale: 'en' }));
   });

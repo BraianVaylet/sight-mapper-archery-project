@@ -78,6 +78,18 @@ describe('ES / EN parity', () => {
     }
   });
 
+  it('writes American English, the same everywhere (yards, pounds and fps are its audience)', () => {
+    const british = /\b(colours?|favourites?|(?:milli|centi|)metres?|catalogues?|grey|licence)\b/i;
+    for (const [key, message] of english) expect(message, key).not.toMatch(british);
+  });
+
+  it('has no Spanish letters or signs in English (the language name itself aside)', () => {
+    for (const [key, message] of english) {
+      if (key === 'language.es') continue;
+      expect(message, key).not.toMatch(/[¿¡áéíóúñÁÉÍÓÚÑ]/);
+    }
+  });
+
   it('uses the voseo of es-AR, not the tú of other regions', () => {
     const joined = [...spanish.values()].join(' ');
     expect(joined).not.toMatch(/\b(tienes|puedes|elige|revisa|verifica|inicia)\b/i);

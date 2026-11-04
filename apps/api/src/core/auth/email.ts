@@ -52,11 +52,13 @@ export function renderAuthEmail(
     subject: m.subject,
     text: [m.heading, '', m.body, '', data.url, '', m.ignore].join('\n'),
     html: [
+      `<div lang="${locale}">`,
       `<h1 style="font-family:sans-serif">${escapeHtml(m.heading)}</h1>`,
       `<p style="font-family:sans-serif">${escapeHtml(m.body)}</p>`,
       `<p><a href="${url}" style="display:inline-block;padding:12px 20px;background:#ffcc00;color:#10286b;font-family:sans-serif;font-weight:600;text-decoration:none">${escapeHtml(m.cta)}</a></p>`,
       `<p style="font-family:sans-serif;font-size:13px">${escapeHtml(m.fallback)}<br>${url}</p>`,
       `<p style="font-family:sans-serif;font-size:13px;color:#555">${escapeHtml(m.ignore)}</p>`,
+      '</div>',
     ].join('\n'),
   };
 }

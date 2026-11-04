@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
         manifest: {
           name: 'Sight Mapper',
           short_name: 'Sight Mapper',
-          description: 'Sight marks for archers',
+          description: 'Marcas de mira para arqueros · Sight marks for archers',
           lang: 'es',
           start_url: '/',
           scope: '/',

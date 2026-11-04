@@ -30,6 +30,12 @@ describe('renderAuthEmail', () => {
     expect(renderAuthEmail('reset', 'en', data).text).toContain('works once');
   });
 
+  it('marks the language of the HTML, for screen readers and spell checkers', () => {
+    expect(renderAuthEmail('verify', 'en', data).html).toContain('<div lang="en">');
+    expect(renderAuthEmail('reset', 'es', data).html).toContain('<div lang="es">');
+    expect(renderAuthEmail('reset', 'es', data).html.endsWith('</div>')).toBe(true);
+  });
+
   it('escapes the name and the link in the HTML: a display name is user input', () => {
     const mail = renderAuthEmail('verify', 'en', {
       ...data,

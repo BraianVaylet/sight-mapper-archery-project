@@ -186,7 +186,7 @@ describe('The side menu (F1-06)', () => {
       await userEvent.click(await screen.findByRole('button', { name: 'Open the menu' }));
       return screen.getByRole('dialog', { name: 'Menu' });
     })();
-    expect(within(menu).getByRole('button', { name: 'Log out' })).toBeInTheDocument();
+    expect(within(menu).getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
     expect(within(menu).getByText('Coming soon')).toBeInTheDocument();
   });
 });
