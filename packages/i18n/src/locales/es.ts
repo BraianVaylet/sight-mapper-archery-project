@@ -37,7 +37,6 @@ export const es = {
       title: 'No encontramos esa página',
       body: 'La dirección no existe o cambió.',
     },
-    placeholder: 'Esta pantalla llega en la Fase 1.',
   },
   sandbox: {
     intro:
@@ -456,6 +455,34 @@ export const es = {
     statusOk: 'Coherente',
     statusOff: 'Se aparta',
     unit: { mm: 'mm', cm: 'cm', in: 'in', click: 'clicks', custom: 'unid.' },
+  },
+  profile: {
+    accountTitle: 'Tu cuenta',
+    username: 'Usuario',
+    email: 'Email',
+    version: 'Versión de la app',
+    dataTitle: 'Tus datos',
+    dataBody:
+      'Descargá todo lo que guardamos de vos en un archivo JSON: perfil, arcos, miras, flechas, setups y marcas, también lo archivado y lo que está en la papelera. Las distancias van en metros y las posiciones de la mira en milímetros.',
+    download: 'Descargar mis datos',
+    downloading: 'Preparando…',
+    downloaded: 'Listo: se descargó {{file}}.',
+    downloadError: 'No pudimos preparar la descarga.',
+    deleteTitle: 'Baja de la cuenta',
+    deleteBody:
+      'Si pedís la baja, tu cuenta y todo lo que cargaste se eliminan a los {{days}} días. No es inmediato para que puedas arrepentirte y bajar tus datos: hasta entonces la app sigue funcionando y podés cancelar cuando quieras.',
+    deleteButton: 'Pedir la baja',
+    confirmTitle: '¿Pedir la baja?',
+    confirmBody:
+      'A los {{days}} días se eliminan para siempre tus arcos, miras, flechas, setups y marcas, y tu cuenta. Hasta entonces podés cancelar.',
+    confirmLabel: 'Escribí {{word}} para confirmar',
+    confirm: 'Sí, pedir la baja',
+    requestedTitle: 'Pediste la baja',
+    requestedBody:
+      'Tu cuenta y todos tus datos se eliminan el {{date}}. Hasta entonces la app sigue funcionando.',
+    cancel: 'Cancelar la baja',
+    cancelled: 'Listo: la baja quedó cancelada.',
+    loadError: 'No pudimos cargar tu cuenta',
   },
   quickAccess: {
     off: 'Abrir siempre acá',

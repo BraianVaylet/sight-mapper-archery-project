@@ -101,6 +101,26 @@ export function createProfileRepositories(connection: DbConnection): ProfileRepo
           );
           return toProfile(row);
         },
+        async requestDeletion(id, now) {
+          // The condition is part of the write: two requests at once, only one wins.
+          const row = await Model.findOneAndUpdate(
+            { userId, _id: id, deletionRequestedAt: null },
+            {
+              $set: { deletionRequestedAt: toDate(now), updatedAt: toDate(now) },
+              $inc: { version: 1 },
+            },
+            { new: true },
+          ).lean<Row>();
+          return row === null ? null : toProfile(row);
+        },
+        async cancelDeletion(id, now) {
+          const row = await Model.findOneAndUpdate(
+            { userId, _id: id, deletionRequestedAt: { $ne: null } },
+            { $set: { deletionRequestedAt: null, updatedAt: toDate(now) }, $inc: { version: 1 } },
+            { new: true },
+          ).lean<Row>();
+          return row === null ? null : toProfile(row);
+        },
         async clearQuickAccessOf(setupId, now) {
           const result = await Model.updateOne(
             { userId, 'quickAccess.setupId': setupId },

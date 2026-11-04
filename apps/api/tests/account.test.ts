@@ -75,6 +75,7 @@ describe('GET /me', () => {
       theme: 'system',
       quickAccess: null,
       deletionRequestedAt: null,
+      purgeAt: null,
       version: 1,
     });
   });

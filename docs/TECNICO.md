@@ -107,9 +107,9 @@ pre-escritura bloquea patrones de secretos.
 | GET    | `/api/v1/me`                      | Perfil + preferencias + version app minima | —                       |
 | PATCH  | `/api/v1/me/preferences`          | `locale`, `unitSystem`, `theme`      | CORE-400                      |
 | PUT    | `/api/v1/me/quick-access`         | `{ setupId, arrowSetId } \| null`    | ACC-422-001                   |
-| GET    | `/api/v1/me/export`               | JSON con todos los datos             | —                             |
+| GET    | `/api/v1/me/export`               | JSON con todos los datos (`schemaVersion: 1`, con archivado y papelera, unidades canonicas, sin `userId`) | — |
 | POST   | `/api/v1/me/deletion-request`     | Pide la baja                         | ACC-409-001                   |
-| DELETE | `/api/v1/me/deletion-request`     | Cancela la baja                      | ACC-404-001                   |
+| DELETE | `/api/v1/me/deletion-request`     | Cancela la baja (**sin** `If-Match`: la salida de una baja debe funcionar aunque el perfil haya cambiado) | ACC-404-001 |
 
 ### 5.3 Equipment (patron igual para `bows`, `sights`, `arrow-sets`)
 

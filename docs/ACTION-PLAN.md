@@ -433,7 +433,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-STP-03.
 - **Errores nuevos:** `SM-ACC-422-001`
 
-### [ ] F1-16 · Perfil: exportar datos y baja
+### [x] F1-16 · Perfil: exportar datos y baja
 
 - **Modulo:** account, pwa · **Puntos:** 3 · **Depende de:** F1-07
 - **Descripcion:** pantalla Perfil (username, email, version de la app), `GET /me/export`, pedir y

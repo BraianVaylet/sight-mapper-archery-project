@@ -13,7 +13,7 @@ codigo de ahi.
 ## Estado
 
 Documentacion completa (2026-10-29). **Fase 0 en curso** (ver `docs/ACTION-PLAN.md`): hechas F0-01,
-02, 03, 05, 06, 07, 08, 09, 10, 12, 13, 14, 16, 18 y 21; **F1-01 (preferencias) y F1-02 (arcos) hechas, F1-03 (miras), F1-04 (flechas), F1-05 (setups, Home y papelera), F1-06 (menu), F1-07 (marcas, API), F1-08 (pantalla de la mira), F1-09 (hoja de marca) y F1-10 (intermedias y curva), F1-11 (Mark Doctor), F1-12 (imperial), F1-13 (ingles), F1-14 (listado imprimible) y F1-15 (acceso rapido) hechas**; F0-17 (pwa) hecha, salvo el boton de Google (F0-20); casi F0-11 (ui, falta el catalogo visual), F0-15 (auth:
+02, 03, 05, 06, 07, 08, 09, 10, 12, 13, 14, 16, 18 y 21; **F1-01 (preferencias) y F1-02 (arcos) hechas, F1-03 (miras), F1-04 (flechas), F1-05 (setups, Home y papelera), F1-06 (menu), F1-07 (marcas, API), F1-08 (pantalla de la mira), F1-09 (hoja de marca) y F1-10 (intermedias y curva), F1-11 (Mark Doctor), F1-12 (imperial), F1-13 (ingles), F1-14 (listado imprimible), F1-15 (acceso rapido) y F1-16 (perfil: exportar y baja) hechas**; F0-17 (pwa) hecha, salvo el boton de Google (F0-20); casi F0-11 (ui, falta el catalogo visual), F0-15 (auth:
 falta probar Google, que necesita F0-20) y F0-19 (CI, sin correr en GitHub). Bloqueadas F0-04 y F0-20. El Mark Doctor (F0-06) esta calibrado con solo 2 sets reales: recalibrar con mas.
 
 Herramientas del repo: `.claude/` (agentes `spec-reviewer`, `domain-reviewer`,

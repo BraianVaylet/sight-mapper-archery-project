@@ -93,4 +93,52 @@ export const accountAttacks: Attack[] = [
       return mine.status === 200 ? null : `A could not set their own quick access (${mine.status})`;
     },
   },
+  {
+    route: 'GET /api/v1/me/export',
+    async run({ call, userA, userB }) {
+      const marker = `bow-of-${userA}`;
+      await call(userA, 'POST', '/api/v1/bows', {
+        body: { id: uuidv7(), bowType: 'compound', model: marker },
+        headers: key(),
+      });
+      const mine = await (await call(userA, 'GET', '/api/v1/me/export')).text();
+      if (!mine.includes(marker)) return "A's own export misses A's bow";
+      // B asks for theirs: nothing of A's may be in it, in any collection.
+      const theirs = await (await call(userB, 'GET', '/api/v1/me/export')).text();
+      return theirs.includes(marker) || theirs.includes(userA)
+        ? "B's export carries A's data"
+        : null;
+    },
+  },
+  {
+    route: 'POST /api/v1/me/deletion-request',
+    async run({ call, userA, userB }) {
+      await call(userA, 'GET', '/api/v1/me');
+      const answer = await call(userB, 'POST', '/api/v1/me/deletion-request', {
+        headers: key(),
+      });
+      if (answer.status !== 200 && answer.status !== 409) {
+        return `B could not ask for their own deletion (${answer.status})`;
+      }
+      const a = (await (await call(userA, 'GET', '/api/v1/me')).json()) as {
+        deletionRequestedAt?: unknown;
+      };
+      return a.deletionRequestedAt === null ? null : "B's request marked A's account for deletion";
+    },
+  },
+  {
+    route: 'DELETE /api/v1/me/deletion-request',
+    async run({ call, userA, userB }) {
+      await call(userA, 'GET', '/api/v1/me');
+      await call(userA, 'POST', '/api/v1/me/deletion-request', { headers: key() });
+      // Whatever B has pending, it is B's own: A's request stays.
+      await call(userB, 'DELETE', '/api/v1/me/deletion-request');
+      const a = (await (await call(userA, 'GET', '/api/v1/me')).json()) as {
+        deletionRequestedAt?: unknown;
+      };
+      return a.deletionRequestedAt === null || a.deletionRequestedAt === undefined
+        ? "B's cancel withdrew A's request"
+        : null;
+    },
+  },
 ];

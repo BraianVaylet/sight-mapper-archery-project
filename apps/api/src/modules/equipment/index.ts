@@ -21,3 +21,4 @@ export { registerBowRoutes } from './infrastructure/bow-routes.js';
 export { createSightRepositories } from './infrastructure/sight-repository.js';
 export { registerSightRoutes } from './infrastructure/sight-routes.js';
 export { createEquipmentReader } from './application/equipment-reader.js';
+export { createEquipmentExport, createPurgeEquipment } from './infrastructure/equipment-data.js';

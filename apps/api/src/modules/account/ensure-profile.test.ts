@@ -16,6 +16,8 @@ function memory(options: { loseRaceOnce?: boolean } = {}) {
       updatePreferences: () => Promise.reject(new Error('not used here')),
       setQuickAccess: () => Promise.reject(new Error('not used here')),
       clearQuickAccessOf: () => Promise.reject(new Error('not used here')),
+      requestDeletion: () => Promise.reject(new Error('not used here')),
+      cancelDeletion: () => Promise.reject(new Error('not used here')),
       insert(profile) {
         if (options.loseRaceOnce && !raced) {
           raced = true;
@@ -101,6 +103,8 @@ describe('ensureProfile', () => {
         updatePreferences: () => Promise.reject(new Error('not used here')),
         setQuickAccess: () => Promise.reject(new Error('not used here')),
         clearQuickAccessOf: () => Promise.reject(new Error('not used here')),
+        requestDeletion: () => Promise.reject(new Error('not used here')),
+        cancelDeletion: () => Promise.reject(new Error('not used here')),
       }),
     };
     await expect(

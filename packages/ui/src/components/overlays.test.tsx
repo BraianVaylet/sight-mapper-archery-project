@@ -21,6 +21,25 @@ function DrawerHarness({ sheet = false }: { sheet?: boolean }) {
   );
 }
 
+function TypingHarness() {
+  const [text, setText] = useState('');
+  return (
+    <BottomSheet open onClose={() => setText('')} title="Menu" closeLabel="Close">
+      <input aria-label="Name" value={text} onChange={(event) => setText(event.target.value)} />
+    </BottomSheet>
+  );
+}
+
+describe('a dialog whose parent renders on every keystroke', () => {
+  it('keeps the focus in the field: a new onClose each render does not restart the trap', async () => {
+    render(<TypingHarness />);
+    const field = screen.getByLabelText('Name');
+    await userEvent.setup().type(field, 'ana');
+    expect(field).toHaveValue('ana');
+    expect(document.activeElement).toBe(field);
+  });
+});
+
 describe.each([
   ['NavDrawer', false],
   ['BottomSheet', true],

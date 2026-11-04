@@ -1,9 +1,14 @@
 import type { MiddlewareHandler } from 'hono';
 import { v7 as uuidv7 } from 'uuid';
 import {
+  createCancelDeletion,
   createClearQuickAccessOfSetup,
   createEnsureProfile,
+  createExportData,
   createProfileRepositories,
+  createPurgeDeletedAccounts,
+  createPurgeProfile,
+  createRequestDeletion,
   createSetQuickAccess,
   createUpdatePreferences,
   registerAccountRoutes,
@@ -20,6 +25,8 @@ import {
   registerMarkRoutes,
   createComponentUsage,
   createCreateSetup,
+  createCalculatorExport,
+  createPurgeCalculatorData,
   createSetupLookup,
   createSetupRepositories,
   createSetupUseCases,
@@ -31,7 +38,9 @@ import {
 } from './modules/calculator/index.js';
 import {
   createArrowSetRepositories,
+  createEquipmentExport,
   createEquipmentReader,
+  createPurgeEquipment,
   createBowRepositories,
   createComponentUseCases,
   createCreateArrowSet,
@@ -51,6 +60,8 @@ import {
 } from './modules/equipment/index.js';
 import type { RouteRegistry } from './core/registry/registry.js';
 import { createAuth } from './core/auth/auth.js';
+import { deleteIdentity } from './core/auth/identity.js';
+import { deleteAllOf } from './core/db/export.js';
 import { createLogEmailSender, createResendSender, type EmailSender } from './core/auth/email.js';
 import { sessionMiddleware } from './core/auth/session.js';
 import { systemClock, type Clock } from './core/clock/clock.js';
@@ -97,6 +108,13 @@ export type ContainerDeps = {
 };
 
 /**
+ * Writes that do not carry `If-Match`. Withdrawing a request for deletion is the way out of
+ * something the archer asked for: it must work whatever else changed in their profile since (a
+ * theme changed in another tab), so it is never a stale write.
+ */
+const IF_MATCH_EXEMPT: readonly string[] = ['DELETE /api/v1/me/deletion-request'];
+
+/**
  * The one place that knows every piece: it wires modules, ports and event listeners so the
  * modules themselves never import each other (ADR-002). Modules plug in here as they land.
  */
@@ -127,6 +145,14 @@ export function createContainer(deps: ContainerDeps): Container {
       clock,
     });
     const clearQuickAccessOfSetup = createClearQuickAccessOfSetup({ profiles, clock });
+    const requestDeletion = createRequestDeletion({ profiles, ensureProfile, clock, bus });
+    const cancelDeletion = createCancelDeletion({ profiles, ensureProfile, clock });
+    // Each module hands over its own rows: the account never reads their collections (ADR-002).
+    const exportData = createExportData({
+      ensureProfile,
+      clock,
+      sources: [createEquipmentExport(connection), createCalculatorExport(connection)],
+    });
 
     const marks = createMarkRepositories(connection);
     const transact = createTransact(connection);
@@ -146,7 +172,14 @@ export function createContainer(deps: ContainerDeps): Container {
     const views = createSetupViews({ equipment, marks: setupMarks });
     const markChecks = createMarkChecks({ setups, equipment, clock });
     registerModuleRoutes = (registry) => {
-      registerAccountRoutes(registry, { ensureProfile, updatePreferences, setQuickAccess });
+      registerAccountRoutes(registry, {
+        ensureProfile,
+        updatePreferences,
+        setQuickAccess,
+        exportData,
+        requestDeletion,
+        cancelDeletion,
+      });
       registerSetupRoutes(registry, {
         shared: createSetupUseCases({ setups, marks: setupMarks, clock, transact, bus }),
         views,
@@ -197,6 +230,21 @@ export function createContainer(deps: ContainerDeps): Container {
     bus.on('SetupDeleted', async ({ userId, setupId }) => {
       await clearQuickAccessOfSetup(userId, setupId);
     });
+    // RF-ACC-06: when the archer's time is up, every module removes what is theirs for good. The
+    // account's own profile is last: a failure halfway leaves it there and the next run finishes.
+    bus.on('AccountPurged', async ({ userId }) => {
+      await createPurgeEquipment(connection)(userId);
+    });
+    bus.on('AccountPurged', async ({ userId }) => {
+      await createPurgeCalculatorData(connection)(userId);
+    });
+    bus.on('AccountPurged', async ({ userId }) => {
+      await deleteIdentity(connection, userId);
+      await deleteAllOf(connection, 'idempotencyKeys', userId);
+    });
+    bus.on('AccountPurged', async ({ userId }) => {
+      await createPurgeProfile(connection)(userId);
+    });
     bus.on('UserRegistered', async ({ userId, locale }) => {
       await ensureProfile(userId, locale);
     });
@@ -213,7 +261,7 @@ export function createContainer(deps: ContainerDeps): Container {
       connection,
       clock,
       logger,
-      jobs: [purgeIdempotencyKeys, purgeDeletedSetups],
+      jobs: [purgeIdempotencyKeys, purgeDeletedSetups, createPurgeDeletedAccounts({ bus })],
     });
     session ??= sessionMiddleware(auth.sessions);
   }
@@ -226,7 +274,7 @@ export function createContainer(deps: ContainerDeps): Container {
     ...(session === undefined ? {} : { session }),
     ...(authHandler === undefined ? {} : { authHandler }),
     ...(deps.idempotencyStore === undefined ? {} : { idempotencyStore: deps.idempotencyStore }),
-    ...(deps.ifMatchExempt === undefined ? {} : { ifMatchExempt: deps.ifMatchExempt }),
+    ifMatchExempt: [...IF_MATCH_EXEMPT, ...(deps.ifMatchExempt ?? [])],
   });
 
   registerModuleRoutes?.(http.registry);

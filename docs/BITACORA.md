@@ -18,6 +18,52 @@
 
 ---
 
+## 2026-11-05 — Perfil: el arquero baja todos sus datos y puede pedir la baja de la cuenta, que se cumple a los 90 dias
+
+**Tareas:** F1-16 · **Commit/PR:** rama `feat/f1-profile` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **API (`account`):**
+  - `GET /me/export` (HU-ACC-05): perfil, arcos, miras, flechas, setups y marcas **incluido lo archivado y lo de la papelera**, en unidades canonicas, con `schemaVersion: 1` y `exportedAt`; sin `userId`,
+    `_id` ni `__v`; `Content-Disposition: attachment` y `Cache-Control: no-store`. Cada modulo entrega lo suyo por una fuente (`ExportSource`): la cuenta no lee sus colecciones. La lectura va por el driver con el
+    filtro `userId` escrito en un solo lugar (`core/db/export.ts`), porque los modelos aislados esconden lo borrado.
+  - `POST /me/deletion-request` (HU-ACC-06): registra el pedido; el perfil trae `purgeAt` (+90 dias, `DELETION_DAYS`). Pedirlo dos veces: `SM-ACC-409-001` con la fecha del primero. No se borra nada ahora.
+  - `DELETE /me/deletion-request`: lo retira (`SM-ACC-404-001` si no hay).
+  - **Job `purgeDeletedAccounts`** (diario, reloj inyectado): por cada baja de 90 dias o mas publica `AccountPurged`; equipment y calculator borran lo suyo (incluida la papelera), el nucleo borra la **identidad**
+    (usuario, sesiones, cuentas vinculadas y links pendientes de Better Auth) y las claves de idempotencia, y el perfil va **ultimo**: si algo falla a mitad, el perfil sigue y la proxima corrida termina. Idempotente.
+- **PWA:** pantalla `/profile` (ultimo placeholder, que se borra): usuario, email y version; **"Descargar mis datos"** (descarga real de un `.json` con la fecha del servidor en el nombre); baja de la cuenta
+  con la explicacion de por que no es inmediata, confirmacion escribiendo el usuario (o el email si no tiene), y despues "Pediste la baja… se eliminan el {fecha}" con **"Cancelar la baja"**.
+
+### Decisiones (con link a ADR si corresponde)
+
+- **Cancelar la baja no lleva `If-Match`** (decision que ya estaba en `main.ts`: `ifMatchExempt`): la salida de algo que el arquero pidio tiene que funcionar aunque el perfil haya cambiado (el tema, en otra pestaña).
+  La exencion pasa a vivir en la **raiz de composicion**, no en `main.ts`: antes los tests corrian sin ella y la produccion con ella, y por eso un test pasaba y el E2E real daba 428.
+- La confirmacion por username es de la UI; el servidor no conoce el username (es de Better Auth). El pedido sigue siendo reversible 90 dias.
+- `purgeAt` sale de la API (`purgeAtOf`), no se calcula en el cliente: una sola regla de fechas.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- API (+21 tests, 408 en total): exportacion con todo (archivado, papelera, marca borrada sola), sin userId ni basura del driver, sin datos de otro, vacia para quien no tiene nada; pedir, 409 con la fecha del primero, nada se borra
+  al pedir; cancelar (404 si no hay, sin If-Match aunque el perfil cambio); purga: a los 89 dias no, a los 90 si, la papelera tambien, quien cancelo a tiempo se queda, segunda corrida no hace nada, una falla a mitad conserva el
+  perfil y la siguiente corrida termina. **Contra Better Auth real:** usuario, sesiones, cuentas y verificaciones desaparecen, la sesion vieja da 401, el login falla, el otro arquero queda igual y el mismo email puede registrarse
+  de nuevo. Tres ataques de aislamiento nuevos.
+- PWA (+11 tests, 370): datos de la cuenta, descarga (archivo, contenido y nombre), error de descarga, confirmacion exacta, pedido con fecha, cancelar, 409, sin username, error de carga.
+- E2E 24/24 en la pila real (360 y 1440): descarga un archivo de verdad y se lee, pedir la baja, recargar, la app sigue andando, cancelar. Captura revisada a 360 px.
+
+### Bug de otra capa que aparecio
+
+- **`useFocusTrap` reiniciaba el foco en cada render del padre** (dependia de la identidad de `onEscape`): escribir en un campo dentro de un `BottomSheet` cuyo padre se re-renderizaba por tecla perdia letras. Ahora guarda el
+  handler en un ref; test que falla sin el arreglo (ui, 96 tests).
+
+### Pendiente / deuda
+
+- La purga contra Atlas real (indices, tiempos con muchos datos) no se probo; solo contra el replica set de pruebas.
+- Un correo de aviso antes de la baja (D-30, D-7) no esta en la spec: por ahora el unico aviso es la pantalla.
+- F1-17 (onboarding) es lo que sigue en la fase 1.
+
+---
+
 ## 2026-11-05 — Acceso rapido: la app abre directo en la mira de siempre, y si el setup se borra, abre en el Home
 
 **Tareas:** F1-15 · **Commit/PR:** rama `feat/f1-quick-access` · **Tarjeta:** sin tablero (F0-04)

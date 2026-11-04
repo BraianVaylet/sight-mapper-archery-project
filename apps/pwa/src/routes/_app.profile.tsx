@@ -1,6 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Placeholder } from '../features/placeholder.js';
+import { ProfileScreen } from '../features/account/profile-screen.js';
 
-export const Route = createFileRoute('/_app/profile')({
-  component: () => <Placeholder screen="profile" />,
-});
+export const Route = createFileRoute('/_app/profile')({ component: ProfileScreen });

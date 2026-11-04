@@ -35,7 +35,6 @@ export const en: Messages = {
       title: 'We could not find that page',
       body: 'The address does not exist or has changed.',
     },
-    placeholder: 'This screen arrives in Phase 1.',
   },
   sandbox: {
     intro:
@@ -455,6 +454,34 @@ export const en: Messages = {
     statusOk: 'Consistent',
     statusOff: 'Off trend',
     unit: { mm: 'mm', cm: 'cm', in: 'in', click: 'clicks', custom: 'units' },
+  },
+  profile: {
+    accountTitle: 'Your account',
+    username: 'Username',
+    email: 'Email',
+    version: 'App version',
+    dataTitle: 'Your data',
+    dataBody:
+      'Download everything we keep about you as a JSON file: profile, bows, sights, arrows, setups and marks, including what is archived and what is in the trash. Distances are in meters and sight positions in millimeters.',
+    download: 'Download my data',
+    downloading: 'Getting it ready…',
+    downloaded: 'Done: {{file}} was downloaded.',
+    downloadError: 'We could not prepare the download.',
+    deleteTitle: 'Delete the account',
+    deleteBody:
+      'If you ask for deletion, your account and everything you added are removed after {{days}} days. It is not immediate so you can change your mind and download your data: until then the app keeps working and you can cancel any time.',
+    deleteButton: 'Ask for deletion',
+    confirmTitle: 'Ask for deletion?',
+    confirmBody:
+      'After {{days}} days your bows, sights, arrows, setups and marks, and your account, are removed for good. Until then you can cancel.',
+    confirmLabel: 'Type {{word}} to confirm',
+    confirm: 'Yes, ask for deletion',
+    requestedTitle: 'You asked for deletion',
+    requestedBody:
+      'Your account and all your data are removed on {{date}}. Until then the app keeps working.',
+    cancel: 'Cancel the deletion',
+    cancelled: 'Done: the deletion was cancelled.',
+    loadError: 'We could not load your account',
   },
   quickAccess: {
     off: 'Always open here',

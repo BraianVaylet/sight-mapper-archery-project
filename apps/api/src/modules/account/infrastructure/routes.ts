@@ -1,6 +1,8 @@
 import { createRoute } from '@hono/zod-openapi';
 import { detectLocale } from '@sight-mapper/i18n';
 import {
+  accountExport,
+  type AccountExport,
   profile,
   putQuickAccess,
   updatePreferences as updatePreferencesBody,
@@ -12,7 +14,12 @@ import { expectedVersion, setEtag } from '../../../core/concurrency/concurrency.
 import { AppError } from '../../../core/http/errors.js';
 import type { AppBindings } from '../../../core/http/context.js';
 import type { RouteRegistry } from '../../../core/registry/registry.js';
-import type { PreferencesPatch, Profile, QuickAccess } from '../domain/profile.js';
+import {
+  purgeAtOf,
+  type PreferencesPatch,
+  type Profile,
+  type QuickAccess,
+} from '../domain/profile.js';
 
 export type AccountRoutesDeps = {
   readonly ensureProfile: (userId: string, locale: Locale) => Promise<Profile>;
@@ -22,6 +29,9 @@ export type AccountRoutesDeps = {
     patch: PreferencesPatch,
     expectedVersion: number,
   ) => Promise<Profile>;
+  readonly exportData: (userId: string, fallbackLocale: Locale) => Promise<AccountExport>;
+  readonly requestDeletion: (userId: string, fallbackLocale: Locale) => Promise<Profile>;
+  readonly cancelDeletion: (userId: string, fallbackLocale: Locale) => Promise<Profile>;
   readonly setQuickAccess: (
     userId: string,
     fallbackLocale: Locale,
@@ -30,7 +40,10 @@ export type AccountRoutesDeps = {
   ) => Promise<Profile>;
 };
 
-const json = <S extends typeof profile | typeof updatePreferencesBody | typeof putQuickAccess>(
+const json = <
+  S extends
+    typeof profile | typeof updatePreferencesBody | typeof putQuickAccess | typeof accountExport,
+>(
   schema: S,
 ) => ({
   'application/json': { schema },
@@ -44,6 +57,7 @@ function toWire(p: Profile) {
     theme: p.theme,
     quickAccess: p.quickAccess,
     deletionRequestedAt: p.deletionRequestedAt === null ? null : p.deletionRequestedAt.toString(),
+    purgeAt: p.deletionRequestedAt === null ? null : purgeAtOf(p.deletionRequestedAt).toString(),
     version: p.version,
   };
 }
@@ -114,6 +128,66 @@ export function registerAccountRoutes(registry: RouteRegistry, deps: AccountRout
         c.req.valid('json'),
         expectedVersion(c),
       );
+      setEtag(c, updated);
+      return c.json(toWire(updated), 200);
+    },
+    { auth: 'session' },
+  );
+
+  registry.register(
+    createRoute({
+      method: 'get',
+      path: '/api/v1/me/export',
+      tags: ['account'],
+      summary: 'Download everything stored about the archer, as JSON',
+      responses: {
+        200: { description: 'All the data of the archer', content: json(accountExport) },
+      },
+    }),
+    async (c) => {
+      const data = await deps.exportData(owner(c), browserLocale(c));
+      // A file to save, not a page to read: it never goes to a shared cache.
+      c.header(
+        'Content-Disposition',
+        `attachment; filename="sight-mapper-${data.exportedAt.slice(0, 10)}.json"`,
+      );
+      c.header('Cache-Control', 'no-store');
+      return c.json(data, 200);
+    },
+    { auth: 'session' },
+  );
+
+  registry.register(
+    createRoute({
+      method: 'post',
+      path: '/api/v1/me/deletion-request',
+      tags: ['account'],
+      summary:
+        'Ask for the account to be deleted: it is carried out in 90 days and can be cancelled',
+      responses: {
+        200: { description: 'The profile, with the date of the purge', content: json(profile) },
+      },
+    }),
+    async (c) => {
+      const updated = await deps.requestDeletion(owner(c), browserLocale(c));
+      setEtag(c, updated);
+      return c.json(toWire(updated), 200);
+    },
+    { auth: 'session' },
+  );
+
+  registry.register(
+    createRoute({
+      method: 'delete',
+      path: '/api/v1/me/deletion-request',
+      tags: ['account'],
+      summary: 'Cancel the request to delete the account',
+      responses: {
+        200: { description: 'The profile, without the request', content: json(profile) },
+      },
+    }),
+    async (c) => {
+      const updated = await deps.cancelDeletion(owner(c), browserLocale(c));
       setEtag(c, updated);
       return c.json(toWire(updated), 200);
     },

@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 
 const FOCUSABLE = [
   'a[href]',
@@ -19,6 +19,13 @@ export function useFocusTrap(
   container: RefObject<HTMLElement | null>,
   onEscape: () => void,
 ): void {
+  // The latest handler, without being a dependency: a parent that passes a new function on every
+  // render (typing in a field inside the dialog) must not restart the trap and steal the focus.
+  const escape = useRef(onEscape);
+  useEffect(() => {
+    escape.current = onEscape;
+  });
+
   useEffect(() => {
     const root = container.current;
     if (!active || root === null) return undefined;
@@ -30,7 +37,7 @@ export function useFocusTrap(
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') {
         event.stopPropagation();
-        onEscape();
+        escape.current();
         return;
       }
       if (event.key !== 'Tab') return;
@@ -56,5 +63,5 @@ export function useFocusTrap(
       root.removeEventListener('keydown', onKeyDown);
       previouslyFocused?.focus();
     };
-  }, [active, container, onEscape]);
+  }, [active, container]);
 }

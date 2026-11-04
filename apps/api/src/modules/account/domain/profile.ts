@@ -1,4 +1,5 @@
 import type { Temporal } from '@js-temporal/polyfill';
+import { DELETION_DAYS } from '@sight-mapper/schemas';
 import type { Locale, Theme, UnitSystem } from '@sight-mapper/types';
 
 export type Profile = {
@@ -51,9 +52,17 @@ export type ProfileRepository = {
     expectedVersion: number,
     now: Temporal.Instant,
   ): Promise<Profile>;
+  /** Records the request for deletion; `null` when there already is one (the condition is in the write). */
+  requestDeletion(id: string, now: Temporal.Instant): Promise<Profile | null>;
+  /** Withdraws the request, if there is one; `null` when there is none. Bumps the version. */
+  cancelDeletion(id: string, now: Temporal.Instant): Promise<Profile | null>;
   /** Clears the quick access if it points at this setup; `true` when it did. Idempotent. */
   clearQuickAccessOf(setupId: string, now: Temporal.Instant): Promise<boolean>;
 };
+
+/** When a requested deletion is carried out (RF-ACC-06): `DELETION_DAYS` after the request. */
+export const purgeAtOf = (requestedAt: Temporal.Instant): Temporal.Instant =>
+  requestedAt.add({ hours: DELETION_DAYS * 24 });
 
 /** The pair the app opens on start (RN-STP-07: at most one per archer). */
 export type QuickAccess = NonNullable<Profile['quickAccess']>;

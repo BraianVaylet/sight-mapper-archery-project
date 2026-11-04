@@ -65,6 +65,7 @@ describe('ES / EN parity', () => {
     'sight.distanceUnitMetric',
     'sight.distanceUnitImperial',
     'sight.estimated',
+    'profile.email',
     'doctor.unit.mm',
     'doctor.unit.cm',
     'doctor.unit.in',

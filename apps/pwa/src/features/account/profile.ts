@@ -100,3 +100,30 @@ export function useSetQuickAccess() {
     onSuccess: (updated) => queryClient.setQueryData(profileKey, updated),
   });
 }
+
+/**
+ * Asks for the account to be deleted in `DELETION_DAYS` days (HU-ACC-06). Nothing is removed now.
+ * The profile that comes back carries the date; it goes in the cache and the screen shows it.
+ */
+export function useRequestDeletion() {
+  const http = useHttp();
+  const queryClient = useQueryClient();
+  return useMutation({
+    scope: { id: 'preferences' },
+    mutationFn: () => http.post('/me/deletion-request', { schema: profile }),
+    onSuccess: (updated) => queryClient.setQueryData(profileKey, updated),
+    onError: () => void queryClient.invalidateQueries({ queryKey: profileKey }),
+  });
+}
+
+/** Withdraws the request. No `If-Match`: the way out must work whatever else changed in the profile. */
+export function useCancelDeletion() {
+  const http = useHttp();
+  const queryClient = useQueryClient();
+  return useMutation({
+    scope: { id: 'preferences' },
+    mutationFn: () => http.delete('/me/deletion-request', { schema: profile }),
+    onSuccess: (updated) => queryClient.setQueryData(profileKey, updated),
+    onError: () => void queryClient.invalidateQueries({ queryKey: profileKey }),
+  });
+}

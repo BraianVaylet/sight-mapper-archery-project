@@ -29,7 +29,6 @@ async function start(): Promise<void> {
     connection,
     readiness: mongoReadiness(connection),
     idempotencyStore: createMongoIdempotencyStore(connection, systemClock),
-    ifMatchExempt: ['DELETE /api/v1/me/deletion-request'],
   });
 
   scheduler?.start();

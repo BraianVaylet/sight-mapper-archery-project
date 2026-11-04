@@ -23,10 +23,34 @@ export type QuickAccess = z.infer<typeof quickAccess>;
 export const putQuickAccess = quickAccess.nullable();
 export type PutQuickAccess = z.infer<typeof putQuickAccess>;
 
+/** A requested deletion is carried out this many days later, and can be cancelled until then (RF-ACC-06). */
+export const DELETION_DAYS = 90;
+
 export const profile = z.object({
   ...preferenceFields,
   quickAccess: quickAccess.nullable(),
   deletionRequestedAt: isoDateTime.nullable(),
+  /** When a requested deletion is carried out: `deletionRequestedAt` + `DELETION_DAYS`. */
+  purgeAt: isoDateTime.nullish(),
   version: z.int().min(1),
 });
 export type Profile = z.infer<typeof profile>;
+
+/** Everything stored about an archer, in canonical units (RF-ACC-05, HU-ACC-05). */
+export const EXPORT_SCHEMA_VERSION = 1;
+const exportedRows = z.array(z.record(z.string(), z.unknown()));
+export const accountExport = z.object({
+  schemaVersion: z.literal(EXPORT_SCHEMA_VERSION),
+  exportedAt: isoDateTime,
+  profile: z.object({
+    ...preferenceFields,
+    quickAccess: quickAccess.nullable(),
+    deletionRequestedAt: isoDateTime.nullable(),
+  }),
+  bows: exportedRows,
+  sights: exportedRows,
+  arrowSets: exportedRows,
+  setups: exportedRows,
+  marks: exportedRows,
+});
+export type AccountExport = z.infer<typeof accountExport>;
