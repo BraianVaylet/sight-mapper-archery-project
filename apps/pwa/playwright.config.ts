@@ -13,6 +13,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
+  // In CI a forgotten `test.only` fails the run instead of silently skipping the rest.
+  forbidOnly: process.env['CI'] === 'true',
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   // The product opens in the browser's language: the specs read the Spanish screens.
   use: { baseURL: DEV_URL, locale: 'es-AR', trace: 'retain-on-failure' },
@@ -28,7 +30,7 @@ export default defineConfig({
     {
       command: 'node ../../scripts/dev-local.mjs',
       url: DEV_URL,
-      reuseExistingServer: true,
+      reuseExistingServer: process.env['CI'] !== 'true',
       timeout: 240_000,
       env: { SM_DEV_MAIL_FILE: MAIL_FILE },
     },
@@ -36,7 +38,7 @@ export default defineConfig({
     {
       command: 'pnpm build && pnpm exec vite preview --port 4173 --strictPort',
       url: BUILD_URL,
-      reuseExistingServer: true,
+      reuseExistingServer: process.env['CI'] !== 'true',
       timeout: 240_000,
     },
   ],

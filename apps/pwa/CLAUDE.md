@@ -43,4 +43,5 @@ src/features/   auth · setups · sight · distances · doctor · print · equip
 
 Vitest + Testing Library + MSW (o `ClientProvider` con un `fetch` falso). Consultar por rol y
 nombre accesible; probar teclado y los dos idiomas donde el texto importe. E2E con Playwright en
-360 y 1440: `pnpm --filter @sight-mapper/pwa test:e2e` (levanta `dev:local` y el build; hace falta `npx playwright install chromium` una vez).
+360 y 1440 (`e2e/critical-flow.spec.ts` es el flujo critico entero en ES/metrico y EN/imperial; `e2e/tour.ts` es el recorrido de
+pantallas que comparten las auditorias de contraste, axe y desbordes): `pnpm --filter @sight-mapper/pwa test:e2e` (levanta `dev:local` y el build; hace falta `npx playwright install chromium` una vez).

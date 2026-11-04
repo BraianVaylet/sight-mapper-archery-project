@@ -18,6 +18,35 @@
 
 ---
 
+## 2026-11-06 — El flujo critico entero, en los dos idiomas y los dos sistemas, como test de punta a punta y en CI
+
+**Tareas:** F1-20 · **Commit/PR:** rama `feat/f1-critical-e2e` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **`e2e/critical-flow.spec.ts`**: el recorrido que la spec llama critico, de una sola vez y como lo vive un arquero nuevo: alta → correo → equipo por la guia → setup (lo cargado viene elegido) → **5 marcas**
+  (40 anotada 0,8 fuera) → **intermedias** (grilla en la unidad del arquero, lo medido sin `≈`, consulta libre de 45) → **Doctor** (señala 40 y dice cuanto se aparta) → **listado imprimible** (10 filas, solo la
+  hoja en medio `print`, **una pagina A4**). Dos veces: **español y metros**, e **ingles y yardas** (lo decide el idioma del navegador, como a un arquero real), en **360 y 1440**.
+- **CI:** job `e2e` en `ci.yml`, despues de `verify`: instala Chromium con sus dependencias, guarda el navegador y el mongod en cache, y corre la suite entera contra `pnpm dev:local` y el build de produccion.
+  Mismas acciones fijadas por SHA que el resto del workflow (sin agregar ninguna nueva).
+- **Playwright en CI:** `forbidOnly` (un `test.only` olvidado hace fallar la corrida en vez de saltear el resto) y servidores siempre frescos (`reuseExistingServer` solo fuera de CI).
+
+### Decisiones (con link a ADR si corresponde)
+
+- El flujo critico es **un** test largo por idioma, no la suma de los specs por pantalla: lo que se rompe entre pantallas (lo que una deja y la otra lee) solo se ve recorriendolo entero.
+- Contra `dev:local` y no contra staging: staging no existe todavia, y en staging los links de los correos llegan a un buzon real; hace falta un buzon de prueba (pendiente).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- El flujo critico: 4/4 (ES/metrico y EN/imperial, en 360 y 1440). La suite entera con `CI=true` como la correria GitHub: 41/41 (mas 1 que se salta a proposito), 10,3 min.
+
+### Pendiente / deuda
+
+- **Correrlo en GitHub** (F0-19: el workflow nunca corrio alla) y **contra staging** (F0-04/F0-20), con un buzon de prueba para los correos.
+- Sin subida del reporte de Playwright como artefacto: la accion se agrega fijada por SHA cuando se pueda verificar ese SHA.
+
+---
+
 ## 2026-11-06 — Accesible y responsive: axe sin violaciones serias, el flujo entero con teclado, y 360/768/1440 sin desbordes
 
 **Tareas:** F1-19 · **Commit/PR:** rama `feat/f1-a11y` · **Tarjeta:** sin tablero (F0-04)

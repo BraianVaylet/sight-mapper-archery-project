@@ -464,12 +464,13 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   desbordes.
 - **Estado:** axe, teclado y desbordes automatizados en E2E; la pasada con un lector de pantalla real (TalkBack / VoiceOver / NVDA) la hace el autor.
 
-### [ ] F1-20 · E2E del flujo critico
+### [x] F1-20 · E2E del flujo critico
 
 - **Modulo:** e2e · **Puntos:** 3 · **Depende de:** F1-17
 - **Descripcion:** Playwright (movil 360 y desktop): registro → equipo → setup → 5 marcas →
   intermedias → Doctor → imprimir; idem en EN + imperial.
 - **Criterios:** verde en CI sobre staging.
+- **Estado:** el flujo corre en CI contra `dev:local` (job `e2e`). Falta: correrlo en GitHub (F0-19) y contra staging, que no existe todavia (F0-04/F0-20) y que ademas necesita un buzon de prueba para los links de los correos.
 
 ### [ ] F1-21 · Importar los datos reales del autor (opcional)
 
