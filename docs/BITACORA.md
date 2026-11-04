@@ -18,6 +18,38 @@
 
 ---
 
+## 2026-11-06 — Preparado el release del MVP: metricas desde la base y el runbook de produccion
+
+**Tareas:** F1-22 (parcial: lo que no necesita infraestructura) · **Commit/PR:** rama `feat/f1-release-prep` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **`scripts/metrics.mjs`**: las metricas del MVP (spec §2) agregadas desde la base, **solo lectura** y sin tracking de terceros:
+  - **activacion a 7 dias** (setup + 2 marcas medidas en los primeros 7 dias; solo cuentan las altas que ya tuvieron sus 7 dias; meta ≥ 50 %),
+  - **setups que llegan a 5 marcas** (alcance del Doctor, con marcas vivas de algun set; meta ≥ 30 %),
+  - **marcas re-medidas** (aproximacion: lectura cambiada despues de guardar; el Doctor no guarda lo que señalo).
+  Solo conteos y porcentajes; lee unicamente los campos que necesita (ni nombres ni notas ni lecturas). `--since` mira una cohorte, `--json` para guardar el resultado.
+- **`docs/runbooks/release-mvp.md`**: antes de promover (CI, staging con el mismo commit, migraciones, backup reciente), promover a prod y como volver atras, **probar un restore de backup en staging**, correr
+  las metricas a los 14 dias con un usuario de solo lectura, y como hacer y triar la prueba con 5–10 arqueros.
+
+### Decisiones (con link a ADR si corresponde)
+
+- Las metricas salen de lo que el producto ya guarda: no hace falta analitica de terceros para el MVP. El tiempo de abrir la app (< 3 s en 4G) no sale de la base: se mide en el campo.
+- "Re-medidas" queda como aproximacion declarada, no como dato exacto: guardar lo que el Doctor señalo iria contra ADR-001 (lo calculado no se persiste).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `node --test` (7): activacion dentro y fuera de los 7 dias, cohorte que todavia no los cumplio, `--since`, setups con 5 marcas vivas (una borrada no cuenta), re-medidas (las sembradas no cuentan),
+  ningun id ni lectura en el resultado, y la lectura real contra un **mongod de prueba**: no trae nombres ni notas y da los mismos numeros.
+
+### Pendiente / deuda
+
+- **Todo lo que depende de F0-20**: staging, prod y Atlas para promover, probar el restore y correr las metricas.
+- **Canal de feedback** para la prueba con arqueros: a decidir (correo, grupo de WhatsApp o issues).
+- **La prueba con 5–10 arqueros** y las metricas a los 14 dias.
+
+---
+
 ## 2026-11-06 — Los datos reales del autor entran por la API, con su sesion y todas las reglas
 
 **Tareas:** F1-21 · **Commit/PR:** rama `feat/f1-author-import` · **Tarjeta:** sin tablero (F0-04)

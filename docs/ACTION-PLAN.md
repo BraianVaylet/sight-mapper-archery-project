@@ -488,6 +488,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   bahiense), canal de feedback.
 - **Criterios:** metricas de activacion medidas a los 14 dias; issues de feedback triados en este
   plan.
+- **Estado:** hecho lo que no necesita infraestructura: `scripts/metrics.mjs` (metricas agregadas, con tests contra un mongod real) y `docs/runbooks/release-mvp.md` (promocion, restore probado, metricas, prueba con arqueros). Falta todo lo que depende de F0-20 (staging, prod, Atlas), el canal de feedback (a decidir) y la prueba con arqueros.
 
 ---
 
