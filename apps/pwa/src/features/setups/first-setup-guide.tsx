@@ -106,7 +106,7 @@ export function FirstSetupGuide() {
             data-state={step.done ? 'done' : index === current ? 'current' : 'later'}
             className={cx(
               'flex flex-wrap items-center justify-between gap-3 rounded-sm border px-3 py-2',
-              index === current ? 'border-accent' : 'border-border',
+              index === current ? 'border-mark' : 'border-border',
             )}
           >
             <div className="flex min-w-0 items-start gap-3">

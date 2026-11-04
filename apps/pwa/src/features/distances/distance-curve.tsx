@@ -103,7 +103,7 @@ export function DistanceCurve({
       ))}
 
       {picked === undefined ? null : (
-        <g className="stroke-accent" strokeWidth={1} strokeDasharray="3 3">
+        <g className="stroke-mark" strokeWidth={1} strokeDasharray="3 3">
           <line x1={plot.left} x2={picked.x} y1={picked.y} y2={picked.y} />
           <line x1={picked.x} x2={picked.x} y1={picked.y} y2={plot.bottom} />
         </g>
@@ -117,7 +117,7 @@ export function DistanceCurve({
           y1={segment.from.y}
           x2={segment.to.x}
           y2={segment.to.y}
-          className={segment.solid ? 'stroke-accent' : 'stroke-info'}
+          className={segment.solid ? 'stroke-mark' : 'stroke-info'}
           strokeWidth={2}
           strokeDasharray={segment.solid ? undefined : '4 4'}
         />
@@ -133,7 +133,7 @@ export function DistanceCurve({
           {/* A thumb-sized target around a point of a few pixels; invisible. */}
           <circle cx={p.x} cy={p.y} r={14} fill="transparent" />
           {p.measured ? (
-            <circle cx={p.x} cy={p.y} r={4.5} className="fill-accent" />
+            <circle cx={p.x} cy={p.y} r={4.5} className="fill-mark" />
           ) : (
             <path d={diamond(p, 6)} className="fill-bg stroke-info" strokeWidth={1.5} />
           )}
@@ -153,7 +153,7 @@ export function DistanceCurve({
           cx={picked.x}
           cy={picked.y}
           r={11}
-          className="fill-none stroke-accent"
+          className="fill-none stroke-mark"
           strokeWidth={2}
         />
       )}

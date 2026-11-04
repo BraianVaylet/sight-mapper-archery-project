@@ -105,7 +105,7 @@ export function HomeScreen() {
                     onClick={() => favorite.mutate({ id: setup.id, isFavorite: !setup.isFavorite })}
                     style={{ minWidth: 44, minHeight: 44 }}
                     className={`inline-flex shrink-0 items-center justify-center rounded-sm border border-border ${
-                      setup.isFavorite ? 'text-accent' : 'text-muted'
+                      setup.isFavorite ? 'text-mark' : 'text-muted'
                     }`}
                   >
                     <Star on={setup.isFavorite} />

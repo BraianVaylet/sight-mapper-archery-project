@@ -2,6 +2,11 @@
  * Design tokens (docs/UX-UI.md §2). Dark is the design's own theme and the default; light is a
  * high-contrast variant for use in the sun. `data-theme="dark|light"` forces a theme; without it
  * the system preference decides. Every text/background pair passes WCAG AA (tokens.test.ts).
+ *
+ * `accent` is a fill (buttons, the selected option) with `accent-ink` on it. What was **measured**,
+ * drawn as ink on the page (a badge, a dot, a line of the ruler or the curve), is `mark`: the same
+ * yellow on the navy of the dark theme, and a dark gold in the light one, where yellow on white is
+ * unreadable (1.5:1) and in the sun disappears altogether (UX-UI §2.2).
  */
 
 :root {
@@ -15,6 +20,7 @@
   --sm-accent: #ffcc00;
   --sm-accent-ink: #10286b;
   --sm-accent-edge: #8a6d00;
+  --sm-mark: #ffcc00;
   --sm-info: #6ec6e6;
   --sm-danger: #ff8a8a;
   --sm-warning: #ffb84d;
@@ -32,6 +38,7 @@
   --sm-accent: #ffcc00;
   --sm-accent-ink: #10286b;
   --sm-accent-edge: #10286b;
+  --sm-mark: #7d5e00;
   --sm-info: #0b5c8a;
   --sm-danger: #b3261e;
   --sm-warning: #7a4f00;
@@ -49,6 +56,7 @@
     --sm-accent: #ffcc00;
     --sm-accent-ink: #10286b;
     --sm-accent-edge: #10286b;
+    --sm-mark: #7d5e00;
     --sm-info: #0b5c8a;
     --sm-danger: #b3261e;
     --sm-warning: #7a4f00;

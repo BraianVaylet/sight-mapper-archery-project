@@ -83,7 +83,7 @@ describe.each([
   const surfaces = ['bg', 'surface', 'surface-sunken'];
 
   it.each(surfaces)('text, muted text and the status colours read on %s (≥ 4.5:1)', (surface) => {
-    for (const text of ['text', 'text-muted', 'info', 'danger', 'warning']) {
+    for (const text of ['text', 'text-muted', 'mark', 'info', 'danger', 'warning']) {
       expect(
         contrast(colour(theme, text), colour(theme, surface)),
         `${text} on ${surface}`,
@@ -114,6 +114,17 @@ describe.each([
 describe('dark theme: the accent is also text (readings, measured marks)', () => {
   it.each(['bg', 'surface', 'surface-sunken'])('accent reads on %s (≥ 4.5:1)', (surface) => {
     expect(contrast(colour(dark, 'accent'), colour(dark, surface))).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe('what was measured, as ink (`mark`)', () => {
+  it('is the yellow of the design in the dark theme', () => {
+    expect(dark['mark']).toBe(dark['accent']);
+  });
+
+  it('is not the yellow in the light theme, where yellow on white cannot be read', () => {
+    expect(light['mark']).not.toBe(light['accent']);
+    expect(contrast(colour(light, 'mark'), colour(light, 'surface'))).toBeGreaterThanOrEqual(4.5);
   });
 });
 

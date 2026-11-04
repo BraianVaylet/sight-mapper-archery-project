@@ -447,12 +447,13 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Descripcion:** checklist de FUNCIONAL §2.1 en el Home vacio, preseleccion de lo recien cargado.
 - **Criterios:** un usuario nuevo llega a su primera marca sin salir de la guia (E2E).
 
-### [ ] F1-18 · Tema light verificado
+### [x] F1-18 · Tema light verificado
 
 - **Modulo:** ui, pwa · **Puntos:** 2 · **Depende de:** F1-11
 - **Descripcion:** pasar todas las pantallas por el tema light de alto contraste; prueba al sol con
   un telefono real.
 - **Criterios:** contraste AA en ambos temas; screenshots de referencia dark/light por pantalla.
+- **Estado:** contraste y capturas hechos (`docs/screens/`); la prueba al sol con un telefono real la hace el autor.
 
 ### [ ] F1-19 · Accesibilidad y responsive
 

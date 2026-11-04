@@ -492,13 +492,13 @@ function SightView({
               <caption className="sr-only">{t('sight.tableCaption')}</caption>
               <thead>
                 <tr className="text-left text-sm text-muted">
-                  <th scope="col" className="py-1 font-medium">
+                  <th scope="col" className="py-1 pr-3 font-medium">
                     {t('sight.distance')}
                   </th>
-                  <th scope="col" className="py-1 font-medium">
+                  <th scope="col" className="py-1 pr-3 font-medium">
                     {t('sight.reading')}
                   </th>
-                  <th scope="col" className="py-1 font-medium">
+                  <th scope="col" className="py-1 pr-3 font-medium">
                     {t('sight.state')}
                   </th>
                   <th scope="col" className="py-1">
@@ -516,7 +516,7 @@ function SightView({
                       aria-selected={isSelected}
                       className={`border-t border-border ${isSelected ? 'bg-sunken' : ''}`}
                     >
-                      <th scope="row" className="py-1 text-left font-medium tabular-nums">
+                      <th scope="row" className="py-1 pr-3 text-left font-medium tabular-nums">
                         <button
                           type="button"
                           aria-label={t('sight.selectMark', {
@@ -530,7 +530,7 @@ function SightView({
                           {showDistance(m.distanceM)}
                         </button>
                       </th>
-                      <td className="py-1 tabular-nums">{readingText(reading)}</td>
+                      <td className="py-1 pr-3 tabular-nums">{readingText(reading)}</td>
                       <td className="py-1">
                         <ReadingBadge
                           reading={reading}

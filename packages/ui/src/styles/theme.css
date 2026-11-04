@@ -20,6 +20,7 @@
   --color-accent: var(--sm-accent);
   --color-accent-ink: var(--sm-accent-ink);
   --color-accent-edge: var(--sm-accent-edge);
+  --color-mark: var(--sm-mark);
   --color-info: var(--sm-info);
   --color-danger: var(--sm-danger);
   --color-warning: var(--sm-warning);

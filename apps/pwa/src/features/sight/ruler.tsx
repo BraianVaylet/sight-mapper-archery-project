@@ -140,12 +140,12 @@ export function Ruler({
                 x2={AXIS_X}
                 y1={y}
                 y2={y}
-                className={mark.measured ? 'stroke-accent' : 'stroke-info'}
+                className={mark.measured ? 'stroke-mark' : 'stroke-info'}
                 strokeWidth={2}
                 strokeDasharray={mark.measured ? undefined : '3 3'}
               />
               {mark.measured ? (
-                <circle cx={AXIS_X - 52} cy={y} r={5} className="fill-accent" />
+                <circle cx={AXIS_X - 52} cy={y} r={5} className="fill-mark" />
               ) : (
                 <path
                   d={`M${AXIS_X - 52} ${y - 6}l6 6-6 6-6-6z`}

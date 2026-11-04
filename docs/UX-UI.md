@@ -35,6 +35,7 @@ cuando este disponible. Se definen como variables CSS en `@sight-mapper/ui` (Tai
 | `--color-text-muted`  | `#A9B9D8`    | Labels secundarios, placeholders                          |
 | `--color-accent`      | `#FFCC00`    | CTA primario, lectura grande, marcas medidas, seleccion   |
 | `--color-accent-ink`  | `#10286B`    | Texto sobre accent                                        |
+| `--color-mark`        | `#FFCC00` (light `#7D5E00`) | Lo **medido** como tinta: badge "Registrada", puntos y lineas de la regla y la curva, estrella de favorito |
 | `--color-info`        | `#6EC6E6`    | Links secundarios ("Change", "Show"), marcas calculadas   |
 | `--color-danger`      | `#FF8A8A` (light `#B3261E`) | Errores, Doctor `inconsistent`                            |
 | `--color-warning`     | `#FFB84D` (light `#7A4F00`) | Doctor `suspect`, baja confianza                          |
@@ -43,6 +44,7 @@ cuando este disponible. Se definen como variables CSS en `@sight-mapper/ui` (Tai
 
 Light de **alto contraste** para el sol: fondo casi blanco, texto navy `#10286B`, accent amarillo
 solo como relleno de CTA con texto navy (el amarillo sobre blanco no pasa contraste como texto).
+Lo medido, que en dark es amarillo como tinta, en light es dorado oscuro (`--color-mark`, F1-18).
 Ambos temas verificados con contraste AA (4.5:1 texto, 3:1 componentes).
 
 ### 2.3 Tipografia

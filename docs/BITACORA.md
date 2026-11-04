@@ -18,6 +18,41 @@
 
 ---
 
+## 2026-11-06 — El tema claro se lee al sol: contraste AA verificado en cada pantalla, con capturas de referencia
+
+**Tareas:** F1-18 (y un arreglo de F1-17 que pidio la revision de seguridad) · **Commit/PR:** rama `feat/f1-light-theme` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Auditoria de contraste en las pantallas reales** (`e2e/contrast.ts`): dentro del navegador, sin librerias, mide cada texto visible contra lo que de verdad tiene detras (el primer fondo opaco hacia arriba,
+  con las capas translucidas y la opacidad de los ancestros compuestas), 4.5:1 y 3:1 para texto grande; y los **graficos que llevan significado** (puntos, rombos y lineas de la regla y la curva, WCAG 1.4.11,
+  3:1). Recorre 19 pantallas y estados (ingreso, alta, guia, mira con 5 marcas, hoja de marca con errores, Home, equipo, setup nuevo, distancias, Doctor, imprimir, papelera, perfil, apariencia, menu) en
+  **dark y light**.
+- **Lo que encontro:** en light, todo lo "medido" se pintaba con el amarillo del acento como **tinta** sobre blanco: el badge "Registrada" (y "Coherente" en el Doctor) a 1,51:1, y los puntos y lineas de
+  la regla y la curva. Los tests de tokens ya decian que en light el acento es solo relleno; el codigo lo usaba igual. Token nuevo **`--sm-mark`** (lo medido como tinta): el mismo `#FFCC00` en dark y
+  `#7D5E00` en light (6:1 sobre blanco, 5:1 sobre el hundido). Lo usan el badge, la regla, la curva, la estrella de favorito y el resaltado de la guia. El acento sigue para botones y la opcion elegida.
+- **Capturas de referencia** dark/light por pantalla en `docs/screens/` (360 px, 1x, 1,5 MB), regenerables con `SM_SCREENS=1` (ver su README).
+- Las cabeceras de las tablas de la mira y de distancias quedaban pegadas a 360 px: tienen aire.
+- **Revision de seguridad (F1-17):** la preseleccion del form de setup contaba un id de la URL como elegido mientras la lista cargaba. Ahora falla cerrado: hasta que la lista esta, no hay nada elegido. No era
+  explotable (la API rechaza un componente ajeno), pero la asimetria quedo cerrada.
+
+### Decisiones (con link a ADR si corresponde)
+
+- `mark` y no "amarillo mas oscuro en todos lados": el acento como boton es la identidad del diseño y pasa en ambos temas (tinta navy sobre amarillo); solo cambia el uso como tinta.
+- La auditoria es propia y no `axe-core`: sin una dependencia nueva, mide graficos SVG (que axe no mide) y sirve como base de F1-19.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- La auditoria **tiene dientes**: con `--sm-mark` claro vuelto al amarillo encuentra 25 puntos, 20 lineas y 16 badges por debajo de AA; con el token nuevo, 0 en dark y 0 en light.
+- ui 98 tests (contraste de `mark` en las tres superficies de ambos temas), PWA 384, E2E 32/32 en la pila real (360 y 1440), lint y typecheck limpios.
+
+### Pendiente / deuda
+
+- **Prueba al sol con un telefono real** (criterio de F1-18): la tiene que hacer el autor; lo automatico no reemplaza el brillo de una pantalla a mediodia.
+- Los disabled quedan fuera de la auditoria (WCAG los exime); si alguno se tiene que leer al sol, se mira en F1-19.
+
+---
+
 ## 2026-11-06 — Onboarding: un arquero nuevo llega a su primera marca sin salir de la guia
 
 **Tareas:** F1-17 · **Commit/PR:** rama `feat/f1-onboarding` · **Tarjeta:** sin tablero (F0-04)

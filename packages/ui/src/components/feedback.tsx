@@ -125,7 +125,7 @@ export function InfoAlert({ variant = 'info', children, className }: InfoAlertPr
 export type BadgeKind = 'registered' | 'calculated' | 'suspect' | 'inconsistent';
 
 const BADGE_STYLES: Record<BadgeKind, string> = {
-  registered: 'border-accent text-accent',
+  registered: 'border-mark text-mark',
   calculated: 'border-info text-info',
   suspect: 'border-warning text-warning',
   inconsistent: 'border-danger text-danger',
