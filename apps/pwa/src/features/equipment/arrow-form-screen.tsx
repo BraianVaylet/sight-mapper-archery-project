@@ -28,6 +28,7 @@ import {
   type NumberFieldName,
   type TextFieldName,
 } from './arrow-form.logic.js';
+import { useAfterSave, type AfterSave } from './after-save.js';
 import { arrowSetHooks, type ArrowSetResource } from './arrow-sets.js';
 
 const MAIN_TEXT = ['name', 'manufacturer', 'model'] as const;
@@ -37,7 +38,13 @@ const MORE_TEXT = ['vanes', 'vaneColor', 'nock', 'notes'] as const;
 const MORE_NUMBERS: readonly NumberFieldName[] = ['vaneCount', 'measuredSpeedMps'];
 
 /** New set of arrows (no `id`) or edit of one. Only the name is required (HU-ARW-01). */
-export function ArrowFormScreen({ id }: { id: string | undefined }) {
+export function ArrowFormScreen({
+  id,
+  next,
+}: {
+  id: string | undefined;
+  next?: AfterSave | undefined;
+}) {
   const { t, translate } = useI18n();
   const detail = arrowSetHooks.useDetail(id);
   const profile = useQuery(profileQuery(useHttp()));
@@ -68,13 +75,23 @@ export function ArrowFormScreen({ id }: { id: string | undefined }) {
       key={`${id ?? 'new'}-${system}-${detail.data?.version ?? 0}`}
       set={detail.data}
       system={system}
+      next={next}
     />
   );
 }
 
-function ArrowForm({ set, system }: { set: ArrowSetResource | undefined; system: UnitSystem }) {
+function ArrowForm({
+  set,
+  system,
+  next,
+}: {
+  set: ArrowSetResource | undefined;
+  system: UnitSystem;
+  next: AfterSave | undefined;
+}) {
   const { t, locale, translate } = useI18n();
   const navigate = useNavigate();
+  const afterSave = useAfterSave('arrowSet', '/arrows', next);
   const [newSetId] = useState(() => newId());
   const [values, setValues] = useState<ArrowFormValues>(() =>
     toFormValues(set, system, decimalSeparator(locale)),
@@ -105,7 +122,7 @@ function ArrowForm({ set, system }: { set: ArrowSetResource | undefined; system:
     try {
       if (set === undefined) await create.create(result.input);
       else await update.mutateAsync({ id: set.id, patch: toArrowSetPatch(result) });
-      await navigate({ to: '/arrows' });
+      await afterSave(set === undefined ? newSetId : undefined);
     } catch {
       // Shown from the mutation's error below.
     }

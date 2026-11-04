@@ -27,12 +27,19 @@ import {
   unitOf,
   type BowFormValues,
 } from './bow-form.logic.js';
+import { useAfterSave, type AfterSave } from './after-save.js';
 import { bowHooks, type BowResource } from './bows.js';
 
 const NAME_FIELDS = ['nickname', 'manufacturer', 'model'] as const;
 
 /** New bow (no `id`) or edit of one. Shows what uses it, and archives or deletes it. */
-export function BowFormScreen({ id }: { id: string | undefined }) {
+export function BowFormScreen({
+  id,
+  next,
+}: {
+  id: string | undefined;
+  next?: AfterSave | undefined;
+}) {
   const { t, translate } = useI18n();
   const detail = bowHooks.useDetail(id);
   const profile = useQuery(profileQuery(useHttp()));
@@ -65,13 +72,23 @@ export function BowFormScreen({ id }: { id: string | undefined }) {
       key={`${id ?? 'new'}-${system}-${detail.data?.version ?? 0}`}
       bow={detail.data}
       system={system}
+      next={next}
     />
   );
 }
 
-function BowForm({ bow, system }: { bow: BowResource | undefined; system: 'metric' | 'imperial' }) {
+function BowForm({
+  bow,
+  system,
+  next,
+}: {
+  bow: BowResource | undefined;
+  system: 'metric' | 'imperial';
+  next: AfterSave | undefined;
+}) {
   const { t, locale, translate } = useI18n();
   const navigate = useNavigate();
+  const afterSave = useAfterSave('bow', '/bows', next);
   const separator = decimalSeparator(locale);
   const [newBowId] = useState(() => newId());
   const [values, setValues] = useState<BowFormValues>(() => toFormValues(bow, system, separator));
@@ -100,7 +117,7 @@ function BowForm({ bow, system }: { bow: BowResource | undefined; system: 'metri
       } else {
         await update.mutateAsync({ id: bow.id, patch: toBowPatch(result) });
       }
-      await navigate({ to: '/bows' });
+      await afterSave(bow === undefined ? newBowId : undefined);
     } catch {
       // Shown from the mutation's error below.
     }

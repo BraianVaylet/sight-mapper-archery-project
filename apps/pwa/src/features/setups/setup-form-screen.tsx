@@ -22,7 +22,19 @@ import { setupHooks, useSendToTrash } from './setups.js';
 import { useSetupName } from './home-screen.js';
 
 /** New setup (no `id`) or edit of one (HU-STP-01). The bow and the sight are chosen once. */
-export function SetupFormScreen({ id }: { id: string | undefined }) {
+export type Preselect = {
+  bow?: string | undefined;
+  sight?: string | undefined;
+  arrowSet?: string | undefined;
+};
+
+export function SetupFormScreen({
+  id,
+  preselect,
+}: {
+  id: string | undefined;
+  preselect?: Preselect | undefined;
+}) {
   const { t, translate } = useI18n();
   const detail = setupHooks.useDetail(id);
 
@@ -44,7 +56,13 @@ export function SetupFormScreen({ id }: { id: string | undefined }) {
       />
     );
   }
-  return <SetupForm key={`${id ?? 'new'}-${detail.data?.version ?? 0}`} setup={detail.data} />;
+  return (
+    <SetupForm
+      key={`${id ?? 'new'}-${detail.data?.version ?? 0}`}
+      setup={detail.data}
+      preselect={preselect}
+    />
+  );
 }
 
 type Choice = { id: string; label: string };
@@ -91,16 +109,25 @@ function ArrowChoices({
   );
 }
 
-function SetupForm({ setup }: { setup: SetupView | undefined }) {
+function SetupForm({
+  setup,
+  preselect,
+}: {
+  setup: SetupView | undefined;
+  preselect: Preselect | undefined;
+}) {
   const { t, translate } = useI18n();
   const http = useHttp();
   const navigate = useNavigate();
   const nameOf = useSetupName();
   const [newSetupId] = useState(() => newId());
   const [name, setName] = useState(setup?.name ?? '');
-  const [bowId, setBowId] = useState(setup?.bowId ?? '');
-  const [sightId, setSightId] = useState(setup?.sightId ?? '');
-  const [arrowIds, setArrowIds] = useState<ReadonlySet<string>>(new Set(setup?.arrowSetIds ?? []));
+  const [bowId, setBowId] = useState(setup?.bowId ?? preselect?.bow ?? '');
+  const [sightId, setSightId] = useState(setup?.sightId ?? preselect?.sight ?? '');
+  const [arrowIds, setArrowIds] = useState<ReadonlySet<string>>(
+    new Set(setup?.arrowSetIds ?? (preselect?.arrowSet === undefined ? [] : [preselect.arrowSet])),
+  );
+  const [arrowsTouched, setArrowsTouched] = useState(false);
   const [problems, setProblems] = useState<Record<string, string>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -118,13 +145,30 @@ function SetupForm({ setup }: { setup: SetupView | undefined }) {
   const shownInPlace =
     taken !== undefined || (isApiError(failure) && failure.code === 'SM-STP-422-001');
 
-  const toggle = (arrowId: string) =>
-    setArrowIds((current) => {
-      const next = new Set(current);
+  // The only option there is comes chosen (F1-17: a new archer has loaded exactly one of each). Once
+  // the archer picks or unpicks, what they chose is what counts.
+  const soleOf = (list: { data: { items: { id: string }[] } | undefined }) =>
+    list.data?.items.length === 1 ? (list.data.items[0]?.id ?? '') : '';
+  // An id from the URL that is not one of theirs (or no longer there) chooses nothing.
+  const known = (list: { data: { items: { id: string }[] } | undefined }, id: string) =>
+    list.data === undefined || list.data.items.some((item) => item.id === id);
+  const chosenBow = bowId !== '' && known(bows, bowId) ? bowId : soleOf(bows);
+  const chosenSight = sightId !== '' && known(sights, sightId) ? sightId : soleOf(sights);
+  const soleArrows = soleOf(arrows);
+  const chosenArrows: ReadonlySet<string> =
+    setup !== undefined || arrowsTouched || arrowIds.size > 0 || soleArrows === ''
+      ? arrowIds
+      : new Set([soleArrows]);
+
+  const toggle = (arrowId: string) => {
+    setArrowsTouched(true);
+    setArrowIds(() => {
+      const next = new Set(chosenArrows);
       if (next.has(arrowId)) next.delete(arrowId);
       else next.add(arrowId);
       return next;
     });
+  };
 
   // The active sets, plus any archived set the setup still carries (it can be kept or dropped).
   const arrowChoices: Choice[] = [
@@ -135,10 +179,13 @@ function SetupForm({ setup }: { setup: SetupView | undefined }) {
   ];
 
   async function submit() {
-    const chosen = [...arrowIds];
+    // Only what is on offer: an arrow set id from the URL that is not theirs is not sent.
+    const chosen = [...chosenArrows].filter((arrowId) =>
+      arrowChoices.some((c) => c.id === arrowId),
+    );
     const missing: Record<string, string> = {};
-    if (setup === undefined && bowId === '') missing['bow'] = t('validation.required');
-    if (setup === undefined && sightId === '') missing['sight'] = t('validation.required');
+    if (setup === undefined && chosenBow === '') missing['bow'] = t('validation.required');
+    if (setup === undefined && chosenSight === '') missing['sight'] = t('validation.required');
     if (chosen.length === 0) missing['arrows'] = t('validation.required');
     setProblems(missing);
     if (Object.keys(missing).length > 0) return;
@@ -148,8 +195,8 @@ function SetupForm({ setup }: { setup: SetupView | undefined }) {
       if (setup === undefined) {
         await create.create({
           id: newSetupId,
-          bowId,
-          sightId,
+          bowId: chosenBow,
+          sightId: chosenSight,
           arrowSetIds: chosen,
           isFavorite: false,
           ...(trimmed === '' ? {} : { name: trimmed }),
@@ -178,7 +225,7 @@ function SetupForm({ setup }: { setup: SetupView | undefined }) {
     const existing = await http.get(`/setups/${encodeURIComponent(existingId)}`, {
       schema: setupView,
     });
-    const merged = [...new Set([...existing.arrowSetIds, ...arrowIds])];
+    const merged = [...new Set([...existing.arrowSetIds, ...chosenArrows])];
     await update.mutateAsync({ id: existingId, patch: { arrowSetIds: merged } });
     await navigate({ to: '/setups/$setupId', params: { setupId: existingId } });
   }
@@ -229,7 +276,7 @@ function SetupForm({ setup }: { setup: SetupView | undefined }) {
           <>
             <Select
               label={t('setups.form.bow')}
-              value={bowId}
+              value={chosenBow}
               onChange={(event) => setBowId(event.target.value)}
               placeholder={t('setups.form.choose')}
               options={(bows.data?.items ?? []).map((b) => ({
@@ -239,13 +286,17 @@ function SetupForm({ setup }: { setup: SetupView | undefined }) {
               error={problems['bow']}
             />
             {nothingToChoose(bows) ? (
-              <Link to="/bows/new" className="font-ui text-base text-info underline">
+              <Link
+                to="/bows/new"
+                search={{ next: 'setup' }}
+                className="font-ui text-base text-info underline"
+              >
                 {t('setups.form.loadNewBow')}
               </Link>
             ) : null}
             <Select
               label={t('setups.form.sight')}
-              value={sightId}
+              value={chosenSight}
               onChange={(event) => setSightId(event.target.value)}
               placeholder={t('setups.form.choose')}
               options={(sights.data?.items ?? []).map((s) => ({
@@ -255,7 +306,11 @@ function SetupForm({ setup }: { setup: SetupView | undefined }) {
               error={problems['sight']}
             />
             {nothingToChoose(sights) ? (
-              <Link to="/sights/new" className="font-ui text-base text-info underline">
+              <Link
+                to="/sights/new"
+                search={{ next: 'setup' }}
+                className="font-ui text-base text-info underline"
+              >
                 {t('setups.form.loadNewSight')}
               </Link>
             ) : null}
@@ -274,12 +329,16 @@ function SetupForm({ setup }: { setup: SetupView | undefined }) {
 
         <ArrowChoices
           choices={arrowChoices}
-          selected={arrowIds}
+          selected={chosenArrows}
           onToggle={toggle}
           error={problems['arrows']}
         />
         {nothingToChoose(arrows) ? (
-          <Link to="/arrows/new" className="font-ui text-base text-info underline">
+          <Link
+            to="/arrows/new"
+            search={{ next: 'setup' }}
+            className="font-ui text-base text-info underline"
+          >
             {t('setups.form.loadNewArrows')}
           </Link>
         ) : null}

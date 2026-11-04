@@ -441,7 +441,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-ACC-05, HU-ACC-06 (con reloj inyectado).
 - **Errores nuevos:** `SM-ACC-404-001`, `SM-ACC-409-001`
 
-### [ ] F1-17 · Onboarding de primer uso
+### [x] F1-17 · Onboarding de primer uso
 
 - **Modulo:** pwa · **Puntos:** 3 · **Depende de:** F1-05, F1-09
 - **Descripcion:** checklist de FUNCIONAL §2.1 en el Home vacio, preseleccion de lo recien cargado.

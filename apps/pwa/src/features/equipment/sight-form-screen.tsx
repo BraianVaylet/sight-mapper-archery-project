@@ -30,12 +30,19 @@ import {
   travelMm,
   type SightFormValues,
 } from './sight-form.logic.js';
+import { useAfterSave, type AfterSave } from './after-save.js';
 import { sightHooks, type SightResource } from './sights.js';
 
 const NAME_FIELDS = ['nickname', 'manufacturer', 'model'] as const;
 
 /** New sight (no `id`) or edit of one: scale with preview, archive and protected delete. */
-export function SightFormScreen({ id }: { id: string | undefined }) {
+export function SightFormScreen({
+  id,
+  next,
+}: {
+  id: string | undefined;
+  next?: AfterSave | undefined;
+}) {
   const { t, translate } = useI18n();
   const detail = sightHooks.useDetail(id);
 
@@ -58,13 +65,26 @@ export function SightFormScreen({ id }: { id: string | undefined }) {
     );
   }
   // `key` rebuilds the form when a newer copy of the sight arrives.
-  return <SightForm key={`${id ?? 'new'}-${detail.data?.version ?? 0}`} sight={detail.data} />;
+  return (
+    <SightForm
+      key={`${id ?? 'new'}-${detail.data?.version ?? 0}`}
+      sight={detail.data}
+      next={next}
+    />
+  );
 }
 
-function SightForm({ sight }: { sight: SightResource | undefined }) {
+function SightForm({
+  sight,
+  next,
+}: {
+  sight: SightResource | undefined;
+  next: AfterSave | undefined;
+}) {
   const { t, locale, translate } = useI18n();
   const system = useUnitSystem();
   const navigate = useNavigate();
+  const afterSave = useAfterSave('sight', '/sights', next);
   const separator = decimalSeparator(locale);
   const [newSightId] = useState(() => newId());
   const [values, setValues] = useState<SightFormValues>(() => toFormValues(sight, separator));
@@ -108,7 +128,7 @@ function SightForm({ sight }: { sight: SightResource | undefined }) {
           },
         });
       }
-      await navigate({ to: '/sights' });
+      await afterSave(sight === undefined ? result.input.id : undefined);
     } catch (error) {
       // HU-SGT-02: the scale changed meaning under existing marks, so ask what to keep.
       if (isApiError(error) && error.code === 'SM-SGT-409-003') setNeedStrategy(true);

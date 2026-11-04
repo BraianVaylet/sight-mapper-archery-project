@@ -80,7 +80,7 @@ const PROFILE = {
 
 const page = (items: unknown[]) => () => json({ items, nextCursor: null });
 
-function server(signedIn = true) {
+function server(signedIn = true, setups: unknown[] = [setup]) {
   return fakeApi({
     'GET /api/auth/get-session': () => json(signedIn ? ANA : null),
     'GET /api/v1/me': () => json(PROFILE),
@@ -90,7 +90,7 @@ function server(signedIn = true) {
     'GET /api/v1/sights/*': () => json(sight),
     'GET /api/v1/arrow-sets': page([arrows]),
     'GET /api/v1/arrow-sets/*': () => json(arrows),
-    'GET /api/v1/setups': page([setup]),
+    'GET /api/v1/setups': page(setups),
     'GET /api/v1/setups/trash': () =>
       json({
         items: [{ ...setup, deletedAt: '2026-11-01T12:00:00Z', purgeAt: '2026-12-01T12:00:00Z' }],
@@ -154,6 +154,18 @@ describe('Every private screen reads in English (F1-13)', () => {
   it.each(PRIVATE)('%s', async (_name, path) => {
     await settle(path);
     inEnglish();
+  });
+
+  it('the guide of the empty Home, with equipment loaded: only the setup is left', async () => {
+    renderApp('/', server(true, []).fetch);
+    expect(
+      await screen.findByRole('heading', { name: 'Your first setup in 4 steps' }),
+    ).toBeVisible();
+    await waitFor(() => expect(document.querySelector('[data-state="done"]')).not.toBeNull());
+    inEnglish();
+    expect(
+      screen.getByText('What you added is already picked: you only need to save.'),
+    ).toBeVisible();
   });
 
   it('the mark sheet, with its validation errors, and the Doctor message', async () => {

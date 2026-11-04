@@ -18,6 +18,40 @@
 
 ---
 
+## 2026-11-06 — Onboarding: un arquero nuevo llega a su primera marca sin salir de la guia
+
+**Tareas:** F1-17 · **Commit/PR:** rama `feat/f1-onboarding` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **La guia** (`FirstSetupGuide`) reemplaza al estado vacio del Home cuando no hay setups: "Tu primer setup en 4 pasos" (FUNCIONAL §2.1), una lista de pasos, no un wizard. Cada paso hecho se tacha con
+  lo que se cargo ("Hoyt Alpha") y el primero que falta lleva el acento y su boton; los siguientes no son botones hasta que les toque. Un arquero que ya tiene equipo salta los pasos cumplidos y arranca en
+  "Crear setup". Desaparece cuando existe el primer setup.
+- **Volver a la guia al guardar:** los formularios de arco, mira y flechas aceptan `?next=home` (vuelve al Home, con el paso tachado) o `?next=setup` (sigue al setup nuevo con lo recien cargado elegido). Es una
+  lista cerrada (`home` | `setup`), no una ruta libre: la URL no puede mandar a nadie a otro lado, y un valor que no se conoce se ignora. Editar equipo vuelve a su lista como siempre.
+- **Lo recien cargado viene elegido** (form de setup nuevo): llega por `?bow=`, `?sight=`, `?arrowSet=` desde los formularios, o por ser **la unica opcion que hay** (un arquero nuevo carga exactamente una de cada una, asi
+  que guardar es todo lo que falta). Lo que el arquero elija o desmarque manda; un id de la URL que no es suyo no elige nada ni se envia. Con varias opciones y sin id en la URL no viene nada elegido, como antes.
+- Los enlaces "+ Cargar un arco/mira/flechas nuevo" del form de setup llevan `?next=setup`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La preseleccion automatica es solo para **la unica opcion**: elegir "la ultima creada" entre varias podria equivocar a quien ya tiene equipo; lo recien cargado entre varias se pasa explicito por la URL.
+- El estado de la guia sale de las listas activas (arcos, miras, flechas) que la app ya consulta: no hay ninguna bandera de "onboarding hecho" guardada. Si el arquero borra su unico setup, vuelve a verla con los pasos de equipo tachados.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- PWA (+14 tests, 384): la guia sin nada, con el arco hecho, con todo el equipo, sin guia con un setup; arco nuevo con `next=home` vuelve a la guia con el arco tachado, flechas con `next=setup` sigue al setup con todo elegido,
+  sin `next` o con uno desconocido va a su lista, editar vuelve a la lista; preseleccion del unico, desmarcar el unico, preseleccion por URL, ninguna con varios y un id ajeno ignorado; la guia tambien en ingles.
+- E2E 28/28 en la pila real (360 y 1440): alta → guia → arco → mira → flechas → setup con todo elegido → pantalla de la mira vacia → primera marca, y la guia ya no esta; y el orden no se fuerza (mira primero).
+  Captura de la guia revisada a 360 px.
+
+### Pendiente / deuda
+
+- La guia no mide por si sola cuantos llegan a la primera marca (spec §16, riesgo de activacion): esa medicion es de analitica, que no esta en la fase 1.
+- F1-18 (tema light verificado), F1-19 (accesibilidad y responsive), F1-20 (E2E del flujo critico), F1-21 (importar los datos reales del autor, opcional) y F1-22 (release del MVP) son lo que sigue.
+
+---
+
 ## 2026-11-05 — Perfil: el arquero baja todos sus datos y puede pedir la baja de la cuenta, que se cumple a los 90 dias
 
 **Tareas:** F1-16 · **Commit/PR:** rama `feat/f1-profile` · **Tarjeta:** sin tablero (F0-04)

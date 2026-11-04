@@ -19,6 +19,8 @@ const ARROW_ID = '01927e5a-0000-7000-8000-0000000000d1';
 const ARROW_2 = '01927e5a-0000-7000-8000-0000000000d2';
 const SETUP_ID = '01927e5a-0000-7000-8000-0000000000e1';
 const SETUP_2 = '01927e5a-0000-7000-8000-0000000000e2';
+const BOW_2 = '01927e5a-0000-7000-8000-0000000000b2';
+const SIGHT_2 = '01927e5a-0000-7000-8000-0000000000c2';
 const SCALE = { unit: 'cm', min: 0, max: 10, resolution: 0.1, direction: 'down' };
 const STAMPS = {
   version: 1,
@@ -316,7 +318,12 @@ describe('New setup (HU-STP-01)', () => {
   });
 
   it('asks for the three components before sending anything', async () => {
-    const api = setupsServer();
+    // With two of each there is nothing to choose for the archer, so nothing comes chosen.
+    const api = setupsServer({
+      bows: [bow(), bow({ id: BOW_2, model: 'Other' })],
+      sights: [sight(), sight({ id: SIGHT_2, model: 'Another' })],
+      arrowSets: [arrows(), arrows(ARROW_2, 'Pierce 400')],
+    });
     await open(api);
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
     expect(await screen.findAllByText('Completá este campo.')).toHaveLength(3);
@@ -328,16 +335,77 @@ describe('New setup (HU-STP-01)', () => {
     renderApp('/setups/new', api.fetch);
     expect(await screen.findByRole('link', { name: '+ Cargar un arco nuevo' })).toHaveAttribute(
       'href',
-      '/bows/new',
+      '/bows/new?next=setup',
     );
     expect(screen.getByRole('link', { name: '+ Cargar una mira nueva' })).toHaveAttribute(
       'href',
-      '/sights/new',
+      '/sights/new?next=setup',
     );
     expect(screen.getByRole('link', { name: '+ Cargar un set de flechas nuevo' })).toHaveAttribute(
       'href',
-      '/arrows/new',
+      '/arrows/new?next=setup',
     );
+  });
+
+  describe('what was just loaded comes chosen (F1-17)', () => {
+    it('picks the only bow, the only sight and the only arrow set there are', async () => {
+      const api = setupsServer({ arrowSets: [arrows()] });
+      renderApp('/setups/new', api.fetch);
+      await waitFor(() => expect(screen.getByLabelText('Arco')).toHaveValue(BOW_ID));
+      expect(screen.getByLabelText('Mira')).toHaveValue(SIGHT_ID);
+      expect(screen.getByRole('checkbox', { name: 'Hunter 400' })).toBeChecked();
+
+      // Saving needs nothing else.
+      await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+      await waitFor(() => expect(posted(api)).toBeDefined());
+      expect(posted(api)?.body).toMatchObject({
+        bowId: BOW_ID,
+        sightId: SIGHT_ID,
+        arrowSetIds: [ARROW_ID],
+      });
+    });
+
+    it('lets the archer unpick the only arrow set: what they chose is what counts', async () => {
+      const api = setupsServer({ arrowSets: [arrows()] });
+      renderApp('/setups/new', api.fetch);
+      const box = await screen.findByRole('checkbox', { name: 'Hunter 400' });
+      await waitFor(() => expect(box).toBeChecked());
+      await userEvent.click(box);
+      expect(box).not.toBeChecked();
+      await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+      expect(await screen.findAllByText('Completá este campo.')).toHaveLength(1);
+      expect(api.sent).toEqual([]);
+    });
+
+    it('chooses what the URL says when there are several: the one just loaded', async () => {
+      const api = setupsServer({
+        bows: [bow(), bow({ id: BOW_2, model: 'New one' })],
+        sights: [sight(), sight({ id: SIGHT_2, model: 'Newer' })],
+        arrowSets: [arrows(), arrows(ARROW_2, 'Pierce 400')],
+      });
+      renderApp(`/setups/new?bow=${BOW_2}&sight=${SIGHT_2}&arrowSet=${ARROW_2}`, api.fetch);
+      await waitFor(() => expect(screen.getByLabelText('Arco')).toHaveValue(BOW_2));
+      expect(screen.getByLabelText('Mira')).toHaveValue(SIGHT_2);
+      expect(screen.getByRole('checkbox', { name: 'Pierce 400' })).toBeChecked();
+      expect(screen.getByRole('checkbox', { name: 'Hunter 400' })).not.toBeChecked();
+    });
+
+    it('does not choose anything for an archer with several, and ignores a stray id', async () => {
+      const api = setupsServer({
+        bows: [bow(), bow({ id: BOW_2, model: 'Other' })],
+        sights: [sight(), sight({ id: SIGHT_2, model: 'Another' })],
+        arrowSets: [arrows(), arrows(ARROW_2, 'Pierce 400')],
+      });
+      renderApp('/setups/new?bow=01927e5a-0000-7000-8000-0000000000ff', api.fetch);
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Hoyt Alpha' })).toBeInTheDocument(),
+      );
+      expect(screen.getByLabelText('Arco')).toHaveValue('');
+      expect(screen.getByLabelText('Mira')).toHaveValue('');
+      expect(
+        screen.getAllByRole('checkbox').every((box) => !(box as HTMLInputElement).checked),
+      ).toBe(true);
+    });
   });
 
   it('offers to add the arrows to the setup that already has the pair (SM-STP-409-001)', async () => {

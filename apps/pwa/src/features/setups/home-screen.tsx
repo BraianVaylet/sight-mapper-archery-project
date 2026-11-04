@@ -1,11 +1,12 @@
 import type { SetupView } from '@sight-mapper/schemas';
 import { formatDateTime } from '@sight-mapper/i18n';
-import { EmptyState, ErrorState, SectionCard, Skeleton, StatusBadge } from '@sight-mapper/ui';
+import { ErrorState, SectionCard, Skeleton, StatusBadge } from '@sight-mapper/ui';
 import { Link } from '@tanstack/react-router';
 import { describeError } from '../../app/errors.js';
 import { useI18n } from '../../app/i18n.js';
 import { componentName } from '../equipment/names.js';
 import { LinkButtonClass } from '../equipment/link-button.js';
+import { FirstSetupGuide } from './first-setup-guide.js';
 import { setupHooks, useToggleFavorite } from './setups.js';
 
 /** What a card calls a setup: its own name, or the bow and the sight it joins. */
@@ -64,15 +65,7 @@ export function HomeScreen() {
           requestIdLabel={t('common.requestId')}
         />
       ) : list.data.items.length === 0 ? (
-        <EmptyState
-          title={t('setups.home.emptyTitle')}
-          description={t('setups.home.emptyBody')}
-          action={
-            <Link to="/setups/new" className={LinkButtonClass}>
-              {t('setups.home.new')}
-            </Link>
-          }
-        />
+        <FirstSetupGuide />
       ) : (
         <ul className="flex flex-col gap-3">
           {list.data.items.map((setup) => (
