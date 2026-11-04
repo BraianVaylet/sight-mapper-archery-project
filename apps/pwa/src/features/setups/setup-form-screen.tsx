@@ -150,8 +150,9 @@ function SetupForm({
   const soleOf = (list: { data: { items: { id: string }[] } | undefined }) =>
     list.data?.items.length === 1 ? (list.data.items[0]?.id ?? '') : '';
   // An id from the URL that is not one of theirs (or no longer there) chooses nothing.
+  // Fails closed: until the list is there, nothing counts as chosen (and saving asks for it).
   const known = (list: { data: { items: { id: string }[] } | undefined }, id: string) =>
-    list.data === undefined || list.data.items.some((item) => item.id === id);
+    list.data !== undefined && list.data.items.some((item) => item.id === id);
   const chosenBow = bowId !== '' && known(bows, bowId) ? bowId : soleOf(bows);
   const chosenSight = sightId !== '' && known(sights, sightId) ? sightId : soleOf(sights);
   const soleArrows = soleOf(arrows);
