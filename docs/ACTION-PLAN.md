@@ -472,12 +472,13 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** verde en CI sobre staging.
 - **Estado:** el flujo corre en CI contra `dev:local` (job `e2e`). Falta: correrlo en GitHub (F0-19) y contra staging, que no existe todavia (F0-04/F0-20) y que ademas necesita un buzon de prueba para los links de los correos.
 
-### [ ] F1-21 · Importar los datos reales del autor (opcional)
+### [x] F1-21 · Importar los datos reales del autor (opcional)
 
 - **Modulo:** scripts · **Puntos:** 2 · **Depende de:** F1-07
 - **Descripcion:** script one-off que importa al entorno de prod los setups y marcas reales del
   autor desde los proyectos previos, via la API (respeta todas las reglas).
 - **Criterios:** el autor ve sus setups con las mismas lecturas que tenia.
+- **Estado:** script y E2E hechos (`scripts/import-author-data.mjs`, `scripts/data/README.md`). Falta correrlo contra produccion, que no existe todavia (F0-04/F0-20): lo corre el autor con su sesion.
 
 ### [ ] F1-22 · Release del MVP y prueba con arqueros
 

@@ -1,0 +1,59 @@
+{
+  "$comment": "The author's two real sets (packages/domain/test/fixtures/real-sets.json, measured 2026-10-31). The bow is NOT in those notes: fill it in before importing. Copy this file to author-sets.json (ignored by git) and edit it there.",
+  "distanceUnit": "m",
+  "bows": [
+    {
+      "key": "bow",
+      "manufacturer": "COMPLETAR",
+      "model": "COMPLETAR",
+      "bowType": "compound"
+    }
+  ],
+  "sights": [
+    {
+      "key": "ultraview",
+      "manufacturer": "Ultraview",
+      "model": "Side 1",
+      "pinType": "monopin",
+      "scale": { "unit": "cm", "min": 0, "max": 10, "resolution": 0.1, "direction": "down" }
+    }
+  ],
+  "arrowSets": [
+    {
+      "key": "hunter",
+      "name": "Gold Tip Hunter 400",
+      "manufacturer": "Gold Tip",
+      "model": "Hunter"
+    },
+    {
+      "key": "pierce",
+      "name": "Gold Tip Pierce 400",
+      "manufacturer": "Gold Tip",
+      "model": "Pierce"
+    }
+  ],
+  "setups": [
+    {
+      "name": "Ultraview",
+      "bow": "bow",
+      "sight": "ultraview",
+      "arrowSets": ["hunter", "pierce"],
+      "marks": {
+        "hunter": [
+          [20, 0.3],
+          [30, 0.8],
+          [40, 1.6],
+          [50, 2.6],
+          [60, 3.6]
+        ],
+        "pierce": [
+          [20, 0.4],
+          [30, 1.0],
+          [40, 1.8],
+          [50, 2.5],
+          [60, 3.5]
+        ]
+      }
+    }
+  ]
+}

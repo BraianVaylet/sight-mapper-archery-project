@@ -18,6 +18,40 @@
 
 ---
 
+## 2026-11-06 — Los datos reales del autor entran por la API, con su sesion y todas las reglas
+
+**Tareas:** F1-21 · **Commit/PR:** rama `feat/f1-author-import` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **`scripts/import-author-data.mjs`**: lee un archivo de datos (equipo, setups y marcas en las unidades del arquero) y lo carga **por la API publica** con la sesion del arquero: es un cliente mas, asi que
+  valen el aislamiento, la validacion, la idempotencia y una marca por distancia.
+  - **Por defecto es un simulacro**: lee y muestra que haria; escribe solo con `--apply`.
+  - **Se puede repetir**: reusa lo que ya existe (arco y mira por fabricante + modelo, flechas por nombre, setup por el par arco + mira, marca por distancia) y agrega al setup los sets que le falten.
+  - **No pisa nada**: una distancia con otra lectura en la app es un conflicto informado (codigo 3); se reemplaza solo con `--replace`.
+  - Las unidades las convierte el **paquete de dominio** (metros, milimetros de escala), no el script.
+  - La cookie de sesion llega por `SM_SESSION_COOKIE`, la pega el arquero: el script nunca pide, guarda ni muestra una contraseña ni el token. Una sesion invalida corta con un mensaje claro.
+- **`scripts/data/author-sets.example.json`**: los dos sets reales del 31/10 (Ultraview Side 1, escala en cm 0–10; Gold Tip Hunter 400 y Pierce 400), de `packages/domain/test/fixtures/real-sets.json`. El arco no
+  esta en esas notas: queda como `COMPLETAR` y el script se niega a importar hasta que se complete. Los archivos de datos reales (`scripts/data/*.json`) los ignora git; solo el ejemplo se versiona.
+- **`scripts/data/README.md`**: los pasos para el autor y el cuidado con la cookie (es una credencial).
+
+### Decisiones (con link a ADR si corresponde)
+
+- Los proyectos previos solo tenian datos de demo de desarrollo (y una contraseña de seed, que no se copio): la fuente real son las notas del 31/10 que el autor ya habia pasado.
+- Por la API y no por la base: el criterio es que "respeta todas las reglas", y la base no las aplica sola.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Unidad (`node --test`, 6): el ejemplo valido una vez completado, el ejemplo tal cual rechazado, claves desconocidas, distancia repetida, escala invalida, 1,6 cm → 16 mm, 50 yd → 45,72 m.
+- **E2E en la pila real**: sesion invalida rechazada; simulacro sin escribir; `--apply` → la app muestra **exactamente** 0,3 / 0,8 / 1,6 / 2,6 / 3,6 (Hunter) y 0,4 / 1,0 / 1,8 / 2,5 / 3,5 (Pierce); repetir no duplica
+  (sigue en 5 marcas); un 40 m cambiado a 1,7 queda como conflicto y la app conserva 1,8; con `--replace` pasa a 1,7.
+
+### Pendiente / deuda
+
+- **Correrlo contra produccion** cuando exista (F0-04/F0-20), con el arco completado: lo hace el autor con su sesion.
+
+---
+
 ## 2026-11-06 — El flujo critico entero, en los dos idiomas y los dos sistemas, como test de punta a punta y en CI
 
 **Tareas:** F1-20 · **Commit/PR:** rama `feat/f1-critical-e2e` · **Tarjeta:** sin tablero (F0-04)
