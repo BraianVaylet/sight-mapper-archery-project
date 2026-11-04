@@ -77,7 +77,7 @@ export function BowsScreen() {
           }
         />
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {list.data.items.map((bow) => (
             <li key={bow.id}>
               <SectionCard title={bowName(bow) ?? t('bows.list.unnamed')} as="h2">

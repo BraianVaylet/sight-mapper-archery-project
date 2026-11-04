@@ -51,7 +51,7 @@ export function Shell({ children }: { children: ReactNode }) {
       >
         {t('app.skipToContent')}
       </a>
-      <main id="main" className="mx-auto w-full max-w-3xl flex-1 p-4">
+      <main id="main" className="mx-auto w-full max-w-[1200px] flex-1 p-4">
         {children}
       </main>
       <AppFooter />

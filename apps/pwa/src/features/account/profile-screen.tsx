@@ -85,7 +85,7 @@ export function ProfileScreen() {
   };
 
   return (
-    <section className="flex flex-col gap-4 pb-8">
+    <section className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-8">
       <h1 className="font-display text-2xl">{t('screens.profile')}</h1>
 
       <SectionCard title={t('profile.accountTitle')}>

@@ -18,6 +18,43 @@
 
 ---
 
+## 2026-11-06 — Accesible y responsive: axe sin violaciones serias, el flujo entero con teclado, y 360/768/1440 sin desbordes
+
+**Tareas:** F1-19 · **Commit/PR:** rama `feat/f1-a11y` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **axe-core** (WCAG 2.0–2.2 A y AA) en E2E sobre las 19 pantallas y estados del recorrido comun (`e2e/tour.ts`, el mismo de la auditoria de contraste), a **360, 768 y 1440**: 0 violaciones serias o criticas.
+  Ademas, ninguna pagina mas ancha que la pantalla. `axe-core` se agrego como devDependency desde el store local (`--offline`): ya estaba, sin descarga nueva.
+- **Lo que encontro axe:** la tarjeta de setup del Home era un `<dl>` con solo `<dd>`: ahora cada valor tiene su termino (`<dt>` oculto a la vista: "Arco", "Mira", "Sets de flechas") para el lector de pantalla.
+- **El flujo critico solo con teclado** (`e2e/keyboard.spec.ts`, sin un solo clic): alta de la cuenta, link del correo, la guia (arco, mira, flechas), el setup, la primera marca, una segunda con el stepper, la tabla
+  recorrida con flechas y la hoja cerrada con Escape. En cada parada se comprueba que **el foco se ve**.
+- **Lo que encontro el teclado, dos bugs del `useFocusTrap`:**
+  1. La hoja de marca abria con el foco en "Cerrar" en vez de la distancia: la trampa pisaba el `autoFocus`. Ahora lo respeta (solo mete el foco si nada adentro lo tiene).
+  2. En desarrollo (`StrictMode`, que corre los efectos dos veces) la limpieza devolvia el foco al boton y el segundo montaje lo llevaba a "Cerrar". La limpieza ahora solo devuelve el foco cuando el dialogo
+     de verdad salio del documento, y quien abrio el dialogo se recuerda al renderizar (antes, con `autoFocus`, al cerrar el foco no volvia al boton). Tres tests de ui nuevos, que fallan sin el arreglo.
+- **El E2E fallaba en racimo** despues de los recorridos pesados: el limite **global** de Better Auth (100 pedidos por minuto por IP, `get-session` incluido) cortaba a la suite, que carga cientos de
+  paginas desde una sola IP. Se levanta solo en `pnpm dev:local` (`globalLimit`, con test), como ya pasaba con el de los endpoints sensibles; en todo ambiente hosteado y bajo test sigue en 100.
+- **Responsive (UX-UI §7):** el contenedor llega a **1200 px**; las listas (Home, arcos, miras, flechas, papelera) son una grilla de 1, 2 o 3 columnas; los formularios, el perfil y la apariencia se quedan en un ancho
+  legible (`max-w-2xl`); la pantalla de la mira ya tenia regla y tabla en dos columnas desde 768; el aviso flotante no ocupa todo el ancho en escritorio.
+
+### Decisiones (con link a ADR si corresponde)
+
+- axe para lo que mide bien (nombres, roles, estructura, ARIA) y la auditoria propia para el contraste compuesto y los graficos SVG (F1-18): las dos corren sobre el mismo recorrido.
+- Los formularios no se estiran a 1200 px: una columna de campos de 1200 px es mas dificil de leer que de 672.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- axe 0 serias en 360/768/1440 y sin desbordes; teclado completo en 360 y 1440; ui 101 tests (los tres del foco fallan sin el arreglo); PWA 384; API 410; E2E 37/37 en la pila real
+  (mas 1 que se salta a proposito: el de 768 corre una sola vez); lint y typecheck limpios.
+
+### Pendiente / deuda
+
+- **Pasada con un lector de pantalla real** (TalkBack en Android, VoiceOver en iOS o NVDA): la tiene que hacer el autor. Lo automatico verifica nombres y roles, no como suena.
+- Las violaciones de impacto "moderado" o "menor" de axe no estan en el criterio; no se revisaron una por una.
+
+---
+
 ## 2026-11-06 — El tema claro se lee al sol: contraste AA verificado en cada pantalla, con capturas de referencia
 
 **Tareas:** F1-18 (y un arreglo de F1-17 que pidio la revision de seguridad) · **Commit/PR:** rama `feat/f1-light-theme` · **Tarjeta:** sin tablero (F0-04)

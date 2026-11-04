@@ -22,9 +22,24 @@ export function sensitiveLimit(env: Pick<Env, 'APP_ENV' | 'NODE_ENV'>): {
   window: number;
   max: number;
 } {
-  const onLaptop = env.APP_ENV === 'local' && env.NODE_ENV !== 'test';
-  return { window: 15 * 60, max: onLaptop ? 1000 : 5 };
+  return { window: 15 * 60, max: onLaptop(env) ? 1000 : 5 };
 }
+
+/**
+ * Requests per IP per minute on every auth endpoint (`get-session` included). On a laptop the
+ * E2E suite walks every screen many times from one address and would run into it; anywhere else,
+ * and under test, it stays at 100.
+ */
+export function globalLimit(env: Pick<Env, 'APP_ENV' | 'NODE_ENV'>): {
+  window: number;
+  max: number;
+} {
+  return { window: 60, max: onLaptop(env) ? 10_000 : 100 };
+}
+
+/** `pnpm dev:local` on a laptop: the only place where the limits are lifted. */
+const onLaptop = (env: Pick<Env, 'APP_ENV' | 'NODE_ENV'>) =>
+  env.APP_ENV === 'local' && env.NODE_ENV !== 'test';
 const HOUR_S = 60 * 60;
 
 export type AuthDeps = {
@@ -124,8 +139,7 @@ export function createAuth(deps: AuthDeps): AuthModule {
 
     rateLimit: {
       enabled: true,
-      window: 60,
-      max: 100,
+      ...globalLimit(env),
       customRules: {
         '/sign-in/email': SENSITIVE,
         '/sign-in/username': SENSITIVE,

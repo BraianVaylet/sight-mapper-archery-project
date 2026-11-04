@@ -30,7 +30,7 @@ export function TrashScreen() {
       ) : trash.data.items.length === 0 ? (
         <EmptyState title={t('setups.trash.empty')} description={t('setups.trash.emptyBody')} />
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {trash.data.items.map((setup) => (
             <li key={setup.id}>
               <SectionCard title={nameOf(setup)} as="h2">

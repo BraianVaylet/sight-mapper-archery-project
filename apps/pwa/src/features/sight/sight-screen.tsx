@@ -561,7 +561,7 @@ function SightView({
       ) : null}
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface px-4 py-3">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+        <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-3">
           <p className="min-w-0 truncate font-ui text-sm uppercase tracking-widest text-muted">
             {t('sight.statusBar')}
             {selectedM === undefined || selected === undefined

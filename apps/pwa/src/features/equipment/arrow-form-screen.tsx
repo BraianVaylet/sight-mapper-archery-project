@@ -158,7 +158,7 @@ function ArrowForm({
   return (
     <form
       noValidate
-      className="flex flex-col gap-4"
+      className="mx-auto flex w-full max-w-2xl flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault();
         void submit();

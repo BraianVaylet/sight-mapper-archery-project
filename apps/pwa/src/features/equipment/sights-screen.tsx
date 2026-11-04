@@ -77,7 +77,7 @@ export function SightsScreen() {
           }
         />
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {list.data.items.map((sight) => (
             <li key={sight.id}>
               <SectionCard title={sightName(sight) ?? t('sights.list.unnamed')} as="h2">

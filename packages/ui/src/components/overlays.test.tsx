@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { StrictMode, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { AppHeader, SectionCard } from './layout.js';
 import { BottomSheet, NavDrawer, NavItem } from './overlays.js';
@@ -20,6 +20,49 @@ function DrawerHarness({ sheet = false }: { sheet?: boolean }) {
     </>
   );
 }
+
+function AutoFocusHarness() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}>
+        Add mark
+      </button>
+      {open ? (
+        <BottomSheet open onClose={() => setOpen(false)} title="New mark" closeLabel="Close">
+          <input aria-label="Distance" autoFocus />
+        </BottomSheet>
+      ) : null}
+    </>
+  );
+}
+
+describe('a dialog with a field that asks for the focus', () => {
+  it('leaves the focus on that field, not on the close button', async () => {
+    render(<AutoFocusHarness />);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Add mark' }));
+    expect(document.activeElement).toBe(screen.getByLabelText('Distance'));
+  });
+
+  it('keeps it there under React strict mode, which runs the effects twice in development', async () => {
+    render(
+      <StrictMode>
+        <AutoFocusHarness />
+      </StrictMode>,
+    );
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Add mark' }));
+    expect(document.activeElement).toBe(screen.getByLabelText('Distance'));
+  });
+
+  it('still gives the focus back to what opened it when it closes', async () => {
+    const user = userEvent.setup();
+    render(<AutoFocusHarness />);
+    await user.click(screen.getByRole('button', { name: 'Add mark' }));
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Add mark' }));
+  });
+});
 
 function TypingHarness() {
   const [text, setText] = useState('');

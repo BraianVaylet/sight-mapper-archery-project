@@ -35,7 +35,7 @@ export function Toast({
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-x-4 bottom-4 z-50 flex items-center gap-3 rounded-md border border-border bg-surface p-3 text-text shadow-lg"
+      className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md items-center gap-3 rounded-md border border-border bg-surface p-3 text-text shadow-lg"
     >
       <p className="flex-1 font-ui text-base">{message}</p>
       {actionLabel && onAction ? (

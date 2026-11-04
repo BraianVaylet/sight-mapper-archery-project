@@ -20,7 +20,7 @@ export function AppearanceScreen() {
   const failure = actions.update.error ?? profile.error;
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       <h1 className="font-display text-2xl">{t('screens.appearance')}</h1>
       <p className="font-ui text-base text-muted">{t('appearance.intro')}</p>
 

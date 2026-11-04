@@ -67,12 +67,13 @@ export function HomeScreen() {
       ) : list.data.items.length === 0 ? (
         <FirstSetupGuide />
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {list.data.items.map((setup) => (
             <li key={setup.id}>
               <SectionCard title={nameOf(setup)} as="h2">
                 <div className="flex items-start justify-between gap-3">
                   <dl className="flex flex-col gap-1 font-ui text-base">
+                    <dt className="sr-only">{t('setups.form.bow')}</dt>
                     <dd>
                       {componentName(setup.bow) ?? '?'}
                       {setup.bow.status === 'archived' ? (
@@ -81,6 +82,7 @@ export function HomeScreen() {
                         </span>
                       ) : null}
                     </dd>
+                    <dt className="sr-only">{t('setups.form.sight')}</dt>
                     <dd>
                       {t('setups.home.sightLine', {
                         sight: componentName(setup.sight) ?? '?',
@@ -92,6 +94,7 @@ export function HomeScreen() {
                         </span>
                       ) : null}
                     </dd>
+                    <dt className="sr-only">{t('setups.form.arrows')}</dt>
                     <dd className="text-muted">
                       {setup.arrowSets.map((set) => set.name).join(', ')}
                     </dd>

@@ -70,7 +70,7 @@ export function ArrowsScreen() {
           }
         />
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {list.data.items.map((set) => (
             <li key={set.id}>
               <SectionCard title={set.name} as="h2">

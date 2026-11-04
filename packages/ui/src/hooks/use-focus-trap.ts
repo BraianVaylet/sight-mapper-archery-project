@@ -13,6 +13,9 @@ const FOCUSABLE = [
  * While `active`: focus moves into the container, Tab cycles inside it, Escape calls `onEscape`
  * and, on close, focus returns to what had it before. What a dialog must do to be usable
  * without a mouse.
+ *
+ * A field that asked for the focus itself (`autoFocus`, like the distance of a new mark) keeps
+ * it: the trap only moves the focus in when nothing inside has it yet.
  */
 export function useFocusTrap(
   active: boolean,
@@ -26,13 +29,21 @@ export function useFocusTrap(
     escape.current = onEscape;
   });
 
+  // Who had the focus before the dialog opened, read while rendering: by the time an effect runs,
+  // an `autoFocus` field inside has already taken it, and the opener would be lost.
+  const opener = useRef<HTMLElement | null>(null);
+  if (!active) opener.current = null;
+  else if (opener.current === null && typeof document !== 'undefined') {
+    opener.current = document.activeElement as HTMLElement | null;
+  }
+
   useEffect(() => {
     const root = container.current;
     if (!active || root === null) return undefined;
 
-    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previouslyFocused = opener.current;
     const focusables = () => Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
-    (focusables()[0] ?? root).focus();
+    if (!root.contains(document.activeElement)) (focusables()[0] ?? root).focus();
 
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') {
@@ -61,7 +72,9 @@ export function useFocusTrap(
     root.addEventListener('keydown', onKeyDown);
     return () => {
       root.removeEventListener('keydown', onKeyDown);
-      previouslyFocused?.focus();
+      // Only when the dialog really went away. React's strict mode runs this cleanup and the effect
+      // again on a dialog that stays: giving the focus back there would throw it out of the field.
+      if (!root.isConnected) previouslyFocused?.focus();
     };
   }, [active, container]);
 }

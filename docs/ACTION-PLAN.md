@@ -455,13 +455,14 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** contraste AA en ambos temas; screenshots de referencia dark/light por pantalla.
 - **Estado:** contraste y capturas hechos (`docs/screens/`); la prueba al sol con un telefono real la hace el autor.
 
-### [ ] F1-19 · Accesibilidad y responsive
+### [x] F1-19 · Accesibilidad y responsive
 
 - **Modulo:** pwa · **Puntos:** 3 · **Depende de:** F1-11
 - **Descripcion:** auditoria axe + teclado + lector de pantalla en el flujo critico; layouts 768 y
   1440 (UX-UI §7).
 - **Criterios:** 0 violaciones axe serias; flujo critico completo con teclado; 360/768/1440 sin
   desbordes.
+- **Estado:** axe, teclado y desbordes automatizados en E2E; la pasada con un lector de pantalla real (TalkBack / VoiceOver / NVDA) la hace el autor.
 
 ### [ ] F1-20 · E2E del flujo critico
 
