@@ -19,6 +19,25 @@ test('every screen: no serious axe violation, nothing wider than the screen', as
   expect(overflows, 'pages wider than the viewport').toEqual({});
 });
 
+// The app uses the system font, and system fonts differ in width: DejaVu on a Linux runner is far
+// wider than Segoe UI. Verdana (DejaVu's metrics, wider still) shows on any machine what only one
+// operating system would.
+test('at 360 px with a wide system font: nothing wider than the screen', async ({ page }, info) => {
+  test.skip(info.project.name !== 'phone-360', 'the narrow width is the one at risk');
+  test.setTimeout(150_000);
+  const overflows: Record<string, unknown> = {};
+
+  await tourEveryScreen(page, async (name) => {
+    await page.addStyleTag({
+      content: '*, *::before, *::after { font-family: Verdana !important }',
+    });
+    const wide = await overflow(page);
+    if (wide !== null) overflows[name] = wide;
+  });
+
+  expect(overflows, 'pages wider than the viewport with a wide font').toEqual({});
+});
+
 // The tablet width (UX-UI §7: 768), which neither project uses on its own.
 test('at 768 px too: no serious axe violation, nothing wider than the screen', async ({
   page,
