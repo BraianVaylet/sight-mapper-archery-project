@@ -32,6 +32,8 @@ export default defineConfig({
       url: DEV_URL,
       reuseExistingServer: process.env['CI'] !== 'true',
       timeout: 240_000,
+      // Its progress goes to stdout: without it, a start that stalls leaves nothing in the CI log.
+      stdout: 'pipe',
       env: { SM_DEV_MAIL_FILE: MAIL_FILE },
     },
     // The production build, for what only a build has: the manifest and the service worker.

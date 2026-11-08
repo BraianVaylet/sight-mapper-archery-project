@@ -97,6 +97,11 @@ jobs:
       - name: Chromium for Playwright
         run: pnpm --filter @sight-mapper/pwa exec playwright install --with-deps chromium
 
+      # Built up front, so the web servers only start: on a fresh runner, building inside them
+      # (plus the first mongod download) does not fit Playwright's start-up timeout.
+      - name: Build
+        run: pnpm build
+
       - name: Playwright suite
         run: pnpm --filter @sight-mapper/pwa test:e2e
         env:

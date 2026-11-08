@@ -26,6 +26,9 @@
 
 - **Licencias:** `check-licenses.mjs` rechazaba MIT-0 (`@csstools/*`) y MPL-2.0 (`lightningcss`). MIT-0 entra a la lista (es MIT sin la condicion de atribucion). `lightningcss` queda **exento por nombre, con el motivo escrito**: es el minificador de CSS de Vite y solo aparece en el arbol de produccion porque better-auth declara vitest como peer opcional y pnpm enlaza el del workspace; ningun codigo del servidor lo carga. Cualquier otro paquete MPL sigue fallando.
 - **Hook de rutas:** en Linux `docs\spec\x.md` no se reconocia como `docs/spec` (la barra invertida es un caracter comun en POSIX). Ahora se lee como separador en todos lados, asi que pide confirmacion igual que en Windows.
+- **Segunda corrida:**
+  - **gitleaks** encontro 3 "claves" en el historial (commit ad44c74): son `key-0001-abcdefgh`, una Idempotency-Key inventada de los tests de la API. Van a `.gitleaksignore` **por huella** (commit, archivo, regla y linea), nunca por archivo ni por regla. El historial no se reescribe.
+  - El **E2E** no llego a arrancar: `dev:local` no estuvo listo en 240 s en un runner limpio, y como su progreso va a stdout el log no decia por que. Ahora la CI hace `pnpm build` antes de Playwright y el servidor de desarrollo muestra su salida (`stdout: 'pipe'`).
 
 ### Decisiones (con link a ADR si corresponde)
 
