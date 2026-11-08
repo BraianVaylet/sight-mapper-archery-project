@@ -29,6 +29,7 @@
 - **Segunda corrida:**
   - **gitleaks** encontro 3 "claves" en el historial (commit ad44c74): son `key-0001-abcdefgh`, una Idempotency-Key inventada de los tests de la API. Van a `.gitleaksignore` **por huella** (commit, archivo, regla y linea), nunca por archivo ni por regla. El historial no se reescribe.
   - El **E2E** no llego a arrancar: `dev:local` no estuvo listo en 240 s en un runner limpio, y como su progreso va a stdout el log no decia por que. Ahora la CI hace `pnpm build` antes de Playwright y el servidor de desarrollo muestra su salida (`stdout: 'pipe'`).
+- **Tercera corrida:** con la salida visible, `dev:local` se quedaba en `migrate-mongo up`. Causa probable: las migraciones corrian con `spawnSync`, que bloquea el event loop mientras mongod (hijo del mismo proceso) escribe su log a un pipe que solo ese loop vacia; en Linux el pipe se llena (64 KB), mongod se frena y la migracion espera para siempre. Ahora corren con `spawn` y se espera su salida. En Windows ya andaba; en Linux lo confirma la proxima corrida.
 
 ### Decisiones (con link a ADR si corresponde)
 

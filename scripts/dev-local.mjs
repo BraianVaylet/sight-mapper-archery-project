@@ -106,15 +106,21 @@ async function main() {
   };
 
   say('Applying migrations...');
-  const migrate = spawnSync('pnpm --filter @sight-mapper/api migrate', {
-    cwd: root,
-    env,
-    stdio: 'inherit',
-    shell: true,
+  // Not spawnSync: the mongod is a child of this process and logs into a pipe that only this event
+  // loop drains. Blocked, the pipe fills (64 KB on Linux), mongod stalls and so do the migrations.
+  const migrated = await new Promise((resolve) => {
+    const migrate = spawn('pnpm --filter @sight-mapper/api migrate', {
+      cwd: root,
+      env,
+      stdio: 'inherit',
+      shell: true,
+    });
+    migrate.on('exit', (code) => resolve(code ?? 1));
+    migrate.on('error', () => resolve(1));
   });
-  if (migrate.status !== 0) {
+  if (migrated !== 0) {
     await mongo.stop();
-    process.exit(migrate.status ?? 1);
+    process.exit(migrated);
   }
 
   const children = [];
