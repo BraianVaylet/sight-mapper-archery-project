@@ -18,6 +18,32 @@
 
 ---
 
+## 2026-11-08 — El catalogo visual de componentes queda verificado en los dos temas
+
+**Tareas:** F0-11 · **Commit/PR:** rama `feat/f0-ui-catalog` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- El catalogo de `/sandbox` (solo en desarrollo, existia desde F0-17) suma `PasswordField`, la unica primitiva que faltaba: ahora estan todas las de F0-11.
+- `e2e/catalog.spec.ts`: el catalogo pasa **axe** (sin hallazgos serios), **contraste AA** con los colores que pinta el navegador y **sin desbordes**, en **dark y light**, a 360 y 1440.
+- Los helpers de axe y desbordes pasan de `a11y.spec.ts` a `e2e/audits.ts`, compartidos por el recorrido de pantallas y el catalogo.
+- Tabla de estado del plan al dia (decia F1 "sin iniciar").
+
+### Decisiones (con link a ADR si corresponde)
+
+- Sin decisiones nuevas: el catalogo sigue siendo una pagina de desarrollo, en un build es un 404.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Vitest del sandbox (10): el campo de contraseña aparece y "Mostrar" lo revela.
+- Playwright con `CI=true`: `catalog.spec.ts` (4) y `a11y.spec.ts` (3 + 1 salteado) en verde, en los dos proyectos.
+
+### Pendiente / deuda
+
+- Nada de F0-11. En F0 quedan F0-15 (Google, necesita F0-20), F0-19 (correr la CI en GitHub) y las bloqueadas F0-04 y F0-20.
+
+---
+
 ## 2026-11-06 — Preparado el release del MVP: metricas desde la base y el runbook de produccion
 
 **Tareas:** F1-22 (parcial: lo que no necesita infraestructura) · **Commit/PR:** rama `feat/f1-release-prep` · **Tarjeta:** sin tablero (F0-04)

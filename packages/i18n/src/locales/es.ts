@@ -88,6 +88,7 @@ export const es = {
       sampleHint: 'Una ayuda debajo del campo',
       sampleError: 'Un error en el campo',
       sampleNumber: 'Largo',
+      samplePassword: 'Contraseña',
       sampleSelect: 'Tipo de mira',
       selectPlaceholder: 'Elegí uno',
       optionOne: 'Ultraview',

@@ -86,6 +86,7 @@ export const en: Messages = {
       sampleHint: 'A hint under the field',
       sampleError: 'An error on the field',
       sampleNumber: 'Length',
+      samplePassword: 'Password',
       sampleSelect: 'Sight type',
       selectPlaceholder: 'Pick one',
       optionOne: 'Ultraview',

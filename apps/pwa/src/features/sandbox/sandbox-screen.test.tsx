@@ -38,6 +38,14 @@ describe('SandboxScreen', () => {
     );
   });
 
+  it('shows the password field in the catalogue and lets it be revealed', async () => {
+    show();
+    const password = screen.getByLabelText('Contraseña');
+    expect(password).toHaveAttribute('type', 'password');
+    await userEvent.click(screen.getByRole('button', { name: 'Mostrar' }));
+    expect(password).toHaveAttribute('type', 'text');
+  });
+
   it('opens and closes the overlays of the catalogue', async () => {
     show();
     await userEvent.click(screen.getByRole('button', { name: 'Abrir hoja' }));

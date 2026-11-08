@@ -9,6 +9,7 @@ import {
   NavDrawer,
   NavItem,
   NumberField,
+  PasswordField,
   SectionCard,
   Segmented,
   Select,
@@ -66,6 +67,12 @@ export function Catalog() {
               error={t('sandbox.catalog.sampleError')}
             />
             <NumberField label={t('sandbox.catalog.sampleNumber')} unit="cm" defaultValue="10,5" />
+            <PasswordField
+              label={t('sandbox.catalog.samplePassword')}
+              showLabel={t('auth.showPassword')}
+              hideLabel={t('auth.hidePassword')}
+              autoComplete="off"
+            />
             <Select
               label={t('sandbox.catalog.sampleSelect')}
               placeholder={t('sandbox.catalog.selectPlaceholder')}
