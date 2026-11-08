@@ -9,6 +9,7 @@ const ALLOWED = new Set(
     .filter((license) => license !== '')
     .concat([
       'MIT',
+      'MIT-0',
       'ISC',
       'BSD-2-Clause',
       'BSD-3-Clause',
@@ -20,6 +21,16 @@ const ALLOWED = new Set(
     ]),
 );
 
+// Packages that `pnpm licenses --prod` lists but that never run in production, each with the
+// reason. A name matches itself and its platform builds (`lightningcss-linux-x64-gnu`).
+const EXEMPT = {
+  // MPL-2.0. Vite's CSS minifier. It only reaches the production tree because better-auth declares
+  // vitest as an optional peer and pnpm links the workspace's vitest: no server code loads it.
+  lightningcss: 'build tool reached through an optional test peer of better-auth',
+};
+const exempt = (name) =>
+  Object.keys(EXEMPT).some((base) => name === base || name.startsWith(`${base}-`));
+
 // A fixed command line: no user input reaches the shell.
 const output = execSync('pnpm licenses list --prod --json', {
   encoding: 'utf8',
@@ -27,7 +38,10 @@ const output = execSync('pnpm licenses list --prod --json', {
 });
 
 const byLicense = JSON.parse(output);
-const rejected = Object.entries(byLicense).filter(([license]) => !ALLOWED.has(license));
+const rejected = Object.entries(byLicense)
+  .filter(([license]) => !ALLOWED.has(license))
+  .map(([license, packages]) => [license, packages.filter((p) => !exempt(p.name))])
+  .filter(([, packages]) => packages.length > 0);
 
 if (rejected.length > 0) {
   for (const [license, packages] of rejected) {

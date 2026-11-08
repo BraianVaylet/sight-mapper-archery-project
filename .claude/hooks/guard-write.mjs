@@ -109,7 +109,7 @@ export function afterState(toolInput, before) {
  * the project. Handles `..`, absolute paths, backslashes and case (Windows is case-insensitive).
  */
 export function projectRelative(file, projectDir) {
-  const rel = relative(resolve(projectDir), resolve(projectDir, file));
+  const rel = relative(resolve(projectDir), resolve(projectDir, file.replaceAll('\\', '/')));
   if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) return null;
   return rel.split(sep).join('/').toLowerCase();
 }
@@ -117,7 +117,9 @@ export function projectRelative(file, projectDir) {
 /** Returns `{ decision: 'block' | 'ask' | 'allow', message? }`. */
 export function decide(input, projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd()) {
   const toolInput = input?.tool_input ?? {};
-  const file = String(toolInput.file_path ?? '');
+  // A backslash is a separator on Windows but a plain character on POSIX: read it as a separator
+  // everywhere, so `docs\spec\x.md` is guarded on a Linux runner too.
+  const file = String(toolInput.file_path ?? '').replaceAll('\\', '/');
 
   // No exempt files: not even tests, docs or .env.example may hold a real-looking secret. Tests
   // that need one build it at run time ('AKIA' + '...') so the literal never exists.

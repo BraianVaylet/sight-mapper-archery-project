@@ -18,6 +18,29 @@
 
 ---
 
+## 2026-11-08 — La CI corre por primera vez en GitHub (PR #1) y se arreglan sus dos fallas
+
+**Tareas:** F0-19 · **Commit/PR:** [PR #1](https://github.com/BraianVaylet/sight-mapper-archery-project/pull/1) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Licencias:** `check-licenses.mjs` rechazaba MIT-0 (`@csstools/*`) y MPL-2.0 (`lightningcss`). MIT-0 entra a la lista (es MIT sin la condicion de atribucion). `lightningcss` queda **exento por nombre, con el motivo escrito**: es el minificador de CSS de Vite y solo aparece en el arbol de produccion porque better-auth declara vitest como peer opcional y pnpm enlaza el del workspace; ningun codigo del servidor lo carga. Cualquier otro paquete MPL sigue fallando.
+- **Hook de rutas:** en Linux `docs\spec\x.md` no se reconocia como `docs/spec` (la barra invertida es un caracter comun en POSIX). Ahora se lee como separador en todos lados, asi que pide confirmacion igual que en Windows.
+
+### Decisiones (con link a ADR si corresponde)
+
+- Excepciones de licencia por paquete y con motivo, nunca por licencia: una dependencia nueva con MPL en el runtime tiene que fallar.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Local: `node scripts/check-licenses.mjs` pasa (201 dependencias); `pnpm test:scripts` 72/72. La prueba real es la corrida de GitHub sobre este commit.
+
+### Pendiente / deuda
+
+- Ver que el job `e2e` (que dependia de los otros dos) pase en GitHub.
+
+---
+
 ## 2026-11-08 — El catalogo visual de componentes queda verificado en los dos temas
 
 **Tareas:** F0-11 · **Commit/PR:** rama `feat/f0-ui-catalog` · **Tarjeta:** sin tablero (F0-04)
