@@ -20,7 +20,7 @@
 | Logs          | Pino (JSON) · `pino-pretty` solo en dev                                                   |
 | Email         | Resend                                                                                    |
 | Front         | React 19 · TanStack Router / Query / Form / Table · Tailwind v4 · Zustand · Nuqs · Motion |
-| i18n          | i18next + react-i18next, claves tipadas                                                   |
+| i18n          | Catalogos tipados de `@sight-mapper/i18n` (`createTranslator`) con `I18nProvider` propio    |
 | PWA           | `vite-plugin-pwa` (Workbox), `registerType: 'prompt'`                                     |
 | Graficos      | SVG propio para la regla; curva con SVG propio (sin libreria de charts en el MVP)         |
 | Testing       | Vitest 4 · Testing Library · MSW · `mongodb-memory-server` (replset) · Playwright · fast-check |
@@ -82,7 +82,7 @@ pre-escritura bloquea patrones de secretos.
 | Paginacion         | `?limit=` (1–100, default 25) y `?cursor=` opaco. Nunca `skip`                             |
 | IDs                | UUIDv7 del cliente en el body de `POST` (`id`). Se valida version y timestamp razonable    |
 | Idempotencia       | `Idempotency-Key` **obligatoria** en `POST`; misma clave + mismo cuerpo → misma respuesta; misma clave + otro cuerpo → `SM-CORE-409-001`. TTL 24 h |
-| Concurrencia       | Respuestas incluyen `version` y header `ETag: "<version>"`. `PATCH`/`DELETE` exigen `If-Match` (`SM-CORE-428-001` si falta, `SM-CORE-412-001` si no coincide) |
+| Concurrencia       | Respuestas incluyen `version` y header `ETag: "<version>"`. `PATCH`/`PUT`/`DELETE` exigen `If-Match` (`SM-CORE-428-001` si falta, `SM-CORE-412-001` si no coincide) |
 | Recurso ajeno      | `404` (`SM-CORE-404-002`), nunca `403`                                                     |
 | Soft delete        | `DELETE` marca `deletedAt`; las lecturas lo excluyen salvo endpoints de papelera           |
 | Transiciones       | Endpoints de accion: `POST /:id/archive`, `/unarchive`, `/restore`. Nunca `PATCH { status }` |
@@ -107,9 +107,9 @@ pre-escritura bloquea patrones de secretos.
 | GET    | `/api/v1/me`                      | Perfil + preferencias + version app minima | —                       |
 | PATCH  | `/api/v1/me/preferences`          | `locale`, `unitSystem`, `theme`      | CORE-400                      |
 | PUT    | `/api/v1/me/quick-access`         | `{ setupId, arrowSetId } \| null`    | ACC-422-001                   |
-| GET    | `/api/v1/me/export`               | JSON con todos los datos             | —                             |
+| GET    | `/api/v1/me/export`               | JSON con todos los datos (`schemaVersion: 1`, con archivado y papelera, unidades canonicas, sin `userId`) | — |
 | POST   | `/api/v1/me/deletion-request`     | Pide la baja                         | ACC-409-001                   |
-| DELETE | `/api/v1/me/deletion-request`     | Cancela la baja                      | ACC-404-001                   |
+| DELETE | `/api/v1/me/deletion-request`     | Cancela la baja (**sin** `If-Match`: la salida de una baja debe funcionar aunque el perfil haya cambiado) | ACC-404-001 |
 
 ### 5.3 Equipment (patron igual para `bows`, `sights`, `arrow-sets`)
 
@@ -205,8 +205,9 @@ Content-Type: application/json
   - `registerType: 'prompt'` → `UpdatePrompt` "Hay una version nueva · Actualizar".
 - Version visible: `VITE_APP_VERSION` en login y Perfil. `GET /api/v1/me` devuelve
   `minClientVersion`; si la PWA es menor, fuerza actualizar.
-- **Acceso rapido:** al boot, si `profile.quickAccess` existe, el router redirige a
-  `/setups/:id?arrowSet=`.
+- **Acceso rapido:** al **abrir la app** (la primera pantalla tras la sesion, tambien despues de entrar),
+  si cae en `/` y `profile.quickAccess` existe, el router redirige a `/setups/:id?arrowSet=`. Volver al
+  Home despues, o entrar por un link a otra pantalla, no redirige. Sin perfil en 2,5 s la app abre en el Home.
 - **Optimismo:** `useMutation` con `onMutate` (escribe en cache), `onError` (rollback + toast con
   `t(messageKey, params)`), `onSettled` (invalida). Toast con "Deshacer" llama al endpoint inverso
   (`restore` o `DELETE`).
@@ -218,7 +219,7 @@ Content-Type: application/json
 
 ## 9. i18n
 
-- `@sight-mapper/i18n`: `es.json` y `en.json` con la misma forma; tipos generados para que una clave
+- `@sight-mapper/i18n`: `locales/es.ts` y `locales/en.ts` con la misma forma (TS en vez de JSON: el compilador exige la paridad y se infieren los `{{params}}`); tipos generados para que una clave
   inexistente sea **error de compilacion**. Test que verifica paridad de claves ES/EN.
 - Namespaces: `common`, `auth`, `equipment`, `setups`, `sight`, `calc`, `doctor`, `account`,
   `errors`.
@@ -268,7 +269,11 @@ responde pero no puede leer nada no esta listo.
 ## 13. Jobs
 
 Scheduler in-process (`core/jobs`), un tick por minuto, lock por job en `jobLocks` con
-`lockedUntil` (si hay varias instancias, corre una). Cada job es idempotente y escribe `jobRuns`.
+`lockedUntil` (si hay varias instancias, corre una). El lock se toma con una sola escritura atomica y se
+sostiene **hasta el fin de la ventana** del job (`intervalMs`): corre una vez por ventana en todas las
+instancias, y un job que termina antes no lo repite otra instancia mas lenta. Si el dueño cae, la ventana
+siguiente lo corre de nuevo. Cada job es idempotente y escribe `jobRuns` (estado, duracion, conteos y el
+mensaje del error, sin stack; el stack va al log).
 Lista en la spec §12.
 
 ## 14. Presupuestos de rendimiento
@@ -281,4 +286,15 @@ Lista en la spec §12.
 | p95 API (escrituras de marcas)  | < 250 ms             |
 | Calculo completo 50 marcas      | < 16 ms (un frame)   |
 
-Se mide con Lighthouse CI en PR (PWA) y con `durationMs` de los logs (API).
+Se mide con Lighthouse CI en PR (PWA) y con `durationMs` de los logs (API). El "4G" de RNF-01 es
+el **"4G lento" de Lighthouse** (1,6 Mbps, RTT 150 ms, CPU 4x; decision del autor, 2026-11-09).
+El JS inicial es **gate** (hoy ~171 KB). El LCP queda como **aviso**: el login renderizado en el
+cliente da ~2,6 s, y React con TanStack Router, Query y Form ya son ~130 KB gzip.
+
+Reglas para que el JS inicial no crezca:
+
+- zod clasico no entra al arranque: no se recorta por tree-shaking. Lo que corre al pintar usa
+  `zod/mini`. Los schemas compartidos se cargan cuando hacen falta (al enviar un formulario, en
+  la primera llamada).
+- Las pantallas publicas no se dividen en chunks.
+- Las librerias van en un solo chunk `vendor`.

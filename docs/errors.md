@@ -84,7 +84,7 @@
 | `SM-AUTH-400-003` | 400  | `errors.auth.invalidUsername`      | `pattern`     | Username fuera de `[a-z0-9._]{3,30}`                    |
 | `SM-AUTH-401-001` | 401  | `errors.auth.invalidCredentials`   | —             | Email/username o contraseña incorrectos (no dice cual)  |
 | `SM-AUTH-403-001` | 403  | `errors.auth.emailNotVerified`     | —             | Login sin verificar el email                            |
-| `SM-AUTH-409-001` | 409  | `errors.auth.emailTaken`           | —             | Email ya registrado                                     |
+| `SM-AUTH-409-001` | 409  | `errors.auth.emailTaken`           | —             | Email ya registrado. Con verificacion obligatoria Better Auth responde un exito generico y no lo emite: no revela que emails existen |
 | `SM-AUTH-409-002` | 409  | `errors.auth.usernameTaken`        | —             | Username ya usado                                       |
 | `SM-AUTH-502-001` | 502  | `errors.auth.oauthProvider`        | `provider`    | Falla de Google                                         |
 

@@ -1,0 +1,35 @@
+/*
+ * Tailwind v4 mapping of the tokens, so components can use `bg-surface`, `text-muted`, etc. The
+ * app imports it after `tailwindcss`:
+ *
+ *   @import 'tailwindcss';
+ *   @import '@sight-mapper/ui/tokens.css';
+ *   @import '@sight-mapper/ui/theme.css';
+ *   @source '../../../packages/ui/src';
+ *
+ * `inline` keeps the utilities pointing at the CSS variables, so switching `data-theme` works
+ * without rebuilding.
+ */
+@theme inline {
+  --color-bg: var(--sm-bg);
+  --color-surface: var(--sm-surface);
+  --color-sunken: var(--sm-surface-sunken);
+  --color-border: var(--sm-border);
+  --color-text: var(--sm-text);
+  --color-muted: var(--sm-text-muted);
+  --color-accent: var(--sm-accent);
+  --color-accent-ink: var(--sm-accent-ink);
+  --color-accent-edge: var(--sm-accent-edge);
+  --color-mark: var(--sm-mark);
+  --color-info: var(--sm-info);
+  --color-danger: var(--sm-danger);
+  --color-warning: var(--sm-warning);
+
+  /* No web fonts: nothing to download before the first paint, and it works offline. */
+  --font-display: ui-serif, 'Roboto Slab', Georgia, Cambria, 'Times New Roman', serif;
+  --font-ui: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* "Instrument" look: small radii. */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+}

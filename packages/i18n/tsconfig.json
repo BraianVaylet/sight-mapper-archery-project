@@ -1,0 +1,9 @@
+{
+  "extends": "@sight-mapper/config/tsconfig.lib.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["src", "test", "*.config.ts"]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "@sight-mapper/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Hono API (modular monolith)",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests",
+    "migrate": "migrate-mongo up"
+  },
+  "dependencies": {
+    "@hono/node-server": "catalog:",
+    "@hono/zod-openapi": "catalog:",
+    "@js-temporal/polyfill": "catalog:",
+    "@sight-mapper/domain": "workspace:*",
+    "@sight-mapper/i18n": "workspace:*",
+    "@sight-mapper/schemas": "workspace:*",
+    "@sight-mapper/types": "workspace:*",
+    "better-auth": "catalog:",
+    "hono": "catalog:",
+    "migrate-mongo": "catalog:",
+    "mongodb": "catalog:",
+    "mongoose": "catalog:",
+    "pino": "catalog:",
+    "uuid": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@sight-mapper/config": "workspace:*",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "mongodb-memory-server": "catalog:",
+    "pino-pretty": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

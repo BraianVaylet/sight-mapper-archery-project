@@ -1,0 +1,39 @@
+{
+  "source": "Measured by the author, 2026-10-31. Only distance, reading and scale: no personal data.",
+  "sight": "Ultraview Side 1",
+  "scale": {
+    "unit": "cm",
+    "unitSizeMm": null,
+    "min": 0,
+    "max": 10,
+    "resolution": 0.1,
+    "direction": "down"
+  },
+  "sets": [
+    {
+      "id": "goldtip-hunter-400",
+      "label": "good",
+      "note": "The author trusts all five marks.",
+      "marks": [
+        { "distanceM": 20, "reading": 0.3 },
+        { "distanceM": 30, "reading": 0.8 },
+        { "distanceM": 40, "reading": 1.6 },
+        { "distanceM": 50, "reading": 2.6 },
+        { "distanceM": 60, "reading": 3.6 }
+      ]
+    },
+    {
+      "id": "goldtip-pierce-400",
+      "label": "doubtful",
+      "note": "The step from 40 m to 50 m is smaller (0.7) than the one before (0.8). The author doubts the 40 m mark. Its deviation from the trend of the other four is only about 1.2 mm, the same size as the 1.05 mm of the 50 m mark of the good set, so by the numbers alone it cannot be told apart from normal measuring noise.",
+      "suspectMark": 40,
+      "marks": [
+        { "distanceM": 20, "reading": 0.4 },
+        { "distanceM": 30, "reading": 1.0 },
+        { "distanceM": 40, "reading": 1.8 },
+        { "distanceM": 50, "reading": 2.5 },
+        { "distanceM": 60, "reading": 3.5 }
+      ]
+    }
+  ]
+}

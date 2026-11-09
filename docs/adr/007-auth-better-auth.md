@@ -22,6 +22,16 @@ diseño en el MVP.
 6. Los errores del proveedor se traducen a `SM-AUTH-*` (sin prosa).
 7. Alta de usuario → evento `UserRegistered` → `Profile` en `account`.
 
+## Notas de implementacion (F0-15, 2026-11-01)
+
+- Registrar un email que ya existe responde un exito generico (y hashea la contraseña igual, para no
+  delatar la cuenta por el tiempo): no revela quien esta registrado. `SM-AUTH-409-001` queda para flujos sin
+  verificacion obligatoria. Un username repetido si es `SM-AUTH-409-002`.
+- El limite de intentos de Better Auth es por IP y ruta (5 en 15 min en login, registro, recupero y
+  reenvio), no por identificador. Detras de Railway la IP sale de `X-Forwarded-For`.
+- El envio de email no se espera: un servidor de correo lento no puede delatar que direcciones existen.
+- Los logs internos de Better Auth (que traen emails) pasan por Pino, solo warn y error.
+
 ## Alternativas consideradas
 
 | Alternativa                 | Por que no                                                          |
