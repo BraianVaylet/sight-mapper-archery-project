@@ -60,6 +60,3 @@ export const resetPasswordForm = z
   .object({ password: newPassword, confirmPassword: z.string() })
   .superRefine(passwordsMatch);
 export type ResetPasswordForm = z.infer<typeof resetPasswordForm>;
-
-/** A sign-in identifier that is an email goes to the email endpoint, anything else is a username. */
-export const looksLikeEmail = (identifier: string): boolean => identifier.includes('@');

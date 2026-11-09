@@ -1,5 +1,4 @@
 import { isApiError } from '@sight-mapper/client';
-import { signInForm } from '@sight-mapper/schemas';
 import { Button, Field, PasswordField } from '@sight-mapper/ui';
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -8,7 +7,7 @@ import { useClients } from '../../app/clients.js';
 import { useI18n } from '../../app/i18n.js';
 import { signIn } from './auth-api.js';
 import { AuthCard, FormError, TextLink } from './auth-card.js';
-import { fieldError, validateWith } from './form-utils.js';
+import { fieldError, formSchemas, validateWith } from './form-utils.js';
 import { safeRedirect } from './redirect.js';
 import { forgetSession } from './session.js';
 
@@ -28,7 +27,9 @@ export function SignInScreen({ redirect }: { redirect: string | undefined }) {
 
   const form = useForm({
     defaultValues: { identifier: '', password: '' },
-    validators: { onSubmit: ({ value }) => validateWith(signInForm, value) },
+    validators: {
+      onSubmitAsync: async ({ value }) => validateWith((await formSchemas()).signInForm, value),
+    },
     onSubmit: async ({ value }) => {
       // The error is shown from `mutation.error`; nothing to do with it here.
       await mutation.mutateAsync(value).catch(() => undefined);

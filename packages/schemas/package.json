@@ -11,6 +11,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./identifier": {
+      "types": "./dist/identifier.d.ts",
+      "default": "./dist/identifier.js"
+    },
+    "./issues": {
+      "types": "./dist/issues.d.ts",
+      "default": "./dist/issues.js"
     }
   },
   "files": [

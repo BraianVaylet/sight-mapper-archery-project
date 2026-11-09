@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { SightScreen } from '../features/sight/sight-screen.js';
 
 /**
@@ -8,8 +8,8 @@ import { SightScreen } from '../features/sight/sight-screen.js';
  * parse is dropped, not shown as an error.
  */
 const search = z.object({
-  arrowSet: z.string().max(64).optional().catch(undefined),
-  d: z.number().positive().max(300).optional().catch(undefined),
+  arrowSet: z.catch(z.optional(z.string().check(z.maxLength(64))), undefined),
+  d: z.catch(z.optional(z.number().check(z.positive(), z.maximum(300))), undefined),
 });
 
 export const Route = createFileRoute('/_app/setups/$setupId/')({

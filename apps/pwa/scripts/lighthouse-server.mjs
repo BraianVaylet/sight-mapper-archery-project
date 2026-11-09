@@ -24,8 +24,19 @@ const TYPES = {
 };
 const COMPRESSIBLE = new Set(['.html', '.js', '.css', '.json', '.webmanifest', '.svg', '.txt']);
 
+/** `null` for a malformed escape (`/%E0%A4%A`): a bad URL is a 404, never a crash. */
+function decode(pathname) {
+  try {
+    return decodeURIComponent(pathname);
+  } catch {
+    return null;
+  }
+}
+
 async function file(pathname) {
-  const path = normalize(join(DIST, decodeURIComponent(pathname)));
+  const decoded = decode(pathname);
+  if (decoded === null) return null;
+  const path = normalize(join(DIST, decoded));
   // Never outside dist, whatever the URL says.
   if (path !== DIST && !path.startsWith(DIST + sep)) return null;
   try {
@@ -35,7 +46,7 @@ async function file(pathname) {
   }
 }
 
-createServer(async (req, res) => {
+async function handle(req, res) {
   const { pathname } = new URL(req.url ?? '/', 'http://localhost');
   if (pathname.startsWith('/api/')) {
     // Signed out: what a new archer's first visit sees.
@@ -54,4 +65,14 @@ createServer(async (req, res) => {
   const gzip = COMPRESSIBLE.has(found.ext) && /\bgzip\b/.test(req.headers['accept-encoding'] ?? '');
   res.writeHead(200, gzip ? { ...headers, 'content-encoding': 'gzip' } : headers);
   res.end(gzip ? gzipSync(found.body) : found.body);
-}).listen(PORT, () => process.stdout.write(`lighthouse server on http://localhost:${PORT}\n`));
+}
+
+createServer((req, res) => {
+  handle(req, res).catch(() => {
+    if (!res.headersSent) res.writeHead(500);
+    res.end();
+  });
+  // Loopback only: this is a test fixture, never something to reach from the network.
+}).listen(PORT, '127.0.0.1', () =>
+  process.stdout.write(`lighthouse server on http://127.0.0.1:${PORT}\n`),
+);

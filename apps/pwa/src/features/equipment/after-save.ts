@@ -1,12 +1,12 @@
 import { useNavigate } from '@tanstack/react-router';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 /**
  * Where a form of new equipment goes after saving when the archer came from a guide (F1-17): back to
  * the Home guide, or on to the new setup with what they just loaded already chosen. A closed list, not
  * a free path: nothing the URL says can send them anywhere else.
  */
-export const afterSaveSearch = z.enum(['home', 'setup']).optional().catch(undefined);
+export const afterSaveSearch = z.catch(z.optional(z.enum(['home', 'setup'])), undefined);
 export type AfterSave = 'home' | 'setup';
 
 type Kind = 'bow' | 'sight' | 'arrowSet';

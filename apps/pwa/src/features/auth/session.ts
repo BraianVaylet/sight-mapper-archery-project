@@ -1,18 +1,19 @@
 import type { HttpClient } from '@sight-mapper/client';
 import { queryOptions, type QueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
-const SessionSchema = z
-  .object({
+// zod/mini: the guards run on the first screen, and the classic API does not tree-shake.
+const SessionSchema = z.nullable(
+  z.object({
     user: z.object({
       id: z.string(),
       email: z.string(),
       name: z.string(),
-      username: z.string().nullish(),
+      username: z.nullish(z.string()),
       emailVerified: z.boolean(),
     }),
-  })
-  .nullable();
+  }),
+);
 
 export type SessionData = z.infer<typeof SessionSchema>;
 

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { afterSaveSearch } from '../features/equipment/after-save.js';
 import { BowFormScreen } from '../features/equipment/bow-form-screen.js';
 

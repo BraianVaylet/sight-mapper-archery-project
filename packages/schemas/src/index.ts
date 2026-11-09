@@ -14,4 +14,5 @@ export {
   uuidv7,
 } from './common.js';
 export * from './equipment.js';
+export { looksLikeEmail } from './identifier.js';
 export * from './issues.js';

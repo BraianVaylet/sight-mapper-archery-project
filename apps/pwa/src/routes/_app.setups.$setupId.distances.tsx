@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { DistancesScreen } from '../features/distances/distances-screen.js';
 
 /**
@@ -9,11 +9,11 @@ import { DistancesScreen } from '../features/distances/distances-screen.js';
  * an error.
  */
 const search = z.object({
-  arrowSet: z.string().max(64).optional().catch(undefined),
-  d: z.number().positive().max(300).optional().catch(undefined),
-  step: z.number().optional().catch(undefined),
-  from: z.number().positive().max(1000).optional().catch(undefined),
-  to: z.number().positive().max(1000).optional().catch(undefined),
+  arrowSet: z.catch(z.optional(z.string().check(z.maxLength(64))), undefined),
+  d: z.catch(z.optional(z.number().check(z.positive(), z.maximum(300))), undefined),
+  step: z.catch(z.optional(z.number()), undefined),
+  from: z.catch(z.optional(z.number().check(z.positive(), z.maximum(1000))), undefined),
+  to: z.catch(z.optional(z.number().check(z.positive(), z.maximum(1000))), undefined),
 });
 
 export const Route = createFileRoute('/_app/setups/$setupId/distances')({

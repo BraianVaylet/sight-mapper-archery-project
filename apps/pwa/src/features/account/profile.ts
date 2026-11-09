@@ -1,20 +1,21 @@
 import { isApiError, useHttp } from '@sight-mapper/client';
-import {
-  profile,
-  type Profile,
-  type QuickAccess,
-  type UpdatePreferences,
-} from '@sight-mapper/schemas';
+import type { Profile, QuickAccess, UpdatePreferences } from '@sight-mapper/schemas';
 import type { UnitSystem } from '@sight-mapper/types';
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const profileKey = ['me'] as const;
 
+/**
+ * The profile schema, loaded by the first request that needs it. It is classic Zod, and the shell
+ * imports this module to paint the first screen (TECNICO §14).
+ */
+const profileSchema = () => import('@sight-mapper/schemas').then((schemas) => schemas.profile);
+
 /** The signed-in archer's profile. Server state: Query owns it, no store copies it. */
 export const profileQuery = (http: ReturnType<typeof useHttp>) =>
   queryOptions({
     queryKey: profileKey,
-    queryFn: ({ signal }) => http.get('/me', { schema: profile, signal }),
+    queryFn: async ({ signal }) => http.get('/me', { schema: await profileSchema(), signal }),
     staleTime: 5 * 60_000,
   });
 
@@ -38,10 +39,10 @@ export function useUpdatePreferences() {
 
   return useMutation({
     scope: { id: 'preferences' },
-    mutationFn: (patch: UpdatePreferences) =>
+    mutationFn: async (patch: UpdatePreferences) =>
       http.patch('/me/preferences', {
         body: patch,
-        schema: profile,
+        schema: await profileSchema(),
         ...versionOf(queryClient.getQueryData<Profile>(profileKey)),
       }),
     onMutate: async (patch) => {
@@ -79,10 +80,10 @@ export function useSetQuickAccess() {
 
   return useMutation({
     scope: { id: 'preferences' },
-    mutationFn: (quickAccess: QuickAccess | null) =>
+    mutationFn: async (quickAccess: QuickAccess | null) =>
       http.put('/me/quick-access', {
         body: quickAccess,
-        schema: profile,
+        schema: await profileSchema(),
         ...versionOf(queryClient.getQueryData<Profile>(profileKey)),
       }),
     onMutate: async (quickAccess) => {
@@ -110,7 +111,7 @@ export function useRequestDeletion() {
   const queryClient = useQueryClient();
   return useMutation({
     scope: { id: 'preferences' },
-    mutationFn: () => http.post('/me/deletion-request', { schema: profile }),
+    mutationFn: async () => http.post('/me/deletion-request', { schema: await profileSchema() }),
     onSuccess: (updated) => queryClient.setQueryData(profileKey, updated),
     onError: () => void queryClient.invalidateQueries({ queryKey: profileKey }),
   });
@@ -122,7 +123,7 @@ export function useCancelDeletion() {
   const queryClient = useQueryClient();
   return useMutation({
     scope: { id: 'preferences' },
-    mutationFn: () => http.delete('/me/deletion-request', { schema: profile }),
+    mutationFn: async () => http.delete('/me/deletion-request', { schema: await profileSchema() }),
     onSuccess: (updated) => queryClient.setQueryData(profileKey, updated),
     onError: () => void queryClient.invalidateQueries({ queryKey: profileKey }),
   });

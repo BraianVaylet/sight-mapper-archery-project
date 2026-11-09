@@ -1,5 +1,5 @@
 import { isErrorCode } from '@sight-mapper/types';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { ApiError } from './api-error.js';
 
 const envelope = z.object({
@@ -7,7 +7,7 @@ const envelope = z.object({
   error: z.object({
     code: z.string(),
     messageKey: z.string(),
-    params: z.record(z.string(), z.unknown()).default({}),
+    params: z._default(z.record(z.string(), z.unknown()), {}),
     requestId: z.string(),
     timestamp: z.string(),
   }),

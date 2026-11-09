@@ -1,5 +1,4 @@
 import { isApiError } from '@sight-mapper/client';
-import { resetPasswordForm } from '@sight-mapper/schemas';
 import { Button, InfoAlert, PasswordField } from '@sight-mapper/ui';
 import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
@@ -7,7 +6,7 @@ import { useClients } from '../../app/clients.js';
 import { useI18n } from '../../app/i18n.js';
 import { resetPassword } from './auth-api.js';
 import { AuthCard, FormError, TextLink } from './auth-card.js';
-import { fieldError, validateWith } from './form-utils.js';
+import { fieldError, formSchemas, validateWith } from './form-utils.js';
 
 type Props = { token: string | undefined; failed: boolean };
 
@@ -22,9 +21,14 @@ export function ResetScreen({ token, failed }: Props) {
 
   const form = useForm({
     defaultValues: { password: '', confirmPassword: '' },
-    validators: { onSubmit: ({ value }) => validateWith(resetPasswordForm, value) },
+    validators: {
+      onSubmitAsync: async ({ value }) =>
+        validateWith((await formSchemas()).resetPasswordForm, value),
+    },
     onSubmit: async ({ value }) => {
-      await mutation.mutateAsync(resetPasswordForm.parse(value).password).catch(() => undefined);
+      await mutation
+        .mutateAsync((await formSchemas()).resetPasswordForm.parse(value).password)
+        .catch(() => undefined);
     },
   });
 

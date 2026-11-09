@@ -5,7 +5,8 @@ import {
   type QueryClient,
   type QueryKey,
 } from '@tanstack/react-query';
-import { z } from 'zod';
+import type { z as classic } from 'zod';
+import * as z from 'zod/mini';
 import type { ApiError } from './api-error.js';
 import type { Query } from './http.js';
 import { useHttp } from './provider.js';
@@ -22,7 +23,7 @@ export type ResourceConfig<R extends Versioned> = {
   name: string;
   /** Collection path under the base URL: `'/bows'`. */
   path: string;
-  schema: z.ZodType<R>;
+  schema: classic.ZodType<R>;
 };
 
 /**
@@ -40,7 +41,7 @@ export function createResourceHooks<
   U extends object,
 >(config: ResourceConfig<R>) {
   const { name, path, schema } = config;
-  const pageSchema = z.object({ items: z.array(schema), nextCursor: z.string().nullable() });
+  const pageSchema = z.object({ items: z.array(schema), nextCursor: z.nullable(z.string()) });
 
   const keys = {
     all: [name] as const,

@@ -11,7 +11,15 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       // Must come before the React plugin: it writes `routeTree.gen.ts` from `src/routes`.
-      tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+      // The public screens are not split: a new archer's first screen paints without waiting for
+      // one more request after the main JS (TECNICO §14).
+      tanstackRouter({
+        target: 'react',
+        autoCodeSplitting: true,
+        codeSplittingOptions: {
+          splitBehavior: ({ routeId }) => (routeId.startsWith('/_guest') ? [] : undefined),
+        },
+      }),
       react(),
       tailwindcss(),
       VitePWA({
@@ -52,6 +60,22 @@ export default defineConfig(({ mode }) => {
       // Same origin in development: the session cookie needs no CORS dance.
       proxy: { '/api': { target: apiUrl, changeOrigin: false } },
     },
-    build: { sourcemap: true },
+    build: {
+      sourcemap: true,
+      rollupOptions: {
+        output: {
+          // The libraries in one file instead of a dozen shared fragments: on a slow connection
+          // every extra request costs more than the few kilobytes the split saves (TECNICO §14).
+          // Classic Zod stays out: only the lazy screens use it.
+          manualChunks(id: string) {
+            const path = id.split(String.fromCharCode(92)).join('/');
+            if (!path.includes('/node_modules/')) return undefined;
+            if (/\/zod\/v4\/(classic|locales)\//.test(path)) return undefined;
+            if (/\/zod\/(index|v4\/index)\.js$/.test(path)) return undefined;
+            return 'vendor';
+          },
+        },
+      },
+    },
   };
 });

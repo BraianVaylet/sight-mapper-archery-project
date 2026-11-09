@@ -1,5 +1,7 @@
 import type { HttpClient } from '@sight-mapper/client';
-import { looksLikeEmail, type SignInForm, type SignUpForm } from '@sight-mapper/schemas';
+import type { SignInForm, SignUpForm } from '@sight-mapper/schemas';
+// Subpaths without Zod: this module is on the first screen (TECNICO §14).
+import { looksLikeEmail } from '@sight-mapper/schemas/identifier';
 
 /**
  * Identity calls (Better Auth under `/api/auth`). Failures arrive as `ApiError` with an

@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ZodError } from 'zod';
-import {
-  emailForm,
-  looksLikeEmail,
-  resetPasswordForm,
-  signInForm,
-  signUpForm,
-  USERNAME_PATTERN,
-} from './auth.js';
+import { emailForm, resetPasswordForm, signInForm, signUpForm, USERNAME_PATTERN } from './auth.js';
+import { looksLikeEmail } from './identifier.js';
 import { toValidationIssues } from './issues.js';
 
 const valid = {

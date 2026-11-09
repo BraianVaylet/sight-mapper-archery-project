@@ -1,4 +1,3 @@
-import { signUpForm } from '@sight-mapper/schemas';
 import { Button, Field, InfoAlert, PasswordField } from '@sight-mapper/ui';
 import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
@@ -7,7 +6,7 @@ import { describeError } from '../../app/errors.js';
 import { useI18n } from '../../app/i18n.js';
 import { signUp } from './auth-api.js';
 import { AuthCard, FormError, TextLink } from './auth-card.js';
-import { fieldError, fieldOfError, validateWith } from './form-utils.js';
+import { fieldError, fieldOfError, formSchemas, validateWith } from './form-utils.js';
 
 export function SignUpScreen() {
   const { t, translate } = useI18n();
@@ -20,9 +19,13 @@ export function SignUpScreen() {
 
   const form = useForm({
     defaultValues: { email: '', username: '', password: '', confirmPassword: '' },
-    validators: { onSubmit: ({ value }) => validateWith(signUpForm, value) },
+    validators: {
+      onSubmitAsync: async ({ value }) => validateWith((await formSchemas()).signUpForm, value),
+    },
     onSubmit: async ({ value }) => {
-      await mutation.mutateAsync(signUpForm.parse(value)).catch(() => undefined);
+      await mutation
+        .mutateAsync((await formSchemas()).signUpForm.parse(value))
+        .catch(() => undefined);
     },
   });
 

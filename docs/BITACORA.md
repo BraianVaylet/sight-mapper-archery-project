@@ -18,7 +18,44 @@
 
 ---
 
-## 2026-11-09 — La CI queda en verde en GitHub y suma Lighthouse con los presupuestos de la PWA
+## 2026-11-09 — El JS inicial de la PWA baja de 184 a 171 KB y vuelve a ser gate
+
+**Tareas:** F0-19 (presupuestos de TECNICO §14) · **Commit/PR:** [PR #1](https://github.com/BraianVaylet/sight-mapper-archery-project/pull/1) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Decision del autor:** el "4G" de RNF-01 es el "4G lento" de Lighthouse; a recortar JS.
+- **zod clasico fuera del arranque** (era ~25 KB gzip y no se recorta por tree-shaking):
+  - `@sight-mapper/client` (envelope y paginas) y la PWA (sesion, `validateSearch` de las rutas, `redirect.ts`, `after-save.ts`) usan `zod/mini`.
+  - `http.ts` acepta cualquier schema con `safeParse`, sin importar zod.
+  - Los formularios publicos cargan los schemas compartidos **al enviar** (`formSchemas()`, `onSubmitAsync`); validan igual, solo cambia cuando se baja el codigo.
+  - `profile.ts` carga el schema del perfil en la primera llamada.
+  - `looksLikeEmail` pasa a `identifier.ts` (sin zod), con subrutas `@sight-mapper/schemas/identifier` y `/issues`.
+- **Pantallas publicas sin dividir** en chunks y **librerias en un solo `vendor`**: 10 pedidos de JS en vez de 19.
+- **Servidor de Lighthouse:** una URL mal formada tumbaba el proceso (`decodeURIComponent`; lo marco la revision de seguridad). Ahora da 404 o el fallback, con try/catch en el handler, y escucha solo en loopback.
+
+### Decisiones (con link a ADR si corresponde)
+
+- **El peso del JS vuelve a ser gate** (171 KB < 180). **El LCP sigue como aviso:** ~2,6 s contra 2,5.
+- Medido y descartado:
+  - un solo idioma por arranque mas no esperar la sesion: 2,55 s, todavia arriba;
+  - cargar el idioma con `import()` suma un viaje de red y empeora.
+- El piso es el stack: React, TanStack Router, Query y Form son ~130 KB gzip. Bajar del 2,5 con margen pide **prerenderizar las pantallas publicas** (HTML estatico que pinta antes del JS) o cambiar el stack. **Decision del autor.**
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Lighthouse local (3 corridas, mediana): LCP 2,90 → **2,62 s**; JS 184 → **171 KB**; zod clasico: 0 archivos en el arranque.
+- Lint y tipos en verde.
+- Unit: PWA 385, client 78, schemas 130, API 410.
+- E2E completo con `CI=true`.
+- Servidor de Lighthouse probado a mano: una URL mal formada y un intento de salir de `dist` caen en el fallback de la SPA; el servidor no se cae.
+
+### Pendiente / deuda
+
+- LCP < 2,5 s en "4G lento": prerender de las pantallas publicas u otra via, a decidir.
+
+---
+ y suma Lighthouse con los presupuestos de la PWA
 
 **Tareas:** F0-19 · **Commit/PR:** [PR #1](https://github.com/BraianVaylet/sight-mapper-archery-project/pull/1) · **Tarjeta:** sin tablero (F0-04)
 

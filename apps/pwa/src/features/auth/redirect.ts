@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 const BACKSLASH = String.fromCharCode(92);
 
@@ -24,15 +24,15 @@ export function safeRedirect(value: unknown, fallback = '/'): string {
 
 /** Search params of the public screens. Invalid values are dropped, not shown as an error. */
 export const redirectSearch = z.object({
-  redirect: z.string().optional().catch(undefined),
+  redirect: z.catch(z.optional(z.string()), undefined),
 });
 
 export const tokenSearch = z.object({
-  token: z.string().max(512).optional().catch(undefined),
+  token: z.catch(z.optional(z.string().check(z.maxLength(512))), undefined),
 });
 
 /** `?error=` is added by the API when a link from an email did not work. */
-const errorParam = z.string().max(64).optional().catch(undefined);
+const errorParam = z.catch(z.optional(z.string().check(z.maxLength(64))), undefined);
 
 export const verifySearch = z.object({ error: errorParam });
-export const resetSearch = tokenSearch.extend({ error: errorParam });
+export const resetSearch = z.extend(tokenSearch, { error: errorParam });

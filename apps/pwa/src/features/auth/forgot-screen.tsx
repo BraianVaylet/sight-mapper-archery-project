@@ -1,4 +1,3 @@
-import { emailForm } from '@sight-mapper/schemas';
 import { Button, Field, InfoAlert } from '@sight-mapper/ui';
 import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
@@ -6,7 +5,7 @@ import { useClients } from '../../app/clients.js';
 import { useI18n } from '../../app/i18n.js';
 import { requestPasswordReset } from './auth-api.js';
 import { AuthCard, FormError, TextLink } from './auth-card.js';
-import { fieldError, validateWith } from './form-utils.js';
+import { fieldError, formSchemas, validateWith } from './form-utils.js';
 
 export function ForgotScreen() {
   const { t, translate } = useI18n();
@@ -18,9 +17,13 @@ export function ForgotScreen() {
 
   const form = useForm({
     defaultValues: { email: '' },
-    validators: { onSubmit: ({ value }) => validateWith(emailForm, value) },
+    validators: {
+      onSubmitAsync: async ({ value }) => validateWith((await formSchemas()).emailForm, value),
+    },
     onSubmit: async ({ value }) => {
-      await mutation.mutateAsync(emailForm.parse(value).email).catch(() => undefined);
+      await mutation
+        .mutateAsync((await formSchemas()).emailForm.parse(value).email)
+        .catch(() => undefined);
     },
   });
 

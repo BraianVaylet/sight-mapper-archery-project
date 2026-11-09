@@ -1,9 +1,16 @@
 import { v7 as uuidv7 } from 'uuid';
-import type { z } from 'zod';
 import { ApiError } from './api-error.js';
 import { parseErrorEnvelope } from './envelope.js';
 
 export const REQUEST_TIMEOUT_MS = 10_000;
+
+/**
+ * Any Zod schema, classic or mini: all the client needs is `safeParse`. Typed by shape so the
+ * client never imports the classic API, which does not tree-shake (TECNICO §14).
+ */
+export type Schema<T> = {
+  safeParse(data: unknown): { success: true; data: T } | { success: false; error: unknown };
+};
 
 export type Query = Readonly<Record<string, string | number | boolean | undefined>>;
 
@@ -16,7 +23,7 @@ export type RequestOptions<T = unknown> = {
   idempotencyKey?: string;
   signal?: AbortSignal;
   /** Checks the body of a 2xx; a mismatch is `SM-NET-500-001`, not a crash somewhere else. */
-  schema?: z.ZodType<T>;
+  schema?: Schema<T>;
 };
 
 export type HttpClient = {
@@ -130,7 +137,7 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
   };
 }
 
-function parseBody<T>(text: string, schema: z.ZodType<T> | undefined): T {
+function parseBody<T>(text: string, schema: Schema<T> | undefined): T {
   if (text === '') return undefined as T;
   let json: unknown;
   try {

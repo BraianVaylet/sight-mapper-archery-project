@@ -1,7 +1,14 @@
 import { isApiError } from '@sight-mapper/client';
-import { toValidationIssues } from '@sight-mapper/schemas';
+import { toValidationIssues } from '@sight-mapper/schemas/issues';
 import type { ValidationIssue } from '@sight-mapper/types';
 import type { z } from 'zod';
+
+/**
+ * The shared form schemas, loaded the first time a form is submitted. They are classic Zod, which
+ * does not tree-shake: importing them up front would put all of Zod in the JS that paints the
+ * sign-in screen (TECNICO §14).
+ */
+export const formSchemas = () => import('@sight-mapper/schemas');
 
 /**
  * A TanStack Form validator over a shared Zod schema. Errors are `ValidationIssue`s (a message
