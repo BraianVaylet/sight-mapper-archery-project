@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage --passWithNoTests",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:lighthouse": "lhci autorun --config=./lighthouserc.cjs"
   },
   "dependencies": {
     "@sight-mapper/client": "workspace:*",
@@ -31,6 +32,7 @@
     "zustand": "catalog:"
   },
   "devDependencies": {
+    "@lhci/cli": "catalog:",
     "@playwright/test": "catalog:",
     "@sight-mapper/config": "workspace:*",
     "@tailwindcss/vite": "catalog:",

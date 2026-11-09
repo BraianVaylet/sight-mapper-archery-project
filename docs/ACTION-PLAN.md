@@ -280,12 +280,13 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given red caida, Then `SM-NET-503-001`.
 - **Errores nuevos:** `SM-NET-*`
 
-### [~] F0-19 · CI en GitHub Actions
+### [x] F0-19 · CI en GitHub Actions
 
 - **Modulo:** ci · **Puntos:** 3 · **Depende de:** F0-02
 - **Descripcion:** workflow de TECNICO §11 con gates de cobertura por zona, Lighthouse CI (cuando
   exista la PWA), escaneo de dependencias/licencias/secretos, template de PR con checklist del DoD.
 - **Criterios:** Given un PR que baja la cobertura de `domain` a 94%, Then el CI falla.
+- **Estado:** corre en GitHub ([PR #1](https://github.com/BraianVaylet/sight-mapper-archery-project/pull/1)): verify, seguridad, E2E y Lighthouse. Lighthouse mide los presupuestos de TECNICO §14 pero LCP y peso del JS van como **aviso**, no como gate, hasta decidir que es el "4G" de la spec (ver BITACORA 2026-11-09).
 
 ### [!] F0-20 · Railway (staging + prod), Atlas y dominio
 
@@ -471,7 +472,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Descripcion:** Playwright (movil 360 y desktop): registro → equipo → setup → 5 marcas →
   intermedias → Doctor → imprimir; idem en EN + imperial.
 - **Criterios:** verde en CI sobre staging.
-- **Estado:** el flujo corre en CI contra `dev:local` (job `e2e`). Falta: correrlo en GitHub (F0-19) y contra staging, que no existe todavia (F0-04/F0-20) y que ademas necesita un buzon de prueba para los links de los correos.
+- **Estado:** el flujo corre en CI contra `dev:local` (job `e2e`). Corre en GitHub (PR #1, en verde). Falta correrlo contra staging, que no existe todavia (F0-04/F0-20) y que ademas necesita un buzon de prueba para los links de los correos.
 
 ### [x] F1-21 · Importar los datos reales del autor (opcional)
 

@@ -286,4 +286,7 @@ Lista en la spec §12.
 | p95 API (escrituras de marcas)  | < 250 ms             |
 | Calculo completo 50 marcas      | < 16 ms (un frame)   |
 
-Se mide con Lighthouse CI en PR (PWA) y con `durationMs` de los logs (API).
+Se mide con Lighthouse CI en PR (PWA) y con `durationMs` de los logs (API). Hoy LCP y JS inicial
+quedan como **aviso** en Lighthouse CI, no como gate: con su "4G lento" (1,6 Mbps, CPU 4x) el
+login da ~2,9 s y ~184 KB, aunque sin limitar pinta en 0,4 s. Falta decidir que perfil es el
+"4G" de RNF-01 y, si es ese, recortar JS.

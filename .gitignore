@@ -22,6 +22,8 @@ test-results/
 .claude/settings.local.json
 apps/pwa/e2e-results/
 apps/pwa/playwright-report/
+apps/pwa/.lighthouseci/
+apps/pwa/lighthouse-results/
 
 # Real data to import (F1-21): only the example is versioned.
 scripts/data/*.json

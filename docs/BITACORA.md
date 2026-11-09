@@ -18,7 +18,36 @@
 
 ---
 
-## 2026-11-08 — La CI corre por primera vez en GitHub (PR #1) y se arreglan sus dos fallas
+## 2026-11-09 — La CI queda en verde en GitHub y suma Lighthouse con los presupuestos de la PWA
+
+**Tareas:** F0-19 · **Commit/PR:** [PR #1](https://github.com/BraianVaylet/sight-mapper-archery-project/pull/1) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- Los tres jobs del PR #1 en verde en GitHub (verify, seguridad, E2E de 16 min) despues de los arreglos de la entrada anterior.
+- **Lighthouse CI** (lo que le faltaba a F0-19): job `lighthouse` en el PR, `pnpm --filter @sight-mapper/pwa test:lighthouse`, config en `apps/pwa/lighthouserc.cjs`. Mide `/sign-in` del build (3 corridas, emulacion movil por defecto) servido por `apps/pwa/scripts/lighthouse-server.mjs`: gzip, fallback de SPA y una API que contesta "nadie logueado". Sin esa respuesta el chequeo de sesion recibia el HTML, reintentaba y Lighthouse media los reintentos. Los reportes quedan como artefacto 14 dias.
+- Asserts: accesibilidad ≥ 0,95 y buenas practicas ≥ 0,9 **cortan**; LCP < 2,5 s, JS ≤ 180 KB y performance ≥ 0,9 **avisan**.
+
+### Decisiones (con link a ADR si corresponde)
+
+- LCP y peso del JS como aviso y no como gate, por ahora. Medido en local:
+  - **Observado sin limitar:** FCP 0,18 s, el formulario (LCP) a 0,37 s.
+  - **Simulado con el "4G lento" de Lighthouse** (1,6 Mbps, RTT 150 ms, CPU 4x): LCP ~2,9 s, JS 184 KB gzip en 19 pedidos (159,8 KB del arranque + el chunk de la ruta). Performance 0,95, accesibilidad 1, buenas practicas 1.
+  - Probado y descartado como causa: esperar la sesion (sin esperarla, mismo LCP) y el code-splitting (sin dividir, 2,7 s pero 206 KB). El costo es bajar y ejecutar el JS en un telefono lento.
+  - RNF-01 dice "4G"; el perfil de Lighthouse es mas lento que un 4G tipico. **Decision del autor:** tomar ese perfil como el "4G" y recortar JS (por ejemplo, cargar un solo idioma), o fijar un perfil 4G propio. Hasta entonces, aviso.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `gh pr checks 1` con los tres jobs en verde sobre 0ddddc6.
+- `pnpm test:lighthouse` en local con el Chromium de Playwright: termina en 0 con los dos avisos esperados.
+
+### Pendiente / deuda
+
+- Decidir el perfil de "4G" y, segun eso, recortar JS para que LCP y peso vuelvan a ser gate.
+- Correr el job `lighthouse` en GitHub (lo hace este push).
+
+---
+ (PR #1) y se arreglan sus dos fallas
 
 **Tareas:** F0-19 · **Commit/PR:** [PR #1](https://github.com/BraianVaylet/sight-mapper-archery-project/pull/1) · **Tarjeta:** sin tablero (F0-04)
 
