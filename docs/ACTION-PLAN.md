@@ -299,6 +299,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given un merge a `main`, Then staging se despliega solo y `/ready` responde 200.
   - Given prod, Then solo se despliega por promocion manual.
 - **Errores nuevos:** — · **Datos:** clusters
+- **Estado:** la parte del repo esta lista y sin probar en Railway: `railway.json` de cada servicio, `Dockerfile` y `Caddyfile` de la PWA (headers de seguridad, CSP con test) y `.dockerignore`. Falta lo de afuera: dominio, proyecto Railway, clusters Atlas, Google OAuth y monitor de uptime.
 
 ### [x] F0-21 · Fixtures de datos reales del autor
 

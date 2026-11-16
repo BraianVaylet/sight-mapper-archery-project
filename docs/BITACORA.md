@@ -18,7 +18,43 @@
 
 ---
 
-## 2026-11-09 — El JS inicial de la PWA baja de 184 a 171 KB y vuelve a ser gate
+## 2026-11-16 — La configuracion de despliegue vive en el repo, lista para Railway
+
+**Tareas:** F0-20 (parcial: lo que no necesita cuentas) · **Commit/PR:** rama `feat/f0-railway-config` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- PR #1 mergeado a `main` (cd18b18) con la CI entera en verde.
+- **API:** `apps/api/railway.json` con Railpack, build de turbo, `preDeployCommand` con las migraciones (TECNICO §12: si fallan, no arranca), healthcheck `/ready` y reinicio ante falla.
+- **PWA:**
+  - `apps/pwa/railway.json` y `apps/pwa/Dockerfile`: build en Node 22 con `VITE_API_URL` como argumento de build, servido con Caddy.
+  - `apps/pwa/Caddyfile`: fallback de SPA, cache inmutable de `/assets/*`, `no-cache` para `index.html`, `sw.js` y el manifest, compresion, HSTS, `nosniff`, `X-Frame-Options`, `Permissions-Policy` y una **CSP estricta** (sin `unsafe-inline` ni `unsafe-eval`; el script del tema entra por hash).
+- `scripts/csp.test.mjs`: falla si un script inline de `index.html` cambia sin actualizar su hash, si queda un hash viejo o si la CSP pierde `frame-ancestors`, `form-action` u `object-src`.
+- `.dockerignore`: ni `node_modules`, ni builds, ni `.env`, ni los datos reales del autor entran a la imagen.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La PWA en Docker + Caddy (lo que dice TECNICO §12) y la API con Railpack: la API no necesita mas que Node.
+- `style-src 'self'` sin `unsafe-inline`: React y Motion escriben estilos por CSSOM, que la CSP no bloquea.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `node --test scripts/csp.test.mjs` (3).
+- El build servido con la CSP de produccion, en el navegador:
+  - el login se dibuja;
+  - el script del tema corre (`data-theme=dark` desde `localStorage`);
+  - el CSS carga;
+  - ninguna violacion de CSP en la consola.
+- El service worker no registra en el panel del navegador, con o sin CSP: es el panel. Playwright si lo registra (`installable.spec.ts`).
+- **Sin probar:** el `Dockerfile`, el `Caddyfile` real y los `railway.json`. No hay Docker ni Caddy en esta maquina, ni proyecto en Railway.
+
+### Pendiente / deuda
+
+- Todo lo de afuera de F0-20: dominio, proyecto Railway (staging y prod), clusters Atlas con backups y PITR, Google OAuth, DNS y monitor de uptime.
+- El primer despliegue a staging prueba estos archivos de verdad.
+
+---
+ de 184 a 171 KB y vuelve a ser gate
 
 **Tareas:** F0-19 (presupuestos de TECNICO §14) · **Commit/PR:** [PR #1](https://github.com/BraianVaylet/sight-mapper-archery-project/pull/1) · **Tarjeta:** sin tablero (F0-04)
 

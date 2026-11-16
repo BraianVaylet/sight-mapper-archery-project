@@ -266,6 +266,21 @@ mismo build tras verificar staging. Migraciones como paso de release previo al a
 Cada servicio con su `railway.json`. Healthcheck en `/ready`, no en `/health`: un servicio que
 responde pero no puede leer nada no esta listo.
 
+En el repo (2026-11-16, sin desplegar todavia):
+
+- `apps/api/railway.json`: Railpack, migraciones como `preDeployCommand`, `/ready` y reinicio
+  ante falla.
+- `apps/pwa/railway.json` + `apps/pwa/Dockerfile`: build en Node 22 y Caddy para servir.
+- `apps/pwa/Caddyfile`: fallback de SPA, `/assets/*` inmutable un año, `no-cache` para lo que
+  anuncia versiones nuevas, HSTS y CSP.
+  - La CSP admite el script inline del tema por su hash. `scripts/csp.test.mjs` falla si
+    `index.html` cambia y el hash no.
+  - `connect-src` toma el origen de la API de la variable `API_ORIGIN`.
+
+En Railway, cada servicio apunta a su archivo ("Config file path": `/apps/api/railway.json`,
+`/apps/pwa/railway.json`), con la raiz del repo como contexto. La PWA necesita `VITE_API_URL`
+(build) y `API_ORIGIN` (Caddy).
+
 ## 13. Jobs
 
 Scheduler in-process (`core/jobs`), un tick por minuto, lock por job en `jobLocks` con

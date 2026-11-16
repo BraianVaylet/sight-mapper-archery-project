@@ -1,0 +1,15 @@
+# The PWA image builds from a clean install: nothing local goes in, secrets least of all.
+**/node_modules
+**/dist
+**/coverage
+**/.turbo
+.git
+.env
+.env.*
+!.env.example
+apps/pwa/e2e-results
+apps/pwa/playwright-report
+apps/pwa/lighthouse-results
+apps/pwa/.lighthouseci
+scripts/data/*.json
+!scripts/data/*.example.json
