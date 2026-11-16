@@ -83,7 +83,7 @@ Convenciones de todas las colecciones de negocio:
 | `deletedAt`  | `Date \| null`          | `null` explicito al crear (lo necesitan los indices parciales) |
 
 "Pres. metrico / imperial" = unidad en la que se **muestra y se ingresa** segun `unitSystem`
-(decision abierta §17.2 de la spec). Lo canonico es lo que se guarda.
+(spec §17.2, cerrada provisoriamente en F1-12). Lo canonico es lo que se guarda.
 
 ### 3.1 `bows`
 
@@ -185,7 +185,7 @@ Derivados (no se guardan): `scaleMinMm`, `scaleMaxMm`, `travelMm`.
 
 | Coleccion         | Campos                                                                                    | Nota                                  |
 | ----------------- | ----------------------------------------------------------------------------------------- | ------------------------------------- |
-| `idempotencyKeys` | `userId, key, method, path, requestHash, statusCode, responseBody, createdAt, expiresAt`  | Indice TTL sobre `expiresAt` (24 h)   |
+| `idempotencyKeys` | `userId, key, method, path, requestHash, statusCode, responseBody, responseHeaders, createdAt, expiresAt`  | Indice TTL sobre `expiresAt` (24 h). Solo se guardan respuestas 2xx. `responseHeaders`: `ETag` y `Location` para el replay |
 | `jobRuns`         | `job, startedAt, finishedAt, durationMs, status (ok\|failed), error?, stats`               | Retencion 90 dias                     |
 | `jobLocks`        | `_id (job), owner, lockedUntil`                                                           | Lock con vencimiento                  |
 | Better Auth       | `user, session, account, verification`                                                    | Gestionadas por Better Auth           |

@@ -1,0 +1,30 @@
+node_modules/
+dist/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# env (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# tools
+playwright-report/
+test-results/
+.claude/settings.local.json
+apps/pwa/e2e-results/
+apps/pwa/playwright-report/
+apps/pwa/.lighthouseci/
+apps/pwa/lighthouse-results/
+
+# Real data to import (F1-21): only the example is versioned.
+scripts/data/*.json
+!scripts/data/*.example.json

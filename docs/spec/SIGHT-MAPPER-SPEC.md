@@ -307,7 +307,7 @@ REST bajo `/api/v1/*`. Better Auth en `/api/auth/*`. Fuera de prefijo: `/health`
   🔴 **La API no manda prosa.** Manda `messageKey` y `params`; el idioma lo resuelve el cliente. →
   [ADR-004](../adr/004-i18n.md) · [errors.md](../errors.md)
 
-- `Idempotency-Key` obligatoria en todo `POST`. `If-Match: <version>` obligatoria en `PATCH` y
+- `Idempotency-Key` obligatoria en todo `POST`. `If-Match: <version>` obligatoria en `PATCH`, `PUT` y
   `DELETE`.
 
 ## 10. Requisitos no funcionales
@@ -432,11 +432,14 @@ Plan de tareas: [ACTION-PLAN.md](../ACTION-PLAN.md).
 
 1. **Dominio y marca final.** "Sight Mapper" confirmado como nombre; falta dominio (afecta cookies,
    CORS y Google OAuth). Bloquea F0-17.
-2. **Unidades de presentacion del equipo.** Propuesta: siguen el sistema elegido (imperial: in, lb,
-   gr, fps; metrico: cm/mm, kg, g, m/s). Alternativa: siempre unidades de industria (in, lb, gr,
-   fps), que es lo que usa el rubro incluso en paises metricos. Se decide en F1-12 con usuarios.
-3. **Umbrales del Mark Doctor.** `DOCTOR_K = 3`, minimo absoluto 1 mm o el quantum. Se calibran con
-   los datos reales del autor en F0-05/F1-11.
+2. **Unidades de presentacion del equipo.** Cerrada **provisoriamente** en F1-12 (2026-11-03) con la
+   propuesta: siguen el sistema elegido (imperial: in, lb, gr, fps; metrico: mm, kg, g, m/s). Alternativa
+   descartada por ahora: siempre unidades de industria (in, lb, gr, fps), que es lo que usa el rubro incluso
+   en paises metricos. No se consulto a 2–3 arqueros como pedia la tarea: se reabre si los usuarios de la
+   beta lo piden (el cambio es de presentacion, no toca datos).
+3. **Umbrales del Mark Doctor.** Calibrados el 2026-10-31 con dos sets reales: tolerancia absoluta de
+   4 mm (o el quantum) y ×2.5 en los extremos; el desvio estimado de los datos (`K·σ`) se descarto porque
+   con 5 marcas tapa al error (SIGHT-MATH §8.3). Provisorio: son 2 sets; recalibrar con mas datos.
 4. **Merchant of Record** (F5): Lemon Squeezy o Paddle vs Stripe + Mercado Pago.
 5. **Portugues:** preparado por ADR-004, no abierto. Se decide con datos de trafico.
 6. **Reloj o widget:** una PWA no puede. Se evalua despues de F7 si aparece demanda.

@@ -61,9 +61,8 @@ export const CALC_MIN_MARKS_INTERPOLATE = 2;
 export const CALC_MIN_MARKS_EXTRAPOLATE = 3;
 export const CALC_MIN_MARKS_DOCTOR = 5;
 export const EXTRAPOLATION_WARN_RATIO = 0.25; // mas alla de 25% del rango medido: baja confianza
-export const DOCTOR_K = 3;                    // umbral en desvios robustos
-export const DOCTOR_MIN_ABS_MM = 1;           // nunca señalar menos de 1 mm (o el quantum, si es mayor)
-export const DOCTOR_ENDPOINT_FACTOR = 1.5;    // los extremos se predicen extrapolando: mas tolerancia
+export const DOCTOR_MIN_ABS_MM = 4;           // tolerancia de medicion: nunca señalar menos (ni menos que el quantum)
+export const DOCTOR_ENDPOINT_FACTOR = 2.5;    // los extremos se predicen extrapolando: mas tolerancia
 export const MAX_DISTANCE_M = 300;
 ```
 
@@ -144,17 +143,19 @@ Para cada marca medida `i`:
 
 Luego:
 
-3. Escala robusta: `σ = 1.4826 · median(|r − median(r)|)` (MAD).
-4. Umbral por marca:
-   `τ_i = max(DOCTOR_MIN_ABS_MM, quantumMm, DOCTOR_K · σ) · (i es extremo ? DOCTOR_ENDPOINT_FACTOR : 1)`.
-5. Candidatas: `|r_i| ≥ τ_i`. Se reporta **la peor** (mayor `|r_i| / τ_i`) como `suspect`, con su
+3. Umbral por marca, **absoluto** (en mm, no derivado de los datos):
+   `τ_i = max(DOCTOR_MIN_ABS_MM, quantumMm) · (i es extremo ? DOCTOR_ENDPOINT_FACTOR : 1)`.
+   Una escala de dispersion estimada de los propios residuos (MAD) se descarto: con pocas marcas la marca
+   mala contamina los residuos de las otras y el umbral sube hasta taparla (ver §8.3).
+4. Candidatas: `|r_i| ≥ τ_i`. Se reporta **la peor** (mayor `|r_i| / τ_i`) como `suspect`, con su
    magnitud convertida a la escala de la mira y la sugerencia "volver a tirar esa distancia". Las
    demas candidatas se listan como secundarias.
-6. Si hay hallazgos de monotonia, el estado es `inconsistent` (prevalece sobre `suspect`).
+5. Si hay hallazgos de monotonia, el estado es `inconsistent` (prevalece sobre `suspect`).
 
 ```ts
 type DoctorReport = {
   status: 'insufficient' | 'ok' | 'suspect' | 'inconsistent';
+  level: 'none' | 'monotonicity' | 'full';      // cuanto analisis permitio la cantidad de marcas (§4)
   residuals: { markId: string; residualMm: number; thresholdMm: number }[];
   suspect?: { markId: string; residualMm: number; suggestion: 'reshoot' };
   secondary: string[];               // otros markId sobre el umbral
@@ -164,9 +165,30 @@ type DoctorReport = {
 
 ### 8.3 Calibracion
 
-`DOCTOR_K`, `DOCTOR_MIN_ABS_MM` y `DOCTOR_ENDPOINT_FACTOR` son **iniciales**. Se calibran en F1 con
-los datos reales del autor como fixtures: ningun falso positivo en sets que el autor considera
-buenos, y deteccion de errores sinteticos de ±1 unidad de escala inyectados en una marca interior.
+Calibrada el 2026-10-31 con dos sets reales del autor (Gold Tip Hunter 400, bueno; Gold Tip Pierce 400,
+dudoso), mira de 0 a 10 cm, paso de 1 mm, 5 marcas de 20 a 60 m. Ver `packages/domain/test/fixtures/`.
+
+Lo que se midio (leave-one-out, 5 marcas):
+
+- Con umbral derivado de los datos (`K · σ` robusto) no hay `K` que sirva: con `K ≤ 1` acusa casi todo
+  (94 de 402 sets limpios con ruido de ±1 mm, 338 con `K = 0.5`), y con `K ≥ 1.5` no detecta ni un error
+  de ±1 unidad (10 mm) inyectado: la marca mala arrastra las otras cuatro y el desvio estimado la tapa.
+- Con umbral **absoluto** de 4 mm (extremos ×2.5): ningun falso positivo en los dos sets reales y 2 de 602
+  con ruido uniforme de ±1.5 mm; detecta y señala la marca correcta en 12 de 12 errores interiores de ±10 mm
+  y en 10 de 12 de ±5 mm; 6 de 12 con ±4 mm; 2 de 12 con ±3 mm.
+- **Los extremos** se predicen extrapolando y con 5 marcas casi no se pueden juzgar por residuo: un error
+  grande ahi lo detecta la monotonia (§7), no el residuo.
+
+**Un caso real que el Doctor no puede resolver:** en el set dudoso (Gold Tip Pierce 400) el autor duda de la
+marca de 40 m. El Doctor la ubica primera entre las marcas interiores por desvio, pero a solo 1.17 mm de la
+tendencia de las otras cuatro, casi lo mismo que la marca de 50 m del set bueno (1.05 mm). Con estos datos
+ninguna tolerancia separa una de otra: bajarla lo bastante para señalar la de Pierce señalaria tambien la
+buena. Es el limite del metodo con 5 marcas y un error de 1–2 mm, no un fallo de calibracion.
+
+**Limites honestos:** son 2 sets y 5 marcas cada uno. El umbral de 4 mm es fisico (milimetros de la
+escala), no relativo: un set muy ruidoso senala varias marcas. Con mas marcas (≥ 8) un desvio estimado de
+los datos podria volver a ser util; no hay datos para calibrarlo todavia. Hay que recalibrar cuando haya
+mas sets, sobre todo uno con un error evidente.
 
 ## 9. Intermedias y consultas
 

@@ -22,8 +22,9 @@ convertido a la unidad de presentacion.**
 | Porcentajes          | %                  | %                    | %                     |
 | Instantes            | UTC (`Temporal.Instant`) | zona del dispositivo | zona del dispositivo |
 
-La unidad de presentacion del **equipo** por sistema es decision abierta (spec §17.2): la tabla de
-arriba es la propuesta inicial.
+La unidad de presentacion del **equipo** por sistema sigue el sistema elegido: la tabla de arriba es
+lo implementado (spec §17.2, cerrada provisoriamente en F1-12; se reabre si los usuarios piden
+unidades de industria siempre).
 
 ## 2. Constantes exactas
 

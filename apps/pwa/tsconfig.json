@@ -1,0 +1,9 @@
+{
+  "extends": "@sight-mapper/config/tsconfig.react.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true,
+    "types": ["vite/client", "vite-plugin-pwa/react", "node"]
+  },
+  "include": ["src", "test", "e2e", "*.config.ts"]
+}

@@ -1,0 +1,13 @@
+import { createFileRoute } from '@tanstack/react-router';
+import * as z from 'zod/mini';
+import { afterSaveSearch } from '../features/equipment/after-save.js';
+import { SightFormScreen } from '../features/equipment/sight-form-screen.js';
+
+/** `?next=` says where to go after saving: back to the Home guide, or on to the new setup (F1-17). */
+export const Route = createFileRoute('/_app/sights/new')({
+  validateSearch: z.object({ next: afterSaveSearch }),
+  component: function NewRoute() {
+    const { next } = Route.useSearch();
+    return <SightFormScreen id={undefined} next={next} />;
+  },
+});

@@ -12,13 +12,19 @@ codigo de ahi.
 
 ## Estado
 
-Documentacion completa (2026-10-29). Codigo: no empezado. Siguiente: Fase 0 en
-`docs/ACTION-PLAN.md`.
+Documentacion completa (2026-10-29). **Fase 0 en curso** (ver `docs/ACTION-PLAN.md`): hechas F0-01,
+02, 03, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 16, 18, 19 y 21; **F1-01 (preferencias) y F1-02 (arcos) hechas, F1-03 (miras), F1-04 (flechas), F1-05 (setups, Home y papelera), F1-06 (menu), F1-07 (marcas, API), F1-08 (pantalla de la mira), F1-09 (hoja de marca) y F1-10 (intermedias y curva), F1-11 (Mark Doctor), F1-12 (imperial), F1-13 (ingles), F1-14 (listado imprimible), F1-15 (acceso rapido), F1-16 (perfil: exportar y baja), F1-17 (onboarding), F1-18 (tema light verificado, falta la prueba al sol) F1-19 (accesibilidad y responsive, falta el lector de pantalla real) F1-20 (E2E del flujo critico, falta correrlo en GitHub y staging) y F1-21 (importar datos reales, falta correrlo en produccion) hechas; F1-22 (release) parcial: metricas, runbook y canal de feedback (issues de GitHub), falta todo lo que necesita produccion**; F0-17 (pwa) hecha, salvo el boton de Google (F0-20); casi F0-15 (auth:
+falta probar Google, que necesita F0-20). Bloqueadas F0-04 y F0-20. El Mark Doctor (F0-06) esta calibrado con solo 2 sets reales: recalibrar con mas.
+
+Herramientas del repo: `.claude/` (agentes `spec-reviewer`, `domain-reviewer`,
+`security-reviewer`, `test-writer`; comandos `/adr`, `/bitacora`, `/new-task`, `/new-module`; hooks
+que bloquean secretos, piden confirmacion en `docs/spec/` y `packages/domain/src/`, y formatean).
+Un `CLAUDE.md` por app y por el dominio tiene las reglas locales.
 
 ## Stack
 
 TypeScript `strict` · React 19 + TanStack (Router/Query/Form/Table) · Tailwind v4 · Zustand ·
-Nuqs · Motion · i18next · `vite-plugin-pwa` · Hono · Better Auth · Mongoose 8 + MongoDB Atlas
+Nuqs · Motion · catalogos i18n tipados propios · `vite-plugin-pwa` · Hono · Better Auth · Mongoose 8 + MongoDB Atlas
 (replica set) · Zod 4 · Temporal · Pino · Resend · Vitest + fast-check + Testing Library + MSW +
 mongodb-memory-server + Playwright · pnpm + Turborepo · Railway.
 
@@ -45,7 +51,7 @@ por puertos o eventos, **nunca** importandose.
    `docs/errors.md` antes de codear. → ADR-010
 4. **Unidades:** canonico — distancias en **metros**, escala de mira en **milimetros** (via
    `SightScale`). Conversion solo en el borde de presentacion. → ADR-005
-5. **Wire:** ids UUIDv7 del cliente · `Idempotency-Key` en todo POST · `If-Match` en PATCH/DELETE ·
+5. **Wire:** ids UUIDv7 del cliente · `Idempotency-Key` en todo POST · `If-Match` en PATCH/PUT/DELETE ·
    cursor, nunca `skip` · soft delete. → ADR-006
 6. **Borrado:** componente usado por un setup → 409 + archivar. Setup → papelera 30 dias. → ADR-008
 7. **Estados** solo por transicion explicita (`archive`, `restore`…), nunca `update` libre.

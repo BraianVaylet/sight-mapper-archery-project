@@ -13,8 +13,8 @@
 
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
-| F0   | Fundaciones       | 21     | 80     | sin iniciar   |
-| F1   | MVP — Calculator  | 22     | 85     | sin iniciar   |
+| F0   | Fundaciones       | 21     | 80     | casi: todo hecho salvo 15 y 19 (casi) y 04 y 20 (bloqueadas) |
+| F1   | MVP — Calculator  | 22     | 85     | casi: F1-01 a F1-21 hechas; F1-22 parcial (falta produccion) |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
 | F4   | Offline-first     | epica  | —      | —             |
@@ -48,7 +48,7 @@ flowchart LR
 Objetivo: un monorepo que compila, testea y despliega; el dominio matematico completo y probado;
 API y PWA esqueleto con login real en staging. **Sin features de negocio todavia.**
 
-### [ ] F0-01 · Monorepo: pnpm + Turborepo + workspaces
+### [x] F0-01 · Monorepo: pnpm + Turborepo + workspaces
 
 - **Modulo:** repo · **Puntos:** 2 · **Depende de:** —
 - **Descripcion:** `pnpm-workspace.yaml`, `turbo.json` (build, dev, lint, typecheck, test,
@@ -60,7 +60,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given `turbo run test`, Then cada paquete corre su suite (vacia) y pasa.
 - **Errores nuevos:** — · **Datos:** —
 
-### [ ] F0-02 · Tooling: TypeScript, ESLint, Prettier, husky, commitlint
+### [x] F0-02 · Tooling: TypeScript, ESLint, Prettier, husky, commitlint
 
 - **Modulo:** repo · **Puntos:** 3 · **Depende de:** F0-01
 - **Descripcion:** `packages/config` con tsconfig base `strict` (+ `noUncheckedIndexedAccess`,
@@ -75,7 +75,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given un commit `feat(foo): x` con scope inexistente, Then commitlint lo rechaza.
 - **Errores nuevos:** — · **Datos:** —
 
-### [ ] F0-03 · CLAUDE.md por app y `.claude/`
+### [x] F0-03 · CLAUDE.md por app y `.claude/`
 
 - **Modulo:** repo · **Puntos:** 3 · **Depende de:** F0-02
 - **Descripcion:** `CLAUDE.md` raiz (ya creado) + uno por app. Agentes con rol cerrado:
@@ -98,7 +98,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
 - **Criterios:** Given este plan, When corro la sincronizacion, Then cada tarea tiene su tarjeta en
   la lista de su estado y viceversa.
 
-### [ ] F0-05 · `@sight-mapper/domain`: modelo de marcas
+### [x] F0-05 · `@sight-mapper/domain`: modelo de marcas
 
 - **Modulo:** domain · **Puntos:** 8 · **Depende de:** F0-02
 - **Descripcion:** TDD desde cero de [SIGHT-MATH.md](domain/SIGHT-MATH.md) §3–6 y §9:
@@ -118,12 +118,12 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Cobertura ≥ 95%.
 - **Errores nuevos:** `SM-CALC-422-001/002/004/005` · **Datos:** —
 
-### [ ] F0-06 · `@sight-mapper/domain`: Mark Doctor
+### [x] F0-06 · `@sight-mapper/domain`: Mark Doctor
 
 - **Modulo:** domain · **Puntos:** 5 · **Depende de:** F0-05, F0-21
 - **Descripcion:** monotonia por direccion de escala (desde 2 marcas) y residuos leave-one-out con
-  umbral robusto (desde 5), segun SIGHT-MATH §7–8. Calibracion inicial de `DOCTOR_K`,
-  `DOCTOR_MIN_ABS_MM`, `DOCTOR_ENDPOINT_FACTOR` con los fixtures reales (F0-21).
+  umbral absoluto (desde 5), segun SIGHT-MATH §7–8. Calibracion de `DOCTOR_MIN_ABS_MM` y
+  `DOCTOR_ENDPOINT_FACTOR` con los fixtures reales (F0-21).
 - **Criterios:**
   - Given los sets reales del autor marcados como buenos, Then `status = 'ok'` en todos.
   - Given un set bueno con +1 unidad de escala inyectada en una marca interior, Then esa marca es
@@ -132,7 +132,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
     'inconsistent'` con ambas marcas.
 - **Errores nuevos:** `SM-CALC-422-003` · **Datos:** —
 
-### [ ] F0-07 · `@sight-mapper/domain`: unidades
+### [x] F0-07 · `@sight-mapper/domain`: unidades
 
 - **Modulo:** domain · **Puntos:** 5 · **Depende de:** F0-02
 - **Descripcion:** `convert/` segun [UNIDADES.md](domain/UNIDADES.md): constantes exactas, m↔yd,
@@ -146,7 +146,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Test no negociable #6 (ida y vuelta) con `fast-check` en m/yd y en las cinco unidades.
 - **Errores nuevos:** — · **Datos:** —
 
-### [ ] F0-08 · `@sight-mapper/domain`: regla
+### [x] F0-08 · `@sight-mapper/domain`: regla
 
 - **Modulo:** domain · **Puntos:** 3 · **Depende de:** F0-07
 - **Descripcion:** `ruler/` segun SIGHT-MATH §10: niveles de tick por unidad en enteros, posicion
@@ -158,7 +158,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given dos marcas a 2 px, Then sus etiquetas no se superponen y conservan su `y` real.
 - **Errores nuevos:** — · **Datos:** —
 
-### [ ] F0-09 · `@sight-mapper/types` y `@sight-mapper/schemas`
+### [x] F0-09 · `@sight-mapper/types` y `@sight-mapper/schemas`
 
 - **Modulo:** types, schemas · **Puntos:** 3 · **Depende de:** F0-07
 - **Descripcion:** enums ([DICCIONARIO](DICCIONARIO.md) §5), catalogo de errores tipado generado de
@@ -169,7 +169,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given `scale.min ≥ scale.max`, Then el schema de mira falla con `issues` en `scale.max`.
 - **Errores nuevos:** todos los de errors.md §4.1–4.6 quedan tipados · **Datos:** —
 
-### [ ] F0-10 · `@sight-mapper/i18n`
+### [x] F0-10 · `@sight-mapper/i18n`
 
 - **Modulo:** i18n · **Puntos:** 2 · **Depende de:** F0-09
 - **Descripcion:** catalogos `es`/`en` por namespace, tipos de claves, helper de formateo
@@ -178,7 +178,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given una clave que existe en `es` y no en `en`, Then el test falla.
   - Given `t('no.existe')`, Then no compila.
 
-### [ ] F0-11 · `@sight-mapper/ui`: tokens y primitivas
+### [x] F0-11 · `@sight-mapper/ui`: tokens y primitivas
 
 - **Modulo:** ui · **Puntos:** 5 · **Depende de:** F0-02
 - **Descripcion:** tokens dark (del diseño) y light (alto contraste) segun [UX-UI.md](UX-UI.md) §2;
@@ -189,8 +189,9 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
 - **Criterios:**
   - Given cualquier primitiva interactiva, Then su area tocable mide ≥ 44×44 px (test).
   - Given ambos temas, Then los pares texto/fondo pasan AA (test de contraste sobre tokens).
+- **Estado:** catalogo visual en `/sandbox` (solo en desarrollo) con todas las primitivas; `e2e/catalog.spec.ts` le pasa axe, contraste AA y desbordes en dark y light, a 360 y 1440.
 
-### [ ] F0-12 · `apps/api`: nucleo HTTP
+### [x] F0-12 · `apps/api`: nucleo HTTP
 
 - **Modulo:** api/core · **Puntos:** 5 · **Depende de:** F0-09
 - **Descripcion:** Hono, env validado con Zod, `AppError` + error middleware + envelope,
@@ -204,7 +205,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given un body de 100 KB, Then `SM-CORE-413-001`.
 - **Errores nuevos:** CORE 400/401/404/413/415/500/503 · **Datos:** —
 
-### [ ] F0-13 · `apps/api`: MongoDB, migraciones y aislamiento
+### [x] F0-13 · `apps/api`: MongoDB, migraciones y aislamiento
 
 - **Modulo:** api/core · **Puntos:** 5 · **Depende de:** F0-12
 - **Descripcion:** conexion Mongoose, helper `withTransaction`, `migrate-mongo` con indices de
@@ -218,7 +219,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given `pnpm migrate up` dos veces, Then la segunda no hace nada.
 - **Errores nuevos:** `SM-CORE-500-002` · **Datos:** indices de todas las colecciones
 
-### [ ] F0-14 · `apps/api`: idempotencia y concurrencia
+### [x] F0-14 · `apps/api`: idempotencia y concurrencia
 
 - **Modulo:** api/core · **Puntos:** 3 · **Depende de:** F0-13
 - **Descripcion:** middleware `Idempotency-Key` (coleccion con TTL), `ETag`/`If-Match` con
@@ -231,7 +232,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
 - **Errores nuevos:** `SM-CORE-400-002`, `409-001/002`, `412-001`, `428-001` · **Datos:**
   `idempotencyKeys`
 
-### [ ] F0-15 · `apps/api`: Better Auth
+### [~] F0-15 · `apps/api`: Better Auth
 
 - **Modulo:** api/auth, account · **Puntos:** 5 · **Depende de:** F0-13
 - **Descripcion:** Better Auth con adaptador Mongo: email+password, `username`, Google,
@@ -245,7 +246,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
 - **Errores nuevos:** `SM-AUTH-*`, `SM-CORE-429-001` · **Datos:** `user`, `session`, `account`,
   `verification`, `profiles`
 
-### [ ] F0-16 · Suite de aislamiento y scheduler de jobs
+### [x] F0-16 · Suite de aislamiento y scheduler de jobs
 
 - **Modulo:** api · **Puntos:** 3 · **Depende de:** F0-14, F0-15
 - **Descripcion:** suite parametrizada sobre el registro de rutas (test no negociable #1) +
@@ -255,7 +256,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given una ruta registrada sin fixture de ataque, Then la suite falla.
   - Given dos instancias del scheduler, Then el job corre una sola vez por ventana.
 
-### [ ] F0-17 · `apps/pwa`: esqueleto y pantallas de auth
+### [x] F0-17 · `apps/pwa`: esqueleto y pantallas de auth
 
 - **Modulo:** pwa · **Puntos:** 8 · **Depende de:** F0-10, F0-11, F0-15, F0-18
 - **Descripcion:** Vite + React 19, TanStack Router (rutas de FUNCIONAL §1.1 como placeholders),
@@ -268,7 +269,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given registro → verificacion → login, Then llego al Home vacio (E2E smoke).
   - ES y EN completos en estas pantallas.
 
-### [ ] F0-18 · `@sight-mapper/client`
+### [x] F0-18 · `@sight-mapper/client`
 
 - **Modulo:** client · **Puntos:** 3 · **Depende de:** F0-09, F0-12
 - **Descripcion:** cliente `fetch` tipado con `ApiError`, `credentials: 'include'`,
@@ -279,12 +280,13 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given red caida, Then `SM-NET-503-001`.
 - **Errores nuevos:** `SM-NET-*`
 
-### [ ] F0-19 · CI en GitHub Actions
+### [x] F0-19 · CI en GitHub Actions
 
 - **Modulo:** ci · **Puntos:** 3 · **Depende de:** F0-02
 - **Descripcion:** workflow de TECNICO §11 con gates de cobertura por zona, Lighthouse CI (cuando
   exista la PWA), escaneo de dependencias/licencias/secretos, template de PR con checklist del DoD.
 - **Criterios:** Given un PR que baja la cobertura de `domain` a 94%, Then el CI falla.
+- **Estado:** corre en GitHub ([PR #1](https://github.com/BraianVaylet/sight-mapper-archery-project/pull/1)): verify, seguridad, E2E y Lighthouse. Lighthouse mide los presupuestos de TECNICO §14 pero LCP y peso del JS van como **aviso**, no como gate, hasta decidir que es el "4G" de la spec (ver BITACORA 2026-11-09).
 
 ### [!] F0-20 · Railway (staging + prod), Atlas y dominio
 
@@ -298,7 +300,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
   - Given prod, Then solo se despliega por promocion manual.
 - **Errores nuevos:** — · **Datos:** clusters
 
-### [ ] F0-21 · Fixtures de datos reales del autor
+### [x] F0-21 · Fixtures de datos reales del autor
 
 - **Modulo:** domain (tests) · **Puntos:** 2 · **Depende de:** —
 - **Descripcion:** extraer de los proyectos previos (SQLite de `bv-bow-sight`) los sets de marcas
@@ -312,7 +314,7 @@ API y PWA esqueleto con login real en staging. **Sin features de negocio todavia
 
 Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MAPPER-SPEC.md).
 
-### [ ] F1-01 · Preferencias y Apariencia
+### [x] F1-01 · Preferencias y Apariencia
 
 - **Modulo:** account, pwa · **Puntos:** 3 · **Depende de:** F0-17
 - **Descripcion:** `GET /me`, `PATCH /me/preferences`; pantalla Apariencia (tema, idioma,
@@ -320,7 +322,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-ACC-04 (FUNCIONAL §3.1).
 - **Errores nuevos:** — · **Datos:** `profiles`
 
-### [ ] F1-02 · Arcos (compuesto)
+### [x] F1-02 · Arcos (compuesto)
 
 - **Modulo:** equipment/bows, pwa · **Puntos:** 5 · **Depende de:** F0-16, F0-17
 - **Descripcion:** API completa (TECNICO §5.3), listado, detalle, form de `New bow — Full form.png`
@@ -329,7 +331,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-BOW-01, HU-EQP-01. Aislamiento incluido.
 - **Errores nuevos:** `SM-BOW-409-001`, `SM-BOW-422-001` · **Datos:** `bows`
 
-### [ ] F1-03 · Miras con escala nativa
+### [x] F1-03 · Miras con escala nativa
 
 - **Modulo:** equipment/sights, pwa · **Puntos:** 8 · **Depende de:** F1-02
 - **Descripcion:** API + form de mira redefinido (UX-UI §4.4): unidad, tamaño de unidad (o largo
@@ -338,14 +340,14 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-SGT-01, HU-SGT-02. Test no negociable #5.
 - **Errores nuevos:** `SM-SGT-409-001/002/003`, `SM-SGT-422-001` · **Datos:** `sights`
 
-### [ ] F1-04 · Sets de flechas
+### [x] F1-04 · Sets de flechas
 
 - **Modulo:** equipment/arrows, pwa · **Puntos:** 3 · **Depende de:** F1-02
 - **Descripcion:** API + listado + form de `New arrow set — Form.png` con seccion "Mas datos".
 - **Criterios:** HU-ARW-01, HU-EQP-01.
 - **Errores nuevos:** `SM-ARW-409-001` · **Datos:** `arrowSets`
 
-### [ ] F1-05 · Setups, Home y papelera
+### [x] F1-05 · Setups, Home y papelera
 
 - **Modulo:** calculator/setups, pwa · **Puntos:** 8 · **Depende de:** F1-03, F1-04
 - **Descripcion:** API de setups (TECNICO §5.4), implementacion real de `ComponentUsagePort` y
@@ -355,14 +357,14 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-STP-01, HU-STP-02, HU-STP-04. Test no negociable #4.
 - **Errores nuevos:** `SM-STP-*` · **Datos:** `setups`
 
-### [ ] F1-06 · Menu lateral
+### [x] F1-06 · Menu lateral
 
 - **Modulo:** pwa · **Puntos:** 2 · **Depende de:** F1-05
 - **Descripcion:** `NavDrawer` del diseño: contadores de arcos/miras/flechas, Statistics
   deshabilitado "Proximamente", Profile, Appearance, Papelera, Log out, ultima sincronizacion.
 - **Criterios:** contadores correctos; Statistics no navega; foco atrapado y cierre con Escape.
 
-### [ ] F1-07 · Marcas: API
+### [x] F1-07 · Marcas: API
 
 - **Modulo:** calculator/manual · **Puntos:** 5 · **Depende de:** F1-05
 - **Descripcion:** crear, editar, borrar, restaurar; `replace: true`; validacion transaccional de
@@ -370,7 +372,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-MRK-01..03 del lado API. Aislamiento + idempotencia + escritura obsoleta.
 - **Errores nuevos:** `SM-MARK-*` · **Datos:** `marks`
 
-### [ ] F1-08 · Pantalla de la mira
+### [x] F1-08 · Pantalla de la mira
 
 - **Modulo:** pwa (sight) · **Puntos:** 8 · **Depende de:** F1-07, F0-08
 - **Descripcion:** segun `UV slider — Full marks.png` y UX-UI §4.2: readout, selector de flechas,
@@ -379,7 +381,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   alternativa accesible.
 - **Criterios:** HU-MRK-04. Calculo de 50 marcas < 16 ms (RNF-02).
 
-### [ ] F1-09 · Hoja de nueva/editar marca
+### [x] F1-09 · Hoja de nueva/editar marca
 
 - **Modulo:** pwa (sight) · **Puntos:** 5 · **Depende de:** F1-08
 - **Descripcion:** `BottomSheet` con distancia (unidad del arquero) y lectura (escala de la mira),
@@ -387,7 +389,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   reemplazo ante `SM-MARK-409-001`; manejo de 412.
 - **Criterios:** HU-MRK-01, HU-MRK-02, HU-MRK-03. Guardado percibido < 100 ms.
 
-### [ ] F1-10 · Intermedias, curva y consulta libre
+### [x] F1-10 · Intermedias, curva y consulta libre
 
 - **Modulo:** pwa (distances) · **Puntos:** 5 · **Depende de:** F1-08, F0-05
 - **Descripcion:** segun `Calculate distances — Curve.png`: desde/hasta/paso (1/2/5/10, en m o yd),
@@ -395,7 +397,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   confianza y fuera de escala.
 - **Criterios:** HU-CAL-01, HU-CAL-02, HU-CAL-03.
 
-### [ ] F1-11 · Mark Doctor
+### [x] F1-11 · Mark Doctor
 
 - **Modulo:** pwa (doctor) · **Puntos:** 3 · **Depende de:** F1-08, F0-06
 - **Descripcion:** pantalla del Doctor (sin diseño previo: boceto en la tarea), residuos por marca,
@@ -403,21 +405,21 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   regla y tabla desde 2 marcas.
 - **Criterios:** HU-CAL-04.
 
-### [ ] F1-12 · Sistema imperial completo
+### [x] F1-12 · Sistema imperial completo
 
 - **Modulo:** pwa, domain · **Puntos:** 3 · **Depende de:** F1-02..F1-10
 - **Descripcion:** cerrar la decision abierta §17.2 (unidades de equipo por sistema) con 2–3
   arqueros, aplicar en todos los forms y vistas, fracciones en la entrada.
 - **Criterios:** recorrer el flujo critico entero en imperial sin ver una unidad metrica.
 
-### [ ] F1-13 · Ingles completo
+### [x] F1-13 · Ingles completo
 
 - **Modulo:** i18n, pwa · **Puntos:** 3 · **Depende de:** F1-11
 - **Descripcion:** revision de todos los textos EN (tono de producto, terminos de arqueria en
   ingles), formatos por locale, emails EN.
 - **Criterios:** recorrer el flujo critico en EN sin un string en español; test de paridad verde.
 
-### [ ] F1-14 · Listado imprimible
+### [x] F1-14 · Listado imprimible
 
 - **Modulo:** pwa (print) · **Puntos:** 3 · **Depende de:** F1-10
 - **Descripcion:** ruta `/setups/:id/print` con CSS de impresion: encabezado, tabla con paso
@@ -425,7 +427,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-CAL-05; "Guardar como PDF" en Chrome y Safari produce una hoja A4/Letter sin
   cortes.
 
-### [ ] F1-15 · Acceso rapido
+### [x] F1-15 · Acceso rapido
 
 - **Modulo:** account, pwa · **Puntos:** 2 · **Depende de:** F1-08
 - **Descripcion:** `PUT /me/quick-access`, accion "Abrir siempre aca", redireccion al boot, limpieza
@@ -433,7 +435,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-STP-03.
 - **Errores nuevos:** `SM-ACC-422-001`
 
-### [ ] F1-16 · Perfil: exportar datos y baja
+### [x] F1-16 · Perfil: exportar datos y baja
 
 - **Modulo:** account, pwa · **Puntos:** 3 · **Depende de:** F1-07
 - **Descripcion:** pantalla Perfil (username, email, version de la app), `GET /me/export`, pedir y
@@ -441,40 +443,44 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** HU-ACC-05, HU-ACC-06 (con reloj inyectado).
 - **Errores nuevos:** `SM-ACC-404-001`, `SM-ACC-409-001`
 
-### [ ] F1-17 · Onboarding de primer uso
+### [x] F1-17 · Onboarding de primer uso
 
 - **Modulo:** pwa · **Puntos:** 3 · **Depende de:** F1-05, F1-09
 - **Descripcion:** checklist de FUNCIONAL §2.1 en el Home vacio, preseleccion de lo recien cargado.
 - **Criterios:** un usuario nuevo llega a su primera marca sin salir de la guia (E2E).
 
-### [ ] F1-18 · Tema light verificado
+### [x] F1-18 · Tema light verificado
 
 - **Modulo:** ui, pwa · **Puntos:** 2 · **Depende de:** F1-11
 - **Descripcion:** pasar todas las pantallas por el tema light de alto contraste; prueba al sol con
   un telefono real.
 - **Criterios:** contraste AA en ambos temas; screenshots de referencia dark/light por pantalla.
+- **Estado:** contraste y capturas hechos (`docs/screens/`); la prueba al sol con un telefono real la hace el autor.
 
-### [ ] F1-19 · Accesibilidad y responsive
+### [x] F1-19 · Accesibilidad y responsive
 
 - **Modulo:** pwa · **Puntos:** 3 · **Depende de:** F1-11
 - **Descripcion:** auditoria axe + teclado + lector de pantalla en el flujo critico; layouts 768 y
   1440 (UX-UI §7).
 - **Criterios:** 0 violaciones axe serias; flujo critico completo con teclado; 360/768/1440 sin
   desbordes.
+- **Estado:** axe, teclado y desbordes automatizados en E2E; la pasada con un lector de pantalla real (TalkBack / VoiceOver / NVDA) la hace el autor.
 
-### [ ] F1-20 · E2E del flujo critico
+### [x] F1-20 · E2E del flujo critico
 
 - **Modulo:** e2e · **Puntos:** 3 · **Depende de:** F1-17
 - **Descripcion:** Playwright (movil 360 y desktop): registro → equipo → setup → 5 marcas →
   intermedias → Doctor → imprimir; idem en EN + imperial.
 - **Criterios:** verde en CI sobre staging.
+- **Estado:** el flujo corre en CI contra `dev:local` (job `e2e`). Corre en GitHub (PR #1, en verde). Falta correrlo contra staging, que no existe todavia (F0-04/F0-20) y que ademas necesita un buzon de prueba para los links de los correos.
 
-### [ ] F1-21 · Importar los datos reales del autor (opcional)
+### [x] F1-21 · Importar los datos reales del autor (opcional)
 
 - **Modulo:** scripts · **Puntos:** 2 · **Depende de:** F1-07
 - **Descripcion:** script one-off que importa al entorno de prod los setups y marcas reales del
   autor desde los proyectos previos, via la API (respeta todas las reglas).
 - **Criterios:** el autor ve sus setups con las mismas lecturas que tenia.
+- **Estado:** script y E2E hechos (`scripts/import-author-data.mjs`, `scripts/data/README.md`). Falta correrlo contra produccion, que no existe todavia (F0-04/F0-20): lo corre el autor con su sesion.
 
 ### [ ] F1-22 · Release del MVP y prueba con arqueros
 
@@ -484,6 +490,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   bahiense), canal de feedback.
 - **Criterios:** metricas de activacion medidas a los 14 dias; issues de feedback triados en este
   plan.
+- **Estado:** hecho lo que no necesita infraestructura: `scripts/metrics.mjs` (metricas agregadas, con tests contra un mongod real) y `docs/runbooks/release-mvp.md` (promocion, restore probado, metricas, prueba con arqueros). Canal de feedback decidido: issues de GitHub, con la plantilla `.github/ISSUE_TEMPLATE/archer-feedback.yml`. Falta todo lo que depende de F0-20 (staging, prod, Atlas) y la prueba con arqueros.
 
 ---
 

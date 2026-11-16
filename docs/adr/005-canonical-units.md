@@ -40,7 +40,7 @@ real (F2) hace falta la posicion **fisica**.
 - Positivas: un solo sistema adentro; cambiar de metrico a imperial no toca datos; base directa
   para el tape (F2).
 - Negativas: el cambio de `unitSizeMm` con marcas requiere migracion explicita; la presentacion del
-  equipo por sistema queda como decision abierta (spec §17.2).
+  equipo por sistema sigue el sistema elegido (spec §17.2, cerrada provisoriamente en F1-12).
 - Riesgo: errores de punto flotante en ida y vuelta. Mitigacion: test no negociable #6 con
   propiedades.
 

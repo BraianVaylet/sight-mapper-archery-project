@@ -1,0 +1,5 @@
+# False positives, one fingerprint each (commit:file:rule:line): never a file or a rule wholesale.
+# `key-0001-abcdefgh` is a made-up Idempotency-Key in the API tests, not a credential.
+ad44c748c2be39d476528c3519fc5a72a40e9d4d:apps/api/tests/idempotency.test.ts:generic-api-key:5
+ad44c748c2be39d476528c3519fc5a72a40e9d4d:apps/api/tests/concurrency.test.ts:generic-api-key:13
+ad44c748c2be39d476528c3519fc5a72a40e9d4d:apps/api/tests/persistence.test.ts:generic-api-key:43
