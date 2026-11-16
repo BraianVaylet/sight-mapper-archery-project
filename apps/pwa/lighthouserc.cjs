@@ -19,9 +19,9 @@ module.exports = {
       assertions: {
         // TECNICO §14: initial JS ≤ 180 KB gzip (what crosses the network, in bytes). A gate.
         'resource-summary:script:size': ['error', { maxNumericValue: 180 * 1024 }],
-        // RNF-01: LCP < 2.5 s. A warning while the client-rendered sign-in sits at ~2.6 s: the
-        // stack itself (React, TanStack Router, Query and Form) is ~130 KB gzip (BITACORA
-        // 2026-11-09).
+        // RNF-01: LCP < 2.5 s. A warning by decision of the author (2026-11-16): the
+        // client-rendered sign-in sits at ~2.6 s and the stack itself (React, TanStack Router,
+        // Query and Form) is ~130 KB gzip. No prerender for now (TECNICO §14).
         'largest-contentful-paint': [
           'warn',
           { maxNumericValue: 2500, aggregationMethod: 'median' },

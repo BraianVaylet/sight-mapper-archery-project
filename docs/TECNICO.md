@@ -289,7 +289,9 @@ Lista en la spec §12.
 Se mide con Lighthouse CI en PR (PWA) y con `durationMs` de los logs (API). El "4G" de RNF-01 es
 el **"4G lento" de Lighthouse** (1,6 Mbps, RTT 150 ms, CPU 4x; decision del autor, 2026-11-09).
 El JS inicial es **gate** (hoy ~171 KB). El LCP queda como **aviso**: el login renderizado en el
-cliente da ~2,6 s, y React con TanStack Router, Query y Form ya son ~130 KB gzip.
+cliente da ~2,6 s, y React con TanStack Router, Query y Form ya son ~130 KB gzip. **Decision del
+autor (2026-11-16):** el LCP queda como aviso; no se prerenderizan las pantallas publicas por ahora.
+Si el aviso sube de ~2,6 s, se revisa que entro al arranque.
 
 Reglas para que el JS inicial no crezca:
 

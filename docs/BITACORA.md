@@ -52,7 +52,7 @@
 
 ### Pendiente / deuda
 
-- LCP < 2,5 s en "4G lento": prerender de las pantallas publicas u otra via, a decidir.
+- LCP < 2,5 s en "4G lento": **decidido (2026-11-16) dejarlo como aviso**, sin prerender por ahora. La CI del PR #1 sobre 8184191 paso entera, Lighthouse incluido.
 
 ---
  y suma Lighthouse con los presupuestos de la PWA
