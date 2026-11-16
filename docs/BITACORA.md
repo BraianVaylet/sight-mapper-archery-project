@@ -18,6 +18,43 @@
 
 ---
 
+## 2026-11-16 — La spec ya describe el rediseño blueprint: configuracion solo en Ajustes y fuentes propias
+
+**Tareas:** F1-23, F1-24 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- F1-23: traspaso del rediseño commiteado (`docs/redesign/`), comando `/redesign`, decisiones
+  D-1..D-8 aceptadas por el autor (todas las recomendaciones) y tareas F1-23..F1-33 en el plan
+  (F1 pasa a 33 tareas / 119 puntos; F1-22 depende ahora del rediseño). El plan se contrasto con el
+  repo y se corrigio: ruta del `Caddyfile`, 9 asserts de `44px` en los tests de `ui`, riel lateral
+  de 1440 que ninguna tarea cubria, ubicacion de `QuickAccessToggle`.
+- F1-24 (spec primero): RF-ACC-04 (solo en Ajustes, idioma en invitado y donde se guarda), RF-X-02
+  (48 px), RF-X-03 (version en Ajustes), §14 con 4 puntos nuevos; `UX-UI.md` con los tokens finales
+  de ambos temas, tipografia, forma, rasgos retro, componentes nuevos, §4.5 Ajustes y §4.6 invitado;
+  `FUNCIONAL.md` (`/settings`, redirect, criterios de HU-ACC-04); `TECNICO.md` §14 (fuentes y LCP);
+  ADR-012; `CLAUDE.md` (estado, stack, ADRs) y `docs/README.md`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-012](adr/012-own-fonts-precached.md): Chakra Petch + IBM Plex Sans/Mono, woff2 propias y
+  precacheadas; reemplaza la regla "sin web fonts".
+- Marca sospechosa: triangulo en chapa y tabla, anillo en la regla (la spec decia anillo; se
+  conserva en la regla y se suma la forma en la chapa).
+- Idioma elegido sin sesion: se guarda en el navegador y gana sobre el del navegador; con sesion
+  manda `profile.locale`.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `spec-reviewer` sobre los docs: cubre SPEC-CHANGES §1–§8 y los 4 criterios de R-01. Marco 15
+  puntos; se corrigieron todos menos el de alcance (codigo de R-02 en el arbol), que se resolvio
+  separando los commits.
+- Sin codigo en este paso: no corresponde correr tests.
+
+### Pendiente / deuda
+
+- F1-25 en adelante. La prueba al sol y el lector de pantalla siguen siendo del autor (F1-18/F1-19).
+
 ## 2026-11-16 — La configuracion de despliegue vive en el repo, lista para Railway
 
 **Tareas:** F0-20 (parcial: lo que no necesita cuentas) · **Commit/PR:** rama `feat/f0-railway-config` · **Tarjeta:** sin tablero (F0-04)

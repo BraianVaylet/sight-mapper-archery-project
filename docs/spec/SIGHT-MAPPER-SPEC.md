@@ -120,8 +120,9 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
 ### 6.1 Transversales
 
 - **RF-X-01** Toda pantalla que trae datos contempla **cargando, vacio, error y exito**.
-- **RF-X-02** Todo lo tocable mide al menos **44×44 px**. Se usa de pie, con guantes, al sol.
-- **RF-X-03** La PWA muestra su version (en login y en Perfil) y avisa cuando hay una nueva, con
+- **RF-X-02** Todo lo tocable mide al menos ~~**44×44 px**~~ [~] **48×48 px** (accion principal fija:
+  56 px). Se usa de pie, con guantes, al sol.
+- **RF-X-03** La PWA muestra su version (~~en login y en Perfil~~ [~] en Ajustes) y avisa cuando hay una nueva, con
   boton "Actualizar".
 - **RF-X-04** Las acciones sobre marcas son **optimistas**, con deshacer y mensaje de error tipado.
 - **RF-X-05** Medido y estimado se distinguen **siempre**, en pantalla y en papel.
@@ -137,6 +138,10 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
 - **RF-ACC-03** Recupero de contraseña por email con enlace de un solo uso que vence.
 - **RF-ACC-04** Preferencias: idioma (`es` | `en`), sistema de unidades (`metric` | `imperial`),
   tema (`dark` | `light` | `system`). Cambiar el sistema **no modifica datos**: solo la presentacion.
+  [+] Se cambian **solo en Ajustes** (`/settings`). Unica excepcion: un selector compacto de idioma
+  en las pantallas sin sesion (ingresar, registro, recupero, verificacion); ahi el tema sigue al
+  sistema. [+] Lo elegido sin sesion se guarda en el navegador y gana sobre el idioma del navegador;
+  con sesion manda `profile.locale` (ADR-004).
 - **RF-ACC-05** Descargar **todo** lo que se guarda del arquero, en JSON, en el momento.
 - **RF-ACC-06** Pedir la baja: se registra con fecha, se ejecuta a los **90 dias** y la pantalla
   explica por que no es inmediata. Se puede cancelar mientras tanto.
@@ -396,6 +401,13 @@ auth 85% · equipo, account 80% · UI generica 50% · **global ≥ 80%**.
 - **Sensacion de instantaneo.** Frenar el entrenamiento es el peor pecado del producto.
 - Tipos de marca distinguidos visualmente: **medida** (punto lleno, linea solida), **calculada**
   (rombo, linea punteada, `≈`), **consultada** (rombo resaltado) y **sospechosa** (anillo de alerta).
+- [+] **Legible a la intemperie.** Dos temas, oscuro (noche) y claro (sol), con texto principal
+  ≥7:1 y secundario ≥4,5:1 sobre todas las superficies; bordes de controles y foco ≥3:1.
+- [+] **Paleta 60/30/10:** fondo (ambiente) 60%, apoyo (paneles) 30%, acento 10%. Una accion
+  primaria por vista, en la zona del pulgar.
+- [+] **Estilo retro-futurista de plano tecnico:** cuadricula blueprint de fondo que nunca queda
+  debajo de un dato; los rasgos retro son decorativos y no restan legibilidad.
+- [+] **Configuracion solo en Ajustes** (RF-ACC-04).
 - Detalle del sistema visual, pantallas y estados en [UX-UI.md](../UX-UI.md).
 
 ## 15. Roadmap

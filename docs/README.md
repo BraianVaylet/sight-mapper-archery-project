@@ -16,6 +16,7 @@
 | Entender la matematica                      | [domain/SIGHT-MATH.md](domain/SIGHT-MATH.md)           |
 | Convertir unidades                          | [domain/UNIDADES.md](domain/UNIDADES.md)               |
 | Implementar UI                              | [UX-UI.md](UX-UI.md) · `../design/`                    |
+| Seguir el rediseño visual                   | [redesign/README.md](redesign/README.md)               |
 | Saber que sigue                             | [ACTION-PLAN.md](ACTION-PLAN.md)                       |
 | Saber que paso                              | [BITACORA.md](BITACORA.md)                             |
 | Ver el borrador original                    | [borrador-specs.md](borrador-specs.md) (historico)     |

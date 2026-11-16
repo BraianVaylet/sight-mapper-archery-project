@@ -84,7 +84,7 @@ flowchart LR
   - Given `docs/ACTION-PLAN.md`, Then F1-23..F1-33 existen y la tabla de estado los cuenta.
   - Given `DECISIONES.md` §6, Then cada D-x tiene la respuesta del autor.
 
-### [ ] R-01 · Spec primero: spec, UX-UI, FUNCIONAL, TECNICO y ADR-012
+### [x] R-01 · Spec primero: spec, UX-UI, FUNCIONAL, TECNICO y ADR-012
 
 - **Modulo:** docs · **Puntos:** 2 · **Depende de:** R-00
 - **Descripcion:** aplicar `SPEC-CHANGES.md` completo (marcas `[+]`/`[~]`, nada se borra). Crear
@@ -154,6 +154,8 @@ flowchart LR
   - Given Lighthouse CI (`pnpm --filter @sight-mapper/pwa test:lighthouse`), Then el gate de JS
     ≤180 KB sigue pasando y el LCP queda ≤ ~2,6 s (aviso, no gate; anotar el numero en la bitacora).
   - Given la CSP de `apps/pwa/Caddyfile`, Then no cambia (`font-src 'self'` ya alcanza).
+  - Given `e2e/installable.spec.ts`, Then verifica que el precache del service worker incluye los
+    woff2 (lo exige ADR-012).
 
 ### [ ] R-04 · Fondo blueprint
 

@@ -24,12 +24,14 @@ flowchart TD
   sight --> doctor[Mark Doctor]
   sight --> print[Listado imprimible]
   sight --> marksheet[[Hoja: nueva/editar marca]]
-  home -. drawer .-> bows[Arcos] & sights[Miras] & arrows[Flechas] & profile[Perfil] & appearance[Apariencia]
+  home -. drawer .-> bows[Arcos] & sights[Miras] & arrows[Flechas] & profile[Perfil] & settings[Ajustes]
   bows --> bowform[Alta/edicion arco]
   sights --> sightform[Alta/edicion mira]
   arrows --> arrowform[Alta/edicion flechas]
   home -. drawer .-> trash[Papelera de setups]
 ```
+
+[~] En el mapa, `settings[Ajustes]` reemplaza a `appearance[Apariencia]` (rediseño, F1-29).
 
 ### 1.1 Rutas de la PWA
 
@@ -51,8 +53,8 @@ flowchart TD
 | `/bows`, `/bows/new`, `/bows/:id` | Arcos                           | `New bow — Full form.png`              | si   |
 | `/sights`, `/sights/new`, `/sights/:id` | Miras                     | `New sight — Form.png`                 | si   |
 | `/arrows`, `/arrows/new`, `/arrows/:id` | Sets de flechas           | `New arrow set — Form.png`             | si   |
-| `/settings/appearance`          | Tema, idioma, unidades            | sin diseño                             | si   |
-| `/profile`                      | Cuenta, exportar, baja, version   | sin diseño                             | si   |
+| `/settings` [~]                 | Ajustes: tema, idioma, unidades, version (antes `/settings/appearance`, que redirige aca) | `docs/redesign/design-system/components/SettingsScreen` | si   |
+| `/profile`                      | Cuenta, exportar, baja [~] (la version pasa a Ajustes) | sin diseño                             | si   |
 
 Estado en URL (Nuqs): `arrowSet` (set de flechas seleccionado), `d` (distancia seleccionada, en
 metros canonicos), `step`, `from`, `to` (intermedias). Compartir o recargar conserva la vista.
@@ -135,6 +137,10 @@ Formato: `HU-<MOD>-<NN>` · referencia a `RF-*` · criterios Given/When/Then.
 - Given cambio el idioma a EN, Then toda la UI, los errores y los formatos numericos (punto
   decimal) cambian sin recargar.
 - Given elijo tema `system`, Then la app sigue la preferencia del sistema operativo.
+- [+] Given estoy en cualquier pantalla con sesion, Then no veo controles de tema, idioma ni unidades fuera de
+  Ajustes.
+- [+] Given no tengo sesion, When toco EN en el selector de idioma, Then la pantalla cambia a ingles
+  sin recargar y la eleccion se recuerda.
 
 **HU-ACC-05 — Descargar mis datos** (RF-ACC-05)
 

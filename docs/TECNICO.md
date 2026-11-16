@@ -308,6 +308,11 @@ cliente da ~2,6 s, y React con TanStack Router, Query y Form ya son ~130 KB gzip
 autor (2026-11-16):** el LCP queda como aviso; no se prerenderizan las pantallas publicas por ahora.
 Si el aviso sube de ~2,6 s, se revisa que entro al arranque.
 
+[+] Fuentes propias (ADR-012): 8 woff2 subset latin (~150 KB) con `font-display: swap`, servidas con
+hash desde `/assets/` (cache inmutable de Caddy) y precacheadas por el service worker (`globPatterns`
+incluye `woff2`). No cuentan para el gate de JS. Vigilar el aviso de LCP (~2,6 s): si sube, precargar
+solo Plex Sans 400 y Chakra Petch 700 o recortar pesos.
+
 Reglas para que el JS inicial no crezca:
 
 - zod clasico no entra al arranque: no se recorta por tree-shaking. Lo que corre al pintar usa

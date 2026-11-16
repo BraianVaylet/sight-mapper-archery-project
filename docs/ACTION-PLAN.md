@@ -491,7 +491,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
   decisiones D-1..D-8 cerradas con el autor, tareas F1-23..F1-33 en este plan.
 - **Criterios:** ver R-00.
 
-### [ ] F1-24 · Rediseño: spec, UX-UI, FUNCIONAL, TECNICO y ADR-012
+### [x] F1-24 · Rediseño: spec, UX-UI, FUNCIONAL, TECNICO y ADR-012
 
 - **Modulo:** docs · **Puntos:** 2 · **Depende de:** F1-23
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-01.

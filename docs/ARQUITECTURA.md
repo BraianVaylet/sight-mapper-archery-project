@@ -170,7 +170,7 @@ apps/pwa/src/
 │  ├─ doctor/
 │  ├─ print/       listado imprimible
 │  ├─ equipment/   bows, sights, arrows (listas y forms)
-│  └─ account/     profile, appearance, export, deletion
+│  └─ account/     profile, appearance ([~] settings, F1-29), export, deletion
 └─ lib/            formateo por locale, parsing de fracciones, hooks de UI
 ```
 
