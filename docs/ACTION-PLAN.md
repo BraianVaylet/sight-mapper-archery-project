@@ -14,7 +14,7 @@
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
 | F0   | Fundaciones       | 21     | 80     | casi: todo hecho salvo 15 y 19 (casi) y 04 y 20 (bloqueadas) |
-| F1   | MVP — Calculator  | 22     | 85     | casi: F1-01 a F1-21 hechas; F1-22 parcial (falta produccion) |
+| F1   | MVP — Calculator  | 33     | 119    | F1-01 a F1-21 hechas; rediseño F1-23..F1-33 en curso; F1-22 parcial (falta produccion) |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
 | F4   | Offline-first     | epica  | —      | —             |
@@ -483,9 +483,67 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Criterios:** el autor ve sus setups con las mismas lecturas que tenia.
 - **Estado:** script y E2E hechos (`scripts/import-author-data.mjs`, `scripts/data/README.md`). Falta correrlo contra produccion, que no existe todavia (F0-04/F0-20): lo corre el autor con su sesion.
 
+### [x] F1-23 · Rediseño: rama, plan integrado y decisiones
+
+- **Modulo:** repo, docs · **Puntos:** 1 · **Depende de:** —
+- **Descripcion:** rediseño retro-futurista "blueprint" (detalle completo en
+  [redesign/PLAN.md](redesign/PLAN.md) R-00). Rama `feat/redesign-blueprint`, comando `/redesign`,
+  decisiones D-1..D-8 cerradas con el autor, tareas F1-23..F1-33 en este plan.
+- **Criterios:** ver R-00.
+
+### [ ] F1-24 · Rediseño: spec, UX-UI, FUNCIONAL, TECNICO y ADR-012
+
+- **Modulo:** docs · **Puntos:** 2 · **Depende de:** F1-23
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-01.
+
+### [ ] F1-25 · Rediseño: tokens de color, forma y tamaño
+
+- **Modulo:** ui · **Puntos:** 3 · **Depende de:** F1-24
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-02.
+
+### [ ] F1-26 · Rediseño: fuentes propias precacheadas
+
+- **Modulo:** ui, pwa · **Puntos:** 3 · **Depende de:** F1-25
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-03.
+
+### [ ] F1-27 · Rediseño: fondo blueprint
+
+- **Modulo:** ui, pwa · **Puntos:** 2 · **Depende de:** F1-25
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-04.
+
+### [ ] F1-28 · Rediseño: primitivas de `@sight-mapper/ui` restilizadas
+
+- **Modulo:** ui · **Puntos:** 5 · **Depende de:** F1-25, F1-26
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-05.
+
+### [ ] F1-29 · Rediseño: Ajustes como unico lugar de configuracion
+
+- **Modulo:** pwa, i18n · **Puntos:** 3 · **Depende de:** F1-28
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-06.
+
+### [ ] F1-30 · Rediseño: pantalla de la mira reacomodada
+
+- **Modulo:** pwa, ui · **Puntos:** 5 · **Depende de:** F1-28
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-07.
+
+### [ ] F1-31 · Rediseño: Home y SetupCard
+
+- **Modulo:** pwa, ui · **Puntos:** 2 · **Depende de:** F1-28
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-08.
+
+### [ ] F1-32 · Rediseño: resto de pantallas
+
+- **Modulo:** pwa · **Puntos:** 3 · **Depende de:** F1-29
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-09.
+
+### [ ] F1-33 · Rediseño: verificacion, capturas y cierre
+
+- **Modulo:** e2e, docs · **Puntos:** 5 · **Depende de:** F1-27, F1-30, F1-31, F1-32
+- **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-10.
+
 ### [ ] F1-22 · Release del MVP y prueba con arqueros
 
-- **Modulo:** infra, producto · **Puntos:** 3 · **Depende de:** todo F1
+- **Modulo:** infra, producto · **Puntos:** 3 · **Depende de:** todo F1 (incluido F1-33, el rediseño)
 - **Descripcion:** promocion a prod, restore de backup probado en staging, script de metricas
   agregadas desde la base (spec §2, sin tracking de terceros), prueba con 5–10 arqueros (CBA, liga
   bahiense), canal de feedback.

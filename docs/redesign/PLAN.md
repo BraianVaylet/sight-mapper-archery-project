@@ -64,7 +64,7 @@ flowchart LR
 
 ---
 
-### [ ] R-00 · Rama, plan integrado y decisiones
+### [x] R-00 · Rama, plan integrado y decisiones
 
 - **Modulo:** repo, docs · **Puntos:** 1 · **Depende de:** —
 - **Descripcion:**

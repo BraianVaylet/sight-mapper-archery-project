@@ -111,3 +111,12 @@ El DS es una referencia visual; **la app actual tiene reglas que el DS no muestr
 | D-6 | Brillo de fosforo en la lectura medida (solo oscuro) | Mantener, es decorativo y no baja contraste; quitar si el autor lo ve borroso al sol. |
 | D-7 | ¿La cuadricula tambien detras de formularios largos de equipo? | Si (UX-UI §2.4 ya la pedia en formularios); los campos van en `SectionCard` opacas. |
 | D-8 | Nombre de la ruta: `/settings` o `/settings/general` | `/settings` con redirect 301-like (`redirect` de TanStack) desde `/settings/appearance`. |
+
+### Respuestas del autor (2026-11-16)
+
+El autor acepto **todas las recomendaciones** de la tabla: D-1 fila de 3 herramientas activas +
+chapa "Proximamente" (Viento, Clima) · D-2 dorado `#6B4F00` · D-3 `ReadingHud`, `SightRuler` y
+`SetupCard` suben a `@sight-mapper/ui` solo como presentacion · D-4 se elimina el pie "Setups" de
+Home · D-5 `theme-color` `#0B1B45` (+ meta claro `#EEF2F9`) · D-6 brillo de fosforo solo en oscuro ·
+D-7 cuadricula tambien detras de formularios, con campos en `SectionCard` · D-8 ruta `/settings` con
+`redirect` desde `/settings/appearance`.
