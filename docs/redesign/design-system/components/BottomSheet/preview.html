@@ -1,0 +1,19 @@
+<!-- @dsCard group="Overlays" height=440 -->
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BottomSheet</title>
+<style>body{background:transparent} </style></head>
+<body class="">
+
+<div class="sm-scrim" style="padding-top:40px;max-width:420px">
+<div class="sm-sheet" role="dialog" aria-modal="true" aria-labelledby="bs1">
+  <span class="sm-sheet__grip" aria-hidden="true"></span>
+  <div class="sm-sheet__head"><h2 id="bs1" class="sm-sheet__title">Marca a 50 m</h2><button class="sm-btn sm-btn--ghost sm-btn--icon" aria-label="Cerrar"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="sm-row" style="flex-wrap:nowrap">
+    <div class="sm-field" style="flex:1"><label class="sm-field__label" for="b1">Distancia</label><div class="sm-field__control"><input id="b1" class="sm-input sm-input--num sm-input--suffix" value="50"><span class="sm-field__suffix">m</span></div></div>
+    <div class="sm-field" style="flex:1"><label class="sm-field__label" for="b2">Lectura</label><input id="b2" class="sm-input sm-input--num" value="4,5"></div>
+  </div>
+  <button class="sm-btn sm-btn--primary sm-btn--block sm-btn--lg">Guardar marca</button>
+</div></div>
+</body>
+</html>

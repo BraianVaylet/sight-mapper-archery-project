@@ -1,0 +1,42 @@
+{
+ "v": 3,
+ "layout": "files",
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-16T15:30:00Z"
+ },
+ "title": "Sight Mapper",
+ "namespace": "SightMapper",
+ "libraries": [],
+ "sections": {},
+ "groups": [
+  "Logos"
+ ],
+ "assetGroups": {
+  "Logos": {
+   "name": "Logos",
+   "tile": "m",
+   "order": [
+    "sight-mapper-icon-512.png"
+   ],
+   "files": {
+    "sight-mapper-icon-512.png": {
+     "name": "sight-mapper-icon-512.png",
+     "blob": "dd8ff64eb728ec14f45c93d02a727c1c",
+     "size": 2901,
+     "type": "image/png"
+    }
+   }
+  }
+ },
+ "blobs": {},
+ "docs": {
+  "sections": []
+ },
+ "lastChange": {
+  "by": "Braian",
+  "at": "2026-11-16T15:30:00Z",
+  "via": "Cowork",
+  "note": "Rediseño retro-futurista blueprint: tokens dark/light, tipografia, cuadricula, componentes y pantallas"
+ }
+}
