@@ -11,6 +11,7 @@ import {
   TOAST_DURATION_MS,
   UpdatePrompt,
 } from './feedback.js';
+import { TOUCH_TARGET_PX } from '../touch.js';
 
 afterEach(() => {
   vi.useRealTimers();
@@ -227,7 +228,10 @@ describe('every interactive primitive keeps the 44 px target', () => {
       </>,
     );
     for (const button of screen.getAllByRole('button')) {
-      expect(button).toHaveStyle({ minHeight: '44px', minWidth: '44px' });
+      expect(button).toHaveStyle({
+        minHeight: `${TOUCH_TARGET_PX}px`,
+        minWidth: `${TOUCH_TARGET_PX}px`,
+      });
     }
   });
 });

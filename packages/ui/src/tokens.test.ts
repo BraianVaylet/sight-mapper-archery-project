@@ -44,10 +44,16 @@ const colour = (tokens: Tokens, name: string): string => {
   return value;
 };
 
+/** Tokens that do not change with the theme: only the dark (default) block declares them. */
+const THEME_INDEPENDENT = ['size-touch', 'size-touch-lg', 'grid-step', 'grid-step-major'];
+/** Tokens that are not a single colour (shadows carry a colour inside a box-shadow value). */
+const NOT_A_COLOUR = [...THEME_INDEPENDENT, 'shadow-key', 'shadow-panel'];
+
+const SURFACES = ['bg', 'surface', 'surface-raised', 'surface-sunken'];
+
 describe('theme definitions', () => {
   it('defines the same tokens in dark and light', () => {
-    // `size-touch` is theme independent, so only the dark (default) block declares it.
-    const themed = Object.keys(dark).filter((name) => name !== 'size-touch');
+    const themed = Object.keys(dark).filter((name) => !THEME_INDEPENDENT.includes(name));
     expect(Object.keys(light).sort()).toEqual(themed.sort());
   });
 
@@ -55,15 +61,26 @@ describe('theme definitions', () => {
     expect(system).toEqual(light);
   });
 
-  it('keeps the design colours of the dark theme (UX-UI §2.1)', () => {
-    expect(dark['bg']).toBe('#10286b');
+  it('keeps the blueprint palette of the dark theme (DESIGN-SYSTEM §2.1)', () => {
+    expect(dark['bg']).toBe('#0b1b45');
     expect(dark['accent']).toBe('#ffcc00');
-    expect(dark['text']).toBe('#ffffff');
+    expect(dark['text']).toBe('#f4f6fc');
     expect(dark['info']).toBe('#6ec6e6');
   });
 
-  it('sets the tappable minimum to 44 px', () => {
-    expect(dark['size-touch']).toBe('44px');
+  it('turns the accent navy with yellow ink in the light theme', () => {
+    expect(light['accent']).toBe('#10286b');
+    expect(light['accent-ink']).toBe('#ffcc00');
+  });
+
+  it('sets the tappable minimum to 48 px and the fixed primary action to 56 px', () => {
+    expect(dark['size-touch']).toBe('48px');
+    expect(dark['size-touch-lg']).toBe('56px');
+  });
+
+  it('steps the blueprint grid every 8 px, with a major line every 40 px', () => {
+    expect(dark['grid-step']).toBe('8px');
+    expect(dark['grid-step-major']).toBe('40px');
   });
 
   it('declares which scheme the browser should draw native controls in', () => {
@@ -79,11 +96,13 @@ describe('theme definitions', () => {
 describe.each([
   ['dark', dark],
   ['light', light],
-] as const)('%s theme contrast (WCAG AA)', (_name, theme) => {
-  const surfaces = ['bg', 'surface', 'surface-sunken'];
+] as const)('%s theme contrast (outdoors: AAA main text)', (_name, theme) => {
+  it.each(SURFACES)('main text reads on %s (≥ 7:1)', (surface) => {
+    expect(contrast(colour(theme, 'text'), colour(theme, surface))).toBeGreaterThanOrEqual(7);
+  });
 
-  it.each(surfaces)('text, muted text and the status colours read on %s (≥ 4.5:1)', (surface) => {
-    for (const text of ['text', 'text-muted', 'mark', 'info', 'danger', 'warning']) {
+  it.each(SURFACES)('muted text and the status colours read on %s (≥ 4.5:1)', (surface) => {
+    for (const text of ['text-muted', 'mark', 'info', 'danger', 'warning']) {
       expect(
         contrast(colour(theme, text), colour(theme, surface)),
         `${text} on ${surface}`,
@@ -91,28 +110,44 @@ describe.each([
     }
   });
 
-  it('puts the ink on the accent button at ≥ 4.5:1', () => {
+  it('puts the ink on the accent button at ≥ 7:1', () => {
     expect(contrast(colour(theme, 'accent-ink'), colour(theme, 'accent'))).toBeGreaterThanOrEqual(
-      4.5,
+      7,
     );
   });
 
-  it.each(surfaces)('borders stand out from %s (≥ 3:1, WCAG 1.4.11)', (surface) => {
-    expect(
-      contrast(colour(theme, 'border'), colour(theme, surface)),
-      `border on ${surface}`,
-    ).toBeGreaterThanOrEqual(3);
+  it.each(SURFACES)(
+    'borders and the focus ring stand out from %s (≥ 3:1, WCAG 1.4.11)',
+    (surface) => {
+      for (const edge of ['border', 'focus']) {
+        expect(
+          contrast(colour(theme, edge), colour(theme, surface)),
+          `${edge} on ${surface}`,
+        ).toBeGreaterThanOrEqual(3);
+      }
+    },
+  );
+
+  it('draws the key edge of the primary button visibly on the page', () => {
+    expect(contrast(colour(theme, 'accent-edge'), colour(theme, 'bg'))).toBeGreaterThanOrEqual(3);
   });
 
-  it('draws the edge of the accent button with enough contrast', () => {
-    expect(contrast(colour(theme, 'accent-edge'), colour(theme, 'accent'))).toBeGreaterThanOrEqual(
-      3 * 0.9,
-    );
+  it('keeps the blueprint grid decorative: visible, never competing (1.1–1.5:1 on bg)', () => {
+    for (const line of ['grid', 'grid-major']) {
+      const ratio = contrast(colour(theme, line), colour(theme, 'bg'));
+      expect(ratio, line).toBeGreaterThanOrEqual(1.1);
+      expect(ratio, line).toBeLessThanOrEqual(1.5);
+    }
+  });
+
+  it('builds the hard shadows from the theme colours, with no blur', () => {
+    expect(theme['shadow-key']).toBe(`0 3px 0 0 ${colour(theme, 'accent-edge')}`);
+    expect(theme['shadow-panel']).toMatch(/^4px 4px 0 0 #[0-9a-f]{6}$/);
   });
 });
 
 describe('dark theme: the accent is also text (readings, measured marks)', () => {
-  it.each(['bg', 'surface', 'surface-sunken'])('accent reads on %s (≥ 4.5:1)', (surface) => {
+  it.each(SURFACES)('accent reads on %s (≥ 4.5:1)', (surface) => {
     expect(contrast(colour(dark, 'accent'), colour(dark, surface))).toBeGreaterThanOrEqual(4.5);
   });
 });
@@ -122,33 +157,30 @@ describe('what was measured, as ink (`mark`)', () => {
     expect(dark['mark']).toBe(dark['accent']);
   });
 
-  it('is not the yellow in the light theme, where yellow on white cannot be read', () => {
-    expect(light['mark']).not.toBe(light['accent']);
-    expect(contrast(colour(light, 'mark'), colour(light, 'surface'))).toBeGreaterThanOrEqual(4.5);
-  });
-});
-
-describe('light theme: the accent is only a fill', () => {
-  it('is never asked to be text on the page background', () => {
-    // Yellow on near-white fails AA, which is why the light theme keeps it for buttons only.
-    expect(contrast(colour(light, 'accent'), colour(light, 'bg'))).toBeLessThan(3);
-    expect(contrast(colour(light, 'accent-edge'), colour(light, 'bg'))).toBeGreaterThanOrEqual(4.5);
+  it('is a dark gold in the light theme, where yellow on paper cannot be read', () => {
+    expect(light['mark']).toBe('#6b4f00');
+    expect(contrast(light['accent-ink'] ?? '', colour(light, 'bg'))).toBeLessThan(3);
   });
 });
 
 describe('Tailwind mapping', () => {
-  it('maps every colour token to a utility colour', () => {
-    const colours = Object.keys(dark).filter((name) => name !== 'size-touch');
-    for (const name of colours) {
+  it('maps every token to a utility', () => {
+    const mapped = Object.keys(dark).filter((name) => !THEME_INDEPENDENT.includes(name));
+    for (const name of mapped) {
       expect(themeCss, name).toContain(`var(--sm-${name})`);
     }
+  });
+
+  it('only treats real colours as colours', () => {
+    const colours = Object.keys(dark).filter((name) => !NOT_A_COLOUR.includes(name));
+    for (const name of colours) colour(dark, name);
   });
 
   it('uses inline mapping so switching data-theme needs no rebuild', () => {
     expect(themeCss).toContain('@theme inline');
   });
 
-  it('loads no web fonts', () => {
-    expect(themeCss).not.toMatch(/@import url|@font-face|fonts\.googleapis/);
+  it('loads no fonts from other hosts (ADR-012: own woff2, precached)', () => {
+    expect(themeCss).not.toMatch(/@import url|fonts\.googleapis|fonts\.gstatic/);
   });
 });

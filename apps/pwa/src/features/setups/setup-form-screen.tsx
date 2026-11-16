@@ -9,6 +9,7 @@ import {
   SectionCard,
   Select,
   Skeleton,
+  TOUCH_TARGET_PX,
 } from '@sight-mapper/ui';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -88,7 +89,7 @@ function ArrowChoices({
       {choices.map((choice) => (
         <label
           key={choice.id}
-          style={{ minHeight: 44 }}
+          style={{ minHeight: TOUCH_TARGET_PX }}
           className="flex items-center gap-3 rounded-sm border border-border px-3 font-ui text-base"
         >
           <input

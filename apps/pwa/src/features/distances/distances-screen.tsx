@@ -10,6 +10,7 @@ import {
   Select,
   Skeleton,
   StatusBadge,
+  touchTarget,
 } from '@sight-mapper/ui';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -343,7 +344,7 @@ function DistancesView({
                                 distance: showUnitDistance(row.distance),
                               })}
                               aria-current={isSelected ? 'true' : undefined}
-                              style={{ minHeight: 44, minWidth: 44 }}
+                              style={touchTarget}
                               className="text-left underline-offset-2 hover:underline"
                               onClick={() => go({ d: row.distanceM })}
                             >

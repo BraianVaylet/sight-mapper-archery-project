@@ -99,7 +99,7 @@ flowchart LR
   - Given `docs/adr/README.md`, Then lista ADR-012.
 - **Verificar:** `spec-reviewer` (agente del repo) sobre el diff de docs.
 
-### [ ] R-02 · Tokens de color, forma y tamaño
+### [x] R-02 · Tokens de color, forma y tamaño
 
 - **Modulo:** ui · **Puntos:** 3 · **Depende de:** R-01
 - **Archivos:** `packages/ui/src/styles/tokens.css`, `packages/ui/src/styles/theme.css`,

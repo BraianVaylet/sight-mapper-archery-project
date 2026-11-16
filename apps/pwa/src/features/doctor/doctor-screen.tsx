@@ -13,6 +13,7 @@ import {
   Select,
   Skeleton,
   StatusBadge,
+  TOUCH_TARGET_PX,
 } from '@sight-mapper/ui';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useI18n } from '../../app/i18n.js';
@@ -170,7 +171,7 @@ function DoctorView({ setup, arrowSetId }: { setup: SetupView; arrowSetId: strin
                     <button
                       type="button"
                       onClick={() => toTheMark((view.suspect ?? { distanceM: 0 }).distanceM)}
-                      style={{ minHeight: 44 }}
+                      style={{ minHeight: TOUCH_TARGET_PX }}
                       className="self-start font-ui text-base text-info underline underline-offset-2"
                     >
                       {t('doctor.fix', { distance: showDistance(view.suspect.distanceM) })}

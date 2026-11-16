@@ -1,6 +1,6 @@
 import type { SetupView } from '@sight-mapper/schemas';
 import { formatDateTime } from '@sight-mapper/i18n';
-import { ErrorState, SectionCard, Skeleton, StatusBadge } from '@sight-mapper/ui';
+import { ErrorState, SectionCard, Skeleton, StatusBadge, touchTarget } from '@sight-mapper/ui';
 import { Link } from '@tanstack/react-router';
 import { describeError } from '../../app/errors.js';
 import { useI18n } from '../../app/i18n.js';
@@ -106,7 +106,7 @@ export function HomeScreen() {
                       setup.isFavorite ? t('setups.home.unfavorite') : t('setups.home.favorite')
                     }
                     onClick={() => favorite.mutate({ id: setup.id, isFavorite: !setup.isFavorite })}
-                    style={{ minWidth: 44, minHeight: 44 }}
+                    style={touchTarget}
                     className={`inline-flex shrink-0 items-center justify-center rounded-sm border border-border ${
                       setup.isFavorite ? 'text-mark' : 'text-muted'
                     }`}

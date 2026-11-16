@@ -1,65 +1,93 @@
 /*
- * Design tokens (docs/UX-UI.md §2). Dark is the design's own theme and the default; light is a
- * high-contrast variant for use in the sun. `data-theme="dark|light"` forces a theme; without it
- * the system preference decides. Every text/background pair passes WCAG AA (tokens.test.ts).
+ * Design tokens of the blueprint redesign (docs/UX-UI.md §2, docs/redesign/DESIGN-SYSTEM.md §2.1).
+ * Dark (night) is the reference theme and the default; light (sun) inverts it for full sunlight.
+ * `data-theme="dark|light"` forces a theme; without it the system preference decides. Main text
+ * reaches 7:1 and every other text 4.5:1 on every surface (tokens.test.ts).
  *
- * `accent` is a fill (buttons, the selected option) with `accent-ink` on it. What was **measured**,
- * drawn as ink on the page (a badge, a dot, a line of the ruler or the curve), is `mark`: the same
- * yellow on the navy of the dark theme, and a dark gold in the light one, where yellow on white is
- * unreadable (1.5:1) and in the sun disappears altogether (UX-UI §2.2).
+ * 60/30/10: `bg` (with the blueprint grid) is the background, the surfaces and borders support it,
+ * and `accent` is the 10%: the primary action, the chosen option. In dark the accent is the signal
+ * yellow with navy ink; in light it turns navy with yellow ink, because yellow on white is 1.5:1
+ * and disappears in the sun. What was **measured**, drawn as ink (a badge, a dot, a line of the
+ * ruler), is `mark`: yellow on navy, dark gold on paper.
  */
 
 :root {
   color-scheme: dark;
-  --sm-bg: #10286b;
-  --sm-surface: #24406f;
-  --sm-surface-sunken: #0b1c4a;
+  --sm-bg: #0b1b45;
+  --sm-grid: #14275a;
+  --sm-grid-major: #1d356f;
+  --sm-surface: #13285f;
+  --sm-surface-raised: #1c3266;
+  --sm-surface-sunken: #07122f;
+  --sm-line: #2c4682;
   --sm-border: #7a92c4;
-  --sm-text: #ffffff;
-  --sm-text-muted: #a9b9d8;
+  --sm-text: #f4f6fc;
+  --sm-text-muted: #aebddc;
   --sm-accent: #ffcc00;
-  --sm-accent-ink: #10286b;
+  --sm-accent-ink: #0b1b45;
   --sm-accent-edge: #8a6d00;
   --sm-mark: #ffcc00;
   --sm-info: #6ec6e6;
   --sm-danger: #ff8a8a;
-  --sm-warning: #ffb84d;
-  --sm-size-touch: 44px;
+  --sm-warning: #ff9f43;
+  --sm-focus: #6ec6e6;
+  --sm-shadow-key: 0 3px 0 0 #8a6d00;
+  --sm-shadow-panel: 4px 4px 0 0 #07122f;
+
+  /* Theme independent: only declared here. */
+  --sm-size-touch: 48px;
+  --sm-size-touch-lg: 56px;
+  --sm-grid-step: 8px;
+  --sm-grid-step-major: 40px;
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --sm-bg: #f6f8fc;
+  --sm-bg: #eef2f9;
+  --sm-grid: #dde4f1;
+  --sm-grid-major: #c9d4e9;
   --sm-surface: #ffffff;
-  --sm-surface-sunken: #e7ecf6;
+  --sm-surface-raised: #d5ddee;
+  --sm-surface-sunken: #e3e9f4;
+  --sm-line: #b9c5de;
   --sm-border: #5f719c;
-  --sm-text: #10286b;
-  --sm-text-muted: #41547f;
-  --sm-accent: #ffcc00;
-  --sm-accent-ink: #10286b;
-  --sm-accent-edge: #10286b;
-  --sm-mark: #7d5e00;
+  --sm-text: #0b1b45;
+  --sm-text-muted: #3b4c78;
+  --sm-accent: #10286b;
+  --sm-accent-ink: #ffcc00;
+  --sm-accent-edge: #050d24;
+  --sm-mark: #6b4f00;
   --sm-info: #0b5c8a;
   --sm-danger: #b3261e;
-  --sm-warning: #7a4f00;
+  --sm-warning: #8a4200;
+  --sm-focus: #0b5c8a;
+  --sm-shadow-key: 0 3px 0 0 #050d24;
+  --sm-shadow-panel: 4px 4px 0 0 #c9d4e9;
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
     color-scheme: light;
-    --sm-bg: #f6f8fc;
+    --sm-bg: #eef2f9;
+    --sm-grid: #dde4f1;
+    --sm-grid-major: #c9d4e9;
     --sm-surface: #ffffff;
-    --sm-surface-sunken: #e7ecf6;
+    --sm-surface-raised: #d5ddee;
+    --sm-surface-sunken: #e3e9f4;
+    --sm-line: #b9c5de;
     --sm-border: #5f719c;
-    --sm-text: #10286b;
-    --sm-text-muted: #41547f;
-    --sm-accent: #ffcc00;
-    --sm-accent-ink: #10286b;
-    --sm-accent-edge: #10286b;
-    --sm-mark: #7d5e00;
+    --sm-text: #0b1b45;
+    --sm-text-muted: #3b4c78;
+    --sm-accent: #10286b;
+    --sm-accent-ink: #ffcc00;
+    --sm-accent-edge: #050d24;
+    --sm-mark: #6b4f00;
     --sm-info: #0b5c8a;
     --sm-danger: #b3261e;
-    --sm-warning: #7a4f00;
+    --sm-warning: #8a4200;
+    --sm-focus: #0b5c8a;
+    --sm-shadow-key: 0 3px 0 0 #050d24;
+    --sm-shadow-panel: 4px 4px 0 0 #c9d4e9;
   }
 }
 

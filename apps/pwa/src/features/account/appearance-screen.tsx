@@ -43,7 +43,7 @@ export function AppearanceScreen() {
         />
         {profile.data === undefined ? (
           <div aria-busy="true">
-            <Skeleton className="h-11 w-full" />
+            <Skeleton className="h-12 w-full" />
           </div>
         ) : (
           <Segmented

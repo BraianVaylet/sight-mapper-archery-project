@@ -12,9 +12,14 @@
  */
 @theme inline {
   --color-bg: var(--sm-bg);
+  --color-grid: var(--sm-grid);
+  --color-grid-major: var(--sm-grid-major);
   --color-surface: var(--sm-surface);
+  --color-raised: var(--sm-surface-raised);
   --color-sunken: var(--sm-surface-sunken);
+  --color-line: var(--sm-line);
   --color-border: var(--sm-border);
+  --color-focus: var(--sm-focus);
   --color-text: var(--sm-text);
   --color-muted: var(--sm-text-muted);
   --color-accent: var(--sm-accent);
@@ -25,11 +30,18 @@
   --color-danger: var(--sm-danger);
   --color-warning: var(--sm-warning);
 
-  /* No web fonts: nothing to download before the first paint, and it works offline. */
+  /* Own fonts arrive with F1-26 (ADR-012): woff2 served by the PWA and precached, so they work offline. */
   --font-display: ui-serif, 'Roboto Slab', Georgia, Cambria, 'Times New Roman', serif;
   --font-ui: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
-  /* "Instrument" look: small radii. */
+  --font-mono: ui-monospace, 'SF Mono', Consolas, 'Liberation Mono', monospace;
+
+  /* "Instrument" look: small radii; 8 px only on top of the bottom sheet. */
   --radius-sm: 2px;
   --radius-md: 4px;
+  --radius-lg: 8px;
+
+  /* Hard shadows, no blur: the key edge under the primary button and the offset of what floats. */
+  --shadow-key: var(--sm-shadow-key);
+  --shadow-panel: var(--sm-shadow-panel);
 }

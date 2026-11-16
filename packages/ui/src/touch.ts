@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 
-/** Smallest tappable area: gloves, sun, one hand (UX-UI §1, WCAG 2.5.8 asks 24 px, we ask 44). */
-export const TOUCH_TARGET_PX = 44;
+/** Smallest tappable area: gloves, sun, one hand (UX-UI §1, WCAG 2.5.8 asks 24 px, we ask 48). */
+export const TOUCH_TARGET_PX = 48;
 
 /** Inline so the guarantee holds with no stylesheet loaded, and a test can read it. */
 export const touchTarget: CSSProperties = {

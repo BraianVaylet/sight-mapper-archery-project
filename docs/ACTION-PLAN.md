@@ -496,7 +496,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Modulo:** docs · **Puntos:** 2 · **Depende de:** F1-23
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-01.
 
-### [ ] F1-25 · Rediseño: tokens de color, forma y tamaño
+### [x] F1-25 · Rediseño: tokens de color, forma y tamaño
 
 - **Modulo:** ui · **Puntos:** 3 · **Depende de:** F1-24
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-02.

@@ -18,6 +18,51 @@
 
 ---
 
+## 2026-11-16 — La app ya usa la paleta blueprint y tocables de 48 px
+
+**Tareas:** F1-25 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `tokens.css`: valores finales de los dos temas (DESIGN-SYSTEM §2.1) en los tres bloques, con los
+  nombres de siempre y los nuevos `surface-raised`, `line`, `grid`, `grid-major`, `focus`,
+  `shadow-key`, `shadow-panel`, `size-touch-lg` (56), `grid-step` (8) y `grid-step-major` (40).
+  En claro el acento pasa a navy `#10286b` con tinta amarilla; lo medido a `#6b4f00`.
+- `theme.css`: utilidades `raised`, `line`, `grid`, `grid-major`, `focus`, `shadow-key`,
+  `shadow-panel`, `radius-lg` y `font-mono`.
+- Tocables 44 → 48 px: `TOUCH_TARGET_PX`, `LinkButtonClass`, las herramientas de la mira y cuatro
+  `style` con `44` a mano en la PWA (ahora usan `touchTarget`/`TOUCH_TARGET_PX`).
+- Foco con `--sm-focus`; `theme-color` y manifest a `#0b1b45`, mas un `theme-color` claro
+  `#eef2f9` por media query. El script inline del tema no se toco (su hash esta en la CSP).
+
+### Decisiones (con link a ADR si corresponde)
+
+- El canto del boton primario se mide contra `bg` (≥3:1) y no contra `accent`: en claro el navy del
+  acento y el canto casi negro son parecidos, y lo que tiene que verse es la tecla sobre la pagina.
+- Los 9 asserts `'44px'` de los tests de `ui` pasan a `${TOUCH_TARGET_PX}px`: el requisito cambio
+  por spec (RF-X-02), no es esquivar un test.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `tokens.test.ts` reescrito con los criterios de R-02: texto ≥7 y el resto ≥4,5 sobre `bg`,
+  `surface`, `surface-raised` y `surface-sunken`; `accent-ink` sobre `accent` ≥7; `border` y
+  `focus` ≥3; cuadricula entre 1,1 y 1,5 sobre `bg`; sombras armadas con los colores del tema;
+  bloque `system` identico a `light`. `ui`: 120/120.
+- `pnpm lint` y `pnpm typecheck` en verde. `pnpm test` del monorepo: todo verde salvo un test de
+  `pwa/test/sight.test.tsx` ("invites the archer to measure the first mark") que fallo una vez con
+  toda la suite en paralelo y paso 3 de 3 corriendo solo (tambien sin estos cambios): flaky por
+  tiempo, no por los tokens.
+- `scripts/csp.test.mjs` en verde.
+- `/sandbox` en el navegador, dark y light: el acento claro es navy con texto amarillo, lo medido
+  dorado oscuro, lo calculado cian. La consola solo muestra 502 de `/api` (solo corria `vite`, sin
+  API), de la carga inicial de `/` y no de los estilos.
+- **No corrido:** E2E de contraste y axe (quedan para F1-33, o antes si algun paso los rompe).
+
+### Pendiente / deuda
+
+- El flaky de `sight.test.tsx` bajo carga: mirar si necesita un `findBy` con mas tiempo.
+- F1-26 (fuentes) y F1-27 (fondo).
+
 ## 2026-11-16 — La spec ya describe el rediseño blueprint: configuracion solo en Ajustes y fuentes propias
 
 **Tareas:** F1-23, F1-24 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)

@@ -4,6 +4,7 @@ import { StrictMode, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { AppHeader, SectionCard } from './layout.js';
 import { BottomSheet, NavDrawer, NavItem } from './overlays.js';
+import { TOUCH_TARGET_PX } from '../touch.js';
 
 function DrawerHarness({ sheet = false }: { sheet?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -173,7 +174,7 @@ describe('NavItem', () => {
     render(<NavItem label="Home" current />);
     const item = screen.getByRole('button', { name: 'Home' });
     expect(item).toHaveAttribute('aria-current', 'page');
-    expect(item).toHaveStyle({ minHeight: '44px' });
+    expect(item).toHaveStyle({ minHeight: `${TOUCH_TARGET_PX}px` });
   });
 });
 

@@ -113,7 +113,7 @@ function ReadingBadge({
 }
 
 const TOOL_CLASS =
-  'inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-sm border border-border px-3 font-ui text-base';
+  'inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-sm border border-border px-3 font-ui text-base';
 
 /** Intermediates and the curve: from two marks on; before that, visible and announced as unavailable. */
 function DistancesTool({
