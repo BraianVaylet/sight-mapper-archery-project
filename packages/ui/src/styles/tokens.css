@@ -91,6 +91,25 @@
   }
 }
 
+/* Motion of the primitives: the skeleton sweeps like a scanner, the toast bar drains. */
+@keyframes sm-scan {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@keyframes sm-drain {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

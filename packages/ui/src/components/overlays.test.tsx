@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { StrictMode, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { AppHeader, SectionCard } from './layout.js';
-import { BottomSheet, NavDrawer, NavItem } from './overlays.js';
+import { BottomSheet, NavDrawer, NavGroup, NavItem } from './overlays.js';
 import { TOUCH_TARGET_PX } from '../touch.js';
 
 function DrawerHarness({ sheet = false }: { sheet?: boolean }) {
@@ -175,6 +175,30 @@ describe('NavItem', () => {
     const item = screen.getByRole('button', { name: 'Home' });
     expect(item).toHaveAttribute('aria-current', 'page');
     expect(item).toHaveStyle({ minHeight: `${TOUCH_TARGET_PX}px` });
+  });
+});
+
+describe('NavGroup', () => {
+  it('names its region with the label; the instrument number is decoration', () => {
+    render(
+      <NavGroup index="01" label="Tiro">
+        <NavItem label="Inicio" current />
+      </NavGroup>,
+    );
+    expect(screen.getByRole('region', { name: 'Tiro' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Inicio' })).toHaveAttribute('aria-current', 'page');
+  });
+});
+
+describe('SectionCard index', () => {
+  it('shows the number but keeps it out of the accessible name', () => {
+    render(
+      <SectionCard index="01" title="Pantalla">
+        <p>x</p>
+      </SectionCard>,
+    );
+    expect(screen.getByRole('region', { name: 'Pantalla' })).toHaveTextContent('01');
+    expect(screen.getByRole('heading', { name: 'Pantalla' })).toBeInTheDocument();
   });
 });
 

@@ -488,73 +488,78 @@ function SightView({
           </SectionCard>
 
           <SectionCard title={t('sight.tableTitle')} count={marks.length} className="min-w-0">
-            <table className="w-full border-collapse font-ui text-base" onKeyDown={onTableKey}>
-              <caption className="sr-only">{t('sight.tableCaption')}</caption>
-              <thead>
-                <tr className="text-left text-sm text-muted">
-                  <th scope="col" className="py-1 pr-2 font-medium">
-                    {t('sight.distance')}
-                  </th>
-                  <th scope="col" className="py-1 pr-2 font-medium">
-                    {t('sight.reading')}
-                  </th>
-                  <th scope="col" className="py-1 pr-2 font-medium">
-                    {t('sight.state')}
-                  </th>
-                  <th scope="col" className="py-1">
-                    <span className="sr-only">{t('setups.home.edit')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {marks.map((m) => {
-                  const isSelected = m.distanceM === selectedM;
-                  const reading = analysis.readingAt(m.distanceM);
-                  return (
-                    <tr
-                      key={m.id}
-                      aria-selected={isSelected}
-                      className={`border-t border-border ${isSelected ? 'bg-sunken' : ''}`}
-                    >
-                      <th scope="row" className="py-1 pr-2 text-left font-medium tabular-nums">
-                        <button
-                          type="button"
-                          aria-label={t('sight.selectMark', {
-                            distance: showDistance(m.distanceM),
-                          })}
-                          aria-current={isSelected ? 'true' : undefined}
-                          style={{ minHeight: 44, minWidth: 44 }}
-                          className="text-left underline-offset-2 hover:underline"
-                          onClick={() => go({ d: m.distanceM })}
-                        >
-                          {showDistance(m.distanceM)}
-                        </button>
-                      </th>
-                      <td className="py-1 pr-2 tabular-nums">{readingText(reading)}</td>
-                      <td className="py-1">
-                        <ReadingBadge
-                          reading={reading}
-                          suspect={analysis.suspectIds.has(m.id)}
-                          inconsistent={analysis.inconsistentIds.has(m.id)}
-                        />
-                      </td>
-                      <td className="py-1 text-right">
-                        <Button
-                          variant="link"
-                          // Narrower than a free-standing button: with a wide system font (DejaVu on Linux)
-                          // the four columns must still fit 360 px.
-                          style={{ paddingInline: 8 }}
-                          aria-label={t('sight.editMark', { distance: showDistance(m.distanceM) })}
-                          onClick={() => setSheet({ mode: 'edit', mark: m })}
-                        >
-                          {t('setups.home.edit')}
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            {/* A wide system font must not push the page sideways: the table scrolls on its own. */}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse font-ui text-base" onKeyDown={onTableKey}>
+                <caption className="sr-only">{t('sight.tableCaption')}</caption>
+                <thead>
+                  <tr className="text-left text-sm text-muted">
+                    <th scope="col" className="py-1 pr-2 font-medium">
+                      {t('sight.distance')}
+                    </th>
+                    <th scope="col" className="py-1 pr-2 font-medium">
+                      {t('sight.reading')}
+                    </th>
+                    <th scope="col" className="py-1 pr-2 font-medium">
+                      {t('sight.state')}
+                    </th>
+                    <th scope="col" className="py-1">
+                      <span className="sr-only">{t('setups.home.edit')}</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {marks.map((m) => {
+                    const isSelected = m.distanceM === selectedM;
+                    const reading = analysis.readingAt(m.distanceM);
+                    return (
+                      <tr
+                        key={m.id}
+                        aria-selected={isSelected}
+                        className={`border-t border-border ${isSelected ? 'bg-sunken' : ''}`}
+                      >
+                        <th scope="row" className="py-1 pr-2 text-left font-medium tabular-nums">
+                          <button
+                            type="button"
+                            aria-label={t('sight.selectMark', {
+                              distance: showDistance(m.distanceM),
+                            })}
+                            aria-current={isSelected ? 'true' : undefined}
+                            style={{ minHeight: 44, minWidth: 44 }}
+                            className="text-left underline-offset-2 hover:underline"
+                            onClick={() => go({ d: m.distanceM })}
+                          >
+                            {showDistance(m.distanceM)}
+                          </button>
+                        </th>
+                        <td className="py-1 pr-2 tabular-nums">{readingText(reading)}</td>
+                        <td className="py-1">
+                          <ReadingBadge
+                            reading={reading}
+                            suspect={analysis.suspectIds.has(m.id)}
+                            inconsistent={analysis.inconsistentIds.has(m.id)}
+                          />
+                        </td>
+                        <td className="py-1 text-right">
+                          <Button
+                            variant="link"
+                            // Narrower than a free-standing button: with a wide system font (DejaVu on Linux)
+                            // the four columns must still fit 360 px.
+                            style={{ paddingInline: 8 }}
+                            aria-label={t('sight.editMark', {
+                              distance: showDistance(m.distanceM),
+                            })}
+                            onClick={() => setSheet({ mode: 'edit', mark: m })}
+                          >
+                            {t('setups.home.edit')}
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </SectionCard>
         </div>
       )}

@@ -18,6 +18,62 @@
 
 ---
 
+## 2026-11-17 — Las primitivas de la interfaz tienen la forma del instrumento
+
+**Tareas:** F1-28 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `Button`: borde de 2 px, canto `shadow-key` que la presion hunde (`translate-y-0.5`), variantes
+  nuevas `ghost` y `danger`, `size="lg"` (56 px) y `block`.
+- `Field` / `NumberField` / `PasswordField` / `Select`: borde de 2 px; `NumberField` en mono
+  tabular; error con cruz ademas del color; `Select` con flecha propia; sufijo de unidad en mono.
+- `Segmented`: pista hundida con borde y un cuadrado indicador en la opcion elegida (forma, no solo
+  color).
+- `StatusBadge`: mono MAYUSCULAS, `calculated` con borde punteado. `InfoAlert`: borde de 2 px y
+  `title` opcional. `Toast`: `shadow-panel` y barra de tiempo `accent` de 3 px que se vacia
+  (decorativa). `UpdatePrompt`: `shadow-panel`. `EmptyState` / `ErrorState`: glifo de escala y
+  marco (punteado / `danger`). `Skeleton`: barrido de escaner (`sm-scan`), anulado por
+  `prefers-reduced-motion`.
+- `SectionCard`: prop `index` ("01") en `mark` mono, titulo en mono, regla punteada `line`.
+  `AppHeader`: `bg-raised`, borde de 2 px, titulo en display. `NavDrawer` / `BottomSheet`:
+  `shadow-panel`, bordes de 2 px; la hoja con `rounded-t-lg`, asa y `safe-area`. `NavGroup` nuevo
+  (`01 — TIRO`); `NavItem` con `icon` y barra izquierda `accent` de 4 px en el actual.
+- El foco de cada primitiva queda en el `:focus-visible` global (3 px `focus`), sin anillos propios.
+- `/sandbox` muestra las variantes nuevas (claves i18n ES y EN).
+
+### Decisiones (con link a ADR si corresponde)
+
+- El logo real en `AppHeader`, los iconos de linea y los grupos del menu de la app se conectan en
+  F1-29 (menu y Ajustes), F1-30/31 y F1-32: aca quedan las primitivas listas (`logo`, `icon`,
+  `NavGroup`).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui`: 140/140 (8 nuevos: variantes y tamaños de `Button`, barra del toast, titulo de
+  `InfoAlert`, `NavGroup`, indice de `SectionCard`). Lint y typecheck limpios; `i18n` 27/27.
+- `/sandbox` a 420 px en oscuro y claro, comparado con `docs/redesign/screenshots/`: botones,
+  campos, segmentado, chapas, avisos, estados, toast, menu (grupo, item actual, chapa) y hoja.
+- PWA: 385/385 unit tests.
+- E2E a 360 (26 specs): 21 pasaron y 3 fallaron en la primera corrida. Al investigarlos:
+  - `a11y` con fuente ancha (Verdana forzada): la mira, el Doctor y la hoja de marca se pasaban
+    12–16 px. Un probe temporal mostro la causa: las tablas de marcas y del Doctor, ensanchadas
+    por la chapa en mayusculas y el boton "Editar" con borde de 2 px. Las dos tablas ahora tienen
+    su propio scroll horizontal (`overflow-x-auto`); R-07 rehace la de la mira.
+  - Flujo critico en ingles: falto un heading por tiempo con la suite en paralelo; corrido con un
+    worker, pasa.
+  - `setups`: fallaba por el limite total de 30 s, en pasos distintos cada vez. En el commit de
+    F1-27 tarda 22,7 s y con F1-28 entre 23,8 y 24,1 s (2 de 2 en verde). Se le dio
+    `setTimeout(90_000)`, como ya tienen las otras pruebas de flujo largo.
+  - Re-corrida de `a11y` y del flujo critico (ES y EN) con un worker: 4/4 en verde.
+
+### Pendiente / deuda
+
+- `setups.spec.ts` con 90 s de limite: es un flujo de 4 cargas completas. Si en CI sigue
+  lento, mirar el arranque del servidor de desarrollo.
+- Logo real, iconos y grupos del menu en la app: F1-29.
+
+
 ## 2026-11-17 — Toda la app se dibuja sobre papel de plano
 
 **Tareas:** F1-27 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)

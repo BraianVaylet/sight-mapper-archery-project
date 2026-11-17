@@ -70,6 +70,28 @@ describe('Toast', () => {
   });
 });
 
+describe('Toast time bar', () => {
+  it('drains for as long as the undo lasts, hidden from assistive technology', () => {
+    render(<Toast message="Saved" dismissLabel="Close" onDismiss={() => {}} durationMs={8000} />);
+    const bar = screen.getByRole('status').querySelector('[aria-hidden="true"][style]');
+    expect(bar).not.toBeNull();
+    expect(bar).toHaveStyle({ animation: 'sm-drain 8000ms linear forwards' });
+  });
+});
+
+describe('InfoAlert title', () => {
+  it('shows an optional title before the message, inside the same live region', () => {
+    render(
+      <InfoAlert variant="warning" title="Check this mark">
+        It is far from the curve.
+      </InfoAlert>,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Check this markIt is far from the curve.',
+    );
+  });
+});
+
 describe('InfoAlert', () => {
   it.each([
     ['info', 'status'],
@@ -206,7 +228,7 @@ describe('UpdatePrompt', () => {
   });
 });
 
-describe('every interactive primitive keeps the 44 px target', () => {
+describe('every interactive primitive keeps the 48 px target', () => {
   it('buttons in feedback components', () => {
     render(
       <>

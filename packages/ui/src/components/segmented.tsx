@@ -15,26 +15,19 @@ export type SegmentedProps<V extends string> = {
   error?: string | undefined;
 };
 
-function CheckIcon() {
+/** The indicator square of an instrument switch: the selection has a shape besides the colour. */
+function SelectedMark() {
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 16 16"
-      width="16"
-      height="16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M3 8.5l3.5 3.5L13 5" />
+    <svg aria-hidden="true" viewBox="0 0 6 6" width="6" height="6" className="shrink-0">
+      <rect width="6" height="6" fill="currentColor" />
     </svg>
   );
 }
 
 /**
  * Pick one of a few options (cam type, pin type, units). A radio group: one tab stop, arrow
- * keys move the selection, the selected option is filled with the accent and has a check shape
- * besides the colour.
+ * keys move the selection, the selected option is filled with the accent and has an indicator
+ * square besides the colour.
  */
 export function Segmented<V extends string>({
   label,
@@ -68,7 +61,11 @@ export function Segmented<V extends string>({
       <span id={labelId} className="font-ui text-sm font-medium text-text">
         {label}
       </span>
-      <div role="radiogroup" aria-labelledby={labelId} className="flex gap-2">
+      <div
+        role="radiogroup"
+        aria-labelledby={labelId}
+        className="flex gap-[3px] rounded-sm border-2 border-border bg-sunken p-[3px]"
+      >
         {options.map((option) => {
           const selected = option.value === value;
           return (
@@ -87,14 +84,14 @@ export function Segmented<V extends string>({
               onClick={() => onChange(option.value)}
               onKeyDown={(event) => move(event, option.value)}
               className={cx(
-                'flex flex-1 items-center justify-center gap-1 rounded-sm border px-3 font-ui text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info',
+                'flex flex-1 items-center justify-center gap-1.5 rounded-[1px] px-3 font-ui text-base',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 selected
-                  ? 'border-accent-edge bg-accent font-semibold text-accent-ink'
-                  : 'border-border bg-sunken text-text',
+                  ? 'bg-accent font-semibold text-accent-ink'
+                  : 'bg-transparent font-medium text-text hover:bg-raised',
               )}
             >
-              {selected ? <CheckIcon /> : null}
+              {selected ? <SelectedMark /> : null}
               {option.label}
             </button>
           );

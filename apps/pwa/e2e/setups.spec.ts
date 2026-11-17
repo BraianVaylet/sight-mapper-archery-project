@@ -5,6 +5,7 @@ import { signUpAndVerify } from './helpers.js';
 test('load a bow, a sight and arrows, build a setup, star it, trash it and bring it back', async ({
   page,
 }) => {
+  test.setTimeout(90_000); // four full page loads plus a sign-up: ~24 s alone, more under load
   await signUpAndVerify(page);
 
   // A bow, with a value the form must convert and check.

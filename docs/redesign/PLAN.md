@@ -171,7 +171,7 @@ flowchart LR
   - Given el E2E de contraste, Then sigue en 0 problemas (la cuadricula es `background-image` y no
     altera el color de fondo que mide `contrast.ts`).
 
-### [ ] R-05 · Primitivas de `@sight-mapper/ui` restilizadas
+### [x] R-05 · Primitivas de `@sight-mapper/ui` restilizadas
 
 - **Modulo:** ui · **Puntos:** 5 · **Depende de:** R-02, R-03
 - **Archivos:** `packages/ui/src/components/{button,fields,feedback,layout,overlays,segmented}.tsx`

@@ -511,7 +511,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Modulo:** ui, pwa · **Puntos:** 2 · **Depende de:** F1-25
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-04.
 
-### [ ] F1-28 · Rediseño: primitivas de `@sight-mapper/ui` restilizadas
+### [x] F1-28 · Rediseño: primitivas de `@sight-mapper/ui` restilizadas
 
 - **Modulo:** ui · **Puntos:** 5 · **Depende de:** F1-25, F1-26
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-05.

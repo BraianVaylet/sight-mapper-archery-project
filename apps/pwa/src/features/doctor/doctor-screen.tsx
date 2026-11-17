@@ -204,52 +204,55 @@ function DoctorView({ setup, arrowSetId }: { setup: SetupView; arrowSetId: strin
 
           <div className="grid items-start gap-4 md:grid-cols-2">
             <SectionCard title={t('doctor.tableTitle')} className="min-w-0">
-              <table className="w-full border-collapse font-ui text-base">
-                <caption className="sr-only">{t('doctor.tableCaption')}</caption>
-                <thead>
-                  <tr className="text-left text-sm text-muted">
-                    <th scope="col" className="py-1 pr-3 font-medium">
-                      {t('sight.distance')}
-                    </th>
-                    <th scope="col" className="py-1 pr-3 font-medium">
-                      {t('sight.reading')}
-                    </th>
-                    <th scope="col" className="py-1 pr-3 font-medium">
-                      {t('doctor.deviation')}
-                    </th>
-                    <th scope="col" className="py-1 pr-3 font-medium">
-                      {t('sight.state')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {view.rows.map((row) => (
-                    <tr key={row.id} data-state={row.state} className="border-t border-border">
-                      <th scope="row" className="py-1 pr-3 text-left font-medium tabular-nums">
-                        {showDistance(row.distanceM)}
+              {/* A wide system font must not push the page sideways: the table scrolls on its own. */}
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse font-ui text-base">
+                  <caption className="sr-only">{t('doctor.tableCaption')}</caption>
+                  <thead>
+                    <tr className="text-left text-sm text-muted">
+                      <th scope="col" className="py-1 pr-3 font-medium">
+                        {t('sight.distance')}
                       </th>
-                      <td className="py-1 pr-3 tabular-nums">
-                        {formatReading(row.reading, scale, separator)}
-                      </td>
-                      <td className="py-1 pr-3 tabular-nums">
-                        {row.deviation === undefined ? (
-                          '—'
-                        ) : (
-                          <>
-                            {signed(row.deviation)}
-                            {row.tolerance === undefined ? null : (
-                              <span className="block text-xs text-muted">
-                                {t('doctor.tolerance')} ±{amount(row.tolerance)}
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </td>
-                      <td className="py-1">{badge(row.state)}</td>
+                      <th scope="col" className="py-1 pr-3 font-medium">
+                        {t('sight.reading')}
+                      </th>
+                      <th scope="col" className="py-1 pr-3 font-medium">
+                        {t('doctor.deviation')}
+                      </th>
+                      <th scope="col" className="py-1 pr-3 font-medium">
+                        {t('sight.state')}
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {view.rows.map((row) => (
+                      <tr key={row.id} data-state={row.state} className="border-t border-border">
+                        <th scope="row" className="py-1 pr-3 text-left font-medium tabular-nums">
+                          {showDistance(row.distanceM)}
+                        </th>
+                        <td className="py-1 pr-3 tabular-nums">
+                          {formatReading(row.reading, scale, separator)}
+                        </td>
+                        <td className="py-1 pr-3 tabular-nums">
+                          {row.deviation === undefined ? (
+                            '—'
+                          ) : (
+                            <>
+                              {signed(row.deviation)}
+                              {row.tolerance === undefined ? null : (
+                                <span className="block text-xs text-muted">
+                                  {t('doctor.tolerance')} ±{amount(row.tolerance)}
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </td>
+                        <td className="py-1">{badge(row.state)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
               <p className="font-ui text-sm text-muted">{t('doctor.tableHint')}</p>
             </SectionCard>
 

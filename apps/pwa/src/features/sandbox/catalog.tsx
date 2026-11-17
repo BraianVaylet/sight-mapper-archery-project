@@ -7,6 +7,7 @@ import {
   Field,
   InfoAlert,
   NavDrawer,
+  NavGroup,
   NavItem,
   NumberField,
   PasswordField,
@@ -41,7 +42,7 @@ export function Catalog() {
   const close = t('common.close');
 
   return (
-    <SectionCard title={t('sandbox.catalog.title')}>
+    <SectionCard index="01" title={t('sandbox.catalog.title')}>
       <div className="flex flex-col gap-8">
         <Group title={t('sandbox.catalog.header')}>
           <div className="overflow-hidden rounded-md border border-border">
@@ -53,8 +54,13 @@ export function Catalog() {
           <div className="flex flex-wrap items-center gap-3">
             <Button>{t('sandbox.catalog.primary')}</Button>
             <Button variant="secondary">{t('sandbox.catalog.secondary')}</Button>
+            <Button variant="ghost">{t('sandbox.catalog.ghost')}</Button>
+            <Button variant="danger">{t('sandbox.catalog.dangerButton')}</Button>
             <Button variant="link">{t('sandbox.catalog.link')}</Button>
             <Button disabled>{t('sandbox.catalog.disabled')}</Button>
+            <Button size="lg" block>
+              {t('sandbox.catalog.large')}
+            </Button>
           </div>
         </Group>
 
@@ -105,7 +111,9 @@ export function Catalog() {
 
         <Group title={t('sandbox.catalog.alerts')}>
           <InfoAlert variant="info">{t('sandbox.catalog.info')}</InfoAlert>
-          <InfoAlert variant="warning">{t('sandbox.catalog.warning')}</InfoAlert>
+          <InfoAlert variant="warning" title={t('sandbox.catalog.alertTitle')}>
+            {t('sandbox.catalog.warning')}
+          </InfoAlert>
           <InfoAlert variant="danger">{t('sandbox.catalog.danger')}</InfoAlert>
         </Group>
 
@@ -153,8 +161,10 @@ export function Catalog() {
             title={t('sandbox.catalog.drawerTitle')}
             closeLabel={close}
           >
-            <NavItem label={t('sandbox.catalog.navBows')} count={2} current />
-            <NavItem label={t('sandbox.catalog.navSoon')} badge={t('sandbox.catalog.soon')} />
+            <NavGroup index="01" label={t('sandbox.catalog.navGroup')}>
+              <NavItem label={t('sandbox.catalog.navBows')} count={2} current />
+              <NavItem label={t('sandbox.catalog.navSoon')} badge={t('sandbox.catalog.soon')} />
+            </NavGroup>
           </NavDrawer>
         </Group>
 

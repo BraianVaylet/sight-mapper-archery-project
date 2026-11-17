@@ -33,8 +33,8 @@ describe('Button', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it.each(['primary', 'secondary', 'link'] as const)(
-    'the %s variant keeps the 44 px target',
+  it.each(['primary', 'secondary', 'ghost', 'danger', 'link'] as const)(
+    'the %s variant keeps the 48 px target',
     (variant) => {
       render(<Button variant={variant}>x</Button>);
       expect(screen.getByRole('button')).toHaveStyle({
@@ -50,6 +50,18 @@ describe('Button', () => {
       minHeight: `${TOUCH_TARGET_PX}px`,
       color: 'rgb(255, 0, 0)',
     });
+  });
+});
+
+describe('Button sizes', () => {
+  it('grows to the 56 px of the fixed primary action with size="lg"', () => {
+    render(<Button size="lg">Add mark</Button>);
+    expect(screen.getByRole('button')).toHaveStyle({ minHeight: 'var(--sm-size-touch-lg)' });
+  });
+
+  it('takes the full width with block', () => {
+    render(<Button block>Add mark</Button>);
+    expect(screen.getByRole('button')).toHaveClass('w-full');
   });
 });
 
