@@ -18,6 +18,43 @@
 
 ---
 
+## 2026-11-17 — La spec define los ajustes post-rediseño antes de codearlos
+
+**Tareas:** F1-34 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- Spec: RF-X-03 (version del `package.json` raiz, `+sha` fuera de produccion), RF-X-08 (logo →
+  Home), RF-ACC-04 (unidades por seccion: marcas, arco, flechas, mira), RF-MRK-01, RF-CAL-09 y
+  RN-CAL-06 (tolerancia del Doctor 1–10 mm, default 4), RN-EQP-03 (rangos con motivo, solo se
+  ensanchan, hint redondeado hacia adentro), §14 (menu a la derecha, logo nuevo), §17.2 y §17.3.
+- FUNCIONAL (ruta `/doctor`, HU-ACC-04 reescrita, HU-CAL-06, HU-NAV-01, rangos en HU-BOW-01 y
+  HU-ARW-01), UX-UI (§3, §4.4, §4.5, §4.7, §7), TECNICO (preferencias, version, migracion de
+  perfiles con `migrate-mongo`), DOMINIO, DICCIONARIO (rangos con motivo y equivalente imperial,
+  `units.*`, `doctorToleranceMm`), SIGHT-MATH, UNIDADES, errors.md (sin codigos nuevos; mapeo de
+  params por seccion), runbook de release, README de `AppHeader`, `apps/pwa/CLAUDE.md`.
+- ADR-013: tolerancia del Doctor por arquero y unidades por seccion; reemplaza ADR-001 punto 5 (que
+  seguia hablando de MAD) y la consecuencia de ADR-005 sobre el sistema unico.
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-013](adr/013-doctor-tolerance-per-archer.md). Minimos ensanchados: IBO 60 → 45 m/s, apertura
+  450 → 300 mm, libraje 45 → 20 N, largo de flecha 400 → 300 mm (juveniles). El logo esta en todas
+  las pantallas con sesion: la cabecera nunca tuvo "Volver". `units.marks` cubre solo distancias;
+  `units.sight` preselecciona la escala de una mira nueva y muestra la tolerancia del Doctor. El
+  export sigue canonico y pasa a `schemaVersion: 2`.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `spec-reviewer`: 31 hallazgos (contradicciones, 5 conversiones redondeadas hacia afuera, marcas
+  `[~]` faltantes, huecos de F1-37..F1-40), todos corregidos. Conversiones rehechas a mano. Prettier
+  y `test:scripts` (75/75) verdes.
+
+### Pendiente / deuda
+
+- F1-39 agrega las fuentes (catalogos de fabricantes) de cada motivo de rango.
+- El mockup del logo vive solo en el chat; F1-41 lo guarda en `assets/Logos/`.
+
 ## 2026-11-17 — El rediseño blueprint queda verificado entero y listo para revisar
 
 **Tareas:** F1-33 (cierra F1-23..F1-32) · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)

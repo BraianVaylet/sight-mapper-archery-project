@@ -31,8 +31,10 @@
 ```
 
 - 🔴 **Sin prosa.** `messageKey` + `params`; el idioma lo resuelve el cliente.
-- `params` lleva **valores canonicos** (metros, mm); el cliente los convierte a la unidad del
-  arquero antes de interpolarlos en el mensaje.
+- `params` lleva **valores canonicos** (metros, mm); el cliente los convierte a la unidad ~~del
+  arquero~~ [~] de su seccion antes de interpolarlos en el mensaje: distancias con `units.marks`,
+  campos del arco con `units.bow`, de flechas con `units.arrows`, y posiciones de la escala
+  (`minMm`, `maxMm`) en la unidad de la escala de esa mira.
 - Errores de validacion agregan `params.issues: { path: string[], messageKey: string, params }[]`
   para marcar cada campo del form.
 - Nunca se incluye stack, query, nombre de coleccion ni dato de otro usuario.
@@ -74,6 +76,11 @@
 | `SM-CORE-500-001` | 500  | `errors.core.unexpected`           | —                         | Cualquier error no tipado (se loguea con stack)         |
 | `SM-CORE-500-002` | 500  | `errors.core.isolationViolation`   | —                         | Query sin `userId` (bug; alerta inmediata)              |
 | `SM-CORE-503-001` | 503  | `errors.core.notReady`             | —                         | Mongo no responde                                       |
+
+[+] Los ajustes F1-35..F1-41 (2026-11-17) no suman codigos: un valor fuera de rango de arco o
+flechas, una tolerancia del Doctor fuera de 1–10 mm o un `units` invalido en `PATCH /me/preferences`
+son `SM-CORE-400-001`. Cada issue de rango lleva `min` y `max` **canonicos** (UNIDADES §6), y el cliente
+los convierte a la unidad de la seccion, con su `unit`, para mostrar el rango (RN-EQP-03).
 
 ### 4.2 `AUTH`
 

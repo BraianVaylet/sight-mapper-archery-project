@@ -19,3 +19,4 @@
 | [010](010-error-contract.md)                    | Contrato de errores y observabilidad                      | Aceptada   | 2026-10-29 |
 | [011](011-maker-own-implementation.md)          | MAKER: implementacion propia, PDF en el cliente           | Propuesta  | 2026-10-29 |
 | [012](012-own-fonts-precached.md)               | Tipografia propia precacheada                             | Aceptada   | 2026-11-16 |
+| [013](013-doctor-tolerance-per-archer.md)       | Tolerancia del Doctor por arquero y unidades por seccion  | Aceptada   | 2026-11-17 |

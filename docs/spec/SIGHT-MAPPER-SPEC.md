@@ -123,12 +123,17 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
 - **RF-X-02** Todo lo tocable mide al menos ~~**44×44 px**~~ [~] **48×48 px** (accion principal fija:
   56 px). Se usa de pie, con guantes, al sol.
 - **RF-X-03** La PWA muestra su version (~~en login y en Perfil~~ [~] en Ajustes) y avisa cuando hay una nueva, con
-  boton "Actualizar".
+  boton "Actualizar". [+] La version mostrada es el `version` (semver) del `package.json` raiz del
+  monorepo, inyectado en el build; no la define una variable de entorno. Fuera de produccion se le
+  suma el sha corto como metadato de build de semver (`0.1.0+abc1234`); en produccion va sola.
 - **RF-X-04** Las acciones sobre marcas son **optimistas**, con deshacer y mensaje de error tipado.
 - **RF-X-05** Medido y estimado se distinguen **siempre**, en pantalla y en papel.
 - **RF-X-06** Toda entidad muestra su fecha de ultima edicion.
 - **RF-X-07** Funcionalidades futuras visibles en el diseño se muestran deshabilitadas con badge
   "Proximamente" y no disparan ninguna accion.
+- [+] **RF-X-08** Con sesion, el logo y el nombre de la cabecera son un link al Home (`/`) desde
+  cualquier pantalla: la cabecera es una sola y el logo esta siempre (no hay "Volver" en su
+  lugar). Sin sesion no son link.
 
 ### 6.2 `account`
 
@@ -136,8 +141,14 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
   verificacion.
 - **RF-ACC-02** Login con email **o** username + contraseña, y con Google.
 - **RF-ACC-03** Recupero de contraseña por email con enlace de un solo uso que vence.
-- **RF-ACC-04** Preferencias: idioma (`es` | `en`), sistema de unidades (`metric` | `imperial`),
-  tema (`dark` | `light` | `system`). Cambiar el sistema **no modifica datos**: solo la presentacion.
+- **RF-ACC-04** Preferencias: idioma (`es` | `en`), ~~sistema de unidades (`metric` | `imperial`)~~
+  [~] sistema de unidades **por seccion**, cada una `metric` | `imperial`: **marcas** (solo las
+  distancias, m / yd; las lecturas van siempre en la escala de cada mira, RF-CAL-07; default
+  `metric`), **arco** (default `imperial`), **flechas** (default `imperial`) y **mira** (default
+  `metric`; preselecciona `mm` o `in` como unidad de la escala al crear una mira, cada mira conserva
+  la suya, y es la unidad en que se muestran los mm sueltos que no son lecturas, como la tolerancia
+  del Doctor), y
+  tema (`dark` | `light` | `system`). Cambiar ~~el sistema~~ [~] un sistema **no modifica datos**: solo la presentacion.
   [+] Se cambian **solo en Ajustes** (`/settings`). Unica excepcion: un selector compacto de idioma
   en las pantallas sin sesion (ingresar, registro, recupero, verificacion); ahi el tema sigue al
   sistema. [+] Lo elegido sin sesion se guarda en el navegador y gana sobre el idioma del navegador;
@@ -175,7 +186,7 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
 
 ### 6.5 `calculator/manual` (marcas)
 
-- **RF-MRK-01** Cargar una marca: distancia (en la unidad del arquero) y lectura (en la escala de
+- **RF-MRK-01** Cargar una marca: distancia (en la unidad ~~del arquero~~ [~] de la seccion marcas) y lectura (en la escala de
   la mira), nota opcional y fecha de medicion (default: ahora).
 - **RF-MRK-02** Una distancia repetida para el mismo (setup, set de flechas) es un **conflicto
   explicito**: el arquero elige reemplazar la anterior o cancelar.
@@ -209,6 +220,10 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
   puede fijar), en el formato numerico del idioma.
 - **RF-CAL-08** Listado imprimible de distancias: setup, set de flechas, fecha, tabla distancia →
   lectura, con lo estimado marcado (`≈` y nota al pie).
+- [+] **RF-CAL-09** **Tolerancia del Doctor**: una pantalla "Doctor" en el menu explica como se
+  calcula el umbral (RN-CAL-06) y deja cambiar la **tolerancia base** del arquero, global para todos
+  sus setups, con "Volver al valor por defecto". Sin cambio, vale la calibrada. El diagnostico sigue
+  dentro de cada setup (`/setups/:id/doctor`).
 
 ## 7. Reglas de negocio
 
@@ -229,6 +244,12 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
   comparacion entre sets. Todos opcionales salvo los marcados en el diccionario.
 - **RN-EQP-02** Un componente referenciado por un setup no borrado no se puede borrar (409). Se
   archiva.
+- [+] **RN-EQP-03** Todo campo numerico de arco y flechas tiene un rango con su **motivo**
+  documentado en el diccionario (§3.1 y §3.3): equipo real, de juvenil a caza pesada, mas un margen
+  contra errores de tipeo. Un rango solo se **ensancha**, nunca se angosta: un dato ya guardado
+  tiene que poder volver a guardarse. El formulario muestra el rango valido como ayuda del campo,
+  en la unidad de su seccion y redondeado hacia adentro (el minimo hacia arriba, el maximo hacia
+  abajo), para no mostrar nunca un valor que la validacion rechaza.
 - **RN-BOW-01** `bowType` admite solo `compound` en el MVP.
 - **RN-SGT-01** `scaleMin < scaleMax`, en la creacion y en toda edicion.
 - **RN-SGT-02** `unit = click | custom` exige `unitSizeMm > 0` para habilitar regla a escala y
@@ -273,6 +294,15 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
 - **RN-CAL-04** Una lectura calculada fuera de la escala de la mira se muestra como "fuera de
   escala", nunca recortada en silencio.
 - **RN-CAL-05** El Mark Doctor **no decide** por el arquero: señala y sugiere re-tirar.
+- [+] **RN-CAL-06** Umbral del Doctor por marca = `max(tolerancia base, quantum de la mira)`, ×2.5
+  en la marca mas corta y en la mas larga (se predicen extrapolando). La tolerancia base es la del
+  arquero (`profiles.doctorToleranceMm`) o, si no la cambio, la calibrada de **4 mm**
+  (SIGHT-MATH §8.3). Admite de **1 a 10 mm** en pasos de 0.5 mm: por debajo de 1 mm el umbral queda
+  dentro de la repetibilidad de una marca medida (~±1 mm) y casi todo se señala; por encima de 10 mm
+  (una unidad de una escala en cm) solo quedan errores que la monotonia ya detecta. Entre 1 y ~1.2 mm
+  ya se señalan marcas buenas (SIGHT-MATH §8.3): se permite, y la pantalla lo advierte. En una mira
+  sin `unitSizeMm` (factor nominal 1, UNIDADES §3) la tolerancia rige en unidades de su escala. El
+  factor de los extremos no se configura. → [ADR-013](../adr/013-doctor-tolerance-per-archer.md)
 
 ## 8. Modelo de datos (resumen)
 
@@ -407,7 +437,12 @@ auth 85% · equipo, account 80% · UI generica 50% · **global ≥ 80%**.
   primaria por vista, en la zona del pulgar.
 - [+] **Estilo retro-futurista de plano tecnico:** cuadricula blueprint de fondo que nunca queda
   debajo de un dato; los rasgos retro son decorativos y no restan legibilidad.
-- [+] **Configuracion solo en Ajustes** (RF-ACC-04).
+- [+] **Configuracion solo en Ajustes** (RF-ACC-04). [+] Excepcion: la tolerancia del Doctor se
+  ajusta en su propia pantalla, junto a la explicacion del calculo (RF-CAL-09).
+- [+] **Menu a la derecha:** el cajon entra desde la derecha y, desde 1440 px, el riel fijo va a la
+  derecha del contenido, del lado del boton de menu y del pulgar de un diestro.
+- [+] **Logo:** el tile navy con la regla blanca y **media mira** amarilla (un semicirculo abierto
+  hacia la regla y un punto sobre ella a mitad de altura). Mismo tile en los dos temas.
 - Detalle del sistema visual, pantallas y estados en [UX-UI.md](../UX-UI.md).
 
 ## 15. Roadmap
@@ -445,13 +480,17 @@ Plan de tareas: [ACTION-PLAN.md](../ACTION-PLAN.md).
 1. **Dominio y marca final.** "Sight Mapper" confirmado como nombre; falta dominio (afecta cookies,
    CORS y Google OAuth). Bloquea F0-17.
 2. **Unidades de presentacion del equipo.** Cerrada **provisoriamente** en F1-12 (2026-11-03) con la
-   propuesta: siguen el sistema elegido (imperial: in, lb, gr, fps; metrico: mm, kg, g, m/s). Alternativa
+   propuesta: ~~siguen el sistema elegido~~ (imperial: in, lb, gr, fps; metrico: mm, kg, g, m/s). Alternativa
    descartada por ahora: siempre unidades de industria (in, lb, gr, fps), que es lo que usa el rubro incluso
    en paises metricos. No se consulto a 2–3 arqueros como pedia la tarea: se reabre si los usuarios de la
-   beta lo piden (el cambio es de presentacion, no toca datos).
+   beta lo piden (el cambio es de presentacion, no toca datos). [+] Reabierta y cerrada el
+   2026-11-17 por el autor: cada seccion tiene su propio sistema (RF-ACC-04), con el equipo en
+   imperial por defecto, que es lo que usa el rubro.
 3. **Umbrales del Mark Doctor.** Calibrados el 2026-10-31 con dos sets reales: tolerancia absoluta de
    4 mm (o el quantum) y ×2.5 en los extremos; el desvio estimado de los datos (`K·σ`) se descarto porque
    con 5 marcas tapa al error (SIGHT-MATH §8.3). Provisorio: son 2 sets; recalibrar con mas datos.
+   [+] Desde 2026-11-17 la tolerancia base es ajustable por el arquero (RN-CAL-06); los 4 mm quedan
+   como default, y recalibrar cambia solo el default.
 4. **Merchant of Record** (F5): Lemon Squeezy o Paddle vs Stripe + Mercado Pago.
 5. **Portugues:** preparado por ADR-004, no abierto. Se decide con datos de trafico.
 6. **Reloj o widget:** una PWA no puede. Se evalua despues de F7 si aparece demanda.

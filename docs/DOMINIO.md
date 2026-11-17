@@ -126,8 +126,9 @@ cliente**.
 ### 2.6 `Profile` (Account)
 
 - Uno por usuario (`userId` unico). Creado al recibir `UserRegistered`.
-- Campos: `locale`, `unitSystem`, `theme`, `quickAccess?: { setupId, arrowSetId }`,
-  `deletionRequestedAt?`.
+- Campos: `locale`, ~~`unitSystem`~~ [~] `units: { marks, bow, arrows, sight }`, `theme`,
+  `quickAccess?: { setupId, arrowSetId }`, `deletionRequestedAt?`, [+] `doctorToleranceMm?`
+  (`null` = el default calibrado, RN-CAL-06).
 
 ## 3. Ciclos de vida
 

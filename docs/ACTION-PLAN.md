@@ -549,7 +549,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 Orden: F1-34 primero (la spec manda); el resto puede ir en paralelo salvo donde dice. Decisiones
 tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 
-### [ ] F1-34 · Ajustes: spec, diccionario y errores
+### [x] F1-34 · Ajustes: spec, diccionario y errores
 
 - **Modulo:** docs · **Puntos:** 2 · **Depende de:** —
 - **Descripcion:** actualizar spec, FUNCIONAL, UX-UI, DICCIONARIO y `docs/errors.md` con lo de
@@ -584,9 +584,12 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
   `units.marks` (distancias y marcas en la mira, metrico por defecto), `units.bow` (imperial),
   `units.arrows` (imperial), `units.sight` (metrico: solo preselecciona mm o in como unidad de la
   escala al crear una mira; cada mira conserva la suya). Migracion de perfiles: el `unitSystem`
-  actual pasa a `units.marks`; las otras tres toman su default. Ajustes muestra un selector por
-  seccion; cada pantalla convierte con su propia preferencia (export, listado imprimible y errores
-  con params incluidos).
+  actual pasa a `units.marks`; las otras tres toman su default. La migracion es una migracion
+  `migrate-mongo` idempotente que corre en el job de release (TECNICO §6), sin tocar Atlas a mano;
+  el schema rechaza la forma vieja despues de migrar. Ajustes muestra un selector por seccion;
+  cada pantalla convierte con su propia preferencia (listado imprimible y errores con params, segun
+  el mapeo de `docs/errors.md` §2). El export sigue canonico, suma `units` y `doctorToleranceMm`
+  y pasa a `schemaVersion: 2`. El script de importacion acepta las dos formas.
 - **Criterios:** Zod compartido; aislamiento por usuario; OpenAPI; test de migracion; E2E del flujo
   critico ajustado (hoy usa ES/metrico y EN/imperial como un todo).
 
@@ -619,7 +622,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
   default sigue siendo `DOCTOR_MIN_ABS_MM`); se guarda en el perfil. El diagnostico sigue dentro de
   cada mira.
 - **Criterios:** dominio puro y con `fast-check` del nuevo parametro; `domain-reviewer`; rango de
-  la tolerancia acotado y justificado; ES/EN y unidad de la seccion marcas.
+  la tolerancia acotado y justificado; ES/EN; en mm, y tambien en in si la seccion mira esta en imperial.
 
 ### [ ] F1-41 · Logo nuevo: regla blanca + media mira
 
@@ -628,7 +631,8 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
   el tile navy `#10286b` y la regla blanca con sus ticks; se reemplaza el pin amarillo por media
   mira amarilla: un semicirculo de trazo abierto hacia la regla (a su izquierda, con los extremos
   en la regla) y un punto lleno sobre la regla a mitad de altura. Guardar el mockup en
-  `docs/redesign/design-system/assets/Logos/` como referencia. Regenerar `pwa-192`, `pwa-512`, maskable, favicon y apple-touch; actualizar
+  `docs/redesign/design-system/assets/Logos/` como referencia y actualizar la descripcion del logo
+  en ese README, en `docs/redesign/DESIGN-SYSTEM.md` y en `docs/redesign/design-system/README.md`. Regenerar `pwa-192`, `pwa-512`, maskable, favicon y apple-touch; actualizar
   `docs/redesign/design-system/assets/Logos/`.
 - **Criterios:** legible a 32 px; maskable dentro de la zona segura; mismo tile en dark y light;
   manifest y precache actualizados; capturas regeneradas.

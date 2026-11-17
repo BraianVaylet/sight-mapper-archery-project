@@ -22,7 +22,8 @@ convertido a la unidad de presentacion.**
 | Porcentajes          | %                  | %                    | %                     |
 | Instantes            | UTC (`Temporal.Instant`) | zona del dispositivo | zona del dispositivo |
 
-La unidad de presentacion del **equipo** por sistema sigue el sistema elegido: la tabla de arriba es
+La unidad de presentacion del **equipo** por sistema ~~sigue el sistema elegido~~ [~] sigue el sistema
+de su seccion (`units.bow`, `units.arrows`; las distancias, `units.marks`; RF-ACC-04): la tabla de arriba es
 lo implementado (spec §17.2, cerrada provisoriamente en F1-12; se reabre si los usuarios piden
 unidades de industria siempre).
 
@@ -83,8 +84,8 @@ El **quantum** es el paso que el arquero puede fijar (`scale.resolution`, en uni
 - Numeros con coma o punto decimal.
 - Imperial: fracciones `6 1/4`, `6-1/4`, `1/16` y mixtos; se normalizan a decimal.
 - Validacion de rango **en la unidad canonica** (los rangos del [DICCIONARIO](../DICCIONARIO.md)
-  estan en canonico), con el mensaje de error en la unidad de presentacion (`params` incluye
-  `min`, `max` y `unit` ya convertidos por el cliente).
+  estan en canonico), con el mensaje de error en la unidad de presentacion. [~] La API manda `min` y
+  `max` canonicos en cada issue; el cliente los convierte y agrega `unit` antes de mostrarlos.
 
 ## 7. Ida y vuelta sin perdida
 

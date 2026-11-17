@@ -53,7 +53,7 @@ Variables de entorno (validadas con Zod al arrancar; si falta una, el proceso no
 | `CORS_ORIGINS`           | api  | lista separada por comas, sin comodines          |
 | `LOG_LEVEL`              | api  | `info`                                           |
 | `VITE_API_URL`           | pwa  | URL publica de la API                            |
-| `VITE_APP_VERSION`       | pwa  | inyectada en build desde `package.json`          |
+| ~~`VITE_APP_VERSION`~~   | pwa  | ~~inyectada en build desde `package.json`~~ [~] reemplazada: `vite.config.ts` lee el `version` del `package.json` raiz (RF-X-03) |
 
 Secretos solo en Railway y en GitHub Actions secrets. `.env.example` sin valores reales. El hook de
 pre-escritura bloquea patrones de secretos.
@@ -105,7 +105,7 @@ pre-escritura bloquea patrones de secretos.
 | Metodo | Ruta                              | Descripcion                          | Errores                       |
 | ------ | --------------------------------- | ------------------------------------ | ----------------------------- |
 | GET    | `/api/v1/me`                      | Perfil + preferencias + version app minima | —                       |
-| PATCH  | `/api/v1/me/preferences`          | `locale`, `unitSystem`, `theme`      | CORE-400                      |
+| PATCH  | `/api/v1/me/preferences`          | `locale`, ~~`unitSystem`~~ [~] `units` (parcial: `marks`, `bow`, `arrows`, `sight`), `theme`, [+] `doctorToleranceMm` (`null` = default) | CORE-400 |
 | PUT    | `/api/v1/me/quick-access`         | `{ setupId, arrowSetId } \| null`    | ACC-422-001                   |
 | GET    | `/api/v1/me/export`               | JSON con todos los datos (`schemaVersion: 1`, con archivado y papelera, unidades canonicas, sin `userId`) | — |
 | POST   | `/api/v1/me/deletion-request`     | Pide la baja                         | ACC-409-001                   |
@@ -180,6 +180,10 @@ Content-Type: application/json
   `{ deletedAt: { $type: 'null' } }` funcione en la version de Atlas usada.
 - Migraciones: corren **antes** del deploy desde un solo lugar (job de release de Railway). Prohibido
   tocar Atlas a mano.
+- [+] Migracion de datos de F1-37: `profiles.unitSystem` → `units: { marks: <unitSystem>, bow:
+  'imperial', arrows: 'imperial', sight: 'metric' }` y `$unset` de `unitSystem`; idempotente (solo
+  toca perfiles sin `units`), con test contra mongodb-memory-server. Corre con el plugin de
+  aislamiento en `bypassIsolation: 'job:migrate-profile-units'`.
 - Traductor de persistencia: `Temporal.Instant ⇄ Date` en el borde del repositorio.
 
 ## 7. Autenticacion (Better Auth)
@@ -203,7 +207,8 @@ Content-Type: application/json
   - runtime `StaleWhileRevalidate` para `GET /api/v1/*` de lectura → con el cache poblado, la
     pantalla de la mira se puede **consultar** sin señal (escritura offline: F4);
   - `registerType: 'prompt'` → `UpdatePrompt` "Hay una version nueva · Actualizar".
-- Version visible: `VITE_APP_VERSION` en login y Perfil. `GET /api/v1/me` devuelve
+- Version visible: ~~`VITE_APP_VERSION` en login y Perfil~~ [~] `__APP_VERSION__`, el `version` del `package.json` raiz, en Ajustes
+  (fuera de produccion, con `+<sha corto>`; RF-X-03). `GET /api/v1/me` devuelve
   `minClientVersion`; si la PWA es menor, fuerza actualizar.
 - **Acceso rapido:** al **abrir la app** (la primera pantalla tras la sesion, tambien despues de entrar),
   si cae en `/` y `profile.quickAccess` existe, el router redirige a `/setups/:id?arrowSet=`. Volver al

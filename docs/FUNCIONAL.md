@@ -29,9 +29,13 @@ flowchart TD
   sights --> sightform[Alta/edicion mira]
   arrows --> arrowform[Alta/edicion flechas]
   home -. drawer .-> trash[Papelera de setups]
+  home -. drawer .-> doctorcfg[Doctor: tolerancia]
 ```
 
 [~] En el mapa, `settings[Ajustes]` reemplaza a `appearance[Apariencia]` (rediseño, F1-29).
+[+] `doctorcfg[Doctor: tolerancia]` es la pantalla de RF-CAL-09 (F1-40). [+] Desde cualquier pantalla
+con sesion, el logo de la cabecera vuelve al Home (RF-X-08). [+] El menu (cajon o riel) va a la
+derecha.
 
 ### 1.1 Rutas de la PWA
 
@@ -54,6 +58,7 @@ flowchart TD
 | `/sights`, `/sights/new`, `/sights/:id` | Miras                     | `New sight — Form.png`                 | si   |
 | `/arrows`, `/arrows/new`, `/arrows/:id` | Sets de flechas           | `New arrow set — Form.png`             | si   |
 | `/settings` [~]                 | Ajustes: tema, idioma, unidades, version (antes `/settings/appearance`, que redirige aca) | `docs/redesign/design-system/components/SettingsScreen` | si   |
+| `/doctor` [+]                   | Doctor: como se calcula el umbral y tolerancia base del arquero (RF-CAL-09) | sin diseño | si   |
 | `/profile`                      | Cuenta, exportar, baja [~] (la version pasa a Ajustes) | sin diseño                             | si   |
 
 Estado en URL (Nuqs): `arrowSet` (set de flechas seleccionado), `d` (distancia seleccionada, en
@@ -132,8 +137,19 @@ Formato: `HU-<MOD>-<NN>` · referencia a `RF-*` · criterios Given/When/Then.
 
 **HU-ACC-04 — Preferencias** (RF-ACC-04)
 
-- Given estoy en metrico, When cambio a imperial, Then todas las distancias se muestran en yardas
-  sin que cambie ningun dato guardado, y la regla y la tabla se recalculan al instante.
+- ~~Given estoy en metrico, When cambio a imperial, Then todas las distancias se muestran en yardas
+  sin que cambie ningun dato guardado, y la regla y la tabla se recalculan al instante.~~
+- [~] Given la seccion marcas esta en metrico, When la cambio a imperial, Then todas las distancias
+  se muestran en yardas sin que cambie ningun dato guardado, y la regla y la tabla se recalculan al
+  instante; el arco, las flechas y la mira siguen en su propio sistema.
+- [+] Given soy un arquero nuevo, Then veo marcas en metrico, arco en imperial, flechas en imperial
+  y mira en metrico.
+- [+] Given la seccion arco esta en imperial, Then el formulario del arco pide in, lb y fps; en
+  metrico, cm/mm, kg y m/s. Lo mismo para flechas (in, gr, fps / cm, g, m/s).
+- [+] Given la seccion mira esta en imperial, When creo una mira, Then la unidad de la escala viene
+  preseleccionada en `in` (en metrico, `mm`). Una mira ya cargada no cambia su unidad.
+- [+] Given tenia el sistema unico `imperial` antes de este cambio, Then mi seccion marcas queda en
+  imperial y las otras tres toman su default.
 - Given cambio el idioma a EN, Then toda la UI, los errores y los formatos numericos (punto
   decimal) cambian sin recargar.
 - Given elijo tema `system`, Then la app sigue la preferencia del sistema operativo.
@@ -161,6 +177,8 @@ Formato: `HU-<MOD>-<NN>` · referencia a `RF-*` · criterios Given/When/Then.
   aparece en "Your bows" con la fecha de edicion.
 - Given escribo brace height `6 1/4` en imperial, Then se acepta como 6.25 in (fracciones admitidas).
 - Given un valor fuera de rango (ej. let-off 120%), Then veo `SM-CORE-400-001` en ese campo.
+- [+] Given cualquier campo numerico, Then debajo veo su rango valido en la unidad de la seccion
+  (ej. velocidad IBO "148–442 fps"), y el error fuera de rango dice ese mismo rango (RN-EQP-03).
 
 **HU-SGT-01 — Cargar una mira con su escala** (RF-EQP-02)
 
@@ -183,6 +201,7 @@ Formato: `HU-<MOD>-<NN>` · referencia a `RF-*` · criterios Given/When/Then.
 
 - Given completo nombre corto y guardo, Then el set aparece en "Your arrows". Los demas campos son
   opcionales ("deja vacio lo que no mediste").
+- [+] Given cualquier campo numerico, Then veo su rango valido como en HU-BOW-01 (RN-EQP-03).
 
 **HU-EQP-01 — Archivar y borrar** (RF-EQP-04, RF-EQP-05)
 
@@ -274,7 +293,7 @@ Formato: `HU-<MOD>-<NN>` · referencia a `RF-*` · criterios Given/When/Then.
 
 - Given marcas a 20, 30, 40, 50 y 60 m y paso 5, Then veo 20, 25, … 60 con 25/35/45/55 como
   calculadas (rombo, `≈`) y las medidas exactamente iguales a lo cargado.
-- Given estoy en imperial con paso 5 yd, Then la grilla es 20, 25, 30… yd (no metros convertidos).
+- Given ~~estoy en imperial~~ [~] la seccion marcas esta en imperial con paso 5 yd, Then la grilla es 20, 25, 30… yd (no metros convertidos).
 - Then la curva muestra lo medido en linea solida y lo calculado punteado.
 
 **HU-CAL-03 — Consultar una distancia libre** (RF-CAL-03)
@@ -296,6 +315,26 @@ Formato: `HU-<MOD>-<NN>` · referencia a `RF-*` · criterios Given/When/Then.
 - When toco Print, Then veo una vista de impresion con encabezado (setup, flechas, fecha, unidad),
   la tabla de distancias con el paso elegido, lo estimado con `≈` y nota al pie, y puedo imprimir
   o guardar como PDF desde el navegador.
+
+[+] **HU-CAL-06 — Ajustar la tolerancia del Doctor** (RF-CAL-09, RN-CAL-06)
+
+- Given abro "Doctor" en el menu, Then veo como se calcula el umbral: el mayor entre la tolerancia
+  base y el paso de la escala de la mira, ×2.5 en la marca mas corta y la mas larga, con un ejemplo.
+- Given nunca la cambie, Then la tolerancia base vale 4 mm y figura como "por defecto".
+- When la cambio a 6 mm, Then se guarda en mi perfil y el diagnostico de todos mis setups usa 6 mm,
+  sin cambiar ninguna marca.
+- When toco "Volver al valor por defecto", Then vuelve a 4 mm.
+- Given intento menos de 1 mm o mas de 10 mm, Then el control no lo permite (y la API responde
+  `SM-CORE-400-001`).
+- Given la seccion mira esta en imperial, Then la tolerancia se muestra tambien en pulgadas.
+
+[+] **HU-NAV-01 — Volver al Home y menu** (RF-X-08)
+
+- Given estoy en cualquier pantalla con sesion, When toco el logo o el nombre de la cabecera, Then
+  voy al Home (y si el cajon del menu estaba abierto, se cierra).
+- Given no tengo sesion, Then el logo no es un link.
+- Given la pantalla mide menos de 1440 px, When abro el menu, Then el cajon entra desde la derecha;
+  desde 1440 px el riel fijo esta a la derecha del contenido.
 
 ## 4. Mensajes y textos clave
 
