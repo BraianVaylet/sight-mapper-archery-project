@@ -28,7 +28,7 @@ src/features/   auth · setups · sight · distances · doctor · print · equip
 - **Textos:** ninguno en el JSX. Todo por `t('clave')` de `@sight-mapper/i18n` (ES y EN a la vez;
   ESLint `i18next/no-literal-string` lo exige). Un error de la API se muestra con
   `translateKey(locale, error.messageKey, params)` con los params canonicos ya convertidos a la
-  unidad del arquero.
+  unidad de su seccion (`units.marks`, `units.bow`, `units.arrows`; mapeo en `docs/errors.md` §2).
 - **Unidades:** la API habla metros y milimetros; la conversion es solo en el borde de
   presentacion, con `convert/` del dominio y el separador decimal del locale.
 - **Medido ≠ estimado:** punto lleno + linea solida vs rombo + punteado + `≈`. `StatusBadge`

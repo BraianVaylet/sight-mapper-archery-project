@@ -42,7 +42,7 @@
 | **Favorito**               | Favorite              | `isFavorite`          | Setup fijado arriba en el Home                                                                       |
 | **Archivar**               | Archive               | `status: 'archived'`  | Ocultar un componente o setup sin borrarlo                                                           |
 | **Papelera**               | Trash                 | `deletedAt`           | Setups borrados, restaurables 30 dias                                                                |
-| **Sistema de unidades**    | Units                 | `unitSystem`          | `metric` (m) o `imperial` (yd) para distancias y equipo                                             |
+| **Sistema de unidades**    | Units                 | ~~`unitSystem`~~ [~] `units` | [~] `metric` o `imperial` **por seccion**: marcas (m / yd), arco, flechas y mira (RF-ACC-04)   |
 | **Corte por angulo**       | Angle cut (F3)        | `angleCut`            | Distancia horizontal = `cos(angulo) × distancia en linea de vision`                                  |
 | **Preset de ronda**        | Round preset (F3)     | `RoundPreset`         | Distancias tipicas: WA 70/50, sala 18/25, NFAA Field/Hunter, 3D                                      |
 | **Calibracion de impresora** | Printer calibration (F2) | `printScaleFactor` | Factor que corrige el reescalado del navegador, medido sobre una barra de 100 mm                     |
@@ -82,8 +82,19 @@ Convenciones de todas las colecciones de negocio:
 | `updatedAt`  | `Date` (UTC)            | Se muestra como "ultima edicion"                              |
 | `deletedAt`  | `Date \| null`          | `null` explicito al crear (lo necesitan los indices parciales) |
 
-"Pres. metrico / imperial" = unidad en la que se **muestra y se ingresa** segun `unitSystem`
-(spec §17.2, cerrada provisoriamente en F1-12). Lo canonico es lo que se guarda.
+"Pres. metrico / imperial" = unidad en la que se **muestra y se ingresa** segun ~~`unitSystem`~~
+[~] el sistema de su seccion (`units.bow` en §3.1, `units.arrows` en §3.3; spec §17.2, cerrada el
+2026-11-17). Lo canonico es lo que se guarda.
+
+[+] **Rangos (RN-EQP-03).** Cubren equipo real, de juvenil a caza pesada, mas margen contra errores
+de tipeo; la nota de cada campo dice el **motivo**. Solo se ensanchan, nunca se angostan (un dato
+guardado tiene que poder volver a guardarse). En el formulario se muestran en la unidad de la
+seccion, redondeados hacia adentro con esta precision: in, cm, lb y kg con 1 decimal; mm, fps, m/s,
+g y gr enteros. Las notas dan el equivalente imperial; el metrico se calcula igual (kg con
+`N_PER_KGF`, UNIDADES §2). Las **fuentes** de cada motivo (catalogos de fabricantes) las agrega
+F1-39. Revisados el 2026-11-17: se ensancharon los minimos de
+`iboSpeedMps` (60 → 45), `drawLengthMm` (450 → 300), `drawWeightN` (45 → 20) y `cutLengthMm`
+(400 → 300), que dejaban afuera arcos y flechas juveniles.
 
 ### 3.1 `bows`
 
@@ -93,16 +104,16 @@ Convenciones de todas las colecciones de negocio:
 | `nickname`      | string   | —        | —                        | no   | 1–40                     | Si falta: fabricante + modelo |
 | `manufacturer`  | string   | —        | —                        | *    | 1–60                     | *al menos uno de los dos      |
 | `model`         | string   | —        | —                        | *    | 1–60                     |                               |
-| `iboSpeedMps`   | number   | m/s      | m/s / fps                | no   | 60–135                   | ≈ 200–440 fps                 |
-| `letOffPct`     | number   | %        | %                        | no   | 0–99                     |                               |
-| `drawLengthMm`  | number   | mm       | cm / in                  | no   | 450–900                  |                               |
-| `drawWeightN`   | number   | N        | kg / lb                  | no   | 45–450                   | ≈ 10–100 lb                   |
+| `iboSpeedMps`   | number   | m/s      | m/s / fps                | no   | ~~60–135~~ [~] 45–135    | ≈ 148–442 fps. Motivo: compuestos juveniles (~150 fps) a los mas rapidos del mercado (~375 fps) con margen |
+| `letOffPct`     | number   | %        | %                        | no   | 0–99                     | Motivo: 100% seria peso cero en la pared; reales 65–90% |
+| `drawLengthMm`  | number   | mm       | cm / in                  | no   | ~~450–900~~ [~] 300–900  | ≈ 11.9–35.4 in. Motivo: modulos juveniles desde ~12 in hasta ~34 in de adulto alto |
+| `drawWeightN`   | number   | N        | kg / lb                  | no   | ~~45–450~~ [~] 20–450    | ≈ 4.5–101 lb. Motivo: juveniles desde ~5 lb hasta caza pesada (~90 lb) con margen |
 | `camType`       | enum     | —        | —                        | no   | `single \| hybrid \| binary` |                           |
-| `axleToAxleMm`  | number   | mm       | cm / in                  | no   | 500–1200                 |                               |
-| `braceHeightMm` | number   | mm       | mm / in                  | no   | 100–260                  | Imperial admite `6 1/4`       |
-| `sightRadiusMm` | number   | mm       | cm / in                  | no   | 400–1200                 |                               |
-| `peepHeightMm`  | number   | mm       | mm / in                  | no   | 20–250                   | "Peep length" en el diseño    |
-| `dLoopLengthMm` | number   | mm       | mm / in                  | no   | 5–150                    |                               |
+| `axleToAxleMm`  | number   | mm       | cm / in                  | no   | 500–1200                 | ≈ 19.7–47.2 in. Motivo: juveniles (~25 in) a target largos (~41 in) con margen |
+| `braceHeightMm` | number   | mm       | mm / in                  | no   | 100–260                  | ≈ 4.0–10.2 in. Imperial admite `6 1/4`. Motivo: compuestos de 5 a 8 in con margen |
+| `sightRadiusMm` | number   | mm       | cm / in                  | no   | 400–1200                 | ≈ 15.8–47.2 in. Motivo: caza con mira corta (~22 in) a target con barra larga (~37 in) |
+| `peepHeightMm`  | number   | mm       | mm / in                  | no   | 20–250                   | ≈ 0.8–9.8 in. "Peep length" en el diseño. Motivo: altura del peep sobre la flecha, 3–6 in tipico; el minimo es anti-tipeo |
+| `dLoopLengthMm` | number   | mm       | mm / in                  | no   | 5–150                    | ≈ 0.2–5.9 in. Motivo: D-loop de 3/8 a 1 in tipico; el maximo es anti-tipeo (no se angosta) |
 | `rest`          | string   | —        | —                        | no   | 0–80                     |                               |
 | `notes`         | string   | —        | —                        | no   | 0–500                    | Complementa, no reemplaza     |
 | `status`        | enum     | —        | —                        | si   | `active \| archived`     | Solo por transicion           |
@@ -133,17 +144,17 @@ Derivados (no se guardan): `scaleMinMm`, `scaleMaxMm`, `travelMm`.
 | `name`             | string | —        | —                        | si   | 1–40       | "Short name"                          |
 | `manufacturer`     | string | —        | —                        | no   | 0–60       |                                       |
 | `model`            | string | —        | —                        | no   | 0–60       |                                       |
-| `spine`            | number | rating   | rating                   | no   | 100–2000   | Rating de industria: no se convierte  |
-| `cutLengthMm`      | number | mm       | cm / in                  | no   | 400–900    |                                       |
-| `gpi`              | number | gr/in    | gr/in                    | no   | 2–30       | Rating de industria: no se convierte  |
-| `pointWeightG`     | number | g        | g / gr                   | no   | 1–30       | ≈ 15–460 gr                           |
-| `extraWeightG`     | number | g        | g / gr                   | no   | 0–30       | Insert, outsert, pesas                |
-| `totalWeightG`     | number | g        | g / gr                   | no   | 10–60      | Medido. Si falta, la UI estima        |
+| `spine`            | number | rating   | rating                   | no   | 100–2000   | Rating de industria: no se convierte. Motivo: tablas de fabricantes (~150 caza pesada a ~2000 juvenil) |
+| `cutLengthMm`      | number | mm       | cm / in                  | no   | ~~400–900~~ [~] 300–900 | ≈ 11.9–35.4 in. Motivo: acompaña al largo de apertura (juvenil a adulto alto) |
+| `gpi`              | number | gr/in    | gr/in                    | no   | 2–30       | Rating de industria: no se convierte. Motivo: tubos de 5 a 15 gpi tipicos con margen |
+| `pointWeightG`     | number | g        | g / gr                   | no   | 1–30       | ≈ 16–462 gr. Motivo: puntas de 60 a 300 gr tipicas con margen |
+| `extraWeightG`     | number | g        | g / gr                   | no   | 0–30       | ≈ 0–462 gr. Insert, outsert, pesas. Motivo: mismo techo que la punta |
+| `totalWeightG`     | number | g        | g / gr                   | no   | 10–60      | ≈ 155–925 gr. Medido. Si falta, la UI estima. Motivo: juveniles livianas (~200 gr) a caza pesada (~700 gr) |
 | `vanes`            | string | —        | —                        | no   | 0–60       | Modelo                                |
-| `vaneCount`        | int    | —        | —                        | no   | 2–6        |                                       |
+| `vaneCount`        | int    | —        | —                        | no   | 2–6        | Motivo: 3 o 4 tipico; 2 y 6 existen   |
 | `vaneColor`        | string | —        | —                        | no   | 0–30       |                                       |
 | `nock`             | string | —        | —                        | no   | 0–60       |                                       |
-| `measuredSpeedMps` | number | m/s      | m/s / fps                | no   | 30–135     | Con cronografo                        |
+| `measuredSpeedMps` | number | m/s      | m/s / fps                | no   | 30–135     | ≈ 99–442 fps. Con cronografo. Motivo: juveniles lentos (~120 fps) al techo del IBO |
 | `notes`            | string | —        | —                        | no   | 0–500      |                                       |
 | `status`           | enum   | —        | —                        | si   | `active \| archived` |                             |
 
@@ -176,7 +187,12 @@ Derivados (no se guardan): `scaleMinMm`, `scaleMaxMm`, `travelMm`.
 | --------------------- | ------------- | ---- | --------------------------------------- | ----------------------------- |
 | `userId`              | string        | si   | unico                                   |                               |
 | `locale`              | enum          | si   | `es \| en`                              | Default: idioma del navegador |
-| `unitSystem`          | enum          | si   | `metric \| imperial`                    | Default por locale            |
+| ~~`unitSystem`~~      | ~~enum~~      | ~~si~~ | ~~`metric \| imperial`~~              | ~~Default por locale~~ [~] Reemplazado por `units`; migra a `units.marks` |
+| [+] `units.marks`     | enum          | si   | `metric \| imperial`                    | Solo distancias (m / yd); las lecturas van en la escala de la mira. Default `metric` |
+| [+] `units.bow`       | enum          | si   | `metric \| imperial`                    | Campos del arco. Default `imperial` |
+| [+] `units.arrows`    | enum          | si   | `metric \| imperial`                    | Campos de flechas. Default `imperial` |
+| [+] `units.sight`     | enum          | si   | `metric \| imperial`                    | Preselecciona `mm` / `in` en una mira nueva y muestra los mm sueltos (tolerancia del Doctor). Default `metric` |
+| [+] `doctorToleranceMm` | number\|null | no   | `1–10`, multiplo de 0.5; `null` = default 4 | Tolerancia base del Doctor (RN-CAL-06) |
 | `theme`               | enum          | si   | `dark \| light \| system`               | Default `system`              |
 | `quickAccess`         | object\|null  | no   | `{ setupId, arrowSetId }` validos       |                               |
 | `deletionRequestedAt` | Date\|null    | no   | solo via `requestDeletion`              | Purga a los 90 dias           |
@@ -222,6 +238,6 @@ Paginacion por cursor sobre `(updatedAt, _id)`: el cursor es opaco (base64url de
 | `ComputedKind`      | `measured`, `interpolated`, `extrapolated`         | dominio (no se guarda)   |
 | `DoctorStatus`      | `insufficient`, `ok`, `suspect`, `inconsistent`    | dominio (no se guarda)   |
 | `Locale`            | `es`, `en`                                         | `profiles.locale`        |
-| `UnitSystem`        | `metric`, `imperial`                               | `profiles.unitSystem`    |
+| `UnitSystem`        | `metric`, `imperial`                               | ~~`profiles.unitSystem`~~ [~] `profiles.units.*` |
 | `Theme`             | `dark`, `light`, `system`                          | `profiles.theme`         |
 | `ScaleChangeStrategy` | `keepReadings`, `keepPositions`                  | `PATCH /sights/:id`      |

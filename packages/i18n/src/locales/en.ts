@@ -362,6 +362,7 @@ export const en: Messages = {
     settings: 'Settings',
     profile: 'Account',
     groupShooting: 'Shooting',
+    homeLink: '{{app}}: go to home',
     groupAccount: 'Account',
     logout: 'Sign out',
     synced: 'Last sync: {{time}}',

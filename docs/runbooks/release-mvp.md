@@ -9,7 +9,7 @@
 | Paso | Como se verifica |
 | ---- | ---------------- |
 | `main` verde en CI, incluido el job `e2e` | GitHub Actions: los tres jobs en verde para el commit a promover |
-| Staging desplegado con ese mismo commit | `GET https://<staging-api>/ready` → 200 y la version de la PWA en el pie coincide con el commit |
+| Staging desplegado con ese mismo commit | `GET https://<staging-api>/ready` → 200 y ~~la version de la PWA en el pie coincide con el commit~~ [~] la version en Ajustes es la del `package.json` raiz con el sha corto del commit (`0.1.0+abc1234`) |
 | El flujo critico contra staging | `critical-flow.spec.ts` con `baseURL` de staging y un buzon de prueba para los links (pendiente F1-20) |
 | Migraciones nuevas revisadas | `pnpm --filter @sight-mapper/api exec migrate-mongo status` contra staging: ninguna `PENDING` despues del deploy |
 | Backup reciente de prod | Atlas → cluster `prod` → Backup: snapshot de menos de 24 h y PITR activo |

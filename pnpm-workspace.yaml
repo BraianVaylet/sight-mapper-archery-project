@@ -2,6 +2,14 @@ packages:
   - apps/*
   - packages/*
 
+# Advisories `pnpm audit --prod` cannot act on. Each one says why it is safe and when to drop it.
+auditConfig:
+  ignoreGhsas:
+    # picomatch <= 4.0.7, ReDoS on crafted extglobs; no patched release exists (2026-11-17). It reaches
+    # "prod" only through vitest, an optional peer of better-auth: test tooling the API never loads,
+    # matching only our own globs. Drop it once picomatch 4.0.8 is out and the lockfile has it.
+    - GHSA-fc5q-39xc-vjpf
+
 # Its postinstall downloads a mongod binary; we use the cached 7.0.24 (tests/helpers/mongo.ts).
 allowBuilds:
   mongodb-memory-server: false

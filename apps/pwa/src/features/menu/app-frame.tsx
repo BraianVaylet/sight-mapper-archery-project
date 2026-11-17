@@ -1,6 +1,6 @@
 import { AppHeader, Button, Icon, InfoAlert, NavDrawer, NavGroup, NavItem } from '@sight-mapper/ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
+import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import { useClients } from '../../app/clients.js';
 import { useI18n } from '../../app/i18n.js';
 import { useUi } from '../../app/ui-store.js';
@@ -21,7 +21,8 @@ function Logo() {
 /**
  * The frame of every screen behind the session: the header and the menu (RF-X-07) with the
  * counters of the archer's equipment, what is coming, the account and the way out. Up to 1440 px
- * the menu is a drawer behind a button; from there on it is a side rail, always in view (UX-UI §7).
+ * the menu is a drawer behind a button; from there on it is a side rail, always in view (UX-UI §7);
+ * both on the right, the side of the menu button (spec §14).
  */
 export function AppFrame() {
   const { t, locale } = useI18n();
@@ -130,17 +131,24 @@ export function AppFrame() {
   // The same tree in both layouts (only classes and the rail change), so a screen keeps its state
   // when the window crosses 1440 px.
   return (
-    <div className={wide ? 'grid grid-cols-[320px_minmax(0,1fr)] items-start gap-6' : 'contents'}>
-      {wide ? (
-        <aside className="sticky top-4 flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-y-auto rounded-md border-2 border-border bg-surface p-4 shadow-panel">
-          {menu}
-        </aside>
-      ) : null}
+    // Content first, then the rail on the right (spec §14): the DOM order is the reading and focus
+    // order, so nothing needs a visual-only `order`.
+    <div className={wide ? 'grid grid-cols-[minmax(0,1fr)_320px] items-start gap-6' : 'contents'}>
       <div className={wide ? 'flex min-w-0 flex-col gap-4' : 'contents'}>
         <div className={wide ? undefined : 'mb-4'}>
           <AppHeader
             title={t('common.appName')}
             logo={<Logo />}
+            brandLink={(brand, className) => (
+              <Link
+                to="/"
+                aria-label={t('menu.homeLink', { app: t('common.appName') })}
+                className={className}
+                onClick={() => setOpen(false)}
+              >
+                {brand}
+              </Link>
+            )}
             actions={
               wide ? null : (
                 <Button
@@ -164,6 +172,11 @@ export function AppFrame() {
         </NavDrawer>
         <Outlet />
       </div>
+      {wide ? (
+        <aside className="sticky top-4 flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-y-auto rounded-md border-2 border-border bg-surface p-4 shadow-panel">
+          {menu}
+        </aside>
+      ) : null}
     </div>
   );
 }

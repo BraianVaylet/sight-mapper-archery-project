@@ -20,7 +20,7 @@ function Overlay({
   closeLabel,
   children,
   placement,
-}: OverlayProps & { placement: 'left' | 'bottom' }) {
+}: OverlayProps & { placement: 'right' | 'bottom' }) {
   const panel = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useFocusTrap(open, panel, onClose);
@@ -43,8 +43,8 @@ function Overlay({
         tabIndex={-1}
         className={cx(
           'absolute flex flex-col gap-4 overflow-y-auto border-border bg-surface p-4 text-text shadow-panel',
-          placement === 'left'
-            ? 'inset-y-0 left-0 w-[min(20rem,85vw)] border-r-2'
+          placement === 'right'
+            ? 'inset-y-0 right-0 w-[min(20rem,85vw)] border-l-2'
             : 'inset-x-0 bottom-0 max-h-[85vh] rounded-t-lg border-t-2 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]',
         )}
       >
@@ -76,9 +76,9 @@ function Overlay({
   );
 }
 
-/** The side menu. Closes on Escape, on the scrim and on its own close button. */
+/** The side menu, from the right (spec §14: the side of the menu button). Closes on Escape, on the scrim and on its own close button. */
 export function NavDrawer(props: OverlayProps) {
-  return <Overlay {...props} placement="left" />;
+  return <Overlay {...props} placement="right" />;
 }
 
 /** The sheet that rises from the bottom, in the thumb zone (new / edit mark). */

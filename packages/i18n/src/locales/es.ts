@@ -363,6 +363,7 @@ export const es = {
     settings: 'Ajustes',
     profile: 'Cuenta',
     groupShooting: 'Tiro',
+    homeLink: '{{app}}: ir al inicio',
     groupAccount: 'Cuenta',
     logout: 'Cerrar sesión',
     synced: 'Última sincronización: {{time}}',

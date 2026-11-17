@@ -18,6 +18,89 @@
 
 ---
 
+## 2026-11-17 — El menu pasa a la derecha
+
+**Tareas:** F1-36 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `NavDrawer` entra desde la derecha (`right-0`, borde izquierdo); el `BottomSheet` no cambia.
+- `AppFrame` desde 1440 px: grilla `minmax(0,1fr) 320px` con el contenido **primero en el DOM** y el
+  riel despues, asi el orden de lectura y de foco coincide con el visual sin `order` de CSS.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Unit `ui` 26/26 (test nuevo del lado del cajon), lint y typecheck de ui y pwa.
+- E2E `a11y` (axe y desbordes a 360, 768 y 1440), `keyboard` (flujo entero solo con teclado),
+  `onboarding` y `setups`: 16 pasan, 2 skip por diseño.
+- Capturas del menu a 360 (cajon), 768 (cajon) y 1440 (riel), oscuro y claro, con un spec temporal
+  borrado antes del commit: riel a la derecha, cajon desde la derecha, nada tapado.
+
+## 2026-11-17 — El logo de la cabecera vuelve al Home
+
+**Tareas:** F1-35 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `AppHeader` (`@sight-mapper/ui`) acepta `brandLink`: un render prop que envuelve logo, titulo y
+  subtitulo en el link de la app, con las clases de un objetivo de 48 px; `ui` sigue sin depender
+  del router.
+- `AppFrame` lo usa con el `Link` de TanStack a `/`, nombre accesible "Sight Mapper: ir al inicio" /
+  "Sight Mapper: go to home" (`menu.homeLink`; contiene el texto visible, WCAG 2.5.3) y cierra el
+  cajon. `GuestFrame` no cambia: sin sesion el logo no es link (RF-X-08).
+- CI del PR: `pnpm audit --prod` fallaba por GHSA-fc5q-39xc-vjpf (picomatch ≤ 4.0.7, sin version
+  corregida publicada). Llega a prod solo por `vitest`, peer opcional de `better-auth`; se ignora en
+  `auditConfig.ignoreGhsas` con el motivo y la condicion para sacarlo (decidido por el autor).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Unit `ui` (25/25, test nuevo del link: href, 48 px, logo y textos adentro), i18n 27/27, lint y
+  typecheck de ui, i18n y pwa.
+- E2E `setups` (ahora vuelve de la mira al Home tocando el logo), `a11y` y `keyboard` a 360 y
+  1440 px: 8 pasan, 2 skip por diseño. Una primera corrida fallo entera porque habia un
+  `dev:local` viejo ocupando 5173 sin el archivo de mails; se freno con el OK del autor.
+
+### Pendiente / deuda
+
+- Sacar el ignore de picomatch cuando salga 4.0.8.
+
+## 2026-11-17 — La spec define los ajustes post-rediseño antes de codearlos
+
+**Tareas:** F1-34 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- Spec: RF-X-03 (version del `package.json` raiz, `+sha` fuera de produccion), RF-X-08 (logo →
+  Home), RF-ACC-04 (unidades por seccion: marcas, arco, flechas, mira), RF-MRK-01, RF-CAL-09 y
+  RN-CAL-06 (tolerancia del Doctor 1–10 mm, default 4), RN-EQP-03 (rangos con motivo, solo se
+  ensanchan, hint redondeado hacia adentro), §14 (menu a la derecha, logo nuevo), §17.2 y §17.3.
+- FUNCIONAL (ruta `/doctor`, HU-ACC-04 reescrita, HU-CAL-06, HU-NAV-01, rangos en HU-BOW-01 y
+  HU-ARW-01), UX-UI (§3, §4.4, §4.5, §4.7, §7), TECNICO (preferencias, version, migracion de
+  perfiles con `migrate-mongo`), DOMINIO, DICCIONARIO (rangos con motivo y equivalente imperial,
+  `units.*`, `doctorToleranceMm`), SIGHT-MATH, UNIDADES, errors.md (sin codigos nuevos; mapeo de
+  params por seccion), runbook de release, README de `AppHeader`, `apps/pwa/CLAUDE.md`.
+- ADR-013: tolerancia del Doctor por arquero y unidades por seccion; reemplaza ADR-001 punto 5 (que
+  seguia hablando de MAD) y la consecuencia de ADR-005 sobre el sistema unico.
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-013](adr/013-doctor-tolerance-per-archer.md). Minimos ensanchados: IBO 60 → 45 m/s, apertura
+  450 → 300 mm, libraje 45 → 20 N, largo de flecha 400 → 300 mm (juveniles). El logo esta en todas
+  las pantallas con sesion: la cabecera nunca tuvo "Volver". `units.marks` cubre solo distancias;
+  `units.sight` preselecciona la escala de una mira nueva y muestra la tolerancia del Doctor. El
+  export sigue canonico y pasa a `schemaVersion: 2`.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `spec-reviewer`: 31 hallazgos (contradicciones, 5 conversiones redondeadas hacia afuera, marcas
+  `[~]` faltantes, huecos de F1-37..F1-40), todos corregidos. Conversiones rehechas a mano. Prettier
+  y `test:scripts` (75/75) verdes.
+
+### Pendiente / deuda
+
+- F1-39 agrega las fuentes (catalogos de fabricantes) de cada motivo de rango.
+- El mockup del logo vive solo en el chat; F1-41 lo guarda en `assets/Logos/`.
+
 ## 2026-11-17 — El rediseño blueprint queda verificado entero y listo para revisar
 
 **Tareas:** F1-33 (cierra F1-23..F1-32) · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
@@ -49,7 +132,10 @@
 
 - **Lo hace el autor:** prueba al sol con un telefono real en los dos temas y pasada con un
   lector de pantalla real (TalkBack / VoiceOver / NVDA).
-- CI del PR en GitHub: se corre al abrirlo.
+- ~~CI del PR en GitHub~~: la primera corrida fallo en `pnpm test:scripts` (el test de `/adr`
+  tenia fijo el 012 como proximo ADR, y el 012 ya existe); se corrigio para que lea el numero del
+  repo (2712a11). Segunda corrida: los 4 jobs en verde (lint/tests/build, E2E 360 y 1440,
+  Lighthouse, dependencias).
 - Margen del gate de JS (~6 KB): lo proximo que sume JS al arranque tiene que medirse.
 - A 1440 la barra fija de la mira no se alinea con la columna del contenido junto al riel.
 - El paso a Distancias en frio a 360 fallo por tiempo en corridas anteriores (en esta paso).

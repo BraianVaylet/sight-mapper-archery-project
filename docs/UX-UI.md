@@ -22,7 +22,8 @@
 5. **No prometer lo que no hay.** Lo futuro se ve deshabilitado con "Proximamente" (RF-X-07).
 6. [+] **Retro decorativo, datos limpios.** La cuadricula y los rasgos retro nunca van debajo de un
    dato.
-7. [+] **La configuracion vive en Ajustes** (RF-ACC-04).
+7. [+] **La configuracion vive en Ajustes** (RF-ACC-04). [+] Excepcion: la tolerancia del Doctor,
+   en su pantalla (RF-CAL-09).
 
 ## 2. Tokens
 
@@ -124,8 +125,8 @@ Numeros siempre con `font-variant-numeric: tabular-nums` para que no bailen las 
 
 | Componente          | Donde aparece en el diseño                           | Notas                                              |
 | ------------------- | ---------------------------------------------------- | -------------------------------------------------- |
-| `AppHeader`         | Todas                                                | ~~Isotipo + titulo + subtitulo, Theme, Menu~~ [~] Logo o Volver + titulo + contexto + Menu (sin Theme) |
-| `NavDrawer`         | Navigation drawer                                    | [~] Grupos "01 — Tiro" (Inicio, Arcos, Miras, Flechas, Estadisticas "Proximamente") y "02 — Cuenta" (**Ajustes**, Perfil, Papelera); pie con Cerrar sesion y "Synced …" |
+| `AppHeader`         | Todas                                                | ~~Isotipo + titulo + subtitulo, Theme, Menu~~ [~] Logo o Volver + titulo + contexto + Menu (sin Theme). [+] Con sesion, logo + nombre son un link al Home (RF-X-08) |
+| `NavDrawer`         | Navigation drawer                                    | [~] Grupos "01 — Tiro" (Inicio, Arcos, Miras, Flechas, Estadisticas "Proximamente") y "02 — Cuenta" (**Ajustes**, Perfil, Papelera); pie con Cerrar sesion y "Synced …". [+] Entra desde la **derecha**; "Doctor" se suma al grupo 01 |
 | `BackLink`          | Forms, pantalla de la mira                           | `‹ Home`                                           |
 | `SectionCard`       | Forms de equipo                                      | Encabezado versalitas + contador                   |
 | `Field` / `NumberField` | Forms                                            | Label, input, sufijo de unidad, ayuda, error       |
@@ -188,25 +189,38 @@ Numeros siempre con `font-variant-numeric: tabular-nums` para que no bailen las 
 
 ### 4.4 Forms de equipo
 
-- **New bow:** se respeta el diseño de 3 secciones. Unidades como sufijo segun sistema (`in`/`cm`,
+- **New bow:** se respeta el diseño de 3 secciones. Unidades como sufijo segun ~~sistema~~ [~] el sistema de la seccion arco (`in`/`cm`,
   `lb`/`kg`, `fps`/`m/s`).
+- [+] Todo campo numerico de arco y flechas lleva su rango valido como ayuda (`hint`, asociada con
+  `aria-describedby`), en la unidad de la seccion y redondeado hacia adentro (RN-EQP-03).
 - **New sight:** se reemplaza "Units: mm / inches / clicks / MOA" por `mm / cm / in / clicks /
   custom`; se agregan **minimo**, **maximo**, **direccion** y, para `custom`/`click`, el tamaño de
   unidad (o el largo fisico entre minimo y maximo). "Adjustment range" pasa a ser derivado y se
   muestra como resumen ("Recorrido: 80 mm").
-- **New arrow set:** se respeta; campos extra (vanes, nock, peso total, velocidad) en una seccion
+- **New arrow set:** se respeta ([+] unidades segun la seccion flechas); campos extra (vanes, nock, peso total, velocidad) en una seccion
   plegable "Mas datos".
 - **New set → New setup:** el select de flechas pasa a **multiseleccion** (1..N).
 
 ### 4.5 [+] Ajustes (`/settings`)
 
 - 01 Pantalla (tema) · 02 Idioma y unidades · 03 Acerca de (version).
+- [+] En 02, un `Segmented` metrico/imperial por seccion: marcas, arco, flechas, mira, cada uno con
+  su descripcion (la de mira aclara que solo preselecciona la unidad de una mira nueva).
+- [+] La version es la del `package.json` raiz (RF-X-03).
 - Cada ajuste: nombre, descripcion corta y `Segmented`; aplica al instante.
 
 ### 4.6 [+] Pantallas de invitado
 
 - Logo + `LanguageSwitch` arriba, marcas de registro en el fondo, sin pie de preferencias. El tema
   sigue al sistema.
+
+### 4.7 [+] Doctor (`/doctor`)
+
+- Explicacion del umbral (RN-CAL-06) con un ejemplo numerico y un dibujo de la regla con la banda
+  de tolerancia; debajo, la tolerancia base con un control de pasos de 0.5 mm (1–10 mm), el valor por
+  defecto marcado y "Volver al valor por defecto". Aplica al instante, como Ajustes.
+- Con la seccion mira en imperial, al lado de los mm va el equivalente en pulgadas con 3 decimales
+  (0.5 mm ≈ 0.020 in). Bajo ~1.2 mm, aviso: "Puede señalar marcas bien medidas".
 
 ## 5. La regla (componente estrella)
 
@@ -234,7 +248,7 @@ Numeros siempre con `font-variant-numeric: tabular-nums` para que no bailen las 
 | ------ | ------------------------------------------------------------------------- |
 | 360    | Una columna (diseño actual)                                               |
 | 768    | Pantalla de la mira en dos columnas: regla+tabla / lectura+herramientas+curva |
-| 1440   | Contenedor maximo 1200 px; listas de equipo en grilla; base para MAKER (F2). [+] Menu como riel lateral fijo de 320 px; la cuadricula ocupa todo el viewport |
+| 1440   | Contenedor maximo 1200 px; listas de equipo en grilla; base para MAKER (F2). [+] Menu como riel lateral fijo de 320 px ([+] a la derecha del contenido); la cuadricula ocupa todo el viewport |
 
 ## 8. Gaps de diseño a cubrir
 

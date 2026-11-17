@@ -61,7 +61,7 @@ export const CALC_MIN_MARKS_INTERPOLATE = 2;
 export const CALC_MIN_MARKS_EXTRAPOLATE = 3;
 export const CALC_MIN_MARKS_DOCTOR = 5;
 export const EXTRAPOLATION_WARN_RATIO = 0.25; // mas alla de 25% del rango medido: baja confianza
-export const DOCTOR_MIN_ABS_MM = 4;           // tolerancia de medicion: nunca señalar menos (ni menos que el quantum)
+export const DOCTOR_MIN_ABS_MM = 4;           // tolerancia de medicion por defecto ([~] el arquero la ajusta, §8.3); nunca menos que el quantum
 export const DOCTOR_ENDPOINT_FACTOR = 2.5;    // los extremos se predicen extrapolando: mas tolerancia
 export const MAX_DISTANCE_M = 300;
 ```
@@ -144,7 +144,9 @@ Para cada marca medida `i`:
 Luego:
 
 3. Umbral por marca, **absoluto** (en mm, no derivado de los datos):
-   `τ_i = max(DOCTOR_MIN_ABS_MM, quantumMm) · (i es extremo ? DOCTOR_ENDPOINT_FACTOR : 1)`.
+   ~~`τ_i = max(DOCTOR_MIN_ABS_MM, quantumMm) · (i es extremo ? DOCTOR_ENDPOINT_FACTOR : 1)`~~.
+   [~] `τ_i = max(base ?? DOCTOR_MIN_ABS_MM, quantumMm) · (i es extremo ? DOCTOR_ENDPOINT_FACTOR : 1)`,
+   con `base` la tolerancia del arquero (RN-CAL-06).
    Una escala de dispersion estimada de los propios residuos (MAD) se descarto: con pocas marcas la marca
    mala contamina los residuos de las otras y el umbral sube hasta taparla (ver §8.3).
 4. Candidatas: `|r_i| ≥ τ_i`. Se reporta **la peor** (mayor `|r_i| / τ_i`) como `suspect`, con su
@@ -190,9 +192,16 @@ escala), no relativo: un set muy ruidoso senala varias marcas. Con mas marcas (�
 los datos podria volver a ser util; no hay datos para calibrarlo todavia. Hay que recalibrar cuando haya
 mas sets, sobre todo uno con un error evidente.
 
+[+] **Tolerancia del arquero (2026-11-17, RN-CAL-06).** Los 4 mm pasan a ser el **default** de un
+parametro: `diagnose()` recibe en sus opciones la tolerancia base (1–10 mm, pasos de 0.5) y, si no llega, usa
+`DOCTOR_MIN_ABS_MM`. La regla no cambia: umbral = `max(base, quantum)`, ×`DOCTOR_ENDPOINT_FACTOR` en
+los extremos, que no se configura. El caso del set dudoso muestra el costo de bajarla: bajo ~1.2 mm
+se señalan tambien marcas buenas; la pantalla lo dice. Recalibrar con mas sets cambia solo el
+default. Nada de §13 se toca: el Doctor sigue sin modificar ninguna marca.
+
 ## 9. Intermedias y consultas
 
-- **Grilla:** `grid(from, to, step)` en la **unidad del arquero** (m o yd), recalculada desde el
+- **Grilla:** `grid(from, to, step)` en la **unidad ~~del arquero~~ [~] de la seccion marcas** (m o yd), recalculada desde el
   origen: `d_k = from + k·step`, `k = 0..⌊(to − from)/step⌋`. Nunca se acumula `d += step`. Cada
   `d_k` se convierte a metros y se evalua.
 - **Resultado por fila:** `{ distanceM, scaleValueMm, kind, lowConfidence, outOfScale }`, donde

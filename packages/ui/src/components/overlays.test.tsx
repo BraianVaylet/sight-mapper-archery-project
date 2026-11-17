@@ -84,6 +84,16 @@ describe('a dialog whose parent renders on every keystroke', () => {
   });
 });
 
+describe('NavDrawer side', () => {
+  it('enters from the right, the side of the menu button (spec §14)', async () => {
+    render(<DrawerHarness sheet={false} />);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Open' }));
+    const dialog = screen.getByRole('dialog', { name: 'Menu' });
+    expect(dialog).toHaveClass('right-0', 'border-l-2');
+    expect(dialog).not.toHaveClass('left-0');
+  });
+});
+
 describe.each([
   ['NavDrawer', false],
   ['BottomSheet', true],
@@ -248,5 +258,27 @@ describe('AppHeader', () => {
     render(<AppHeader title="Home" />);
     expect(screen.getByText('Home')).toBeVisible();
     expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.queryByRole('link')).toBeNull();
+  });
+
+  it('lets the app wrap logo and title in its link to the Home, as a 48 px target', () => {
+    render(
+      <AppHeader
+        title="Sight Mapper"
+        subtitle="Your setups"
+        logo={<svg data-testid="logo" />}
+        brandLink={(brand, className) => (
+          <a href="/" aria-label="Sight Mapper: go to home" className={className}>
+            {brand}
+          </a>
+        )}
+      />,
+    );
+    const link = screen.getByRole('link', { name: 'Sight Mapper: go to home' });
+    expect(link).toHaveAttribute('href', '/');
+    expect(link).toHaveClass('min-h-12');
+    expect(link).toContainElement(screen.getByTestId('logo'));
+    expect(link).toContainElement(screen.getByText('Sight Mapper'));
+    expect(link).toContainElement(screen.getByText('Your setups'));
   });
 });

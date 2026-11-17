@@ -43,8 +43,9 @@ test('load a bow, a sight and arrows, build a setup, star it, trash it and bring
   await expect(page.getByRole('heading', { name: 'Caza' })).toBeVisible();
   await expect(page.getByText('Todavía no hay marcas')).toBeVisible();
 
-  // The Home shows it; the star is immediate.
-  await page.goto('/');
+  // The logo of the header goes back to the Home (RF-X-08), which shows it; the star is immediate.
+  await page.getByRole('link', { name: 'Sight Mapper: ir al inicio' }).click();
+  await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('heading', { name: 'Caza' })).toBeVisible();
   await page.getByRole('button', { name: 'Marcar como favorito' }).click();
   await expect(page.getByRole('button', { name: 'Quitar de favoritos' })).toBeVisible();

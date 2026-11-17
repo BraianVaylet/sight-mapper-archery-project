@@ -14,7 +14,7 @@
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
 | F0   | Fundaciones       | 21     | 80     | casi: todo hecho salvo 15 y 19 (casi) y 04 y 20 (bloqueadas) |
-| F1   | MVP — Calculator  | 33     | 119    | F1-01 a F1-21 hechas; rediseño F1-23..F1-32 hecho y F1-33 casi (falta la prueba al sol, el lector de pantalla y el CI del PR); F1-22 parcial (falta produccion) |
+| F1   | MVP — Calculator  | 33     | 119    | F1-01 a F1-21 hechas; rediseño F1-23..F1-32 hecho y F1-33 casi (PR #2 con CI en verde; falta la prueba al sol y el lector de pantalla); F1-22 parcial (falta produccion) |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
 | F4   | Offline-first     | epica  | —      | —             |
@@ -540,12 +540,106 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 
 - **Modulo:** e2e, docs · **Puntos:** 5 · **Depende de:** F1-27, F1-30, F1-31, F1-32
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-10.
-- **Estado:** monorepo, cobertura, E2E completo, capturas y Lighthouse hechos; PR abierto. Falta el
-  CI del PR en verde, la prueba al sol y la pasada con lector de pantalla (las hace el autor).
+- **Estado:** monorepo, cobertura, E2E completo, capturas y Lighthouse hechos; PR #2 con la CI
+  entera en verde (2026-11-17). Falta la prueba al sol y la pasada con lector de pantalla (las hace
+  el autor).
+
+## Ajustes post-rediseño (pedidos del autor, 2026-11-17)
+
+Orden: F1-34 primero (la spec manda); el resto puede ir en paralelo salvo donde dice. Decisiones
+tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
+
+### [x] F1-34 · Ajustes: spec, diccionario y errores
+
+- **Modulo:** docs · **Puntos:** 2 · **Depende de:** —
+- **Descripcion:** actualizar spec, FUNCIONAL, UX-UI, DICCIONARIO y `docs/errors.md` con lo de
+  F1-35..F1-41 antes de codear: logo como link a Home, menu a la derecha, unidades por seccion,
+  version desde el `package.json` raiz, rangos de arco y flechas con su motivo, tolerancia del
+  Doctor configurable, logo nuevo. ADR si la tolerancia editable cambia la calibracion de
+  SIGHT-MATH §8.3 (ADR-001 la fija hoy).
+- **Criterios:** `spec-reviewer` sin hallazgos; ninguna tarea siguiente necesita decidir algo que
+  la spec no diga.
+
+### [x] F1-35 · Logo del header lleva a la Home
+
+- **Modulo:** pwa, ui · **Puntos:** 1 · **Depende de:** F1-34
+- **Descripcion:** `AppHeader` acepta un destino para el logo + nombre; en `AppFrame` es un link a
+  `/` (cierra el drawer si esta abierto). Sin sesion (`GuestFrame`) no es link.
+- **Criterios:** link accesible (nombre "Ir al inicio" ES/EN), foco visible, tocable ≥ 48 px;
+  test de navegacion; E2E desde una mira vuelve a Home.
+
+### [x] F1-36 · Menu lateral a la derecha
+
+- **Modulo:** pwa, ui · **Puntos:** 2 · **Depende de:** F1-34
+- **Descripcion:** `NavDrawer` entra desde la derecha (< 1440 px) y el rail fijo pasa a la
+  derecha (≥ 1440 px: `grid-cols-[minmax(0,1fr)_320px]`), sin cambiar el orden de foco logico
+  (contenido antes que menu en el DOM, o `order` solo visual si se justifica).
+- **Criterios:** animacion y sombra espejadas; Escape y foco de vuelta al boton; capturas 360/768/1440
+  dark y light; axe sin violaciones.
+
+### [ ] F1-37 · Unidades por seccion en Ajustes
+
+- **Modulo:** schemas, types, api (account), pwa, i18n · **Puntos:** 5 · **Depende de:** F1-34
+- **Descripcion:** `unitSystem` unico se reemplaza en el perfil por cuatro preferencias:
+  `units.marks` (distancias y marcas en la mira, metrico por defecto), `units.bow` (imperial),
+  `units.arrows` (imperial), `units.sight` (metrico: solo preselecciona mm o in como unidad de la
+  escala al crear una mira; cada mira conserva la suya). Migracion de perfiles: el `unitSystem`
+  actual pasa a `units.marks`; las otras tres toman su default. La migracion es una migracion
+  `migrate-mongo` idempotente que corre en el job de release (TECNICO §6), sin tocar Atlas a mano;
+  el schema rechaza la forma vieja despues de migrar. Ajustes muestra un selector por seccion;
+  cada pantalla convierte con su propia preferencia (listado imprimible y errores con params, segun
+  el mapeo de `docs/errors.md` §2). El export sigue canonico, suma `units` y `doctorToleranceMm`
+  y pasa a `schemaVersion: 2`. El script de importacion acepta las dos formas.
+- **Criterios:** Zod compartido; aislamiento por usuario; OpenAPI; test de migracion; E2E del flujo
+  critico ajustado (hoy usa ES/metrico y EN/imperial como un todo).
+
+### [ ] F1-38 · Version de la app desde el `package.json`
+
+- **Modulo:** pwa, repo · **Puntos:** 1 · **Depende de:** F1-34
+- **Descripcion:** `__APP_VERSION__` sale del `version` del `package.json` raiz (no de
+  `VITE_APP_VERSION`); la raiz pasa a `0.1.0`. Opcional: sufijo con el sha corto en builds que no
+  son de produccion.
+- **Criterios:** Ajustes muestra `0.1.0`; test que lee el valor inyectado; runbook de release dice
+  donde se sube la version.
+
+### [ ] F1-39 · Rangos de arco y flechas revisados y explicados
+
+- **Modulo:** schemas, pwa, i18n, docs · **Puntos:** 3 · **Depende de:** F1-34, F1-37
+- **Descripcion:** cada min/max de `bowFields` y `arrowSetFields` queda justificado en DICCIONARIO
+  §3 (motivo fisico o de equipo real, con fuente) y se corrigen los que no lo esten. El formulario
+  muestra el rango valido como ayuda del campo, en la unidad de la seccion (imperial: fps, lb, in,
+  gr) y redondeado a algo legible; el error dice el rango.
+- **Criterios:** tabla de rangos con motivo en el diccionario; tests de borde en schemas; ningun
+  arco o set de flechas real del autor queda afuera.
+
+### [ ] F1-40 · Tolerancia del Doctor explicada y configurable
+
+- **Modulo:** domain, schemas, api (account), pwa, i18n · **Puntos:** 5 · **Depende de:** F1-34
+- **Descripcion:** nueva entrada "Doctor" en el menu (grupo Tiro) con una pantalla que explica el
+  calculo (umbral = el mayor entre 4 mm y un paso de la escala, ×2,5 en la marca mas corta y la
+  mas larga, porque se predicen extrapolando) y permite cambiar la tolerancia base global del
+  arquero, con "volver al valor por defecto". `doctor()` recibe la tolerancia como parametro (el
+  default sigue siendo `DOCTOR_MIN_ABS_MM`); se guarda en el perfil. El diagnostico sigue dentro de
+  cada mira.
+- **Criterios:** dominio puro y con `fast-check` del nuevo parametro; `domain-reviewer`; rango de
+  la tolerancia acotado y justificado; ES/EN; en mm, y tambien en in si la seccion mira esta en imperial.
+
+### [ ] F1-41 · Logo nuevo: regla blanca + media mira
+
+- **Modulo:** pwa, ui, docs · **Puntos:** 2 · **Depende de:** F1-34
+- **Descripcion:** redibujar el icono como SVG segun el mockup del autor (2026-11-17): se mantienen
+  el tile navy `#10286b` y la regla blanca con sus ticks; se reemplaza el pin amarillo por media
+  mira amarilla: un semicirculo de trazo abierto hacia la regla (a su izquierda, con los extremos
+  en la regla) y un punto lleno sobre la regla a mitad de altura. Guardar el mockup en
+  `docs/redesign/design-system/assets/Logos/` como referencia y actualizar la descripcion del logo
+  en ese README, en `docs/redesign/DESIGN-SYSTEM.md` y en `docs/redesign/design-system/README.md`. Regenerar `pwa-192`, `pwa-512`, maskable, favicon y apple-touch; actualizar
+  `docs/redesign/design-system/assets/Logos/`.
+- **Criterios:** legible a 32 px; maskable dentro de la zona segura; mismo tile en dark y light;
+  manifest y precache actualizados; capturas regeneradas.
 
 ### [ ] F1-22 · Release del MVP y prueba con arqueros
 
-- **Modulo:** infra, producto · **Puntos:** 3 · **Depende de:** todo F1 (incluido F1-33, el rediseño)
+- **Modulo:** infra, producto · **Puntos:** 3 · **Depende de:** todo F1 (incluidos F1-33 y F1-34..F1-41)
 - **Descripcion:** promocion a prod, restore de backup probado en staging, script de metricas
   agregadas desde la base (spec §2, sin tracking de terceros), prueba con 5–10 arqueros (CBA, liga
   bahiense), canal de feedback.
