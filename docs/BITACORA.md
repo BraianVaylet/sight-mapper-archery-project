@@ -49,7 +49,10 @@
 
 - **Lo hace el autor:** prueba al sol con un telefono real en los dos temas y pasada con un
   lector de pantalla real (TalkBack / VoiceOver / NVDA).
-- CI del PR en GitHub: se corre al abrirlo.
+- ~~CI del PR en GitHub~~: la primera corrida fallo en `pnpm test:scripts` (el test de `/adr`
+  tenia fijo el 012 como proximo ADR, y el 012 ya existe); se corrigio para que lea el numero del
+  repo (2712a11). Segunda corrida: los 4 jobs en verde (lint/tests/build, E2E 360 y 1440,
+  Lighthouse, dependencias).
 - Margen del gate de JS (~6 KB): lo proximo que sume JS al arranque tiene que medirse.
 - A 1440 la barra fija de la mira no se alinea con la columna del contenido junto al riel.
 - El paso a Distancias en frio a 360 fallo por tiempo en corridas anteriores (en esta paso).
