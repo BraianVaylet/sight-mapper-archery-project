@@ -63,11 +63,20 @@ export type AppHeaderProps = {
   logo?: ReactNode;
   /** The menu button, already built by the app (configuration lives in Settings, RF-ACC-04). */
   actions?: ReactNode;
+  /**
+   * Wraps the brand (logo, title and subtitle) in the app's own link to the Home (RF-X-08). It gets
+   * the brand and the classes that keep it a ≥ 48 px target; `ui` stays router-agnostic.
+   */
+  brandLink?: ((brand: ReactNode, className: string) => ReactNode) | undefined;
 };
 
-export function AppHeader({ title, subtitle, logo, actions }: AppHeaderProps) {
-  return (
-    <header className="flex items-center gap-3 border-b-2 border-border bg-raised px-4 py-3">
+/** Classes of the brand when it is a link: a 48 px target that fills the free width. */
+const BRAND_LINK_CLASS =
+  'flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-sm text-text no-underline';
+
+export function AppHeader({ title, subtitle, logo, actions, brandLink }: AppHeaderProps) {
+  const brand = (
+    <>
       {logo ? (
         <span aria-hidden="true" className="shrink-0">
           {logo}
@@ -77,6 +86,15 @@ export function AppHeader({ title, subtitle, logo, actions }: AppHeaderProps) {
         <p className="truncate font-display text-lg font-semibold text-text">{title}</p>
         {subtitle ? <p className="truncate font-ui text-sm text-muted">{subtitle}</p> : null}
       </div>
+    </>
+  );
+  return (
+    <header className="flex items-center gap-3 border-b-2 border-border bg-raised px-4 py-3">
+      {brandLink ? (
+        brandLink(brand, BRAND_LINK_CLASS)
+      ) : (
+        <div className="flex min-w-0 flex-1 items-center gap-3">{brand}</div>
+      )}
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
     </header>
   );

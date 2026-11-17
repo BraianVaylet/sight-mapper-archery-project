@@ -1,6 +1,6 @@
 import { AppHeader, Button, Icon, InfoAlert, NavDrawer, NavGroup, NavItem } from '@sight-mapper/ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
+import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import { useClients } from '../../app/clients.js';
 import { useI18n } from '../../app/i18n.js';
 import { useUi } from '../../app/ui-store.js';
@@ -141,6 +141,16 @@ export function AppFrame() {
           <AppHeader
             title={t('common.appName')}
             logo={<Logo />}
+            brandLink={(brand, className) => (
+              <Link
+                to="/"
+                aria-label={t('menu.homeLink', { app: t('common.appName') })}
+                className={className}
+                onClick={() => setOpen(false)}
+              >
+                {brand}
+              </Link>
+            )}
             actions={
               wide ? null : (
                 <Button

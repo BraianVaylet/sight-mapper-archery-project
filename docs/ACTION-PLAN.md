@@ -560,7 +560,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** `spec-reviewer` sin hallazgos; ninguna tarea siguiente necesita decidir algo que
   la spec no diga.
 
-### [ ] F1-35 · Logo del header lleva a la Home
+### [x] F1-35 · Logo del header lleva a la Home
 
 - **Modulo:** pwa, ui · **Puntos:** 1 · **Depende de:** F1-34
 - **Descripcion:** `AppHeader` acepta un destino para el logo + nombre; en `AppFrame` es un link a

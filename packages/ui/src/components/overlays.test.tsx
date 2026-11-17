@@ -248,5 +248,27 @@ describe('AppHeader', () => {
     render(<AppHeader title="Home" />);
     expect(screen.getByText('Home')).toBeVisible();
     expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.queryByRole('link')).toBeNull();
+  });
+
+  it('lets the app wrap logo and title in its link to the Home, as a 48 px target', () => {
+    render(
+      <AppHeader
+        title="Sight Mapper"
+        subtitle="Your setups"
+        logo={<svg data-testid="logo" />}
+        brandLink={(brand, className) => (
+          <a href="/" aria-label="Sight Mapper: go to home" className={className}>
+            {brand}
+          </a>
+        )}
+      />,
+    );
+    const link = screen.getByRole('link', { name: 'Sight Mapper: go to home' });
+    expect(link).toHaveAttribute('href', '/');
+    expect(link).toHaveClass('min-h-12');
+    expect(link).toContainElement(screen.getByTestId('logo'));
+    expect(link).toContainElement(screen.getByText('Sight Mapper'));
+    expect(link).toContainElement(screen.getByText('Your setups'));
   });
 });

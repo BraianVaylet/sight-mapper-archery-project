@@ -18,6 +18,34 @@
 
 ---
 
+## 2026-11-17 — El logo de la cabecera vuelve al Home
+
+**Tareas:** F1-35 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `AppHeader` (`@sight-mapper/ui`) acepta `brandLink`: un render prop que envuelve logo, titulo y
+  subtitulo en el link de la app, con las clases de un objetivo de 48 px; `ui` sigue sin depender
+  del router.
+- `AppFrame` lo usa con el `Link` de TanStack a `/`, nombre accesible "Sight Mapper: ir al inicio" /
+  "Sight Mapper: go to home" (`menu.homeLink`; contiene el texto visible, WCAG 2.5.3) y cierra el
+  cajon. `GuestFrame` no cambia: sin sesion el logo no es link (RF-X-08).
+- CI del PR: `pnpm audit --prod` fallaba por GHSA-fc5q-39xc-vjpf (picomatch ≤ 4.0.7, sin version
+  corregida publicada). Llega a prod solo por `vitest`, peer opcional de `better-auth`; se ignora en
+  `auditConfig.ignoreGhsas` con el motivo y la condicion para sacarlo (decidido por el autor).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Unit `ui` (25/25, test nuevo del link: href, 48 px, logo y textos adentro), i18n 27/27, lint y
+  typecheck de ui, i18n y pwa.
+- E2E `setups` (ahora vuelve de la mira al Home tocando el logo), `a11y` y `keyboard` a 360 y
+  1440 px: 8 pasan, 2 skip por diseño. Una primera corrida fallo entera porque habia un
+  `dev:local` viejo ocupando 5173 sin el archivo de mails; se freno con el OK del autor.
+
+### Pendiente / deuda
+
+- Sacar el ignore de picomatch cuando salga 4.0.8.
+
 ## 2026-11-17 — La spec define los ajustes post-rediseño antes de codearlos
 
 **Tareas:** F1-34 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
