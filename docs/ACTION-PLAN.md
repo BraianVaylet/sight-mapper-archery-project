@@ -506,7 +506,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Modulo:** ui, pwa · **Puntos:** 3 · **Depende de:** F1-25
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-03.
 
-### [ ] F1-27 · Rediseño: fondo blueprint
+### [~] F1-27 · Rediseño: fondo blueprint
 
 - **Modulo:** ui, pwa · **Puntos:** 2 · **Depende de:** F1-25
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-04.

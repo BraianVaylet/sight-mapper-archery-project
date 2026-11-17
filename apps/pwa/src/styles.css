@@ -20,15 +20,56 @@
     color-scheme: light;
   }
 
+  /*
+   * Blueprint paper (UX-UI §2.4): a minor line every 8 px and a major one every 40 px, fixed while
+   * the content scrolls over it like a drawing table. Decorative only: data always sits on an
+   * opaque surface, never on the grid.
+   */
   body {
     margin: 0;
     min-height: 100dvh;
-    background: var(--sm-bg);
+    background-color: var(--sm-bg);
+    background-image:
+      linear-gradient(var(--sm-grid-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--sm-grid-major) 1px, transparent 1px),
+      linear-gradient(var(--sm-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--sm-grid) 1px, transparent 1px);
+    background-size:
+      var(--sm-grid-step-major) var(--sm-grid-step-major),
+      var(--sm-grid-step-major) var(--sm-grid-step-major),
+      var(--sm-grid-step) var(--sm-grid-step),
+      var(--sm-grid-step) var(--sm-grid-step);
+    background-position: -1px -1px;
+    background-attachment: fixed;
   }
 
   :focus-visible {
     outline: 3px solid var(--sm-focus);
     outline-offset: 2px;
+  }
+}
+
+/* Registration marks of the screens without a session: a crosshair in two opposite corners. */
+@layer components {
+  .blueprint-reg {
+    position: fixed;
+    z-index: 0;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--sm-grid-major), var(--sm-grid-major)) center / 24px 2px no-repeat,
+      linear-gradient(var(--sm-grid-major), var(--sm-grid-major)) center / 2px 24px no-repeat;
+  }
+
+  .blueprint-reg-start {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    left: 12px;
+  }
+
+  .blueprint-reg-end {
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -42,10 +83,15 @@
     margin: 14mm;
   }
 
+  /* `background` also clears the blueprint grid: paper is plain white. */
   html,
   body {
     background: #fff !important;
     color: #000 !important;
+  }
+
+  .blueprint-reg {
+    display: none !important;
   }
 
   header,

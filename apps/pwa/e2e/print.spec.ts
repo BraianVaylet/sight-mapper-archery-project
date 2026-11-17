@@ -31,9 +31,10 @@ test('print the list: only the sheet is paper, in black and white, on one page',
   await expect(page.getByLabel('Desde')).toBeHidden();
   const colors = await page.evaluate(() => {
     const body = getComputedStyle(document.body);
-    return { background: body.backgroundColor, color: body.color };
+    return { background: body.backgroundColor, grid: body.backgroundImage, color: body.color };
   });
-  expect(colors).toEqual({ background: 'rgb(255, 255, 255)', color: 'rgb(0, 0, 0)' });
+  // White paper: no blueprint grid either.
+  expect(colors).toEqual({ background: 'rgb(255, 255, 255)', grid: 'none', color: 'rgb(0, 0, 0)' });
 
   // "Save as PDF": one sheet, on A4 and on Letter, with no cut table.
   const pages = (pdf: Buffer) =>

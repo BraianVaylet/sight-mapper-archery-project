@@ -44,7 +44,7 @@ export function AppFooter({ version = __APP_VERSION__ }: { version?: string }) {
 export function Shell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   return (
-    <div className="flex min-h-dvh flex-col bg-bg text-text">
+    <div className="flex min-h-dvh flex-col text-text">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-ink"

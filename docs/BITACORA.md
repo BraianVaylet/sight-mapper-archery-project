@@ -18,6 +18,41 @@
 
 ---
 
+## 2026-11-17 — Toda la app se dibuja sobre papel de plano
+
+**Tareas:** F1-27 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `styles.css`: cuadricula blueprint en el `body` (linea menor cada 8 px en `grid`, mayor cada
+  40 px en `grid-major`, fija al scroll). `Shell` deja de pintar `bg-bg` opaco para que se vea.
+- `GuestFrame` (`app/guest-frame.tsx`): marcas de registro en dos esquinas, decorativas
+  (`aria-hidden`, sin eventos de puntero, respetan el `safe-area`), en `_guest`, `/reset-password`
+  y `/verify-email`. R-06 le suma el `LanguageSwitch`.
+- Impresion: el fondo blanco ya anulaba la imagen; las marcas se ocultan. `print.spec.ts` ahora
+  exige `background-image: none` en papel.
+- `.claude/launch.json`: configuracion `dev-local` para ver pantallas con API en el panel.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La cuadricula es una regla de base en la PWA y no un componente de `ui`: es el fondo de la pagina,
+  no algo que se compone.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Navegador a 375 px, `/sign-in` en oscuro y claro: cuadricula visible y tenue, marcas en las
+  esquinas, titulo ya en Chakra Petch.
+- PWA: lint, typecheck y 385/385 unit tests.
+- E2E a 360: `contrast` (oscuro y claro), `a11y` (axe y desbordes a 360 y fuente ancha) y `print`
+  en verde (5 pasan; el de 768 se salta en el proyecto de 360 por diseño). `print` vuelto a correr
+  con el assert nuevo: 1/1.
+
+### Pendiente / deuda
+
+- El criterio "ningun dato sobre la cuadricula" todavia no se cumple en todas las pantallas: el
+  formulario de ingreso, sus links y el pie de preferencias apoyan texto directo sobre el fondo. Lo
+  resuelven R-06 (se va el pie) y R-09 (formularios en `SectionCard`); se revisa en R-10.
+
 ## 2026-11-17 — La app habla con su propia tipografia, tambien sin señal
 
 **Tareas:** F1-26 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)

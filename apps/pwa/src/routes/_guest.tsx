@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { GuestFrame } from '../app/guest-frame.js';
 import { redirectSearch, safeRedirect } from '../features/auth/redirect.js';
 import { sessionQuery } from '../features/auth/session.js';
 
@@ -11,5 +12,11 @@ export const Route = createFileRoute('/_guest')({
     );
     if (session !== null) throw redirect({ to: safeRedirect(search.redirect) });
   },
-  component: Outlet,
+  component: function GuestLayout() {
+    return (
+      <GuestFrame>
+        <Outlet />
+      </GuestFrame>
+    );
+  },
 });
