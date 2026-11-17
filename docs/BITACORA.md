@@ -18,6 +18,42 @@
 
 ---
 
+## 2026-11-17 — El rediseño blueprint queda verificado entero y listo para revisar
+
+**Tareas:** F1-33 (cierra F1-23..F1-32) · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- Verificacion completa del monorepo y de la PWA en los dos tamaños de los E2E, capturas de
+  referencia regeneradas (`docs/screens/`, 19 por tema; se borro `18-appearance`, ahora
+  `18-settings`), Lighthouse CI sobre el build final y PR a `main`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- El PR incluye el commit de infraestructura de F0-20 (`296f2db`, Railway, Docker y Caddy) porque la
+  rama salio de `feat/f0-railway-config`, que nunca se pusheo ni se mergeo.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `pnpm lint`, `pnpm typecheck` y `pnpm test` del monorepo en verde: domain 247, types 29,
+  schemas 130, client 78, i18n 27, ui 172, api 410, pwa 393 (1486 tests).
+- Cobertura: `ui` 97,97 % sentencias / 98,49 % lineas; `pwa` 92,99 % / 93,82 %.
+- E2E completo (`pnpm --filter @sight-mapper/pwa exec playwright test`, 360 y 1440): 49 pasan, 3
+  saltados por diseño de proyecto, 0 fallas, en la primera corrida.
+- Lighthouse CI (`/sign-in`, 3 corridas): JS inicial 178 136 B (~174 KB, gate 180 KB: pasa, pero
+  subio de ~171 KB y quedan ~6 KB de margen); accesibilidad 1,0; buenas practicas 1,0;
+  rendimiento 0,94; LCP 3,05 s (aviso aceptado por el autor el 2026-11-17).
+- Capturas de `docs/screens/` revisadas contra `docs/redesign/screenshots/`.
+
+### Pendiente / deuda
+
+- **Lo hace el autor:** prueba al sol con un telefono real en los dos temas y pasada con un
+  lector de pantalla real (TalkBack / VoiceOver / NVDA).
+- CI del PR en GitHub: se corre al abrirlo.
+- Margen del gate de JS (~6 KB): lo proximo que sume JS al arranque tiene que medirse.
+- A 1440 la barra fija de la mira no se alinea con la columna del contenido junto al riel.
+- El paso a Distancias en frio a 360 fallo por tiempo en corridas anteriores (en esta paso).
+
 ## 2026-11-17 — Todas las pantallas hablan el mismo idioma visual
 
 **Tareas:** F1-32 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)

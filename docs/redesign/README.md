@@ -32,9 +32,9 @@ O, mas corto: `/redesign`, una vez copiado `docs/redesign/redesign-command.md` a
   https://claude.ai/artifact/N56r27fiNaqyiGXEDAfaEF — copia fiel en `design-system/`.
 - [x] Contraste verificado por script en ambos temas (ver `DESIGN-SYSTEM.md` §2.3).
 - [x] Previews renderizados y revisados en dark y light (Playwright, `screenshots/`).
-- [ ] Nada de codigo de la app tocado todavia. Nada de la spec tocado todavia.
-- [ ] La rama no se pudo crear desde Cowork (sin terminal en la PC del autor y sin permiso de push
-  desde la nube). La crea la tarea **R-00**.
+- [x] ~~Nada de codigo de la app tocado todavia. Nada de la spec tocado todavia.~~ Hecho R-00..R-09
+  (2026-11-17); R-10 casi. Detalle en `docs/BITACORA.md`.
+- [x] ~~La rama no se pudo crear desde Cowork.~~ Creada y pusheada: `feat/redesign-blueprint`.
 - [ ] Sin verificar: render dentro del artefacto, prueba al sol con telefono real, lector de pantalla.
 
 ## Como ver el design system en local

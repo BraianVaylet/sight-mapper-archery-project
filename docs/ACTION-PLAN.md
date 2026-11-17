@@ -14,7 +14,7 @@
 | Fase | Nombre            | Tareas | Puntos | Estado        |
 | ---- | ----------------- | ------ | ------ | ------------- |
 | F0   | Fundaciones       | 21     | 80     | casi: todo hecho salvo 15 y 19 (casi) y 04 y 20 (bloqueadas) |
-| F1   | MVP — Calculator  | 33     | 119    | F1-01 a F1-21 hechas; rediseño F1-23..F1-33 en curso; F1-22 parcial (falta produccion) |
+| F1   | MVP — Calculator  | 33     | 119    | F1-01 a F1-21 hechas; rediseño F1-23..F1-32 hecho y F1-33 casi (falta la prueba al sol, el lector de pantalla y el CI del PR); F1-22 parcial (falta produccion) |
 | F2   | MAKER             | epica  | —      | —             |
 | F3   | Campo             | epica  | —      | —             |
 | F4   | Offline-first     | epica  | —      | —             |
@@ -506,7 +506,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Modulo:** ui, pwa · **Puntos:** 3 · **Depende de:** F1-25
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-03.
 
-### [~] F1-27 · Rediseño: fondo blueprint
+### [x] F1-27 · Rediseño: fondo blueprint
 
 - **Modulo:** ui, pwa · **Puntos:** 2 · **Depende de:** F1-25
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-04.
@@ -536,10 +536,12 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Modulo:** pwa · **Puntos:** 3 · **Depende de:** F1-29
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-09.
 
-### [ ] F1-33 · Rediseño: verificacion, capturas y cierre
+### [~] F1-33 · Rediseño: verificacion, capturas y cierre
 
 - **Modulo:** e2e, docs · **Puntos:** 5 · **Depende de:** F1-27, F1-30, F1-31, F1-32
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-10.
+- **Estado:** monorepo, cobertura, E2E completo, capturas y Lighthouse hechos; PR abierto. Falta el
+  CI del PR en verde, la prueba al sol y la pasada con lector de pantalla (las hace el autor).
 
 ### [ ] F1-22 · Release del MVP y prueba con arqueros
 

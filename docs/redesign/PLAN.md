@@ -157,7 +157,7 @@ flowchart LR
   - Given `e2e/installable.spec.ts`, Then verifica que el precache del service worker incluye los
     woff2 (lo exige ADR-012).
 
-### [~] R-04 · Fondo blueprint
+### [x] R-04 · Fondo blueprint
 
 - **Modulo:** ui, pwa · **Puntos:** 2 · **Depende de:** R-02
 - **Descripcion:** fondo de cuadricula para el `body` (clase o regla base en `styles.css`, valores
@@ -289,7 +289,7 @@ flowchart LR
     distintos, boton "Tema").
   - Given `print.spec.ts`, `profile.spec.ts`, `auth.spec.ts`, `english.spec.ts`, Then pasan.
 
-### [ ] R-10 · Verificacion, capturas y cierre
+### [~] R-10 · Verificacion, capturas y cierre
 
 - **Modulo:** e2e, docs · **Puntos:** 5 · **Depende de:** R-04, R-07, R-08, R-09
 - **Descripcion:**
