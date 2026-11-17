@@ -3,16 +3,23 @@ import { formatReading } from '@sight-mapper/domain';
 import { formatNumber } from '@sight-mapper/i18n';
 import type { CreateMark, Mark, SetupView } from '@sight-mapper/schemas';
 import {
+  ACTION_TOOL_CLASS,
+  ActionBar,
+  ActionToolUnavailable,
   BottomSheet,
   Button,
   EmptyState,
   ErrorState,
+  Icon,
   InfoAlert,
+  ReadingHud,
   SectionCard,
   Select,
   Skeleton,
   StatusBadge,
   Toast,
+  cx,
+  touchTarget,
 } from '@sight-mapper/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
@@ -112,9 +119,6 @@ function ReadingBadge({
   );
 }
 
-const TOOL_CLASS =
-  'inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-sm border border-border px-3 font-ui text-base';
-
 /** Intermediates and the curve: from two marks on; before that, visible and announced as unavailable. */
 function DistancesTool({
   setupId,
@@ -128,16 +132,11 @@ function DistancesTool({
   const { t } = useI18n();
   if (count < CALC_MIN_MARKS_INTERPOLATE) {
     return (
-      <button
-        type="button"
-        aria-disabled="true"
-        className={`${TOOL_CLASS} cursor-not-allowed text-muted`}
-      >
-        <span>{t('sight.distances')}</span>
-        <span className="rounded-sm border border-border px-2 py-0.5 text-xs text-muted">
-          {`${count}/${CALC_MIN_MARKS_INTERPOLATE}`}
-        </span>
-      </button>
+      <ActionToolUnavailable
+        icon={<Icon name="curve" />}
+        label={t('sight.distances')}
+        badge={`${count}/${CALC_MIN_MARKS_INTERPOLATE}`}
+      />
     );
   }
   return (
@@ -145,26 +144,13 @@ function DistancesTool({
       to="/setups/$setupId/distances"
       params={{ setupId }}
       search={arrowSetId === undefined ? {} : { arrowSet: arrowSetId }}
-      className={`${TOOL_CLASS} text-text`}
+      className={cx(ACTION_TOOL_CLASS, 'text-text hover:bg-raised')}
     >
-      {t('sight.distances')}
-    </Link>
-  );
-}
-
-/** A tool that is not available yet: visible, announced as unavailable, and goes nowhere (RF-X-07). */
-function ToolButton({ label, badge }: { label: string; badge: string }) {
-  return (
-    <button
-      type="button"
-      aria-disabled="true"
-      className={`${TOOL_CLASS} cursor-not-allowed text-muted`}
-    >
-      <span>{label}</span>
-      <span className="rounded-sm border border-border px-2 py-0.5 text-xs text-muted">
-        {badge}
+      <Icon name="curve" />
+      <span className="max-w-full hyphens-auto [overflow-wrap:anywhere]">
+        {t('sight.distances')}
       </span>
-    </button>
+    </Link>
   );
 }
 
@@ -319,14 +305,49 @@ function SightView({
   const firstDistance = marks[0]?.distanceM;
   const lastDistance = marks[marks.length - 1]?.distanceM;
 
+  const toolLink = (to: '/setups/$setupId/doctor' | '/setups/$setupId/print') =>
+    ({
+      to,
+      params: { setupId: setup.id },
+      search: arrowId === undefined ? {} : { arrowSet: arrowId },
+      className: cx(ACTION_TOOL_CLASS, 'text-text hover:bg-raised'),
+    }) as const;
+
+  const hudDistance =
+    selectedM === undefined ? '' : formatDistance(selectedM, system, locale, '').trim();
+  const estimate = selected !== undefined && selected.ok && selected.kind !== 'measured';
+
+  const barShown = sheet === null && pending === null;
+  const toastNode = (inline: boolean) =>
+    toast === null ? null : (
+      <Toast
+        key={toast.message}
+        inline={inline}
+        message={toast.message}
+        actionLabel={t('common.undo')}
+        onAction={() => {
+          const undo = toast.undo;
+          setToast(null);
+          void undo().catch(() => setUndoError(true));
+        }}
+        dismissLabel={t('common.close')}
+        onDismiss={() => setToast(null)}
+      />
+    );
+
   return (
-    <section className="flex flex-col gap-4 pb-24">
+    // Room at the bottom for the fixed action bar: nothing hides behind it.
+    <section className="flex flex-col gap-4 pb-64">
       <div className="flex flex-col gap-1">
-        <Link to="/" className="font-ui text-base text-info underline underline-offset-2">
-          ‹ {t('sight.back')}
+        <Link
+          to="/"
+          className="inline-flex min-h-12 items-center gap-1 self-start font-ui text-base text-info underline underline-offset-[3px]"
+        >
+          <Icon name="back" />
+          {t('sight.back')}
         </Link>
-        <h1 className="font-display text-2xl">{nameOf(setup)}</h1>
-        <p className="font-ui text-base text-muted">
+        <h1 className="font-display text-3xl font-bold">{nameOf(setup)}</h1>
+        <p className="font-mono text-sm text-muted">
           {componentName(setup.sight) ?? ''}
           {firstDistance === undefined || lastDistance === undefined
             ? ` · ${t('sight.summary', { count: 0 })}`
@@ -339,248 +360,300 @@ function SightView({
         </p>
       </div>
 
-      {arrowOptions.length === 0 ? (
-        <InfoAlert variant="warning">{t('sight.noArrowSets')}</InfoAlert>
-      ) : (
-        <Select
-          label={t('sight.arrows')}
-          value={arrowId ?? ''}
-          onChange={(event) => go({ arrowSet: event.target.value, d: undefined })}
-          options={arrowOptions}
-        />
-      )}
-
-      <QuickAccessToggle setupId={setup.id} arrowSetId={arrowId} />
-
-      <div role="group" aria-label={t('sight.tools')} className="flex flex-wrap gap-2">
-        <ToolButton label={t('sight.wind')} badge={t('sight.soon')} />
-        <ToolButton label={t('sight.weather')} badge={t('sight.soon')} />
-        <DistancesTool setupId={setup.id} arrowSetId={arrowId} count={analysis.count} />
-        {progress.ready ? (
-          <Link
-            to="/setups/$setupId/doctor"
-            params={{ setupId: setup.id }}
-            search={arrowId === undefined ? {} : { arrowSet: arrowId }}
-            className={`${TOOL_CLASS} text-text`}
-          >
-            {t('sight.doctor')}
-          </Link>
-        ) : (
-          <ToolButton
-            label={t('sight.doctor')}
-            badge={t('sight.doctorNeeds', { have: progress.have, need: progress.need })}
-          />
-        )}
-        {marks.length > 0 ? (
-          <Link
-            to="/setups/$setupId/print"
-            params={{ setupId: setup.id }}
-            search={arrowId === undefined ? {} : { arrowSet: arrowId }}
-            className={`${TOOL_CLASS} text-text`}
-          >
-            {t('sight.print')}
-          </Link>
-        ) : (
-          <ToolButton label={t('sight.print')} badge="0/1" />
-        )}
-      </div>
-
-      <div
-        aria-live="polite"
-        className="flex flex-col gap-1 rounded-md border border-border bg-surface p-4"
-      >
-        {selectedM === undefined || selected === undefined ? (
-          <p className="font-ui text-base text-muted">{t('sight.readoutPick')}</p>
-        ) : (
-          <>
-            <p className="font-ui text-sm text-muted">
-              {t('sight.readout', { distance: showDistance(selectedM) })}
-            </p>
-            <p className="font-display text-4xl tabular-nums">
-              {selected.ok && selected.kind !== 'measured' ? '≈ ' : ''}
-              {readingText(selected)}
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <ReadingBadge
-                reading={selected}
-                suspect={selectedMark !== undefined && analysis.suspectIds.has(selectedMark.id)}
-                inconsistent={
-                  selectedMark !== undefined && analysis.inconsistentIds.has(selectedMark.id)
-                }
-              />
-              {selected.ok && selected.lowConfidence ? (
-                <span className="text-sm text-warning">{t('sight.lowConfidence')}</span>
-              ) : null}
-              {selected.ok && selected.outOfScale ? (
-                <span className="text-sm text-warning">{t('sight.outOfScale')}</span>
-              ) : null}
-              {!selected.ok ? (
-                <span className="text-sm text-muted">
-                  {calcFailureText(translate, selected, units)}
-                </span>
-              ) : null}
-            </div>
-          </>
-        )}
-      </div>
-
-      {marksQuery.isError ? (
-        <ErrorState
-          title={t('sight.marksLoadError')}
-          description={explain(marksQuery.error)}
-          retryLabel={t('common.retry')}
-          onRetry={() => void marksQuery.refetch()}
-        />
-      ) : marksQuery.isPending ? (
-        <div aria-busy="true">
-          <Skeleton className="h-40 w-full" />
-        </div>
-      ) : marks.length === 0 ? (
-        <EmptyState
-          title={t('sight.emptyTitle')}
-          description={t('sight.emptyHint')}
-          action={
-            <div className="flex flex-col items-center gap-3">
-              <ul className="font-ui text-base">
-                <li>
-                  <span aria-hidden="true">
-                    {arrowId === undefined ? GLYPH.open : GLYPH.filled}
-                  </span>
-                  {t('sight.stepArrows')}
-                </li>
-                <li>
-                  <span aria-hidden="true">{GLYPH.open}</span>
-                  {t('sight.stepMark')}
-                </li>
-              </ul>
-              <InfoAlert variant="info">{t('sight.needs', { need: 2, count: 0 })}</InfoAlert>
-            </div>
-          }
-        />
-      ) : (
-        <div className="grid items-start gap-4 md:grid-cols-2">
-          <SectionCard title={t('sight.rulerLabel')} className="min-w-0">
-            <Ruler
-              scale={scale}
-              marks={rulerMarks}
-              label={t('sight.rulerLabel')}
-              formatValue={(value) => formatReading(value, scale, separator)}
-              lengthPx={360}
-              selectedId={
-                selectedMark?.id ??
-                (rulerMarks.some((m) => m.id === 'selected') ? 'selected' : undefined)
-              }
-              onSelect={(id) => {
-                const picked = marks.find((m) => m.id === id);
-                if (picked !== undefined) go({ d: picked.distanceM });
-              }}
+      {/* 768 and up: the reading on the left, the scale and the marks on the right (UX-UI §7). */}
+      <div className="grid items-start gap-4 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="flex flex-col gap-4 md:sticky md:top-4">
+          {arrowOptions.length === 0 ? (
+            <InfoAlert variant="warning">{t('sight.noArrowSets')}</InfoAlert>
+          ) : (
+            <Select
+              label={t('sight.arrows')}
+              value={arrowId ?? ''}
+              onChange={(event) => go({ arrowSet: event.target.value, d: undefined })}
+              options={arrowOptions}
             />
-            <p className="flex flex-wrap gap-4 font-ui text-sm" aria-label={t('sight.legend')}>
-              <span>
-                {GLYPH.filled}
-                {t('sight.registered')}
-              </span>
-              <span>
-                {GLYPH.estimate}
-                {t('sight.calculated')}
-              </span>
-            </p>
-          </SectionCard>
+          )}
 
-          <SectionCard title={t('sight.tableTitle')} count={marks.length} className="min-w-0">
-            {/* A wide system font must not push the page sideways: the table scrolls on its own. */}
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse font-ui text-base" onKeyDown={onTableKey}>
-                <caption className="sr-only">{t('sight.tableCaption')}</caption>
-                <thead>
-                  <tr className="text-left text-sm text-muted">
-                    <th scope="col" className="py-1 pr-2 font-medium">
-                      {t('sight.distance')}
-                    </th>
-                    <th scope="col" className="py-1 pr-2 font-medium">
-                      {t('sight.reading')}
-                    </th>
-                    <th scope="col" className="py-1 pr-2 font-medium">
-                      {t('sight.state')}
-                    </th>
-                    <th scope="col" className="py-1">
-                      <span className="sr-only">{t('setups.home.edit')}</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {marks.map((m) => {
-                    const isSelected = m.distanceM === selectedM;
-                    const reading = analysis.readingAt(m.distanceM);
-                    return (
-                      <tr
-                        key={m.id}
-                        aria-selected={isSelected}
-                        className={`border-t border-border ${isSelected ? 'bg-sunken' : ''}`}
-                      >
-                        <th scope="row" className="py-1 pr-2 text-left font-medium tabular-nums">
-                          <button
-                            type="button"
-                            aria-label={t('sight.selectMark', {
-                              distance: showDistance(m.distanceM),
-                            })}
-                            aria-current={isSelected ? 'true' : undefined}
-                            style={{ minHeight: 44, minWidth: 44 }}
-                            className="text-left underline-offset-2 hover:underline"
-                            onClick={() => go({ d: m.distanceM })}
-                          >
-                            {showDistance(m.distanceM)}
-                          </button>
-                        </th>
-                        <td className="py-1 pr-2 tabular-nums">{readingText(reading)}</td>
-                        <td className="py-1">
-                          <ReadingBadge
-                            reading={reading}
-                            suspect={analysis.suspectIds.has(m.id)}
-                            inconsistent={analysis.inconsistentIds.has(m.id)}
-                          />
-                        </td>
-                        <td className="py-1 text-right">
-                          <Button
-                            variant="link"
-                            // Narrower than a free-standing button: with a wide system font (DejaVu on Linux)
-                            // the four columns must still fit 360 px.
-                            style={{ paddingInline: 8 }}
-                            aria-label={t('sight.editMark', {
-                              distance: showDistance(m.distanceM),
-                            })}
-                            onClick={() => setSheet({ mode: 'edit', mark: m })}
-                          >
-                            {t('setups.home.edit')}
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </SectionCard>
+          <ReadingHud
+            {...(selectedM === undefined || selected === undefined
+              ? { placeholder: t('sight.readoutPick') }
+              : {})}
+            distance={{ label: t('sight.distance'), value: hudDistance, unit }}
+            reading={{
+              label:
+                selectedM === undefined
+                  ? t('sight.reading')
+                  : t('sight.readout', { distance: showDistance(selectedM) }),
+              value:
+                selected === undefined ? '' : `${estimate ? '≈ ' : ''}${readingText(selected)}`,
+              tone:
+                selected === undefined || !selected.ok
+                  ? 'none'
+                  : selected.kind === 'measured'
+                    ? 'measured'
+                    : 'estimated',
+            }}
+            footer={
+              selected === undefined ? undefined : (
+                <>
+                  <ReadingBadge
+                    reading={selected}
+                    suspect={selectedMark !== undefined && analysis.suspectIds.has(selectedMark.id)}
+                    inconsistent={
+                      selectedMark !== undefined && analysis.inconsistentIds.has(selectedMark.id)
+                    }
+                  />
+                  {selected.ok && selected.lowConfidence ? (
+                    <span className="font-ui text-sm text-warning">{t('sight.lowConfidence')}</span>
+                  ) : null}
+                  {selected.ok && selected.outOfScale ? (
+                    <span className="font-ui text-sm text-warning">{t('sight.outOfScale')}</span>
+                  ) : null}
+                  {!selected.ok ? (
+                    <span className="font-ui text-sm text-muted">
+                      {calcFailureText(translate, selected, units)}
+                    </span>
+                  ) : null}
+                </>
+              )
+            }
+          />
+
+          {analysis.tier === 'none' && marks.length > 0 ? (
+            <InfoAlert variant="info">
+              {t('sight.needs', { need: 2, count: marks.length })}
+            </InfoAlert>
+          ) : null}
+
+          <QuickAccessToggle setupId={setup.id} arrowSetId={arrowId} />
         </div>
-      )}
 
-      {analysis.tier === 'none' && marks.length > 0 ? (
-        <InfoAlert variant="info">{t('sight.needs', { need: 2, count: marks.length })}</InfoAlert>
-      ) : null}
+        <div className="flex min-w-0 flex-col gap-4">
+          {marksQuery.isError ? (
+            <ErrorState
+              title={t('sight.marksLoadError')}
+              description={explain(marksQuery.error)}
+              retryLabel={t('common.retry')}
+              onRetry={() => void marksQuery.refetch()}
+            />
+          ) : marksQuery.isPending ? (
+            <div aria-busy="true">
+              <Skeleton className="h-40 w-full" />
+            </div>
+          ) : marks.length === 0 ? (
+            <EmptyState
+              title={t('sight.emptyTitle')}
+              description={t('sight.emptyHint')}
+              action={
+                <div className="flex flex-col items-center gap-3">
+                  <ul className="flex flex-col gap-1 text-left font-ui text-base">
+                    <li>
+                      <span aria-hidden="true" className="text-mark">
+                        {arrowId === undefined ? GLYPH.open : GLYPH.filled}
+                      </span>
+                      {t('sight.stepArrows')}
+                    </li>
+                    <li>
+                      <span aria-hidden="true">{GLYPH.open}</span>
+                      {t('sight.stepMark')}
+                    </li>
+                  </ul>
+                  <InfoAlert variant="info">{t('sight.needs', { need: 2, count: 0 })}</InfoAlert>
+                </div>
+              }
+            />
+          ) : (
+            <>
+              <SectionCard index="01" title={t('sight.tableTitle')} count={marks.length}>
+                {/* A wide system font must not push the page sideways: the table scrolls on its own. */}
+                <div className="-mx-4 overflow-x-auto">
+                  <table
+                    className="w-full border-collapse font-ui text-base"
+                    onKeyDown={onTableKey}
+                  >
+                    <caption className="sr-only">{t('sight.tableCaption')}</caption>
+                    <thead>
+                      <tr className="border-y-2 border-border bg-raised text-left font-mono text-xs tracking-[0.12em] text-muted uppercase">
+                        <th scope="col" className="py-2 pr-2 pl-4 font-semibold">
+                          {t('sight.distance')}
+                        </th>
+                        <th scope="col" className="py-2 pr-2 font-semibold">
+                          {t('sight.reading')}
+                        </th>
+                        <th scope="col" className="py-2 pr-2 font-semibold">
+                          {t('sight.state')}
+                        </th>
+                        <th scope="col" className="py-2 pr-1">
+                          <span className="sr-only">{t('setups.home.edit')}</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {marks.map((m) => {
+                        const isSelected = m.distanceM === selectedM;
+                        const reading = analysis.readingAt(m.distanceM);
+                        return (
+                          <tr
+                            key={m.id}
+                            aria-selected={isSelected}
+                            className={cx(
+                              'h-[60px] border-b-2 border-line last:border-b-0',
+                              isSelected && 'bg-raised',
+                            )}
+                          >
+                            <th
+                              scope="row"
+                              className={cx(
+                                'border-l-4 py-1 pr-2 pl-3 text-left',
+                                isSelected ? 'border-accent' : 'border-transparent',
+                              )}
+                            >
+                              <button
+                                type="button"
+                                aria-label={t('sight.selectMark', {
+                                  distance: showDistance(m.distanceM),
+                                })}
+                                aria-current={isSelected ? 'true' : undefined}
+                                style={touchTarget}
+                                className="text-left font-mono text-xl font-medium tabular-nums underline-offset-4 hover:underline"
+                                onClick={() => go({ d: m.distanceM })}
+                              >
+                                {showDistance(m.distanceM)}
+                              </button>
+                            </th>
+                            <td className="py-1 pr-1 font-mono text-lg font-medium text-mark tabular-nums">
+                              {readingText(reading)}
+                            </td>
+                            <td className="py-1 pr-1">
+                              <ReadingBadge
+                                reading={reading}
+                                suspect={analysis.suspectIds.has(m.id)}
+                                inconsistent={analysis.inconsistentIds.has(m.id)}
+                              />
+                            </td>
+                            <td className="py-1 pr-1 text-right">
+                              {/* An icon: the four columns must fit 360 px; the name says it all. */}
+                              <Button
+                                variant="ghost"
+                                style={{ paddingInline: 0 }}
+                                aria-label={t('sight.editMark', {
+                                  distance: showDistance(m.distanceM),
+                                })}
+                                onClick={() => setSheet({ mode: 'edit', mark: m })}
+                              >
+                                <Icon name="edit" />
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </SectionCard>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface px-4 py-3">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-3">
-          <p className="min-w-0 truncate font-ui text-sm uppercase tracking-widest text-muted">
-            {t('sight.statusBar')}
-            {selectedM === undefined || selected === undefined
-              ? ''
-              : ` · ${showDistance(selectedM)} · ${readingText(selected)}`}
-          </p>
-          <Button onClick={() => setSheet({ mode: 'new' })} disabled={arrowId === undefined}>
+              <SectionCard index="02" title={t('sight.rulerTitle')}>
+                <div className="flex justify-center rounded-sm border-2 border-border bg-sunken py-2">
+                  <Ruler
+                    scale={scale}
+                    marks={rulerMarks}
+                    label={t('sight.rulerLabel')}
+                    formatValue={(value) => formatReading(value, scale, separator)}
+                    lengthPx={360}
+                    selectedId={
+                      selectedMark?.id ??
+                      (rulerMarks.some((m) => m.id === 'selected') ? 'selected' : undefined)
+                    }
+                    onSelect={(id) => {
+                      const picked = marks.find((m) => m.id === id);
+                      if (picked !== undefined) go({ d: picked.distanceM });
+                    }}
+                  />
+                </div>
+                <p
+                  className="flex flex-wrap gap-4 font-mono text-xs tracking-[0.08em] uppercase"
+                  aria-label={t('sight.legend')}
+                >
+                  <span className="text-mark">
+                    {GLYPH.filled}
+                    {t('sight.registered')}
+                  </span>
+                  <span className="text-info">
+                    {GLYPH.estimate}
+                    {t('sight.calculated')}
+                  </span>
+                </p>
+              </SectionCard>
+            </>
+          )}
+        </div>
+      </div>
+
+      <ActionBar
+        hidden={!barShown}
+        notice={toastNode(true)}
+        toolsLabel={t('sight.tools')}
+        tools={
+          <>
+            <DistancesTool setupId={setup.id} arrowSetId={arrowId} count={analysis.count} />
+            {progress.ready ? (
+              <Link {...toolLink('/setups/$setupId/doctor')}>
+                <Icon name="doctor" />
+                <span>{t('sight.doctor')}</span>
+              </Link>
+            ) : (
+              <ActionToolUnavailable
+                icon={<Icon name="doctor" />}
+                label={t('sight.doctor')}
+                badge={t('sight.doctorNeeds', { have: progress.have, need: progress.need })}
+              />
+            )}
+            {marks.length > 0 ? (
+              <Link {...toolLink('/setups/$setupId/print')}>
+                <Icon name="print" />
+                <span>{t('sight.print')}</span>
+              </Link>
+            ) : (
+              <ActionToolUnavailable
+                icon={<Icon name="print" />}
+                label={t('sight.print')}
+                badge="0/1"
+              />
+            )}
+            {/* Wind and weather, not built yet: one cell, both named (RF-X-07, D-1). */}
+            <button
+              type="button"
+              aria-disabled="true"
+              className={cx(ACTION_TOOL_CLASS, 'cursor-not-allowed text-muted')}
+            >
+              <Icon name="wind" />
+              <span className="leading-4">
+                <span>{t('sight.wind')}</span> · <span>{t('sight.weather')}</span>
+              </span>
+              <span className="font-mono text-[11px] font-semibold tracking-[0.06em] uppercase">
+                {t('sight.soonShort')}
+              </span>
+            </button>
+          </>
+        }
+        primary={
+          <Button
+            size="lg"
+            block
+            onClick={() => setSheet({ mode: 'new' })}
+            disabled={arrowId === undefined}
+          >
             {t('sight.add')}
           </Button>
-        </div>
-      </div>
+        }
+        strip={{
+          left: `${nameOf(setup)} · ${componentName(setup.sight) ?? ''}`,
+          right:
+            selectedM === undefined || selected === undefined
+              ? undefined
+              : `${showDistance(selectedM)} · ${readingText(selected)}`,
+        }}
+      />
 
       {sheet === null || arrowId === undefined ? null : (
         <MarkSheet
@@ -632,20 +705,6 @@ function SightView({
           {t('mark.undoFailed')}
         </p>
       ) : null}
-      {toast === null ? null : (
-        <Toast
-          key={toast.message}
-          message={toast.message}
-          actionLabel={t('common.undo')}
-          onAction={() => {
-            const undo = toast.undo;
-            setToast(null);
-            void undo().catch(() => setUndoError(true));
-          }}
-          dismissLabel={t('common.close')}
-          onDismiss={() => setToast(null)}
-        />
-      )}
     </section>
   );
 }

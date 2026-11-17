@@ -30,6 +30,19 @@ export type {
   UpdatePromptProps,
 } from './components/feedback.js';
 export { Icon, ICON_NAMES } from './components/icon.js';
+export {
+  ACTION_TOOL_CLASS,
+  ActionBar,
+  ActionToolUnavailable,
+  ReadingHud,
+} from './components/instrument.js';
+export type {
+  ActionBarProps,
+  ActionToolProps,
+  ReadingHudCell,
+  ReadingHudProps,
+  ReadoutTone,
+} from './components/instrument.js';
 export type { IconName, IconProps } from './components/icon.js';
 export { LanguageSwitch } from './components/language-switch.js';
 export type { LanguageOption, LanguageSwitchProps } from './components/language-switch.js';

@@ -41,6 +41,7 @@ const PATHS = {
   doctor: <path d="M9 3h6v3H9zM7 4.5H5V21h14V4.5h-2M9 13l2 2 4-4" />,
   print: <path d="M7 9V3h10v6M7 17H4V9h16v8h-3M7 14h10v7H7z" />,
   pin: <path d="M9 3h6l-1 6 4 4H6l4-4zM12 13v8" />,
+  edit: <path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4" />,
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

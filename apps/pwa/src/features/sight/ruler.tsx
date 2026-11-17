@@ -41,7 +41,8 @@ const TICK_LENGTH: Record<TickLevel, number> = { minor: 8, medium: 14, major: 22
 /**
  * The sight scale drawn to size (SIGHT-MATH §10): the ticks and the position of every mark come
  * from the domain, so what is drawn is what the archer would read. Measured and estimated differ
- * by shape and line style, never by colour alone (UX-UI §1.3).
+ * by shape and line style, never by colour alone (UX-UI §1.3). Drawn as an analogue instrument
+ * (UX-UI §5): major ticks in ink, numbers in mono, the picked mark on an accent line.
  */
 export function Ruler({
   scale,
@@ -86,15 +87,15 @@ export function Ruler({
               x2={AXIS_X + TICK_LENGTH[tick.level]}
               y1={tick.positionPx}
               y2={tick.positionPx}
-              className="stroke-muted"
-              strokeWidth={tick.level === 'major' ? 1.5 : 1}
+              className={tick.level === 'major' ? 'stroke-text' : 'stroke-muted'}
+              strokeWidth={tick.level === 'major' ? 2 : 1}
             />
             {tick.labelled ? (
               <text
                 x={AXIS_X + TICK_LENGTH.major + 6}
                 y={tick.positionPx}
                 dominantBaseline="middle"
-                className="fill-muted font-ui text-[11px]"
+                className="fill-muted font-mono text-xs font-medium"
               >
                 {formatValue(tick.value)}
               </text>
@@ -121,8 +122,8 @@ export function Ruler({
                   cx={AXIS_X - 52}
                   cy={y}
                   r={10}
-                  className="fill-none stroke-text"
-                  strokeWidth={2}
+                  className="fill-none stroke-accent"
+                  strokeWidth={3}
                 />
               ) : null}
               {mark.suspect ? (
@@ -140,8 +141,14 @@ export function Ruler({
                 x2={AXIS_X}
                 y1={y}
                 y2={y}
-                className={mark.measured ? 'stroke-mark' : 'stroke-info'}
-                strokeWidth={2}
+                className={
+                  spot.id === selectedId
+                    ? 'stroke-accent'
+                    : mark.measured
+                      ? 'stroke-mark'
+                      : 'stroke-info'
+                }
+                strokeWidth={spot.id === selectedId ? 3 : 2}
                 strokeDasharray={mark.measured ? undefined : '3 3'}
               />
               {mark.measured ? (
@@ -149,8 +156,8 @@ export function Ruler({
               ) : (
                 <path
                   d={`M${AXIS_X - 52} ${y - 6}l6 6-6 6-6-6z`}
-                  className="fill-bg stroke-info"
-                  strokeWidth={1.5}
+                  className="fill-sunken stroke-info"
+                  strokeWidth={2}
                 />
               )}
               {/* A leader joins the label to its real position when neighbours pushed it away. */}
@@ -169,7 +176,7 @@ export function Ruler({
                 y={spot.labelPositionPx}
                 textAnchor="end"
                 dominantBaseline="middle"
-                className="fill-text font-ui text-xs"
+                className="fill-text font-mono text-xs font-medium"
               >
                 {mark.label}
               </text>

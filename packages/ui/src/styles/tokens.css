@@ -91,6 +91,20 @@
   }
 }
 
+/*
+ * Phosphor glow of a measured reading (ReadingHud): dark theme only, decorative, it never carries
+ * the contrast (the colour alone already passes). Off in light, forced or from the system.
+ */
+:root:not([data-theme='light']) .sm-glow {
+  text-shadow: 0 0 18px rgb(255 204 0 / 0.28);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .sm-glow {
+    text-shadow: none;
+  }
+}
+
 /* Motion of the primitives: the skeleton sweeps like a scanner, the toast bar drains. */
 @keyframes sm-scan {
   from {

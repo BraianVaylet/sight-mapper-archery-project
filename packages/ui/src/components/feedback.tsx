@@ -12,6 +12,8 @@ export type ToastProps = {
   dismissLabel: string;
   onDismiss: () => void;
   durationMs?: number | undefined;
+  /** In the flow of a slot (`ActionBar` notice) instead of fixed at the bottom of the screen. */
+  inline?: boolean | undefined;
 };
 
 /**
@@ -25,6 +27,7 @@ export function Toast({
   dismissLabel,
   onDismiss,
   durationMs = TOAST_DURATION_MS,
+  inline = false,
 }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(onDismiss, durationMs);
@@ -35,7 +38,10 @@ export function Toast({
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] z-50 mx-auto max-w-md overflow-hidden rounded-md border-2 border-border bg-surface text-text shadow-panel"
+      className={cx(
+        'z-50 mx-auto w-full max-w-md overflow-hidden rounded-md border-2 border-border bg-surface text-text shadow-panel',
+        !inline && 'fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] w-auto',
+      )}
     >
       <div className="flex items-center gap-2 py-2 pr-2 pl-4">
         <p className="flex-1 font-ui text-base">{message}</p>

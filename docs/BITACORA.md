@@ -18,6 +18,65 @@
 
 ---
 
+## 2026-11-17 — La pantalla de la mira se lee como un instrumento y se maneja con el pulgar
+
+**Tareas:** F1-30 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Orden de uso** (UX-UI §4.2): volver, nombre y resumen → set de flechas → **ReadingHud**
+  (distancia y lectura en mono grande, medido en `mark` con brillo de fosforo solo en oscuro,
+  estimado en `info` con `≈`, esquinas HUD) → marcas y regla → **ActionBar** fija abajo.
+- **ActionBar** (D-1): Intermedias, Doctor (`X/5` hasta tener 5), Imprimir (desde 1) y una sola
+  celda "Viento · Clima / Pronto", deshabilitada y anunciada (RF-X-07); "+ Agregar marca" de 56 px
+  a lo ancho; tira de estado (setup · mira, lectura viva) oculta al lector porque repite el HUD.
+  Se oculta con una hoja abierta y no se imprime. El toast con "Deshacer" se muestra arriba de la
+  barra (`notice`), nunca tapando la accion principal.
+- **Tabla de marcas:** filas de 60 px, distancia en mono, lectura en `mark`, fila elegida con fondo
+  `raised` y barra `accent`; "Editar" pasa a un boton de icono con el mismo nombre accesible ("Editar
+  la marca de 30 m") para que las cuatro columnas entren en 360 px.
+- **Regla:** pozo `sunken`, ticks mayores en tinta, numeros en mono, la marca elegida con linea y
+  anillo `accent`. La geometria sigue saliendo de `@sight-mapper/domain/ruler`.
+- **768+:** HUD (con el set de flechas y "Abrir siempre aca") a la izquierda, fijo al hacer scroll;
+  marcas y regla a la derecha.
+- `@sight-mapper/ui` (D-3): `ReadingHud`, `ActionBar`, `ActionToolUnavailable`,
+  `ACTION_TOOL_CLASS`, icono `edit`, `Toast` con `inline` y la regla `.sm-glow` en `tokens.css`.
+  i18n: `sight.soonShort`, `sight.rulerTitle`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La tabla va antes que la regla: en 360 es la lista que se toca y la que lee el lector de
+  pantalla; la regla la acompaña debajo (en 768+ ambas a la derecha del HUD).
+- Las herramientas quedan en la barra fija tambien en 768+, en lugar de "sobre la regla" como
+  decia el plan: la accion principal y las herramientas estan siempre en el mismo lugar.
+- `ReadingHud` y `ActionBar` subieron a `ui` como piezas de presentacion (D-3); la regla se quedo
+  en la PWA porque toda su logica es geometria del dominio.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui` 169/169 (nuevos: `ReadingHud` medido/estimado/vacio, `ActionBar`), PWA 392/392. En
+  `imperial.test.tsx` la busqueda de la unidad "yd" se acoto a la hoja: ahora el HUD tambien la
+  muestra. Lint y typecheck limpios.
+- Capturas reales con 5 marcas (spec temporal): a 360 en claro y oscuro se ven, sin scroll, el HUD
+  y "+ Agregar marca"; el toast queda arriba de la barra; a 1440 HUD a la izquierda, marcas y regla
+  a la derecha, riel del menu. La primera tanda mostro tres problemas que se corrigieron: el toast
+  tapaba la barra, "Intermedias" se cortaba y la tabla no entraba en 360.
+- E2E en 360 y 1440 (`sight`, `critical-flow`, `keyboard`, `quick-access`, `imperial`, `print`,
+  `a11y`, `contrast`): la primera corrida dio 44 verdes y 5 fallos, con **dos bugs reales**:
+  - Teclado (los dos tamaños): al cerrar la hoja con Escape el foco no volvia a "+ Agregar marca",
+    porque la barra se desmontaba con la hoja abierta.
+  - Imperial: con la hoja abierta, el toast de respaldo (fijo, por encima) tapaba "Guardar".
+  Arreglo: la barra queda montada y se oculta con `hidden`; el toast vive siempre en ella. Los
+  otros dos fallos (contraste en claro y fuente ancha) fueron por tiempo. Re-corrida de `keyboard`,
+  `imperial`, `contrast` y `a11y` con un worker: 12/12 en verde.
+
+### Pendiente / deuda
+
+- A 1440 la barra fija se centra en el ancho de contenido y no se alinea con la columna a la
+  derecha del riel del menu. Se ve bien, pero revisarlo en F1-33.
+- Prueba al sol del HUD y del brillo de fosforo con un telefono real (autor).
+
+
 ## 2026-11-17 — La configuracion vive solo en Ajustes y el menu se ordena por tareas
 
 **Tareas:** F1-29 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)

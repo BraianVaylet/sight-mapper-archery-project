@@ -377,6 +377,8 @@ export const en: Messages = {
     doctor: 'Doctor',
     print: 'Print',
     soon: 'Coming soon',
+    soonShort: 'Soon',
+    rulerTitle: 'Scale',
     doctorNeeds: '{{have}}/{{need}}',
     readout: 'Reading at {{distance}}',
     readoutPick: 'Pick a distance in the table.',

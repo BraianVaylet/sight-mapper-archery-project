@@ -378,6 +378,8 @@ export const es = {
     doctor: 'Doctor',
     print: 'Imprimir',
     soon: 'Próximamente',
+    soonShort: 'Pronto',
+    rulerTitle: 'Regla',
     doctorNeeds: '{{have}}/{{need}}',
     readout: 'Lectura a {{distance}}',
     readoutPick: 'Elegí una distancia en la tabla.',

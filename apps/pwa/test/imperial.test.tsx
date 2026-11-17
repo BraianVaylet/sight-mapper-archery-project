@@ -110,7 +110,7 @@ describe('The critical flow in yards (F1-12)', () => {
     await screen.findByRole('table');
 
     await user.click(screen.getByRole('button', { name: '+ Agregar marca' }));
-    expect(screen.getByText('yd')).toBeInTheDocument();
+    expect(within(screen.getByRole('dialog')).getByText('yd')).toBeInTheDocument();
     await user.type(screen.getByLabelText('Distancia'), '50');
     await user.type(screen.getByLabelText('Lectura'), '2,6');
     await user.click(screen.getByRole('button', { name: 'Guardar' }));

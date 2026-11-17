@@ -235,7 +235,7 @@ flowchart LR
     persiste (`sm.locale`).
   - Given `catalog.test.ts`, Then ES y EN tienen las mismas claves.
 
-### [ ] R-07 · Pantalla de la mira reacomodada
+### [x] R-07 · Pantalla de la mira reacomodada
 
 - **Modulo:** pwa (+ ui si D-3 dice que suben) · **Puntos:** 5 · **Depende de:** R-05
 - **Archivos:** `apps/pwa/src/features/sight/sight-screen.tsx`, `ruler.tsx`, `mark-sheet.tsx`,

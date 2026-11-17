@@ -521,7 +521,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Modulo:** pwa, i18n · **Puntos:** 3 · **Depende de:** F1-28
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-06.
 
-### [ ] F1-30 · Rediseño: pantalla de la mira reacomodada
+### [x] F1-30 · Rediseño: pantalla de la mira reacomodada
 
 - **Modulo:** pwa, ui · **Puntos:** 5 · **Depende de:** F1-28
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-07.
