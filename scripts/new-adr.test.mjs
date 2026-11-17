@@ -80,30 +80,46 @@ describe('addToIndex', () => {
   });
 });
 
+/**
+ * The highest ADR number in the sandbox, which is a copy of the real `docs/adr`: the expected
+ * numbers follow the repository instead of being written here, so a new ADR does not break them.
+ */
+function lastNumber(root) {
+  const numbers = readdirSync(join(root, 'docs', 'adr'))
+    .map((name) => /^(\d{3})-/.exec(name)?.[1])
+    .filter((n) => n !== undefined)
+    .map(Number);
+  return Math.max(...numbers);
+}
+const pad = (n) => String(n).padStart(3, '0');
+
 describe('createAdr', () => {
   it('creates docs/adr/NNN-title.md from the template and lists it in the index', () => {
     const root = sandbox();
+    const last = lastNumber(root);
+    const next = pad(last + 1);
     const before = readdirSync(join(root, 'docs', 'adr')).length;
     const file = createAdr({ root, title: 'Cola offline con IndexedDB', date: '2026-10-31' });
 
-    assert.match(file, /012-cola-offline-con-indexeddb\.md$/);
+    assert.ok(file.endsWith(`${next}-cola-offline-con-indexeddb.md`), file);
     assert.equal(readdirSync(join(root, 'docs', 'adr')).length, before + 1);
     const body = readFileSync(file, 'utf8');
-    assert.match(body, /^# ADR-012 — Cola offline con IndexedDB$/m);
+    assert.ok(body.includes(`# ADR-${next} — Cola offline con IndexedDB\n`));
     const index = readFileSync(join(root, 'docs', 'adr', 'README.md'), 'utf8');
     assert.ok(
       index.includes(
-        '| [012](012-cola-offline-con-indexeddb.md) | Cola offline con IndexedDB | Propuesta | 2026-10-31 |',
+        `| [${next}](${next}-cola-offline-con-indexeddb.md) | Cola offline con IndexedDB | Propuesta | 2026-10-31 |`,
       ),
     );
-    assert.ok(index.indexOf('[011]') < index.indexOf('[012]'));
+    assert.ok(index.indexOf(`[${pad(last)}]`) < index.indexOf(`[${next}]`));
   });
 
   it('numbers consecutive ADRs one after the other', () => {
     const root = sandbox();
+    const last = lastNumber(root);
     createAdr({ root, title: 'Uno', date: '2026-10-31' });
     const second = createAdr({ root, title: 'Dos', date: '2026-10-31' });
-    assert.match(second, /013-dos\.md$/);
+    assert.ok(second.endsWith(`${pad(last + 2)}-dos.md`), second);
   });
 
   it('rejects a title with no usable characters', () => {
