@@ -593,7 +593,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** Zod compartido; aislamiento por usuario; OpenAPI; test de migracion; E2E del flujo
   critico ajustado (hoy usa ES/metrico y EN/imperial como un todo).
 
-### [ ] F1-38 · Version de la app desde el `package.json`
+### [x] F1-38 · Version de la app desde el `package.json`
 
 - **Modulo:** pwa, repo · **Puntos:** 1 · **Depende de:** F1-34
 - **Descripcion:** `__APP_VERSION__` sale del `version` del `package.json` raiz (no de

@@ -18,6 +18,31 @@
 
 ---
 
+## 2026-11-17 — La version de la app sale del package.json
+
+**Tareas:** F1-38 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `apps/pwa/build/app-version.ts`: `appVersion` (pura) arma la version del `package.json` raiz,
+  sola en produccion y con `+<sha corto>` en el resto; `buildAppVersion` toma el sha de
+  `RAILWAY_GIT_COMMIT_SHA`, `GITHUB_SHA` o `git`, y produccion de `RAILWAY_ENVIRONMENT_NAME`.
+- `vite.config.ts` la inyecta en `__APP_VERSION__`; se quita `VITE_APP_VERSION` (env, Dockerfile,
+  `.env.example`). El Dockerfile declara los dos `ARG` de Railway (la imagen se arma sin `.git`).
+- `package.json` raiz a `0.1.0`. Runbook de release: paso "Version subida".
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Tests de `build/` 6/6 (produccion, sha, sin sha, sha invalido, prioridad de las fuentes, git
+  local); Ajustes 10/10; lint y typecheck de la PWA.
+- Build real: `0.1.0+30c9df9` en local y `0.1.0` con `RAILWAY_ENVIRONMENT_NAME=production`, leido
+  del bundle de Ajustes.
+
+### Pendiente / deuda
+
+- Confirmar en Railway (F0-20) que pasa `RAILWAY_GIT_COMMIT_SHA` y `RAILWAY_ENVIRONMENT_NAME` como
+  build args.
+
 ## 2026-11-17 — Cada seccion tiene su propio sistema de unidades
 
 **Tareas:** F1-37 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
