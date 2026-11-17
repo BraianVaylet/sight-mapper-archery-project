@@ -305,6 +305,7 @@ export const es = {
       open: 'Abrir',
       edit: 'Editar',
       archivedBadge: 'Archivado',
+      countLabel: 'Setups guardados: {{count}}',
       bowArchived: 'arco archivado',
       sightArchived: 'mira archivada',
       arrowsArchived: 'set archivado',
@@ -520,6 +521,7 @@ export const es = {
     hintOff: 'La app se abre directo en esta mira, con este set de flechas.',
     hintOn: 'Tocá de nuevo para que la app vuelva a abrir en Tus setups.',
     error: 'No pudimos guardar el acceso rápido.',
+    badge: 'Acceso rápido',
   },
   print: {
     back: 'La mira',

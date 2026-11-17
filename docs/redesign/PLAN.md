@@ -261,7 +261,7 @@ flowchart LR
     selectores solo si cambio el rol o el nombre accesible, nunca para esquivar un bug).
   - Given tocar una fila, Then cambia la distancia elegida y `d` en la URL (como hoy).
 
-### [ ] R-08 · Home y SetupCard
+### [x] R-08 · Home y SetupCard
 
 - **Modulo:** pwa · **Puntos:** 2 · **Depende de:** R-05
 - **Archivos:** `apps/pwa/src/features/setups/home-screen.tsx`, `first-setup-guide.tsx`,

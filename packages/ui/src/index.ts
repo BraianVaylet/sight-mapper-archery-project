@@ -50,6 +50,8 @@ export { AppHeader, SectionCard } from './components/layout.js';
 export type { AppHeaderProps, SectionCardProps } from './components/layout.js';
 export { BottomSheet, NavDrawer, NavGroup, NavItem } from './components/overlays.js';
 export type { NavGroupProps, NavItemProps } from './components/overlays.js';
+export { SetupCard } from './components/setup-card.js';
+export type { SetupCardDetail, SetupCardProps } from './components/setup-card.js';
 export { Segmented } from './components/segmented.js';
 export type { SegmentedOption, SegmentedProps } from './components/segmented.js';
 export { useFocusTrap } from './hooks/use-focus-trap.js';

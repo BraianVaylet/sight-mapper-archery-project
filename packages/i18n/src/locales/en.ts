@@ -304,6 +304,7 @@ export const en: Messages = {
       open: 'Open',
       edit: 'Edit',
       archivedBadge: 'Archived',
+      countLabel: 'Saved setups: {{count}}',
       bowArchived: 'archived bow',
       sightArchived: 'archived sight',
       arrowsArchived: 'archived set',
@@ -519,6 +520,7 @@ export const en: Messages = {
     hintOff: 'The app opens straight on this sight, with this arrow set.',
     hintOn: 'Tap again and the app opens on Your setups instead.',
     error: 'We could not save the quick access.',
+    badge: 'Quick access',
   },
   print: {
     back: 'The sight',

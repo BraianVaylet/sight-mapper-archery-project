@@ -18,6 +18,48 @@
 
 ---
 
+## 2026-11-17 — La Home muestra cada setup como una ficha tecnica y deja una sola accion a mano
+
+**Tareas:** F1-31 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **SetupCard** (`@sight-mapper/ui`, D-3): nombre en display, estrella de favorito (se mantiene,
+  `aria-pressed`), bloque tecnico hundido con Arco, Mira (en `mark`) y Flechas rotulados, chapa
+  "Acceso rapido" con pin en el setup que abre la app, marcas y ultima edicion en mono, "Abrir"
+  (secundario con chevron) y "Editar". Todas las tarjetas iguales.
+- **Home:** "Setups guardados: N" como rotulo arriba del titulo (D-4: se va el pie), titulo grande
+  sobre la cuadricula, "+ Nuevo setup" fijo abajo a 56 px como unica accion principal.
+- **Guia de primer uso:** pasos numerados 01–04 en mono, el actual con fondo `raised` y barra de
+  acento; sus links pasan a secundarios para que la vista tenga una sola accion principal.
+- `LinkButtonClass` con borde de 2 px y canto `shadow-key` (lo usan 16 links de la PWA); nuevos
+  `LinkButtonLargeClass` y `LinkButtonSecondaryClass`.
+- i18n: `quickAccess.badge`, `setups.home.countLabel`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La tarjeta no es un link entero, como en el DS: adentro hay un boton (la estrella) y otro link
+  (Editar), y un elemento interactivo no puede ir dentro de otro. "Abrir" es el link al setup.
+- El numero de setups va como rotulo sobre el titulo y no en el subtitulo de la cabecera: la
+  cabecera es la misma en todas las pantallas.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui` 172/172 (nuevo `setup-card.test.tsx`: region nombrada, rotulos, mira en `mark`, nota de
+  archivado, estrella y 48 px, chapa solo en el setup de acceso rapido); PWA 393/393 (nuevo: la
+  Home marca con "Acceso rapido" solo el setup que abre la app). Lint y typecheck limpios. Los
+  tests de Home existentes pasan sin cambios.
+- Capturas reales: Home vacia (guia) a 360 y Home con un setup favorito y de acceso rapido a 360
+  (claro) y 1440 (oscuro).
+- E2E en 360 y 1440 (`setups`, `quick-access`, `onboarding`, `critical-flow`, `a11y`, `contrast`):
+  20/20 en verde en la primera corrida (2 saltados por diseño de proyecto), incluidos los dos
+  flujos criticos (ES/metrico y EN/imperial).
+
+### Pendiente / deuda
+
+- Como en el resto, el titulo de la pantalla queda pegado a la cabecera a 360: F1-32.
+
+
 ## 2026-11-17 — La pantalla de la mira se lee como un instrumento y se maneja con el pulgar
 
 **Tareas:** F1-30 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
