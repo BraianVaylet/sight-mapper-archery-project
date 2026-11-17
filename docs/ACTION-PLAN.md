@@ -568,7 +568,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** link accesible (nombre "Ir al inicio" ES/EN), foco visible, tocable ≥ 48 px;
   test de navegacion; E2E desde una mira vuelve a Home.
 
-### [ ] F1-36 · Menu lateral a la derecha
+### [x] F1-36 · Menu lateral a la derecha
 
 - **Modulo:** pwa, ui · **Puntos:** 2 · **Depende de:** F1-34
 - **Descripcion:** `NavDrawer` entra desde la derecha (< 1440 px) y el rail fijo pasa a la

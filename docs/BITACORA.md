@@ -18,6 +18,24 @@
 
 ---
 
+## 2026-11-17 — El menu pasa a la derecha
+
+**Tareas:** F1-36 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `NavDrawer` entra desde la derecha (`right-0`, borde izquierdo); el `BottomSheet` no cambia.
+- `AppFrame` desde 1440 px: grilla `minmax(0,1fr) 320px` con el contenido **primero en el DOM** y el
+  riel despues, asi el orden de lectura y de foco coincide con el visual sin `order` de CSS.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Unit `ui` 26/26 (test nuevo del lado del cajon), lint y typecheck de ui y pwa.
+- E2E `a11y` (axe y desbordes a 360, 768 y 1440), `keyboard` (flujo entero solo con teclado),
+  `onboarding` y `setups`: 16 pasan, 2 skip por diseño.
+- Capturas del menu a 360 (cajon), 768 (cajon) y 1440 (riel), oscuro y claro, con un spec temporal
+  borrado antes del commit: riel a la derecha, cajon desde la derecha, nada tapado.
+
 ## 2026-11-17 — El logo de la cabecera vuelve al Home
 
 **Tareas:** F1-35 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)

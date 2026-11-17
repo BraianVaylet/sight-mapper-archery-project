@@ -84,6 +84,16 @@ describe('a dialog whose parent renders on every keystroke', () => {
   });
 });
 
+describe('NavDrawer side', () => {
+  it('enters from the right, the side of the menu button (spec §14)', async () => {
+    render(<DrawerHarness sheet={false} />);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Open' }));
+    const dialog = screen.getByRole('dialog', { name: 'Menu' });
+    expect(dialog).toHaveClass('right-0', 'border-l-2');
+    expect(dialog).not.toHaveClass('left-0');
+  });
+});
+
 describe.each([
   ['NavDrawer', false],
   ['BottomSheet', true],
