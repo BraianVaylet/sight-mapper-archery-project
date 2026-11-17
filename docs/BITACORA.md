@@ -18,6 +18,48 @@
 
 ---
 
+## 2026-11-17 — La app habla con su propia tipografia, tambien sin señal
+
+**Tareas:** F1-26 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- 8 woff2 (Chakra Petch 600/700, IBM Plex Sans 400/500/600, IBM Plex Mono 400/500/600; 144 KB) y
+  sus licencias OFL en `packages/ui/src/fonts/`; `fonts.css` con un `@font-face` por archivo
+  (`swap`, `unicode-range` latin, URL relativa) exportado como `@sight-mapper/ui/fonts.css` e
+  importado en la PWA antes de los tokens.
+- `theme.css`: `--font-display`, `--font-ui` y `--font-mono` con la fuente propia primero y el
+  sistema de respaldo.
+- `workbox.globPatterns` suma `woff2`.
+- Tests nuevos: `packages/ui/src/fonts.test.ts` (8 caras, archivos que existen, `swap`, licencias,
+  ningun host externo, stacks) y en `e2e/installable.spec.ts` el precache de las tres familias.
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-012](adr/012-own-fonts-precached.md). Vite empaqueta las fuentes con hash en `/assets/`
+  (cache inmutable de Caddy); la CSP no cambia (`font-src 'self'`).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui`: 132/132. Lint de `ui` y `pwa` limpio. `scripts/csp.test.mjs`: 3/3.
+- Build: los 8 woff2 salen con hash en `dist/assets/` y los 8 estan en el precache de `sw.js`
+  (75 entradas, 893 KiB).
+- E2E a 360 (`installable` + `contrast`): 6/6, incluido el precache de fuentes y el contraste AA
+  de todas las pantallas en oscuro y claro.
+- Lighthouse CI (3 corridas, `/sign-in`): JS, accesibilidad y buenas practicas pasan. **LCP:
+  3,07–3,10 s** con fuentes contra **2,41–2,49 s** sin ellas (mismo arbol, medido en el commit de
+  F1-25). El elemento LCP es un `<p>` en Plex Sans. Se probo `preload` de Plex Sans 400 (2,81–3,10 s)
+  y `font-display: optional` (3,07–3,10 s): ninguno mueve el numero, porque la simulacion de
+  Lighthouse pone las descargas de fuentes antes del texto. Se dejo `swap` sin `preload`.
+- **No verificado:** el render real de las fuentes offline en un telefono (DevTools → Rendered
+  fonts) a mano.
+
+### Pendiente / deuda
+
+- **Decision del autor:** el aviso de LCP paso de ~2,5 s a ~3,1 s. Opciones: aceptarlo (es aviso,
+  no gate), recortar pesos (por ejemplo sin Plex Sans 500 ni Chakra 600) o medirlo en campo antes
+  de decidir.
+
 ## 2026-11-16 — La app ya usa la paleta blueprint y tocables de 48 px
 
 **Tareas:** F1-25 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)

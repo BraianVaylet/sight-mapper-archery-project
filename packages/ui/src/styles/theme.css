@@ -30,11 +30,10 @@
   --color-danger: var(--sm-danger);
   --color-warning: var(--sm-warning);
 
-  /* Own fonts arrive with F1-26 (ADR-012): woff2 served by the PWA and precached, so they work offline. */
-  --font-display: ui-serif, 'Roboto Slab', Georgia, Cambria, 'Times New Roman', serif;
-  --font-ui: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-
-  --font-mono: ui-monospace, 'SF Mono', Consolas, 'Liberation Mono', monospace;
+  /* Own fonts (ADR-012, fonts.css): woff2 served by the PWA and precached, so they work offline. */
+  --font-display: 'Chakra Petch', ui-sans-serif, system-ui, sans-serif;
+  --font-ui: 'IBM Plex Sans', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
 
   /* "Instrument" look: small radii; 8 px only on top of the bottom sheet. */
   --radius-sm: 2px;

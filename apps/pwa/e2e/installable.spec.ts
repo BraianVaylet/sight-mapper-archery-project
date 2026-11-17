@@ -42,6 +42,19 @@ test.describe('the production build is an installable PWA', () => {
     expect(manifest.icons.some((icon) => icon.purpose === 'maskable')).toBe(true);
   });
 
+  test('precaches the own fonts, so they work offline (ADR-012)', async ({ page }) => {
+    await page.goto('/');
+    const worker = await page.evaluate(async () => {
+      const response = await fetch('/sw.js');
+      return response.text();
+    });
+    for (const family of ['chakra-petch', 'ibm-plex-sans', 'ibm-plex-mono']) {
+      expect(worker, family).toMatch(
+        new RegExp(`assets/${family}-latin-\\d00-normal-[\\w-]+\\.woff2`),
+      );
+    }
+  });
+
   test('the API is never answered from the service worker cache', async ({ page }) => {
     await page.goto('/');
     const worker = await page.evaluate(async () => {

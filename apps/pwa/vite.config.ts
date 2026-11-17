@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,png,svg,ico,webmanifest}'],
+          globPatterns: ['**/*.{js,css,html,png,svg,ico,webmanifest,woff2}'],
           navigateFallback: '/index.html',
           // The API and the identity endpoints are never answered from the cache.
           navigateFallbackDenylist: [/^\/api\//],

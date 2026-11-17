@@ -501,7 +501,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Modulo:** ui · **Puntos:** 3 · **Depende de:** F1-24
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-02.
 
-### [ ] F1-26 · Rediseño: fuentes propias precacheadas
+### [x] F1-26 · Rediseño: fuentes propias precacheadas
 
 - **Modulo:** ui, pwa · **Puntos:** 3 · **Depende de:** F1-25
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-03.

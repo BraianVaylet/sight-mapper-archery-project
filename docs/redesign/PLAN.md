@@ -130,7 +130,7 @@ flowchart LR
     actual ya lo exige).
   - Given `pnpm --filter @sight-mapper/ui test` y `pnpm typecheck`, Then pasan.
 
-### [ ] R-03 · Fuentes propias precacheadas
+### [x] R-03 · Fuentes propias precacheadas
 
 - **Modulo:** ui, pwa · **Puntos:** 3 · **Depende de:** R-02
 - **Archivos:** `packages/ui/src/fonts/` (nuevo), `packages/ui/src/styles/fonts.css` (nuevo),

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@sight-mapper/ui/fonts.css';
 @import '@sight-mapper/ui/tokens.css';
 @import '@sight-mapper/ui/theme.css';
 @source '../../../packages/ui/src';
