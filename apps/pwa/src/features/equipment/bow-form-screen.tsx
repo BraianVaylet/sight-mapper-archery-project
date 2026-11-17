@@ -140,7 +140,7 @@ function BowForm({
         void submit();
       }}
     >
-      <h1 className="font-display text-2xl">
+      <h1 className="font-display text-3xl font-bold">
         {bow === undefined ? t('bows.list.new') : t('bows.form.editTitle')}
       </h1>
 
@@ -151,7 +151,7 @@ function BowForm({
         <InfoAlert variant="info">{t('bows.form.usage', bow.usage)}</InfoAlert>
       )}
 
-      <SectionCard title={t('bows.form.sectionBow')}>
+      <SectionCard index="01" title={t('bows.form.sectionBow')}>
         {NAME_FIELDS.map((name) => (
           <Field
             key={name}
@@ -175,7 +175,7 @@ function BowForm({
         />
       </SectionCard>
 
-      <SectionCard title={t('bows.form.sectionDimensions')}>
+      <SectionCard index="02" title={t('bows.form.sectionDimensions')}>
         {NUMBER_FIELDS.map((field) => (
           <NumberField
             key={field.name}
@@ -188,7 +188,7 @@ function BowForm({
         ))}
       </SectionCard>
 
-      <SectionCard title={t('bows.form.sectionNotes')}>
+      <SectionCard index="03" title={t('bows.form.sectionNotes')}>
         <Field
           label={t('bows.form.rest')}
           value={values.rest}

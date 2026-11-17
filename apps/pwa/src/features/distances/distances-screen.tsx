@@ -11,6 +11,7 @@ import {
   Skeleton,
   StatusBadge,
   touchTarget,
+  Icon,
 } from '@sight-mapper/ui';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -164,11 +165,12 @@ function DistancesView({
           to="/setups/$setupId"
           params={{ setupId: setup.id }}
           search={{ ...(arrowId === undefined ? {} : { arrowSet: arrowId }) }}
-          className="font-ui text-base text-info underline underline-offset-2"
+          className="inline-flex min-h-12 items-center gap-1 self-start font-ui text-base text-info underline underline-offset-[3px]"
         >
-          ‹ {t('distances.back')}
+          <Icon name="back" />
+          {t('distances.back')}
         </Link>
-        <h1 className="font-display text-2xl">{t('screens.distances')}</h1>
+        <h1 className="font-display text-3xl font-bold">{t('screens.distances')}</h1>
         <p className="font-ui text-base text-muted">
           {nameOf(setup)} · {componentName(setup.sight) ?? ''}
         </p>
@@ -187,16 +189,16 @@ function DistancesView({
 
       <div
         aria-live="polite"
-        className="flex flex-col gap-1 rounded-md border border-border bg-surface p-4"
+        className="flex flex-col gap-1 rounded-md border-2 border-border bg-surface p-4"
       >
-        <p className="font-ui text-sm tracking-widest text-muted uppercase">
+        <p className="font-mono text-xs font-semibold tracking-[0.12em] text-muted uppercase">
           {t('distances.selected')}
         </p>
         {distanceM === undefined || selected === undefined ? (
           <p className="font-ui text-base text-muted">{t('distances.pick')}</p>
         ) : (
           <>
-            <p className="font-display text-4xl tabular-nums">
+            <p className="font-mono text-4xl font-semibold tabular-nums">
               {showDistance(distanceM)}
               <span className="text-muted"> → </span>
               {selected.ok && selected.kind !== 'measured' ? '≈ ' : ''}
@@ -233,7 +235,7 @@ function DistancesView({
         <InfoAlert variant="info">{t('sight.needs', { need: 2, count: marks.length })}</InfoAlert>
       ) : (
         <>
-          <SectionCard title={t('distances.customTitle')}>
+          <SectionCard index="01" title={t('distances.customTitle')}>
             <form
               noValidate
               className="flex flex-col gap-3"
@@ -261,7 +263,7 @@ function DistancesView({
             </form>
           </SectionCard>
 
-          <SectionCard title={t('distances.rangeTitle')}>
+          <SectionCard index="02" title={t('distances.rangeTitle')}>
             <RangeFields state={rangeState} unit={unit} />
 
             {!grid.ok ? (
@@ -335,7 +337,7 @@ function DistancesView({
                         <tr
                           key={row.distance}
                           aria-selected={isSelected}
-                          className={`border-t border-border ${isSelected ? 'bg-sunken' : ''}`}
+                          className={`border-t-2 border-line ${isSelected ? 'bg-raised' : ''}`}
                         >
                           <th scope="row" className="py-1 pr-3 text-left font-medium tabular-nums">
                             <button
@@ -385,7 +387,7 @@ function DistancesView({
             )}
           </SectionCard>
 
-          <SectionCard title={t('distances.rulerTitle')}>
+          <SectionCard index="03" title={t('distances.rulerTitle')}>
             <Ruler
               scale={scale}
               marks={rulerMarks}

@@ -85,9 +85,9 @@ export function ProfileScreen() {
 
   return (
     <section className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-8">
-      <h1 className="font-display text-2xl">{t('screens.profile')}</h1>
+      <h1 className="font-display text-3xl font-bold">{t('screens.profile')}</h1>
 
-      <SectionCard title={t('profile.accountTitle')}>
+      <SectionCard index="01" title={t('profile.accountTitle')}>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-ui text-base">
           {rows.map(([label, value]) => (
             <div key={label} className="contents">
@@ -98,7 +98,7 @@ export function ProfileScreen() {
         </dl>
       </SectionCard>
 
-      <SectionCard title={t('profile.dataTitle')}>
+      <SectionCard index="02" title={t('profile.dataTitle')}>
         <p className="font-ui text-base text-muted">{t('profile.dataBody')}</p>
         <div className="flex flex-col gap-2">
           <Button
@@ -122,7 +122,7 @@ export function ProfileScreen() {
         </div>
       </SectionCard>
 
-      <SectionCard title={t('profile.deleteTitle')}>
+      <SectionCard index="03" title={t('profile.deleteTitle')}>
         {requested ? (
           <div className="flex flex-col gap-3">
             <InfoAlert variant="warning">

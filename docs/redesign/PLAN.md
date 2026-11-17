@@ -276,7 +276,7 @@ flowchart LR
     encendida y chapa; el otro no.
   - Given `setups.spec.ts`, `quick-access.spec.ts`, `onboarding.spec.ts`, Then pasan.
 
-### [ ] R-09 · Resto de pantallas
+### [x] R-09 · Resto de pantallas
 
 - **Modulo:** pwa · **Puntos:** 3 · **Depende de:** R-06
 - **Descripcion:** aplicar el sistema a: auth (sign-in, sign-up, forgot, reset, verify: logo +

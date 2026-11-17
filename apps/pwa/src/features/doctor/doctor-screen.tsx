@@ -14,6 +14,7 @@ import {
   Skeleton,
   StatusBadge,
   TOUCH_TARGET_PX,
+  Icon,
 } from '@sight-mapper/ui';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useI18n } from '../../app/i18n.js';
@@ -94,11 +95,12 @@ function DoctorView({ setup, arrowSetId }: { setup: SetupView; arrowSetId: strin
           to="/setups/$setupId"
           params={{ setupId: setup.id }}
           search={{ ...(arrowId === undefined ? {} : { arrowSet: arrowId }) }}
-          className="font-ui text-base text-info underline underline-offset-2"
+          className="inline-flex min-h-12 items-center gap-1 self-start font-ui text-base text-info underline underline-offset-[3px]"
         >
-          ‹ {t('doctor.back')}
+          <Icon name="back" />
+          {t('doctor.back')}
         </Link>
-        <h1 className="font-display text-2xl">{t('screens.doctor')}</h1>
+        <h1 className="font-display text-3xl font-bold">{t('screens.doctor')}</h1>
         <p className="font-ui text-base text-muted">
           {nameOf(setup)} · {componentName(setup.sight) ?? ''}
         </p>
@@ -144,7 +146,7 @@ function DoctorView({ setup, arrowSetId }: { setup: SetupView; arrowSetId: strin
           <div
             role="status"
             data-verdict={view.status}
-            className="flex flex-col gap-2 rounded-md border border-border bg-surface p-4"
+            className="flex flex-col gap-2 rounded-md border-2 border-border bg-surface p-4"
           >
             {view.status === 'ok' ? (
               <>
@@ -203,7 +205,7 @@ function DoctorView({ setup, arrowSetId }: { setup: SetupView; arrowSetId: strin
           </div>
 
           <div className="grid items-start gap-4 md:grid-cols-2">
-            <SectionCard title={t('doctor.tableTitle')} className="min-w-0">
+            <SectionCard index="01" title={t('doctor.tableTitle')} className="min-w-0">
               {/* A wide system font must not push the page sideways: the table scrolls on its own. */}
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse font-ui text-base">
@@ -226,7 +228,7 @@ function DoctorView({ setup, arrowSetId }: { setup: SetupView; arrowSetId: strin
                   </thead>
                   <tbody>
                     {view.rows.map((row) => (
-                      <tr key={row.id} data-state={row.state} className="border-t border-border">
+                      <tr key={row.id} data-state={row.state} className="border-t-2 border-line">
                         <th scope="row" className="py-1 pr-3 text-left font-medium tabular-nums">
                           {showDistance(row.distanceM)}
                         </th>
@@ -256,7 +258,7 @@ function DoctorView({ setup, arrowSetId }: { setup: SetupView; arrowSetId: strin
               <p className="font-ui text-sm text-muted">{t('doctor.tableHint')}</p>
             </SectionCard>
 
-            <SectionCard title={t('distances.rulerTitle')} className="min-w-0">
+            <SectionCard index="02" title={t('distances.rulerTitle')} className="min-w-0">
               <Ruler
                 scale={scale}
                 marks={rulerMarks}

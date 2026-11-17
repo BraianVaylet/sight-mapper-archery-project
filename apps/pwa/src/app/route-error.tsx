@@ -34,8 +34,11 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
 export function NotFound() {
   const { t } = useI18n();
   return (
-    <div role="alert" className="flex flex-col items-center gap-3 p-8 text-center">
-      <h1 className="font-display text-xl">{t('app.notFound.title')}</h1>
+    <div
+      role="alert"
+      className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-md border-2 border-border bg-surface p-8 text-center"
+    >
+      <h1 className="font-display text-3xl font-bold">{t('app.notFound.title')}</h1>
       <p className="font-ui text-base text-muted">{t('app.notFound.body')}</p>
       <Link to="/" className="font-ui text-info underline">
         {t('app.routeError.home')}

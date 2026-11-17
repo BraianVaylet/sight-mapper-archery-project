@@ -18,6 +18,45 @@
 
 ---
 
+## 2026-11-17 — Todas las pantallas hablan el mismo idioma visual
+
+**Tareas:** F1-32 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Titulos:** un solo tamaño de `h1` (display 30 px, negrita) en las 14 pantallas que quedaban,
+  incluida "no encontrada". La cabecera ya no queda pegada al titulo a 360.
+- **Secciones numeradas** (`01`, `02`, `03`) en los formularios de arco, mira, flechas y setup, en
+  Cuenta, Intermedias, Mark Doctor y el listado imprimible. Las listas de equipo y la papelera no
+  se numeran: cada tarjeta es un item, no un paso.
+- **Bordes de 2 px** en el panel de distancia elegida, el del Doctor, "Mas datos" de flechas y la
+  seleccion de sets del setup; divisores de tabla en `line`.
+- **Ingreso, registro, recupero, reset y verificacion:** logo y titulo sobre la cuadricula, el
+  formulario en una tarjeta opaca (UX-UI §4.6: ningun dato sobre la cuadricula).
+- **Intermedias:** el panel de lectura y la tabla en mono, la fila elegida en `raised`; en la
+  curva, numeros en mono y el rombo calculado igual que en la regla.
+- **Volver** con icono y 48 px en Intermedias, Doctor e Imprimir, como en la mira.
+- "No encontrada" en tarjeta opaca.
+
+### Decisiones (con link a ADR si corresponde)
+
+- El listado imprimible no cambia de estilo en papel: sigue en blanco y negro (UX-UI §6).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- PWA 393/393, lint y typecheck limpios, sin cambios en tests.
+- Capturas reales de las 19 pantallas del recorrido a 360 (spec temporal con `tourEveryScreen`),
+  revisadas: Nueva mira, Intermedias y Crear cuenta, entre otras.
+- E2E en 360 y 1440 (`auth`, `english`, `profile`, `print`, `setups`, `a11y`, `contrast`,
+  `critical-flow`, `catalog`): 29/29 en verde a la primera (3 saltados por diseño de proyecto).
+  Esta vez el flujo en ingles a 360 paso.
+
+### Pendiente / deuda
+
+- La marca de registro de abajo a la derecha se dibuja por encima del borde de la tarjeta del
+  formulario cuando este llega al fondo de la pantalla (registro): decorativa, no tapa datos.
+
+
 ## 2026-11-17 — La Home muestra cada setup como una ficha tecnica y deja una sola accion a mano
 
 **Tareas:** F1-31 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)

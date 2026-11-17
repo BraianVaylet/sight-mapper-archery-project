@@ -137,17 +137,23 @@ export function AppFrame() {
         </aside>
       ) : null}
       <div className={wide ? 'flex min-w-0 flex-col gap-4' : 'contents'}>
-        <AppHeader
-          title={t('common.appName')}
-          logo={<Logo />}
-          actions={
-            wide ? null : (
-              <Button variant="secondary" aria-label={t('menu.open')} onClick={() => setOpen(true)}>
-                <Icon name="menu" />
-              </Button>
-            )
-          }
-        />
+        <div className={wide ? undefined : 'mb-4'}>
+          <AppHeader
+            title={t('common.appName')}
+            logo={<Logo />}
+            actions={
+              wide ? null : (
+                <Button
+                  variant="secondary"
+                  aria-label={t('menu.open')}
+                  onClick={() => setOpen(true)}
+                >
+                  <Icon name="menu" />
+                </Button>
+              )
+            }
+          />
+        </div>
         <NavDrawer
           open={open && !wide}
           onClose={() => setOpen(false)}

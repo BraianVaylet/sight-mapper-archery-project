@@ -1,7 +1,15 @@
 import { formatReading } from '@sight-mapper/domain';
 import { formatDate } from '@sight-mapper/i18n';
 import type { SetupView } from '@sight-mapper/schemas';
-import { Button, ErrorState, InfoAlert, SectionCard, Select, Skeleton } from '@sight-mapper/ui';
+import {
+  Button,
+  ErrorState,
+  Icon,
+  InfoAlert,
+  SectionCard,
+  Select,
+  Skeleton,
+} from '@sight-mapper/ui';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { describeError } from '../../app/errors.js';
 import { nowIso } from '../../app/device-time.js';
@@ -76,11 +84,12 @@ function PrintView({
             to="/setups/$setupId"
             params={{ setupId: setup.id }}
             search={{ ...(arrowId === undefined ? {} : { arrowSet: arrowId }) }}
-            className="font-ui text-base text-info underline underline-offset-2"
+            className="inline-flex min-h-12 items-center gap-1 self-start font-ui text-base text-info underline underline-offset-[3px]"
           >
-            ‹ {t('print.back')}
+            <Icon name="back" />
+            {t('print.back')}
           </Link>
-          <h1 className="font-display text-2xl">{t('screens.print')}</h1>
+          <h1 className="font-display text-3xl font-bold">{t('screens.print')}</h1>
           <p className="font-ui text-base text-muted">{t('print.intro')}</p>
         </div>
 
@@ -94,7 +103,7 @@ function PrintView({
         )}
 
         {marks.length === 0 ? null : (
-          <SectionCard title={t('distances.rangeTitle')}>
+          <SectionCard index="01" title={t('distances.rangeTitle')}>
             <RangeFields state={rangeState} unit={unit} />
           </SectionCard>
         )}

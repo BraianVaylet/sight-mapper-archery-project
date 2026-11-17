@@ -149,7 +149,7 @@ function SightForm({
         void submit();
       }}
     >
-      <h1 className="font-display text-2xl">
+      <h1 className="font-display text-3xl font-bold">
         {sight === undefined ? t('sights.list.new') : t('sights.form.editTitle')}
       </h1>
 
@@ -162,7 +162,7 @@ function SightForm({
         <InfoAlert variant="info">{t('sights.form.usage', sight.usage)}</InfoAlert>
       )}
 
-      <SectionCard title={t('sights.form.sectionSight')}>
+      <SectionCard index="01" title={t('sights.form.sectionSight')}>
         {NAME_FIELDS.map((name) => (
           <Field
             key={name}
@@ -185,7 +185,7 @@ function SightForm({
         />
       </SectionCard>
 
-      <SectionCard title={t('sights.form.sectionScale')}>
+      <SectionCard index="02" title={t('sights.form.sectionScale')}>
         <Select
           label={t('sights.form.unit')}
           value={values.unit}
@@ -270,7 +270,7 @@ function SightForm({
         )}
       </SectionCard>
 
-      <SectionCard title={t('sights.form.sectionNotes')}>
+      <SectionCard index="03" title={t('sights.form.sectionNotes')}>
         <Field
           label={t('sights.form.notes')}
           value={values.notes}
