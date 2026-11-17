@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { usePreferences } from '../src/app/preferences.js';
-import { ANA, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 // F1-13: the whole product in English, screen by screen. A string that is still Spanish, or a
@@ -71,7 +71,7 @@ const MARKS = [mark(20, 0.3), mark(30, 0.8), mark(40, 2.4), mark(50, 2.6), mark(
 
 const PROFILE = {
   locale: 'en',
-  unitSystem: 'metric',
+  units: allUnits('metric'),
   theme: 'system',
   quickAccess: null,
   deletionRequestedAt: null,

@@ -17,6 +17,7 @@ test('measure marks on the sight screen, read an estimate between them, replace 
 
   await page.goto('/sights/new');
   await page.getByLabel('Modelo').fill('Ultraview');
+  await page.getByLabel('Unidad de la escala').selectOption('cm');
   await page.getByLabel('Mínimo').fill('0');
   await page.getByLabel('Máximo').fill('10');
   await page.getByLabel('Paso más chico').fill('0,1');

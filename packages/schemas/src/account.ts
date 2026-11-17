@@ -2,17 +2,45 @@ import { LOCALES, THEMES, UNIT_SYSTEMS } from '@sight-mapper/types';
 import { z } from 'zod';
 import { isoDateTime, uuidv7 } from './common.js';
 
+const unitSystem = z.enum(UNIT_SYSTEMS);
+
+/**
+ * The unit system of each section (RF-ACC-04): `marks` is distances only (readings stay in the
+ * scale of each sight), `bow` and `arrows` their forms, `sight` the scale unit a new sight starts on.
+ */
+export const units = z.object({
+  marks: unitSystem,
+  bow: unitSystem,
+  arrows: unitSystem,
+  sight: unitSystem,
+});
+export type Units = z.infer<typeof units>;
+
+/** What a new archer starts with: distances metric, equipment in the units of the trade. */
+export const DEFAULT_UNITS: Units = {
+  marks: 'metric',
+  bow: 'imperial',
+  arrows: 'imperial',
+  sight: 'metric',
+};
+
 const preferenceFields = {
   locale: z.enum(LOCALES),
-  unitSystem: z.enum(UNIT_SYSTEMS),
+  units,
   theme: z.enum(THEMES),
 };
 
-/** `PATCH /me/preferences`: at least one preference, none required. */
+const notEmpty = (value: object) => Object.keys(value).length > 0;
+
+/** `PATCH /me/preferences`: at least one preference, none required; `units` may carry one section. */
 export const updatePreferences = z
-  .object(preferenceFields)
+  .object({
+    locale: preferenceFields.locale,
+    units: units.partial().refine(notEmpty, 'validation.preferences.empty'),
+    theme: preferenceFields.theme,
+  })
   .partial()
-  .refine((value) => Object.keys(value).length > 0, 'validation.preferences.empty');
+  .refine(notEmpty, 'validation.preferences.empty');
 export type UpdatePreferences = z.infer<typeof updatePreferences>;
 
 /** The pair the app opens on start. Whether the arrow set belongs to the setup is a use-case rule. */
@@ -37,7 +65,8 @@ export const profile = z.object({
 export type Profile = z.infer<typeof profile>;
 
 /** Everything stored about an archer, in canonical units (RF-ACC-05, HU-ACC-05). */
-export const EXPORT_SCHEMA_VERSION = 1;
+/** 2: the profile carries `units` instead of a single `unitSystem` (F1-37). */
+export const EXPORT_SCHEMA_VERSION = 2;
 const exportedRows = z.array(z.record(z.string(), z.unknown()));
 export const accountExport = z.object({
   schemaVersion: z.literal(EXPORT_SCHEMA_VERSION),

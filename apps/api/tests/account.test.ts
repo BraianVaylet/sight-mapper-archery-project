@@ -71,7 +71,7 @@ describe('GET /me', () => {
     expect(response.headers.get('etag')).toBe('"1"');
     expect(await response.json()).toEqual({
       locale: 'en',
-      unitSystem: 'imperial',
+      units: { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' },
       theme: 'system',
       quickAccess: null,
       deletionRequestedAt: null,
@@ -80,12 +80,15 @@ describe('GET /me', () => {
     });
   });
 
-  it('defaults to Spanish and metric, and never exposes the user id', async () => {
+  it('defaults to Spanish and the same units for everyone, and never exposes the user id', async () => {
     const body = (await (await call(newUser(), 'GET', '/api/v1/me')).json()) as Record<
       string,
       unknown
     >;
-    expect(body).toMatchObject({ locale: 'es', unitSystem: 'metric' });
+    expect(body).toMatchObject({
+      locale: 'es',
+      units: { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' },
+    });
     expect(body).not.toHaveProperty('userId');
   });
 
@@ -113,7 +116,7 @@ describe('PATCH /me/preferences', () => {
     expect(await response.json()).toMatchObject({
       theme: 'dark',
       locale: 'es',
-      unitSystem: 'metric',
+      units: { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' },
       version: 2,
     });
   });
@@ -121,13 +124,35 @@ describe('PATCH /me/preferences', () => {
   it('changes several at once, and the next GET agrees', async () => {
     const user = newUser();
     await call(user, 'GET', '/api/v1/me');
-    await patch(user, { locale: 'en', unitSystem: 'imperial', theme: 'light' });
+    await patch(user, { locale: 'en', units: { marks: 'imperial' }, theme: 'light' });
     expect(await (await call(user, 'GET', '/api/v1/me')).json()).toMatchObject({
       locale: 'en',
-      unitSystem: 'imperial',
+      units: { marks: 'imperial', bow: 'imperial', arrows: 'imperial', sight: 'metric' },
       theme: 'light',
       version: 2,
     });
+  });
+
+  it('changes one section of the units and leaves the other three as they were', async () => {
+    const user = newUser();
+    await call(user, 'GET', '/api/v1/me');
+    await patch(user, { units: { bow: 'metric' } });
+    const response = await patch(user, { units: { sight: 'imperial' } }, 2);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      units: { marks: 'metric', bow: 'metric', arrows: 'imperial', sight: 'imperial' },
+      version: 3,
+    });
+  });
+
+  it('refuses the old single unit system and an empty units object', async () => {
+    const user = newUser();
+    await call(user, 'GET', '/api/v1/me');
+    for (const body of [{ unitSystem: 'imperial' }, { units: {} }, { units: { bow: 'cubits' } }]) {
+      const response = await patch(user, body);
+      expect(response.status).toBe(400);
+      expect((await errorOf(response)).code).toBe('SM-CORE-400-001');
+    }
   });
 
   it('works on an archer whose profile does not exist yet', async () => {

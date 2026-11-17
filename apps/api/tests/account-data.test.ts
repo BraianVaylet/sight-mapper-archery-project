@@ -123,9 +123,13 @@ describe('GET /me/export (HU-ACC-05)', () => {
       marks: Json[];
     }>(response);
 
-    expect(data.schemaVersion).toBe(1);
+    expect(data.schemaVersion).toBe(2);
     expect(data.exportedAt).toBe('2026-11-02T12:00:00Z');
-    expect(data.profile).toMatchObject({ locale: 'es', unitSystem: 'metric', quickAccess: null });
+    expect(data.profile).toMatchObject({
+      locale: 'es',
+      units: { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' },
+      quickAccess: null,
+    });
     expect(data.bows.map((r) => r['id'])).toEqual([s.bowId]);
     expect(data.sights.map((r) => r['id'])).toEqual([s.sightId]);
     expect(data.arrowSets.map((r) => r['id'])).toEqual([s.arrowSetId]);

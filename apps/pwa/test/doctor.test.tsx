@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { ANA, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 const BOW_ID = '01927e5a-0000-7000-8000-0000000000b1';
@@ -57,7 +57,7 @@ function server(marks: ReturnType<typeof mark>[]) {
     'GET /api/v1/me': () =>
       json({
         locale: 'es',
-        unitSystem: 'metric',
+        units: allUnits('metric'),
         theme: 'system',
         quickAccess: null,
         deletionRequestedAt: null,

@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { usePreferences } from '../src/app/preferences.js';
-import { ANA, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 const STAMPS = {
@@ -44,7 +44,7 @@ function menuServer(locale: 'es' | 'en' = 'es') {
     'GET /api/v1/me': () =>
       json({
         locale,
-        unitSystem: 'metric',
+        units: allUnits('metric'),
         theme: 'system',
         quickAccess: null,
         deletionRequestedAt: null,
@@ -170,7 +170,7 @@ describe('The side menu (F1-06)', () => {
       'GET /api/v1/me': () =>
         json({
           locale: 'es',
-          unitSystem: 'metric',
+          units: allUnits('metric'),
           theme: 'system',
           quickAccess: null,
           deletionRequestedAt: null,

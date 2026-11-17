@@ -10,8 +10,10 @@ test('build equipment and measure marks in yards and inches, and find them as ty
   await signUpAndVerify(page);
 
   await page.goto('/settings');
-  await page.getByRole('radio', { name: 'Imperial (yardas)' }).click();
-  await expect(page.getByRole('radio', { name: 'Imperial (yardas)' })).toBeChecked();
+  // Distances in yards; the bow is already in inches by default (RF-ACC-04).
+  await page.getByRole('radio', { name: 'Imperial (yd)' }).click();
+  await expect(page.getByRole('radio', { name: 'Imperial (yd)' })).toBeChecked();
+  await expect(page.getByRole('radio', { name: 'Imperial (in, lb, fps)' })).toBeChecked();
 
   // A bow with a fraction of an inch: 6 1/4 in is stored as 158.75 mm and comes back as 6,25.
   await page.goto('/bows/new');
@@ -26,6 +28,7 @@ test('build equipment and measure marks in yards and inches, and find them as ty
 
   await page.goto('/sights/new');
   await page.getByLabel('Modelo').fill('Ultraview');
+  await page.getByLabel('Unidad de la escala').selectOption('cm');
   await page.getByLabel('Mínimo').fill('0');
   await page.getByLabel('Máximo').fill('10');
   await page.getByLabel('Paso más chico').fill('0,1');

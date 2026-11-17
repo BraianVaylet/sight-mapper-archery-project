@@ -26,7 +26,7 @@ export function createExportData(deps: ExportDeps) {
       exportedAt: deps.clock.now().toString(),
       profile: {
         locale: profile.locale,
-        unitSystem: profile.unitSystem,
+        units: profile.units,
         theme: profile.theme,
         quickAccess: profile.quickAccess,
         deletionRequestedAt:

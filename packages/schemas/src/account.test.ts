@@ -1,13 +1,32 @@
 import { describe, expect, it } from 'vitest';
 import { ID, NOW } from '../test/fixtures.js';
-import { profile, putQuickAccess, quickAccess, updatePreferences } from './account.js';
+import {
+  DEFAULT_UNITS,
+  profile,
+  putQuickAccess,
+  quickAccess,
+  updatePreferences,
+} from './account.js';
 
 describe('updatePreferences', () => {
   it('takes any subset of the three preferences', () => {
     expect(updatePreferences.safeParse({ locale: 'en' }).success).toBe(true);
-    expect(updatePreferences.safeParse({ theme: 'system', unitSystem: 'imperial' }).success).toBe(
-      true,
-    );
+    expect(
+      updatePreferences.safeParse({ theme: 'system', units: { marks: 'imperial' } }).success,
+    ).toBe(true);
+  });
+
+  it('changes one section of the units without the others', () => {
+    expect(updatePreferences.parse({ units: { bow: 'metric' } })).toEqual({
+      units: { bow: 'metric' },
+    });
+    const empty = updatePreferences.safeParse({ units: {} });
+    expect(empty.success).toBe(false);
+    expect(empty.error?.issues[0]?.message).toBe('validation.preferences.empty');
+  });
+
+  it('no longer takes the single unit system', () => {
+    expect(updatePreferences.safeParse({ unitSystem: 'imperial' }).success).toBe(false);
   });
 
   it('needs at least one preference', () => {
@@ -18,7 +37,8 @@ describe('updatePreferences', () => {
 
   it('only accepts the dictionary values', () => {
     expect(updatePreferences.safeParse({ locale: 'fr' }).success).toBe(false);
-    expect(updatePreferences.safeParse({ unitSystem: 'nautical' }).success).toBe(false);
+    expect(updatePreferences.safeParse({ units: { marks: 'nautical' } }).success).toBe(false);
+    expect(updatePreferences.safeParse({ units: { feet: 'imperial' } }).success).toBe(false);
     expect(updatePreferences.safeParse({ theme: 'sepia' }).success).toBe(false);
   });
 
@@ -43,7 +63,7 @@ describe('quick access', () => {
 describe('profile', () => {
   const stored = {
     locale: 'es',
-    unitSystem: 'metric',
+    units: DEFAULT_UNITS,
     theme: 'system',
     quickAccess: null,
     deletionRequestedAt: null,

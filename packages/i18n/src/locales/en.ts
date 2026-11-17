@@ -133,10 +133,34 @@ export const en: Messages = {
     about: 'About',
     themeHint: 'Dark for the night, light for the sun. "System" follows your phone.',
     languageHint: 'Texts, messages and decimal separator.',
-    units: 'Units',
-    unitsHint: 'Only changes how distances are shown: your marks stay as they are.',
-    metric: 'Metric (meters)',
-    imperial: 'Imperial (yards)',
+    unitsIntro:
+      'Each section with its own system. It only changes how data is shown: nothing saved is touched.',
+    unitSections: {
+      marks: {
+        label: 'Distances',
+        hint: 'The distances of your marks. Readings stay in the scale of each sight.',
+        metric: 'Metric (m)',
+        imperial: 'Imperial (yd)',
+      },
+      bow: {
+        label: 'Bow',
+        hint: 'Draw length, draw weight and speed on the bow form.',
+        metric: 'Metric (mm, kg, m/s)',
+        imperial: 'Imperial (in, lb, fps)',
+      },
+      arrows: {
+        label: 'Arrows',
+        hint: 'Length, weights and speed on the arrow form.',
+        metric: 'Metric (mm, g, m/s)',
+        imperial: 'Imperial (in, gr, fps)',
+      },
+      sight: {
+        label: 'New sight',
+        hint: 'The unit a new sight starts its scale on. The ones you already loaded do not change.',
+        metric: 'Metric (mm)',
+        imperial: 'Imperial (in)',
+      },
+    },
     version: 'App version',
   },
   bows: {

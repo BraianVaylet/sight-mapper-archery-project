@@ -135,10 +135,34 @@ export const es = {
     about: 'Acerca de',
     themeHint: 'Oscuro para la noche, claro para el sol. "Del sistema" sigue a tu teléfono.',
     languageHint: 'Textos, mensajes y separador decimal.',
-    units: 'Unidades',
-    unitsHint: 'Solo cambia cómo se muestran las distancias: tus marcas no se tocan.',
-    metric: 'Métrico (metros)',
-    imperial: 'Imperial (yardas)',
+    unitsIntro:
+      'Cada sección con su sistema. Solo cambia cómo se muestran los datos: nada guardado se toca.',
+    unitSections: {
+      marks: {
+        label: 'Distancias',
+        hint: 'Las distancias de tus marcas. Las lecturas siguen en la escala de cada mira.',
+        metric: 'Métrico (m)',
+        imperial: 'Imperial (yd)',
+      },
+      bow: {
+        label: 'Arco',
+        hint: 'Apertura, libraje y velocidad del formulario del arco.',
+        metric: 'Métrico (mm, kg, m/s)',
+        imperial: 'Imperial (in, lb, fps)',
+      },
+      arrows: {
+        label: 'Flechas',
+        hint: 'Largo, pesos y velocidad del formulario de flechas.',
+        metric: 'Métrico (mm, g, m/s)',
+        imperial: 'Imperial (in, gr, fps)',
+      },
+      sight: {
+        label: 'Mira nueva',
+        hint: 'La unidad con la que arranca la escala de una mira nueva. Las que ya cargaste no cambian.',
+        metric: 'Métrico (mm)',
+        imperial: 'Imperial (in)',
+      },
+    },
     version: 'Versión de la app',
   },
   bows: {

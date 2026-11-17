@@ -48,7 +48,7 @@ export function ArrowFormScreen({
   const { t, translate } = useI18n();
   const detail = arrowSetHooks.useDetail(id);
   const profile = useQuery(profileQuery(useHttp()));
-  const system = profile.data?.unitSystem ?? 'metric';
+  const system = profile.data?.units.arrows ?? 'imperial';
 
   // The form waits for the profile: fields that change unit under the archer's fingers are worse
   // than a short skeleton.

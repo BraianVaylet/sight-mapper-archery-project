@@ -206,7 +206,8 @@ export async function runImport({
     throw new Error(
       `the session is not valid here (${me.status}): sign in and copy the cookie again`,
     );
-  log(`signed in; units of the profile: ${me.json.unitSystem}`);
+  // The profile carries one system per section since F1-37; older ones answered `unitSystem`.
+  log(`signed in; units of the profile: ${JSON.stringify(me.json.units ?? me.json.unitSystem)}`);
 
   const [bows, sights, arrowSets, setups] = await Promise.all([
     all('/bows'),

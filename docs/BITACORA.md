@@ -18,6 +18,42 @@
 
 ---
 
+## 2026-11-17 — Cada seccion tiene su propio sistema de unidades
+
+**Tareas:** F1-37 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/schemas`: `units` (`marks`, `bow`, `arrows`, `sight`), `DEFAULT_UNITS`
+  (metrico, imperial, imperial, metrico) y `PATCH /me/preferences` con `units` parcial (una seccion
+  por vez; `{}` y el viejo `unitSystem` se rechazan con `SM-CORE-400-001`). Export a
+  `schemaVersion: 2`.
+- API (`account`): el perfil guarda `units`; un patch escribe solo `units.<seccion>`. Las unidades
+  ya no dependen del idioma del navegador. Migracion `20261117000000-profile-units.js`
+  (`unitSystem` → `units.marks`, el resto por defecto; idempotente, con `down`).
+- PWA: Ajustes muestra un selector por seccion con su descripcion; `useUnits()` reemplaza a
+  `useUnitSystem()`. Distancias y errores con distancia usan `marks`; el form del arco `bow`; el de
+  flechas `arrows`; una mira nueva arranca en `mm` o `in` segun `sight` (antes en `cm`) y espera al
+  perfil. El script de importacion acepta las dos formas.
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-013](adr/013-doctor-tolerance-per-archer.md). El cambio optimista del perfil fusiona solo la
+  seccion tocada (`withPatch`).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- API 414/414 (perfil con `units`, patch de una seccion, rechazo de la forma vieja, export v2,
+  migracion contra mongod real: imperial, metrico, sin valor y ya migrado, dos corridas, `down`).
+- PWA 397/397 (Ajustes con cuatro secciones y defaults, patch de una sola seccion, mira nueva en
+  `in` con la seccion imperial, una mira guardada conserva su unidad).
+- E2E completo a 360 y 1440: 42 pasan y 7 fallaban por supuestos viejos (ingles = yardas, mira
+  nueva en `cm`, export v1); corregidos, los 4 specs afectados pasan (10/10). Lint y typecheck.
+
+### Pendiente / deuda
+
+- La migracion corre en el job de release (TECNICO §6); en produccion se verifica con F0-20.
+
 ## 2026-11-17 — El menu pasa a la derecha
 
 **Tareas:** F1-36 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)

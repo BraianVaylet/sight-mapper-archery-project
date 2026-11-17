@@ -1,12 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 const PROFILE = {
   locale: 'es',
-  unitSystem: 'metric',
+  units: allUnits('metric'),
   theme: 'system',
   quickAccess: null,
   deletionRequestedAt: null,

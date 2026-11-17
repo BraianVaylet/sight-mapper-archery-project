@@ -182,8 +182,9 @@ Content-Type: application/json
   tocar Atlas a mano.
 - [+] Migracion de datos de F1-37: `profiles.unitSystem` → `units: { marks: <unitSystem>, bow:
   'imperial', arrows: 'imperial', sight: 'metric' }` y `$unset` de `unitSystem`; idempotente (solo
-  toca perfiles sin `units`), con test contra mongodb-memory-server. Corre con el plugin de
-  aislamiento en `bypassIsolation: 'job:migrate-profile-units'`.
+  toca perfiles sin `units`), con test contra mongodb-memory-server. Archivo
+  `apps/api/migrations/20261117000000-profile-units.js`: usa el driver de Mongo como toda
+  migracion, asi que el plugin de aislamiento (Mongoose) no participa.
 - Traductor de persistencia: `Temporal.Instant ⇄ Date` en el borde del repositorio.
 
 ## 7. Autenticacion (Better Auth)

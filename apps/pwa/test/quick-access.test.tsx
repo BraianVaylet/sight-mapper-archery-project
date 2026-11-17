@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 // HU-STP-03: "Always open here", and the app opening on it.
@@ -58,7 +58,7 @@ function server(
   const sent: Sent[] = [];
   const profile = () => ({
     locale: 'es',
-    unitSystem: 'metric',
+    units: allUnits('metric'),
     theme: 'system',
     quickAccess,
     deletionRequestedAt: null,

@@ -577,7 +577,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** animacion y sombra espejadas; Escape y foco de vuelta al boton; capturas 360/768/1440
   dark y light; axe sin violaciones.
 
-### [ ] F1-37 · Unidades por seccion en Ajustes
+### [x] F1-37 · Unidades por seccion en Ajustes
 
 - **Modulo:** schemas, types, api (account), pwa, i18n · **Puntos:** 5 · **Depende de:** F1-34
 - **Descripcion:** `unitSystem` unico se reemplaza en el perfil por cuatro preferencias:

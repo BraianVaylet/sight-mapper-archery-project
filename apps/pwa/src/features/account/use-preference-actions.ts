@@ -1,3 +1,4 @@
+import type { Units } from '@sight-mapper/schemas';
 import type { Locale, UnitSystem } from '@sight-mapper/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePreferences, type ThemePreference } from '../../app/preferences.js';
@@ -28,8 +29,9 @@ export function usePreferenceActions() {
       setLocale(locale);
       if (signedIn()) update.mutate({ locale });
     },
-    unitSystem(unitSystem: UnitSystem) {
-      update.mutate({ unitSystem });
+    /** One section at a time: the PATCH carries only it, the others stay as they are. */
+    units(section: keyof Units, system: UnitSystem) {
+      update.mutate({ units: { [section]: system } });
     },
   };
 }

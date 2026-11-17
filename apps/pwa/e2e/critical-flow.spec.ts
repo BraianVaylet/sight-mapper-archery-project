@@ -4,13 +4,16 @@ import { linkFor } from './helpers.js';
 
 // F1-20: the critical flow of the product in one go, as an archer lives it — sign up, equipment,
 // setup, five marks, intermediates, the Doctor, the printed list — once in Spanish and metres and
-// once in English and yards (the browser's language decides both, as for a real new archer).
+// once in English and yards. The browser's language decides the language; the units start metric
+// for everyone (RF-ACC-04), so the archer in yards switches the distances in Settings first.
 
 type Lang = {
   name: string;
   browser: string;
   unit: string;
   sep: string;
+  /** The radio of the distances section to pick in Settings, when the default (metres) is not it. */
+  distancesRadio?: string;
   text: {
     email: string;
     username: string;
@@ -25,6 +28,7 @@ type Lang = {
     manufacturer: string;
     model: string;
     addSight: string;
+    scaleUnit: string;
     minimum: string;
     maximum: string;
     step: string;
@@ -70,6 +74,7 @@ const LANGS: Lang[] = [
       manufacturer: 'Fabricante',
       model: 'Modelo',
       addSight: 'Cargar mira',
+      scaleUnit: 'Unidad de la escala',
       minimum: 'Mínimo',
       maximum: 'Máximo',
       step: 'Paso más chico',
@@ -99,6 +104,7 @@ const LANGS: Lang[] = [
     browser: 'en-US',
     unit: 'yd',
     sep: '.',
+    distancesRadio: 'Imperial (yd)',
     text: {
       email: 'Email',
       username: 'Username',
@@ -113,6 +119,7 @@ const LANGS: Lang[] = [
       manufacturer: 'Manufacturer',
       model: 'Model',
       addSight: 'Add sight',
+      scaleUnit: 'Scale unit',
       minimum: 'Minimum',
       maximum: 'Maximum',
       step: 'Smallest step',
@@ -167,9 +174,16 @@ for (const l of LANGS) {
       const t = l.text;
       const n = (value: string) => value.replace('.', l.sep);
 
-      // Sign up: the profile is born in the browser's language and its units.
+      // Sign up: the profile is born in the browser's language, with the default units.
       await signUp(page, l);
       await expect(page.getByRole('heading', { name: t.guide })).toBeVisible();
+      if (l.distancesRadio !== undefined) {
+        await page.goto('/settings');
+        await page.getByRole('radio', { name: l.distancesRadio }).click();
+        await expect(page.getByRole('radio', { name: l.distancesRadio })).toBeChecked();
+        await page.goto('/');
+        await expect(page.getByRole('heading', { name: t.guide })).toBeVisible();
+      }
 
       // Equipment, through the guide.
       await page.getByRole('link', { name: t.addBow }).click();
@@ -178,6 +192,7 @@ for (const l of LANGS) {
       await page.getByRole('button', { name: t.save }).click();
       await page.getByRole('link', { name: t.addSight }).click();
       await page.getByLabel(t.model).fill('Ultraview');
+      await page.getByLabel(t.scaleUnit).selectOption('cm');
       await page.getByLabel(t.minimum).fill('0');
       await page.getByLabel(t.maximum).fill('10');
       await page.getByLabel(t.step).fill(n('0.1'));

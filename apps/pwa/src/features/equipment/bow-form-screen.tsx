@@ -45,7 +45,7 @@ export function BowFormScreen({
   const profile = useQuery(profileQuery(useHttp()));
   // The units come from the profile. The form waits for it: fields that change unit under the
   // archer's fingers (and drop what they typed) are worse than a short skeleton.
-  const system = profile.data?.unitSystem ?? 'metric';
+  const system = profile.data?.units.bow ?? 'imperial';
 
   if ((id !== undefined && detail.isPending) || profile.isPending) {
     return (

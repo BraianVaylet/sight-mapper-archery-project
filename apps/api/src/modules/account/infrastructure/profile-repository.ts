@@ -10,7 +10,12 @@ const MONGO_DUPLICATE_KEY = 11000;
 const schema = createBusinessSchema(
   {
     locale: { type: String, required: true },
-    unitSystem: { type: String, required: true },
+    units: {
+      marks: { type: String, required: true },
+      bow: { type: String, required: true },
+      arrows: { type: String, required: true },
+      sight: { type: String, required: true },
+    },
     theme: { type: String, required: true },
     quickAccess: { type: Schema.Types.Mixed, default: null },
     deletionRequestedAt: { type: Date, default: null },
@@ -22,7 +27,7 @@ type Row = {
   _id: string;
   userId: string;
   locale: Profile['locale'];
-  unitSystem: Profile['unitSystem'];
+  units: Profile['units'];
   theme: Profile['theme'];
   quickAccess: Profile['quickAccess'];
   deletionRequestedAt: Date | null;
@@ -35,7 +40,12 @@ const toProfile = (row: Row): Profile => ({
   id: row._id,
   userId: row.userId,
   locale: row.locale,
-  unitSystem: row.unitSystem,
+  units: {
+    marks: row.units.marks,
+    bow: row.units.bow,
+    arrows: row.units.arrows,
+    sight: row.units.sight,
+  },
   theme: row.theme,
   quickAccess: row.quickAccess ?? null,
   deletionRequestedAt: row.deletionRequestedAt === null ? null : fromDate(row.deletionRequestedAt),
@@ -44,12 +54,20 @@ const toProfile = (row: Row): Profile => ({
   updatedAt: fromDate(row.updatedAt),
 });
 
-/** `{ theme: undefined }` must not become a write: Mongo would store a null. */
-const definedOnly = (patch: PreferencesPatch): Record<string, string> =>
-  Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined)) as Record<
-    string,
-    string
-  >;
+/**
+ * The `$set` of a preferences patch: `{ theme: undefined }` must not become a write (Mongo would
+ * store a null), and a section of the units is set by its own path (`units.bow`), so the others
+ * stay as they are.
+ */
+const setOf = (patch: PreferencesPatch): Record<string, string> => {
+  const set: Record<string, string> = {};
+  if (patch.locale !== undefined) set['locale'] = patch.locale;
+  if (patch.theme !== undefined) set['theme'] = patch.theme;
+  for (const [section, system] of Object.entries(patch.units ?? {})) {
+    if (system !== undefined) set[`units.${section}`] = system;
+  }
+  return set;
+};
 
 /** Every query carries the user id fixed here; the isolation plugin refuses one that does not. */
 export function createProfileRepositories(connection: DbConnection): ProfileRepositories {
@@ -67,7 +85,7 @@ export function createProfileRepositories(connection: DbConnection): ProfileRepo
               _id: profile.id,
               userId,
               locale: profile.locale,
-              unitSystem: profile.unitSystem,
+              units: profile.units,
               theme: profile.theme,
               quickAccess: profile.quickAccess,
               deletionRequestedAt: null,
@@ -86,7 +104,7 @@ export function createProfileRepositories(connection: DbConnection): ProfileRepo
             Model as unknown as Model<Row>,
             { userId, id },
             expectedVersion,
-            { $set: { ...definedOnly(patch), updatedAt: toDate(now) } },
+            { $set: { ...setOf(patch), updatedAt: toDate(now) } },
             'profile',
           );
           return toProfile(row);
