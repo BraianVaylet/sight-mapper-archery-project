@@ -9,7 +9,7 @@ test('build equipment and measure marks in yards and inches, and find them as ty
   test.setTimeout(90_000);
   await signUpAndVerify(page);
 
-  await page.goto('/settings/appearance');
+  await page.goto('/settings');
   await page.getByRole('radio', { name: 'Imperial (yardas)' }).click();
   await expect(page.getByRole('radio', { name: 'Imperial (yardas)' })).toBeChecked();
 

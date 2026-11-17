@@ -13,6 +13,8 @@ export type SegmentedProps<V extends string> = {
   value: V;
   onChange: (value: V) => void;
   error?: string | undefined;
+  /** Short description under the name (what the setting changes). */
+  hint?: string | undefined;
 };
 
 /** The indicator square of an instrument switch: the selection has a shape besides the colour. */
@@ -35,8 +37,10 @@ export function Segmented<V extends string>({
   value,
   onChange,
   error,
+  hint,
 }: SegmentedProps<V>) {
   const labelId = useId();
+  const hintId = useId();
   const refs = useRef(new Map<V, HTMLButtonElement>());
   const enabled = options.filter((option) => !option.disabled);
 
@@ -61,9 +65,15 @@ export function Segmented<V extends string>({
       <span id={labelId} className="font-ui text-sm font-medium text-text">
         {label}
       </span>
+      {hint ? (
+        <p id={hintId} className="font-ui text-sm text-muted">
+          {hint}
+        </p>
+      ) : null}
       <div
         role="radiogroup"
         aria-labelledby={labelId}
+        aria-describedby={hint ? hintId : undefined}
         className="flex gap-[3px] rounded-sm border-2 border-border bg-sunken p-[3px]"
       >
         {options.map((option) => {

@@ -29,6 +29,10 @@ export type {
   ToastProps,
   UpdatePromptProps,
 } from './components/feedback.js';
+export { Icon, ICON_NAMES } from './components/icon.js';
+export type { IconName, IconProps } from './components/icon.js';
+export { LanguageSwitch } from './components/language-switch.js';
+export type { LanguageOption, LanguageSwitchProps } from './components/language-switch.js';
 export { AppHeader, SectionCard } from './components/layout.js';
 export type { AppHeaderProps, SectionCardProps } from './components/layout.js';
 export { BottomSheet, NavDrawer, NavGroup, NavItem } from './components/overlays.js';

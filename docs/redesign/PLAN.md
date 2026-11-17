@@ -201,7 +201,7 @@ flowchart LR
     (revision a ojo, anotar diferencias).
   - Given teclado, Then foco visible `focus` 3 px en todos.
 
-### [ ] R-06 · Ajustes como unico lugar de configuracion
+### [x] R-06 · Ajustes como unico lugar de configuracion
 
 - **Modulo:** pwa, i18n · **Puntos:** 3 · **Depende de:** R-05
 - **Archivos:** `apps/pwa/src/routes/_app.settings.index.tsx` (nuevo, o renombrar

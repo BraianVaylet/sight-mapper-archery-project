@@ -254,6 +254,24 @@ describe('Segmented', () => {
     expect(screen.getByRole('radio', { name: 'Single' })).toBeChecked();
   });
 
+  it('describes the setting with its hint', () => {
+    render(
+      <Segmented
+        label="Units"
+        hint="Only how distances are shown"
+        value="m"
+        onChange={() => {}}
+        options={[
+          { value: 'm', label: 'Metric' },
+          { value: 'y', label: 'Imperial' },
+        ]}
+      />,
+    );
+    expect(screen.getByRole('radiogroup', { name: 'Units' })).toHaveAccessibleDescription(
+      'Only how distances are shown',
+    );
+  });
+
   it('marks the selection with a shape as well as a colour', () => {
     render(<Harness />);
     expect(screen.getByRole('radio', { name: 'Single' }).querySelector('svg')).not.toBeNull();

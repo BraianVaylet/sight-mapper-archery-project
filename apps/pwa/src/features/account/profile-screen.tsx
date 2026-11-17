@@ -76,7 +76,6 @@ export function ProfileScreen() {
       ? []
       : ([[t('profile.username'), user.username]] as [string, string][])),
     [t('profile.email'), user?.email ?? ''],
-    [t('profile.version'), __APP_VERSION__],
   ];
 
   const close = () => {

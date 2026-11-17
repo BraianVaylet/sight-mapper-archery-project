@@ -18,6 +18,67 @@
 
 ---
 
+## 2026-11-17 — La configuracion vive solo en Ajustes y el menu se ordena por tareas
+
+**Tareas:** F1-29 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Ajustes** (`/settings`, RF-ACC-04): 01 Pantalla (tema), 02 Idioma y unidades, 03 Acerca de
+  (version). Cada ajuste con nombre, descripcion de lo que cambia y `Segmented`; reutiliza
+  `usePreferenceActions` sin cambios de logica. `/settings/appearance` redirige a `/settings`.
+- **Sin pie global:** se borraron `AppFooter` y `PreferencesBar`; la version sale de Cuenta y queda
+  en Ajustes.
+- **Invitado:** `GuestFrame` suma el `LanguageSwitch` (ES/EN, `aria-pressed`, `lang` por opcion)
+  arriba a la derecha en ingresar, registro, recupero, reset y verificacion. Sin selector de tema.
+- **Menu:** grupos "01 — Tiro" (Inicio, Arcos, Miras, Flechas, Estadisticas) y "02 — Cuenta"
+  (Ajustes, Cuenta, Papelera) con iconos; cerrar sesion y hora de sincronizacion al pie. La
+  cabecera muestra el icono real de la app.
+- **1440 px:** el menu pasa a riel lateral fijo de 320 px (`useMediaQuery`), sin boton de menu. El
+  arbol es el mismo en los dos layouts, asi una pantalla no pierde su estado al cruzar el ancho.
+- `@sight-mapper/ui`: `Icon` (20 iconos de linea del DS), `LanguageSwitch` y `hint` en `Segmented`
+  (`aria-describedby`).
+- i18n ES y EN: `settings.*` reemplaza a `appearance.*`; `menu.settings`, `menu.groupShooting`,
+  `menu.groupAccount`; se borraron `menu.appearance`, `screens.appearance`, `app.version` y
+  `profile.version`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- El riel se dibuja solo cuando `matchMedia('(min-width: 1440px)')` coincide, en vez de ocultarlo
+  con CSS: riel y drawer nunca conviven (un solo juego de botones del menu para el lector de
+  pantalla) y los tests en jsdom, sin media queries, siguen viendo el drawer.
+- El grupo del menu se llama "Cuenta" como en el DS, aunque el item del perfil tambien se llama
+  "Cuenta" (es el titulo que ya usa la pantalla y buscan los tests).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui` 164/164 (nuevos: `LanguageSwitch`, cada icono, `hint`), `i18n` 27/27 (ES y EN con las
+  mismas claves), PWA 392/392. Lint y typecheck limpios.
+- Tests cambiados porque cambio el comportamiento por spec (no para esquivarlos): los del pie de
+  `routing.test.tsx` pasan a exigir que no haya pie, que sin sesion se pueda cambiar el idioma y
+  que no haya selector de tema; `profile.test.tsx` exige que la version ya no este; `settings.test`
+  (antes `appearance.test`) suma grupos, descripcion, version, unicidad y el redirect;
+  `menu.test.tsx` suma los grupos.
+- Capturas reales con Playwright (spec temporal, no commiteado): Ajustes a 360 en oscuro y claro,
+  menu como riel a 1440, ingreso con el selector ES/EN y las marcas de registro.
+- E2E en 360 y 1440 (`imperial`, `english`, `a11y`, `contrast`). Primera corrida: 7 pasan y
+  5 fallan. axe encontro un problema real: el boton del selector mostraba "ES" pero se llamaba
+  "Español" (`label-content-name-mismatch`, WCAG 2.5.3). Ahora se llama "ES Español" / "EN English".
+  Una segunda corrida no dio resultado: el servidor no levanto y Windows aborto los workers
+  (0xC0000142). En la tercera, con un worker: `a11y` (axe y desbordes a 360, 768, 1440 y con fuente
+  ancha) y `english` a 1440 pasan, incluido cerrar sesion desde el riel. `contrast` e `imperial`
+  pasaron en la primera.
+- **No verificado:** `english` a 360. Fallo 3 veces en el mismo paso: tras "Intermediates", la
+  pantalla de Distancias seguia en el splash a los 5 s (snapshot). Solo falla en el primer proyecto,
+  con el servidor de desarrollo en frio compilando la ruta perezosa; F1-29 no toca esa pantalla.
+
+### Pendiente / deuda
+
+- El paso a Distancias en frio (`english.spec.ts` y `critical-flow.spec.ts` a 360): esperar la
+  carga de la ruta perezosa o precalentar el servidor; revisarlo antes de F1-33.
+
+- A 360 px el titulo de cada pantalla queda pegado a la cabecera (sin separacion): F1-32.
+
 ## 2026-11-17 — Las primitivas de la interfaz tienen la forma del instrumento
 
 **Tareas:** F1-28 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)

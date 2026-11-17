@@ -119,7 +119,10 @@ test('sign up, build equipment and a setup, measure marks, use the tools and sig
   await inEnglish(page, 'mark doctor');
 
   // Sign out and fail to sign in: the error is English too.
-  await page.getByRole('button', { name: 'Open the menu' }).click();
+  // A drawer on a phone; from 1440 px the menu is a rail already in view.
+  const menuButton = page.getByRole('button', { name: 'Open the menu' });
+  await expect(menuButton.or(page.getByRole('navigation', { name: 'Menu' }))).toBeVisible();
+  if (await menuButton.isVisible()) await menuButton.click();
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   await page.getByLabel('Email or username').fill(archer.username);

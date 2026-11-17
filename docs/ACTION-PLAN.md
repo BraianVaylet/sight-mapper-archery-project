@@ -516,7 +516,7 @@ Objetivo: un arquero real reemplaza el papelito. Todo [spec §4.1](spec/SIGHT-MA
 - **Modulo:** ui · **Puntos:** 5 · **Depende de:** F1-25, F1-26
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-05.
 
-### [ ] F1-29 · Rediseño: Ajustes como unico lugar de configuracion
+### [x] F1-29 · Rediseño: Ajustes como unico lugar de configuracion
 
 - **Modulo:** pwa, i18n · **Puntos:** 3 · **Depende de:** F1-28
 - **Descripcion y criterios:** [redesign/PLAN.md](redesign/PLAN.md) R-06.

@@ -20,7 +20,6 @@ export const es = {
   },
   app: {
     skipToContent: 'Ir al contenido',
-    version: 'Versión {{version}}',
     splash: 'Preparando tu mira…',
     offlineReady: 'Lista para usar sin conexión.',
     update: {
@@ -129,12 +128,18 @@ export const es = {
       header: 'Encabezado',
     },
   },
-  appearance: {
+  settings: {
     intro: 'Los cambios se ven al instante y se guardan en tu cuenta.',
-    group: 'Preferencias',
+    display: 'Pantalla',
+    languageUnits: 'Idioma y unidades',
+    about: 'Acerca de',
+    themeHint: 'Oscuro para la noche, claro para el sol. "Del sistema" sigue a tu teléfono.',
+    languageHint: 'Textos, mensajes y separador decimal.',
     units: 'Unidades',
+    unitsHint: 'Solo cambia cómo se muestran las distancias: tus marcas no se tocan.',
     metric: 'Métrico (metros)',
     imperial: 'Imperial (yardas)',
+    version: 'Versión de la app',
   },
   bows: {
     list: {
@@ -354,8 +359,10 @@ export const es = {
     stats: 'Estadísticas',
     soon: 'Próximamente',
     trash: 'Papelera',
-    appearance: 'Apariencia',
+    settings: 'Ajustes',
     profile: 'Cuenta',
+    groupShooting: 'Tiro',
+    groupAccount: 'Cuenta',
     logout: 'Cerrar sesión',
     synced: 'Última sincronización: {{time}}',
     logoutError: 'No pudimos cerrar la sesión. Probá de nuevo.',
@@ -482,7 +489,6 @@ export const es = {
     accountTitle: 'Tu cuenta',
     username: 'Usuario',
     email: 'Email',
-    version: 'Versión de la app',
     dataTitle: 'Tus datos',
     dataBody:
       'Descargá todo lo que guardamos de vos en un archivo JSON: perfil, arcos, miras, flechas, setups y marcas, también lo archivado y lo que está en la papelera. Las distancias van en metros y las posiciones de la mira en milímetros.',
@@ -589,7 +595,7 @@ export const es = {
     bows: 'Arcos',
     sights: 'Miras',
     arrows: 'Flechas',
-    appearance: 'Apariencia',
+    settings: 'Ajustes',
     profile: 'Cuenta',
     sandbox: 'Banco de pruebas',
   },

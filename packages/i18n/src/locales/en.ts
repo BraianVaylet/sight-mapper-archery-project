@@ -18,7 +18,6 @@ export const en: Messages = {
   },
   app: {
     skipToContent: 'Skip to content',
-    version: 'Version {{version}}',
     splash: 'Getting your sight ready…',
     offlineReady: 'Ready to use offline.',
     update: {
@@ -127,12 +126,18 @@ export const en: Messages = {
       header: 'Header',
     },
   },
-  appearance: {
+  settings: {
     intro: 'Changes show at once and are saved to your account.',
-    group: 'Preferences',
+    display: 'Display',
+    languageUnits: 'Language and units',
+    about: 'About',
+    themeHint: 'Dark for the night, light for the sun. "System" follows your phone.',
+    languageHint: 'Texts, messages and decimal separator.',
     units: 'Units',
+    unitsHint: 'Only changes how distances are shown: your marks stay as they are.',
     metric: 'Metric (meters)',
     imperial: 'Imperial (yards)',
+    version: 'App version',
   },
   bows: {
     list: {
@@ -353,8 +358,10 @@ export const en: Messages = {
     stats: 'Statistics',
     soon: 'Coming soon',
     trash: 'Trash',
-    appearance: 'Appearance',
+    settings: 'Settings',
     profile: 'Account',
+    groupShooting: 'Shooting',
+    groupAccount: 'Account',
     logout: 'Sign out',
     synced: 'Last sync: {{time}}',
     logoutError: 'We could not sign you out. Try again.',
@@ -481,7 +488,6 @@ export const en: Messages = {
     accountTitle: 'Your account',
     username: 'Username',
     email: 'Email',
-    version: 'App version',
     dataTitle: 'Your data',
     dataBody:
       'Download everything we keep about you as a JSON file: profile, bows, sights, arrows, setups and marks, including what is archived and what is in the trash. Distances are in meters and sight positions in millimeters.',
@@ -588,7 +594,7 @@ export const en: Messages = {
     bows: 'Bows',
     sights: 'Sights',
     arrows: 'Arrows',
-    appearance: 'Appearance',
+    settings: 'Settings',
     profile: 'Account',
     sandbox: 'Test bench',
   },
