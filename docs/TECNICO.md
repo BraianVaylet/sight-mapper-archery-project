@@ -306,7 +306,8 @@ el **"4G lento" de Lighthouse** (1,6 Mbps, RTT 150 ms, CPU 4x; decision del auto
 El JS inicial es **gate** (hoy ~171 KB). El LCP queda como **aviso**: el login renderizado en el
 cliente da ~2,6 s, y React con TanStack Router, Query y Form ya son ~130 KB gzip. **Decision del
 autor (2026-11-16):** el LCP queda como aviso; no se prerenderizan las pantallas publicas por ahora.
-Si el aviso sube de ~2,6 s, se revisa que entro al arranque.
+Si el aviso sube de ~2,6 s, se revisa que entro al arranque. [+] Con las fuentes propias (ADR-012) el
+aviso queda en ~3,1 s; **decision del autor (2026-11-17):** se acepta, sin recortar pesos.
 
 [+] Fuentes propias (ADR-012): 8 woff2 subset latin (~150 KB) con `font-display: swap`, servidas con
 hash desde `/assets/` (cache inmutable de Caddy) y precacheadas por el service worker (`globPatterns`

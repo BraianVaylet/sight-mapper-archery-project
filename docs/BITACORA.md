@@ -91,9 +91,9 @@
 
 ### Pendiente / deuda
 
-- **Decision del autor:** el aviso de LCP paso de ~2,5 s a ~3,1 s. Opciones: aceptarlo (es aviso,
+- ~~**Decision del autor:** el aviso de LCP paso de ~2,5 s a ~3,1 s. Opciones: aceptarlo (es aviso,
   no gate), recortar pesos (por ejemplo sin Plex Sans 500 ni Chakra 600) o medirlo en campo antes
-  de decidir.
+  de decidir.~~ **Decidido (2026-11-17): se acepta** el aviso de ~3,1 s; no se recortan pesos.
 
 ## 2026-11-16 — La app ya usa la paleta blueprint y tocables de 48 px
 

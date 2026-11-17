@@ -21,7 +21,8 @@ module.exports = {
         'resource-summary:script:size': ['error', { maxNumericValue: 180 * 1024 }],
         // RNF-01: LCP < 2.5 s. A warning by decision of the author (2026-11-16): the
         // client-rendered sign-in sits at ~2.6 s and the stack itself (React, TanStack Router,
-        // Query and Form) is ~130 KB gzip. No prerender for now (TECNICO §14).
+        // Query and Form) is ~130 KB gzip. No prerender for now (TECNICO §14). With the own fonts
+        // (ADR-012) it sits at ~3.1 s, accepted by the author (2026-11-17).
         'largest-contentful-paint': [
           'warn',
           { maxNumericValue: 2500, aggregationMethod: 'median' },
