@@ -266,6 +266,21 @@ mismo build tras verificar staging. Migraciones como paso de release previo al a
 Cada servicio con su `railway.json`. Healthcheck en `/ready`, no en `/health`: un servicio que
 responde pero no puede leer nada no esta listo.
 
+En el repo (2026-11-16, sin desplegar todavia):
+
+- `apps/api/railway.json`: Railpack, migraciones como `preDeployCommand`, `/ready` y reinicio
+  ante falla.
+- `apps/pwa/railway.json` + `apps/pwa/Dockerfile`: build en Node 22 y Caddy para servir.
+- `apps/pwa/Caddyfile`: fallback de SPA, `/assets/*` inmutable un año, `no-cache` para lo que
+  anuncia versiones nuevas, HSTS y CSP.
+  - La CSP admite el script inline del tema por su hash. `scripts/csp.test.mjs` falla si
+    `index.html` cambia y el hash no.
+  - `connect-src` toma el origen de la API de la variable `API_ORIGIN`.
+
+En Railway, cada servicio apunta a su archivo ("Config file path": `/apps/api/railway.json`,
+`/apps/pwa/railway.json`), con la raiz del repo como contexto. La PWA necesita `VITE_API_URL`
+(build) y `API_ORIGIN` (Caddy).
+
 ## 13. Jobs
 
 Scheduler in-process (`core/jobs`), un tick por minuto, lock por job en `jobLocks` con
@@ -291,7 +306,13 @@ el **"4G lento" de Lighthouse** (1,6 Mbps, RTT 150 ms, CPU 4x; decision del auto
 El JS inicial es **gate** (hoy ~171 KB). El LCP queda como **aviso**: el login renderizado en el
 cliente da ~2,6 s, y React con TanStack Router, Query y Form ya son ~130 KB gzip. **Decision del
 autor (2026-11-16):** el LCP queda como aviso; no se prerenderizan las pantallas publicas por ahora.
-Si el aviso sube de ~2,6 s, se revisa que entro al arranque.
+Si el aviso sube de ~2,6 s, se revisa que entro al arranque. [+] Con las fuentes propias (ADR-012) el
+aviso queda en ~3,1 s; **decision del autor (2026-11-17):** se acepta, sin recortar pesos.
+
+[+] Fuentes propias (ADR-012): 8 woff2 subset latin (~150 KB) con `font-display: swap`, servidas con
+hash desde `/assets/` (cache inmutable de Caddy) y precacheadas por el service worker (`globPatterns`
+incluye `woff2`). No cuentan para el gate de JS. Vigilar el aviso de LCP (~2,6 s): si sube, precargar
+solo Plex Sans 400 y Chakra Petch 700 o recortar pesos.
 
 Reglas para que el JS inicial no crezca:
 

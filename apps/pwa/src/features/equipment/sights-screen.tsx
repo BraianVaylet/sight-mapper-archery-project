@@ -34,7 +34,7 @@ export function SightsScreen() {
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl">{t('screens.sights')}</h1>
+        <h1 className="font-display text-3xl font-bold">{t('screens.sights')}</h1>
         <Link to="/sights/new" className={LinkButtonClass}>
           {t('sights.list.new')}
         </Link>

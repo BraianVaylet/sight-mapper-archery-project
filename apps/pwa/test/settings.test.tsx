@@ -37,15 +37,15 @@ function profileServer(
 /** The controls of the screen itself: the footer has its own copy of theme and language. */
 const radio = (name: string) => within(screen.getByRole('main')).getByRole('radio', { name });
 
-describe('Appearance (HU-ACC-04)', () => {
+describe('Settings (HU-ACC-04, RF-ACC-04)', () => {
   it('shows the archer’s saved preferences, whatever the device remembered', async () => {
     const api = profileServer({
       'GET /api/v1/me': () =>
         json({ ...PROFILE, theme: 'dark', unitSystem: 'imperial', locale: 'en' }),
     });
-    renderApp('/settings/appearance', api.fetch);
+    renderApp('/settings', api.fetch);
 
-    expect(await screen.findByRole('heading', { name: 'Appearance' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument();
     await waitFor(() => expect(document.documentElement.getAttribute('data-theme')).toBe('dark'));
     expect(radio('Dark')).toBeChecked();
     expect(radio('Imperial (yards)')).toBeChecked();
@@ -54,7 +54,7 @@ describe('Appearance (HU-ACC-04)', () => {
 
   it('changes the theme at once and saves it with the version it saw', async () => {
     const api = profileServer();
-    renderApp('/settings/appearance', api.fetch);
+    renderApp('/settings', api.fetch);
     await screen.findByRole('radio', { name: 'Métrico (metros)' });
 
     await userEvent.click(radio('Oscuro'));
@@ -65,11 +65,11 @@ describe('Appearance (HU-ACC-04)', () => {
 
   it('switches the language without reloading, in every label', async () => {
     const api = profileServer();
-    renderApp('/settings/appearance', api.fetch);
+    renderApp('/settings', api.fetch);
     await screen.findByRole('radio', { name: 'Métrico (metros)' });
 
     await userEvent.click(radio('English'));
-    expect(await screen.findByRole('heading', { name: 'Appearance' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument();
     expect(radio('Metric (meters)')).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('en');
     await waitFor(() => expect(api.patches[0]?.body).toEqual({ locale: 'en' }));
@@ -77,7 +77,7 @@ describe('Appearance (HU-ACC-04)', () => {
 
   it('changes the units and saves them, leaving the rest alone', async () => {
     const api = profileServer();
-    renderApp('/settings/appearance', api.fetch);
+    renderApp('/settings', api.fetch);
     await screen.findByRole('radio', { name: 'Métrico (metros)' });
 
     await userEvent.click(radio('Imperial (yardas)'));
@@ -87,7 +87,7 @@ describe('Appearance (HU-ACC-04)', () => {
 
   it('sends two quick changes one after the other, each with the version the last one made', async () => {
     const api = profileServer();
-    renderApp('/settings/appearance', api.fetch);
+    renderApp('/settings', api.fetch);
     await screen.findByRole('radio', { name: 'Métrico (metros)' });
 
     await userEvent.click(radio('Oscuro'));
@@ -101,7 +101,7 @@ describe('Appearance (HU-ACC-04)', () => {
       'PATCH /api/v1/me/preferences': () =>
         errorEnvelope('SM-CORE-500-001', 'errors.core.unexpected', 500),
     });
-    renderApp('/settings/appearance', api.fetch);
+    renderApp('/settings', api.fetch);
     await screen.findByRole('radio', { name: 'Métrico (metros)' });
 
     await userEvent.click(radio('Imperial (yardas)'));
@@ -109,14 +109,31 @@ describe('Appearance (HU-ACC-04)', () => {
     await waitFor(() => expect(radio('Métrico (metros)')).toBeChecked());
   });
 
-  it('keeps the footer switches in the profile too, on any private screen', async () => {
-    const api = profileServer();
-    renderApp('/settings/appearance', api.fetch);
+  it('groups the settings, says what each one changes, and closes with the version', async () => {
+    renderApp('/settings', profileServer().fetch);
     await screen.findByRole('radio', { name: 'Métrico (metros)' });
 
-    // The footer has its own language switch: same effect as the one in the screen.
-    await userEvent.click(screen.getAllByRole('radio', { name: 'English' })[1] as HTMLElement);
-    await waitFor(() => expect(api.patches[0]?.body).toEqual({ locale: 'en' }));
-    expect(usePreferences.getState().locale).toBe('en');
+    expect(screen.getByRole('region', { name: 'Pantalla' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Idioma y unidades' })).toBeInTheDocument();
+    expect(screen.getByRole('radiogroup', { name: 'Unidades' })).toHaveAccessibleDescription(
+      /tus marcas no se tocan/,
+    );
+    const about = within(screen.getByRole('region', { name: 'Acerca de' }));
+    expect(about.getByText('Versión de la app')).toBeInTheDocument();
+    expect(about.getByText('dev')).toBeInTheDocument();
+  });
+
+  it('is the only place with theme and language: one switch of each, here', async () => {
+    renderApp('/settings', profileServer().fetch);
+    await screen.findByRole('radio', { name: 'Métrico (metros)' });
+    expect(screen.getAllByRole('radio', { name: 'Español' })).toHaveLength(1);
+    expect(screen.getAllByRole('radio', { name: 'Oscuro' })).toHaveLength(1);
+    expect(usePreferences.getState().locale).toBe('es');
+  });
+
+  it('takes the old address of the settings to the new one', async () => {
+    const { app } = renderApp('/settings/appearance', profileServer().fetch);
+    expect(await screen.findByRole('heading', { name: 'Ajustes', level: 1 })).toBeInTheDocument();
+    expect(app.router.state.location.pathname).toBe('/settings');
   });
 });

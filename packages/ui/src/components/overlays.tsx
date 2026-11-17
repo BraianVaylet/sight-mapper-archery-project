@@ -42,17 +42,20 @@ function Overlay({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cx(
-          'absolute flex flex-col gap-4 overflow-y-auto border-border bg-surface p-4 text-text',
+          'absolute flex flex-col gap-4 overflow-y-auto border-border bg-surface p-4 text-text shadow-panel',
           placement === 'left'
-            ? 'inset-y-0 left-0 w-[min(20rem,85vw)] border-r'
-            : 'inset-x-0 bottom-0 max-h-[85vh] rounded-t-md border-t',
+            ? 'inset-y-0 left-0 w-[min(20rem,85vw)] border-r-2'
+            : 'inset-x-0 bottom-0 max-h-[85vh] rounded-t-lg border-t-2 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]',
         )}
       >
+        {placement === 'bottom' ? (
+          <span aria-hidden="true" className="mx-auto -mb-2 h-1 w-10 shrink-0 rounded-sm bg-line" />
+        ) : null}
         <div className="flex items-center justify-between gap-3">
-          <h2 id={titleId} className="font-ui text-lg font-semibold">
+          <h2 id={titleId} className="font-display text-lg font-semibold">
             {title}
           </h2>
-          <Button variant="secondary" aria-label={closeLabel} onClick={onClose}>
+          <Button variant="ghost" aria-label={closeLabel} onClick={onClose}>
             <svg
               aria-hidden="true"
               viewBox="0 0 16 16"
@@ -61,6 +64,7 @@ function Overlay({
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
+              strokeLinecap="square"
             >
               <path d="M3 3l10 10M13 3L3 13" />
             </svg>
@@ -82,8 +86,37 @@ export function BottomSheet(props: OverlayProps) {
   return <Overlay {...props} placement="bottom" />;
 }
 
+export type NavGroupProps = {
+  /** Instrument number of the group (`01`). */
+  index: string;
+  /** Already translated: "Tiro", "Cuenta". Shown in capitals. */
+  label: string;
+  children: ReactNode;
+};
+
+/** A labelled group of drawer entries: `01 — TIRO`. */
+export function NavGroup({ index, label, children }: NavGroupProps) {
+  const labelId = useId();
+  return (
+    <section aria-labelledby={labelId} className="flex flex-col gap-1">
+      <h3
+        id={labelId}
+        className="px-3 font-mono text-xs font-semibold tracking-[0.12em] text-muted uppercase"
+      >
+        <span aria-hidden="true" className="text-mark">
+          {`${index} — `}
+        </span>
+        {label}
+      </h3>
+      <div className="flex flex-col gap-1">{children}</div>
+    </section>
+  );
+}
+
 export type NavItemProps = {
   label: string;
+  /** 20 px line icon, decorative. */
+  icon?: ReactNode;
   /** Number shown on the right (bows, sights, arrow sets). */
   count?: number | undefined;
   /** Text for something not available yet ("Próximamente"). The item is disabled. */
@@ -96,7 +129,7 @@ export type NavItemProps = {
  * A drawer entry. A badged item stays focusable and announced as disabled, so a screen reader
  * user learns it exists and why it does nothing (RF-X-07).
  */
-export function NavItem({ label, count, badge, onSelect, current }: NavItemProps) {
+export function NavItem({ label, icon, count, badge, onSelect, current }: NavItemProps) {
   const unavailable = badge !== undefined;
   return (
     <button
@@ -106,21 +139,23 @@ export function NavItem({ label, count, badge, onSelect, current }: NavItemProps
       style={touchTarget}
       onClick={unavailable ? undefined : onSelect}
       className={cx(
-        'flex w-full items-center justify-between gap-3 rounded-sm border px-3 text-left font-ui text-base',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info',
-        unavailable
-          ? 'cursor-not-allowed border-transparent text-muted'
-          : 'border-transparent text-text',
-        current ? 'bg-sunken' : '',
+        'flex w-full items-center gap-3 rounded-sm border-l-4 px-3 text-left font-ui text-base',
+        unavailable ? 'cursor-not-allowed text-muted' : 'text-text hover:bg-raised',
+        current ? 'border-accent bg-raised font-semibold' : 'border-transparent',
       )}
     >
-      <span>{label}</span>
+      {icon ? (
+        <span aria-hidden="true" className="flex shrink-0">
+          {icon}
+        </span>
+      ) : null}
+      <span className="flex-1">{label}</span>
       {badge ? (
-        <span className="rounded-sm border border-border px-2 py-0.5 text-xs text-muted">
+        <span className="rounded-sm border border-border px-2 py-0.5 font-mono text-xs font-semibold tracking-[0.08em] text-muted uppercase">
           {badge}
         </span>
       ) : count === undefined ? null : (
-        <span className="font-display text-muted tabular-nums">{count}</span>
+        <span className="font-mono text-muted tabular-nums">{count}</span>
       )}
     </button>
   );

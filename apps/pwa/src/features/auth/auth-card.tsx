@@ -4,13 +4,18 @@ import type { ReactNode } from 'react';
 import { describeError } from '../../app/errors.js';
 import { useI18n } from '../../app/i18n.js';
 
-/** Frame of the public screens: brand, one h1, the form below. */
+/**
+ * Frame of the public screens: brand and one h1 on the blueprint paper, the form on an opaque card
+ * (UX-UI §4.6: no data on the grid).
+ */
 export function AuthCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="mx-auto flex w-full max-w-md flex-col gap-4 py-6">
+    <section className="mx-auto flex w-full max-w-md flex-col gap-4 py-4">
       <img src="/pwa-192.png" alt="" width="64" height="64" className="rounded-md" />
-      <h1 className="font-display text-2xl">{title}</h1>
-      {children}
+      <h1 className="font-display text-3xl font-bold">{title}</h1>
+      <div className="flex flex-col gap-4 rounded-md border-2 border-border bg-surface p-4">
+        {children}
+      </div>
     </section>
   );
 }
@@ -34,7 +39,7 @@ export function FormError({ error }: { error: unknown }) {
 
 export function TextLink({ children, ...props }: React.ComponentProps<typeof Link>) {
   return (
-    <Link {...props} className="font-ui text-base text-info underline underline-offset-2">
+    <Link {...props} className="font-ui text-base text-info underline underline-offset-[3px]">
       {children}
     </Link>
   );

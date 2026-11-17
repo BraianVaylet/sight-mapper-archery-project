@@ -164,7 +164,7 @@ function ArrowForm({
         void submit();
       }}
     >
-      <h1 className="font-display text-2xl">
+      <h1 className="font-display text-3xl font-bold">
         {set === undefined ? t('arrows.list.new') : t('arrows.form.editTitle')}
       </h1>
 
@@ -175,14 +175,14 @@ function ArrowForm({
         <InfoAlert variant="info">{t('arrows.form.usage', set.usage)}</InfoAlert>
       )}
 
-      <SectionCard title={t('arrows.form.sectionSet')}>
+      <SectionCard index="01" title={t('arrows.form.sectionSet')}>
         <p className="font-ui text-sm text-muted">{t('arrows.form.hint')}</p>
         {MAIN_TEXT.map(textField)}
         {MAIN_NUMBERS.map(numberField)}
         {WEIGHTS.map(numberField)}
       </SectionCard>
 
-      <details className="rounded-md border border-border bg-surface p-4">
+      <details className="rounded-md border-2 border-border bg-surface p-4">
         <summary className="cursor-pointer font-ui text-sm font-semibold tracking-widest uppercase">
           {t('arrows.form.sectionMore')}
         </summary>

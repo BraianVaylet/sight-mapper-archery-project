@@ -9,6 +9,7 @@ import {
   SectionCard,
   Select,
   Skeleton,
+  TOUCH_TARGET_PX,
 } from '@sight-mapper/ui';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -88,8 +89,8 @@ function ArrowChoices({
       {choices.map((choice) => (
         <label
           key={choice.id}
-          style={{ minHeight: 44 }}
-          className="flex items-center gap-3 rounded-sm border border-border px-3 font-ui text-base"
+          style={{ minHeight: TOUCH_TARGET_PX }}
+          className="flex items-center gap-3 rounded-sm border-2 border-border px-3 font-ui text-base"
         >
           <input
             type="checkbox"
@@ -244,7 +245,7 @@ function SetupForm({
         void submit();
       }}
     >
-      <h1 className="font-display text-2xl">
+      <h1 className="font-display text-3xl font-bold">
         {setup === undefined ? t('setups.form.newTitle') : t('setups.form.editTitle')}
       </h1>
 
@@ -265,7 +266,10 @@ function SetupForm({
         </InfoAlert>
       )}
 
-      <SectionCard title={setup === undefined ? t('setups.form.newTitle') : nameOf(setup)}>
+      <SectionCard
+        index="01"
+        title={setup === undefined ? t('setups.form.newTitle') : nameOf(setup)}
+      >
         <Field
           label={t('setups.form.name')}
           hint={t('setups.form.nameHint')}

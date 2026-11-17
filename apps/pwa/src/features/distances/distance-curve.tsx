@@ -74,7 +74,7 @@ export function DistanceCurve({
             y={tick.at}
             textAnchor="end"
             dominantBaseline="middle"
-            className="fill-muted font-ui text-[11px]"
+            className="fill-muted font-mono text-xs font-medium"
           >
             {formatY(tick.value)}
           </text>
@@ -95,7 +95,7 @@ export function DistanceCurve({
             x={tick.at}
             y={plot.bottom + 14}
             textAnchor="middle"
-            className="fill-muted font-ui text-[11px]"
+            className="fill-muted font-mono text-xs font-medium"
           >
             {formatX(tick.value)}
           </text>
@@ -135,7 +135,7 @@ export function DistanceCurve({
           {p.measured ? (
             <circle cx={p.x} cy={p.y} r={4.5} className="fill-mark" />
           ) : (
-            <path d={diamond(p, 6)} className="fill-bg stroke-info" strokeWidth={1.5} />
+            <path d={diamond(p, 6)} className="fill-sunken stroke-info" strokeWidth={2} />
           )}
         </g>
       ))}
@@ -162,14 +162,14 @@ export function DistanceCurve({
         x={(plot.left + plot.right) / 2}
         y={height - 4}
         textAnchor="middle"
-        className="fill-muted font-ui text-xs"
+        className="fill-muted font-mono text-xs font-medium"
       >
         {xTitle}
       </text>
       <text
         transform={`translate(12 ${(plot.top + plot.bottom) / 2}) rotate(-90)`}
         textAnchor="middle"
-        className="fill-muted font-ui text-xs"
+        className="fill-muted font-mono text-xs font-medium"
       >
         {yTitle}
       </text>

@@ -11,6 +11,7 @@ import {
   TOAST_DURATION_MS,
   UpdatePrompt,
 } from './feedback.js';
+import { TOUCH_TARGET_PX } from '../touch.js';
 
 afterEach(() => {
   vi.useRealTimers();
@@ -66,6 +67,28 @@ describe('Toast', () => {
     unmount();
     act(() => void vi.advanceTimersByTime(5000));
     expect(onDismiss).not.toHaveBeenCalled();
+  });
+});
+
+describe('Toast time bar', () => {
+  it('drains for as long as the undo lasts, hidden from assistive technology', () => {
+    render(<Toast message="Saved" dismissLabel="Close" onDismiss={() => {}} durationMs={8000} />);
+    const bar = screen.getByRole('status').querySelector('[aria-hidden="true"][style]');
+    expect(bar).not.toBeNull();
+    expect(bar).toHaveStyle({ animation: 'sm-drain 8000ms linear forwards' });
+  });
+});
+
+describe('InfoAlert title', () => {
+  it('shows an optional title before the message, inside the same live region', () => {
+    render(
+      <InfoAlert variant="warning" title="Check this mark">
+        It is far from the curve.
+      </InfoAlert>,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Check this markIt is far from the curve.',
+    );
   });
 });
 
@@ -205,7 +228,7 @@ describe('UpdatePrompt', () => {
   });
 });
 
-describe('every interactive primitive keeps the 44 px target', () => {
+describe('every interactive primitive keeps the 48 px target', () => {
   it('buttons in feedback components', () => {
     render(
       <>
@@ -227,7 +250,10 @@ describe('every interactive primitive keeps the 44 px target', () => {
       </>,
     );
     for (const button of screen.getAllByRole('button')) {
-      expect(button).toHaveStyle({ minHeight: '44px', minWidth: '44px' });
+      expect(button).toHaveStyle({
+        minHeight: `${TOUCH_TARGET_PX}px`,
+        minWidth: `${TOUCH_TARGET_PX}px`,
+      });
     }
   });
 });

@@ -14,7 +14,7 @@ export function TrashScreen() {
 
   return (
     <section className="flex flex-col gap-4">
-      <h1 className="font-display text-2xl">{t('screens.trash')}</h1>
+      <h1 className="font-display text-3xl font-bold">{t('screens.trash')}</h1>
 
       {trash.isPending ? (
         <div aria-busy="true" className="flex flex-col gap-3">

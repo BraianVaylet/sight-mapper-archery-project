@@ -117,10 +117,21 @@ describe('The side menu (F1-06)', () => {
     );
   });
 
-  it('reaches the account and the appearance screens', async () => {
+  it('groups the entries: 01 shooting, 02 account', async () => {
+    renderApp('/', menuServer().fetch);
+    const menu = await open();
+    const shooting = within(within(menu).getByRole('region', { name: 'Tiro' }));
+    expect(shooting.getByRole('button', { name: 'Tus setups' })).toBeInTheDocument();
+    expect(shooting.getByRole('button', { name: /Estadísticas/ })).toBeInTheDocument();
+    const account = within(within(menu).getByRole('region', { name: 'Cuenta' }));
+    expect(account.getByRole('button', { name: 'Ajustes' })).toBeInTheDocument();
+    expect(account.getByRole('button', { name: /^Papelera/ })).toBeInTheDocument();
+  });
+
+  it('reaches the account and the settings screens', async () => {
     const { app } = renderApp('/', menuServer().fetch);
-    await userEvent.click(within(await open()).getByRole('button', { name: 'Apariencia' }));
-    await waitFor(() => expect(app.router.state.location.pathname).toBe('/settings/appearance'));
+    await userEvent.click(within(await open()).getByRole('button', { name: 'Ajustes' }));
+    await waitFor(() => expect(app.router.state.location.pathname).toBe('/settings'));
     await userEvent.click(within(await open()).getByRole('button', { name: 'Cuenta' }));
     await waitFor(() => expect(app.router.state.location.pathname).toBe('/profile'));
   });

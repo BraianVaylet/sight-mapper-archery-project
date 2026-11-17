@@ -1,37 +1,27 @@
-import { AppHeader, Button, InfoAlert, NavDrawer, NavItem } from '@sight-mapper/ui';
+import { AppHeader, Button, Icon, InfoAlert, NavDrawer, NavGroup, NavItem } from '@sight-mapper/ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import { useClients } from '../../app/clients.js';
 import { useI18n } from '../../app/i18n.js';
 import { useUi } from '../../app/ui-store.js';
+import { useMediaQuery, WIDE_QUERY } from '../../app/use-media-query.js';
 import { arrowSetHooks } from '../equipment/arrow-sets.js';
 import { bowHooks } from '../equipment/bows.js';
 import { sightHooks } from '../equipment/sights.js';
 import { signOut } from '../auth/auth-api.js';
 import { forgetSession } from '../auth/session.js';
 
-type Destination =
-  '/' | '/bows' | '/sights' | '/arrows' | '/trash' | '/settings/appearance' | '/profile';
+type Destination = '/' | '/bows' | '/sights' | '/arrows' | '/trash' | '/settings' | '/profile';
 
-function MenuIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 16 16"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M2 4h12M2 8h12M2 12h12" />
-    </svg>
-  );
+/** The app icon itself: a navy tile, the same in both themes (UX-UI §3). */
+function Logo() {
+  return <img src="/pwa-192.png" alt="" width={32} height={32} className="rounded-sm" />;
 }
 
 /**
- * The frame of every screen behind the session: the header with the menu button, and the drawer
- * (RF-X-07): the counters of the archer's equipment, what is coming, the account, and the way out.
+ * The frame of every screen behind the session: the header and the menu (RF-X-07) with the
+ * counters of the archer's equipment, what is coming, the account and the way out. Up to 1440 px
+ * the menu is a drawer behind a button; from there on it is a side rail, always in view (UX-UI §7).
  */
 export function AppFrame() {
   const { t, locale } = useI18n();
@@ -41,8 +31,8 @@ export function AppFrame() {
   const open = useUi((state) => state.menuOpen);
   const setOpen = useUi((state) => state.setMenuOpen);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const wide = useMediaQuery(WIDE_QUERY);
 
-  // Counters are read when the drawer opens, not before: no requests just to draw a header.
   const bows = bowHooks.useList({ status: 'active', limit: 100 });
   const sights = sightHooks.useList({ status: 'active', limit: 100 });
   const arrows = arrowSetHooks.useList({ status: 'active', limit: 100 });
@@ -66,68 +56,114 @@ export function AppFrame() {
   };
   const current = (to: Destination) => (to === '/' ? pathname === '/' : pathname.startsWith(to));
 
-  return (
+  const menu = (
     <>
-      <AppHeader
-        title={t('common.appName')}
-        actions={
-          <Button variant="secondary" aria-label={t('menu.open')} onClick={() => setOpen(true)}>
-            <MenuIcon />
-          </Button>
-        }
-      />
-      <NavDrawer
-        open={open}
-        onClose={() => setOpen(false)}
-        title={t('menu.title')}
-        closeLabel={t('common.close')}
-      >
-        <nav aria-label={t('menu.title')} className="flex flex-col gap-1">
-          <NavItem label={t('menu.home')} onSelect={go('/')} current={current('/')} />
+      <nav aria-label={t('menu.title')} className="flex flex-col gap-5">
+        <NavGroup index="01" label={t('menu.groupShooting')}>
           <NavItem
+            icon={<Icon name="home" />}
+            label={t('menu.home')}
+            onSelect={go('/')}
+            current={current('/')}
+          />
+          <NavItem
+            icon={<Icon name="bow" />}
             label={t('menu.bows')}
             count={bows.data?.items.length}
             onSelect={go('/bows')}
             current={current('/bows')}
           />
           <NavItem
+            icon={<Icon name="sight" />}
             label={t('menu.sights')}
             count={sights.data?.items.length}
             onSelect={go('/sights')}
             current={current('/sights')}
           />
           <NavItem
+            icon={<Icon name="arrow" />}
             label={t('menu.arrows')}
             count={arrows.data?.items.length}
             onSelect={go('/arrows')}
             current={current('/arrows')}
           />
-          <NavItem label={t('menu.stats')} badge={t('menu.soon')} />
-          <NavItem label={t('menu.trash')} onSelect={go('/trash')} current={current('/trash')} />
+          <NavItem icon={<Icon name="stats" />} label={t('menu.stats')} badge={t('menu.soon')} />
+        </NavGroup>
+        <NavGroup index="02" label={t('menu.groupAccount')}>
           <NavItem
-            label={t('menu.appearance')}
-            onSelect={go('/settings/appearance')}
-            current={current('/settings/appearance')}
+            icon={<Icon name="settings" />}
+            label={t('menu.settings')}
+            onSelect={go('/settings')}
+            current={current('/settings')}
           />
           <NavItem
+            icon={<Icon name="user" />}
             label={t('menu.profile')}
             onSelect={go('/profile')}
             current={current('/profile')}
           />
-        </nav>
+          <NavItem
+            icon={<Icon name="trash" />}
+            label={t('menu.trash')}
+            onSelect={go('/trash')}
+            current={current('/trash')}
+          />
+        </NavGroup>
+      </nav>
+      <div className="mt-auto flex flex-col gap-2 border-t-2 border-dotted border-line pt-4">
         {logout.isError ? <InfoAlert variant="danger">{t('menu.logoutError')}</InfoAlert> : null}
         <Button variant="secondary" disabled={logout.isPending} onClick={() => logout.mutate()}>
+          <Icon name="logout" />
           {t('menu.logout')}
         </Button>
         {lastSync > 0 ? (
-          <p className="font-ui text-sm text-muted">
+          <p className="font-mono text-xs text-muted">
             {t('menu.synced', {
               time: new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(lastSync),
             })}
           </p>
         ) : null}
-      </NavDrawer>
-      <Outlet />
+      </div>
     </>
+  );
+
+  // The same tree in both layouts (only classes and the rail change), so a screen keeps its state
+  // when the window crosses 1440 px.
+  return (
+    <div className={wide ? 'grid grid-cols-[320px_minmax(0,1fr)] items-start gap-6' : 'contents'}>
+      {wide ? (
+        <aside className="sticky top-4 flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-y-auto rounded-md border-2 border-border bg-surface p-4 shadow-panel">
+          {menu}
+        </aside>
+      ) : null}
+      <div className={wide ? 'flex min-w-0 flex-col gap-4' : 'contents'}>
+        <div className={wide ? undefined : 'mb-4'}>
+          <AppHeader
+            title={t('common.appName')}
+            logo={<Logo />}
+            actions={
+              wide ? null : (
+                <Button
+                  variant="secondary"
+                  aria-label={t('menu.open')}
+                  onClick={() => setOpen(true)}
+                >
+                  <Icon name="menu" />
+                </Button>
+              )
+            }
+          />
+        </div>
+        <NavDrawer
+          open={open && !wide}
+          onClose={() => setOpen(false)}
+          title={t('menu.title')}
+          closeLabel={t('common.close')}
+        >
+          {menu}
+        </NavDrawer>
+        <Outlet />
+      </div>
+    </div>
   );
 }

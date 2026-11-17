@@ -18,7 +18,495 @@
 
 ---
 
-## 2026-11-09 — El JS inicial de la PWA baja de 184 a 171 KB y vuelve a ser gate
+## 2026-11-17 — El rediseño blueprint queda verificado entero y listo para revisar
+
+**Tareas:** F1-33 (cierra F1-23..F1-32) · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- Verificacion completa del monorepo y de la PWA en los dos tamaños de los E2E, capturas de
+  referencia regeneradas (`docs/screens/`, 19 por tema; se borro `18-appearance`, ahora
+  `18-settings`), Lighthouse CI sobre el build final y PR a `main`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- El PR incluye el commit de infraestructura de F0-20 (`296f2db`, Railway, Docker y Caddy) porque la
+  rama salio de `feat/f0-railway-config`, que nunca se pusheo ni se mergeo.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `pnpm lint`, `pnpm typecheck` y `pnpm test` del monorepo en verde: domain 247, types 29,
+  schemas 130, client 78, i18n 27, ui 172, api 410, pwa 393 (1486 tests).
+- Cobertura: `ui` 97,97 % sentencias / 98,49 % lineas; `pwa` 92,99 % / 93,82 %.
+- E2E completo (`pnpm --filter @sight-mapper/pwa exec playwright test`, 360 y 1440): 49 pasan, 3
+  saltados por diseño de proyecto, 0 fallas, en la primera corrida.
+- Lighthouse CI (`/sign-in`, 3 corridas): JS inicial 178 136 B (~174 KB, gate 180 KB: pasa, pero
+  subio de ~171 KB y quedan ~6 KB de margen); accesibilidad 1,0; buenas practicas 1,0;
+  rendimiento 0,94; LCP 3,05 s (aviso aceptado por el autor el 2026-11-17).
+- Capturas de `docs/screens/` revisadas contra `docs/redesign/screenshots/`.
+
+### Pendiente / deuda
+
+- **Lo hace el autor:** prueba al sol con un telefono real en los dos temas y pasada con un
+  lector de pantalla real (TalkBack / VoiceOver / NVDA).
+- CI del PR en GitHub: se corre al abrirlo.
+- Margen del gate de JS (~6 KB): lo proximo que sume JS al arranque tiene que medirse.
+- A 1440 la barra fija de la mira no se alinea con la columna del contenido junto al riel.
+- El paso a Distancias en frio a 360 fallo por tiempo en corridas anteriores (en esta paso).
+
+## 2026-11-17 — Todas las pantallas hablan el mismo idioma visual
+
+**Tareas:** F1-32 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Titulos:** un solo tamaño de `h1` (display 30 px, negrita) en las 14 pantallas que quedaban,
+  incluida "no encontrada". La cabecera ya no queda pegada al titulo a 360.
+- **Secciones numeradas** (`01`, `02`, `03`) en los formularios de arco, mira, flechas y setup, en
+  Cuenta, Intermedias, Mark Doctor y el listado imprimible. Las listas de equipo y la papelera no
+  se numeran: cada tarjeta es un item, no un paso.
+- **Bordes de 2 px** en el panel de distancia elegida, el del Doctor, "Mas datos" de flechas y la
+  seleccion de sets del setup; divisores de tabla en `line`.
+- **Ingreso, registro, recupero, reset y verificacion:** logo y titulo sobre la cuadricula, el
+  formulario en una tarjeta opaca (UX-UI §4.6: ningun dato sobre la cuadricula).
+- **Intermedias:** el panel de lectura y la tabla en mono, la fila elegida en `raised`; en la
+  curva, numeros en mono y el rombo calculado igual que en la regla.
+- **Volver** con icono y 48 px en Intermedias, Doctor e Imprimir, como en la mira.
+- "No encontrada" en tarjeta opaca.
+
+### Decisiones (con link a ADR si corresponde)
+
+- El listado imprimible no cambia de estilo en papel: sigue en blanco y negro (UX-UI §6).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- PWA 393/393, lint y typecheck limpios, sin cambios en tests.
+- Capturas reales de las 19 pantallas del recorrido a 360 (spec temporal con `tourEveryScreen`),
+  revisadas: Nueva mira, Intermedias y Crear cuenta, entre otras.
+- E2E en 360 y 1440 (`auth`, `english`, `profile`, `print`, `setups`, `a11y`, `contrast`,
+  `critical-flow`, `catalog`): 29/29 en verde a la primera (3 saltados por diseño de proyecto).
+  Esta vez el flujo en ingles a 360 paso.
+
+### Pendiente / deuda
+
+- La marca de registro de abajo a la derecha se dibuja por encima del borde de la tarjeta del
+  formulario cuando este llega al fondo de la pantalla (registro): decorativa, no tapa datos.
+
+
+## 2026-11-17 — La Home muestra cada setup como una ficha tecnica y deja una sola accion a mano
+
+**Tareas:** F1-31 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **SetupCard** (`@sight-mapper/ui`, D-3): nombre en display, estrella de favorito (se mantiene,
+  `aria-pressed`), bloque tecnico hundido con Arco, Mira (en `mark`) y Flechas rotulados, chapa
+  "Acceso rapido" con pin en el setup que abre la app, marcas y ultima edicion en mono, "Abrir"
+  (secundario con chevron) y "Editar". Todas las tarjetas iguales.
+- **Home:** "Setups guardados: N" como rotulo arriba del titulo (D-4: se va el pie), titulo grande
+  sobre la cuadricula, "+ Nuevo setup" fijo abajo a 56 px como unica accion principal.
+- **Guia de primer uso:** pasos numerados 01–04 en mono, el actual con fondo `raised` y barra de
+  acento; sus links pasan a secundarios para que la vista tenga una sola accion principal.
+- `LinkButtonClass` con borde de 2 px y canto `shadow-key` (lo usan 16 links de la PWA); nuevos
+  `LinkButtonLargeClass` y `LinkButtonSecondaryClass`.
+- i18n: `quickAccess.badge`, `setups.home.countLabel`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La tarjeta no es un link entero, como en el DS: adentro hay un boton (la estrella) y otro link
+  (Editar), y un elemento interactivo no puede ir dentro de otro. "Abrir" es el link al setup.
+- El numero de setups va como rotulo sobre el titulo y no en el subtitulo de la cabecera: la
+  cabecera es la misma en todas las pantallas.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui` 172/172 (nuevo `setup-card.test.tsx`: region nombrada, rotulos, mira en `mark`, nota de
+  archivado, estrella y 48 px, chapa solo en el setup de acceso rapido); PWA 393/393 (nuevo: la
+  Home marca con "Acceso rapido" solo el setup que abre la app). Lint y typecheck limpios. Los
+  tests de Home existentes pasan sin cambios.
+- Capturas reales: Home vacia (guia) a 360 y Home con un setup favorito y de acceso rapido a 360
+  (claro) y 1440 (oscuro).
+- E2E en 360 y 1440 (`setups`, `quick-access`, `onboarding`, `critical-flow`, `a11y`, `contrast`):
+  20/20 en verde en la primera corrida (2 saltados por diseño de proyecto), incluidos los dos
+  flujos criticos (ES/metrico y EN/imperial).
+
+### Pendiente / deuda
+
+- Como en el resto, el titulo de la pantalla queda pegado a la cabecera a 360: F1-32.
+
+
+## 2026-11-17 — La pantalla de la mira se lee como un instrumento y se maneja con el pulgar
+
+**Tareas:** F1-30 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Orden de uso** (UX-UI §4.2): volver, nombre y resumen → set de flechas → **ReadingHud**
+  (distancia y lectura en mono grande, medido en `mark` con brillo de fosforo solo en oscuro,
+  estimado en `info` con `≈`, esquinas HUD) → marcas y regla → **ActionBar** fija abajo.
+- **ActionBar** (D-1): Intermedias, Doctor (`X/5` hasta tener 5), Imprimir (desde 1) y una sola
+  celda "Viento · Clima / Pronto", deshabilitada y anunciada (RF-X-07); "+ Agregar marca" de 56 px
+  a lo ancho; tira de estado (setup · mira, lectura viva) oculta al lector porque repite el HUD.
+  Se oculta con una hoja abierta y no se imprime. El toast con "Deshacer" se muestra arriba de la
+  barra (`notice`), nunca tapando la accion principal.
+- **Tabla de marcas:** filas de 60 px, distancia en mono, lectura en `mark`, fila elegida con fondo
+  `raised` y barra `accent`; "Editar" pasa a un boton de icono con el mismo nombre accesible ("Editar
+  la marca de 30 m") para que las cuatro columnas entren en 360 px.
+- **Regla:** pozo `sunken`, ticks mayores en tinta, numeros en mono, la marca elegida con linea y
+  anillo `accent`. La geometria sigue saliendo de `@sight-mapper/domain/ruler`.
+- **768+:** HUD (con el set de flechas y "Abrir siempre aca") a la izquierda, fijo al hacer scroll;
+  marcas y regla a la derecha.
+- `@sight-mapper/ui` (D-3): `ReadingHud`, `ActionBar`, `ActionToolUnavailable`,
+  `ACTION_TOOL_CLASS`, icono `edit`, `Toast` con `inline` y la regla `.sm-glow` en `tokens.css`.
+  i18n: `sight.soonShort`, `sight.rulerTitle`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La tabla va antes que la regla: en 360 es la lista que se toca y la que lee el lector de
+  pantalla; la regla la acompaña debajo (en 768+ ambas a la derecha del HUD).
+- Las herramientas quedan en la barra fija tambien en 768+, en lugar de "sobre la regla" como
+  decia el plan: la accion principal y las herramientas estan siempre en el mismo lugar.
+- `ReadingHud` y `ActionBar` subieron a `ui` como piezas de presentacion (D-3); la regla se quedo
+  en la PWA porque toda su logica es geometria del dominio.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui` 169/169 (nuevos: `ReadingHud` medido/estimado/vacio, `ActionBar`), PWA 392/392. En
+  `imperial.test.tsx` la busqueda de la unidad "yd" se acoto a la hoja: ahora el HUD tambien la
+  muestra. Lint y typecheck limpios.
+- Capturas reales con 5 marcas (spec temporal): a 360 en claro y oscuro se ven, sin scroll, el HUD
+  y "+ Agregar marca"; el toast queda arriba de la barra; a 1440 HUD a la izquierda, marcas y regla
+  a la derecha, riel del menu. La primera tanda mostro tres problemas que se corrigieron: el toast
+  tapaba la barra, "Intermedias" se cortaba y la tabla no entraba en 360.
+- E2E en 360 y 1440 (`sight`, `critical-flow`, `keyboard`, `quick-access`, `imperial`, `print`,
+  `a11y`, `contrast`): la primera corrida dio 44 verdes y 5 fallos, con **dos bugs reales**:
+  - Teclado (los dos tamaños): al cerrar la hoja con Escape el foco no volvia a "+ Agregar marca",
+    porque la barra se desmontaba con la hoja abierta.
+  - Imperial: con la hoja abierta, el toast de respaldo (fijo, por encima) tapaba "Guardar".
+  Arreglo: la barra queda montada y se oculta con `hidden`; el toast vive siempre en ella. Los
+  otros dos fallos (contraste en claro y fuente ancha) fueron por tiempo. Re-corrida de `keyboard`,
+  `imperial`, `contrast` y `a11y` con un worker: 12/12 en verde.
+
+### Pendiente / deuda
+
+- A 1440 la barra fija se centra en el ancho de contenido y no se alinea con la columna a la
+  derecha del riel del menu. Se ve bien, pero revisarlo en F1-33.
+- Prueba al sol del HUD y del brillo de fosforo con un telefono real (autor).
+
+
+## 2026-11-17 — La configuracion vive solo en Ajustes y el menu se ordena por tareas
+
+**Tareas:** F1-29 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- **Ajustes** (`/settings`, RF-ACC-04): 01 Pantalla (tema), 02 Idioma y unidades, 03 Acerca de
+  (version). Cada ajuste con nombre, descripcion de lo que cambia y `Segmented`; reutiliza
+  `usePreferenceActions` sin cambios de logica. `/settings/appearance` redirige a `/settings`.
+- **Sin pie global:** se borraron `AppFooter` y `PreferencesBar`; la version sale de Cuenta y queda
+  en Ajustes.
+- **Invitado:** `GuestFrame` suma el `LanguageSwitch` (ES/EN, `aria-pressed`, `lang` por opcion)
+  arriba a la derecha en ingresar, registro, recupero, reset y verificacion. Sin selector de tema.
+- **Menu:** grupos "01 — Tiro" (Inicio, Arcos, Miras, Flechas, Estadisticas) y "02 — Cuenta"
+  (Ajustes, Cuenta, Papelera) con iconos; cerrar sesion y hora de sincronizacion al pie. La
+  cabecera muestra el icono real de la app.
+- **1440 px:** el menu pasa a riel lateral fijo de 320 px (`useMediaQuery`), sin boton de menu. El
+  arbol es el mismo en los dos layouts, asi una pantalla no pierde su estado al cruzar el ancho.
+- `@sight-mapper/ui`: `Icon` (20 iconos de linea del DS), `LanguageSwitch` y `hint` en `Segmented`
+  (`aria-describedby`).
+- i18n ES y EN: `settings.*` reemplaza a `appearance.*`; `menu.settings`, `menu.groupShooting`,
+  `menu.groupAccount`; se borraron `menu.appearance`, `screens.appearance`, `app.version` y
+  `profile.version`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- El riel se dibuja solo cuando `matchMedia('(min-width: 1440px)')` coincide, en vez de ocultarlo
+  con CSS: riel y drawer nunca conviven (un solo juego de botones del menu para el lector de
+  pantalla) y los tests en jsdom, sin media queries, siguen viendo el drawer.
+- El grupo del menu se llama "Cuenta" como en el DS, aunque el item del perfil tambien se llama
+  "Cuenta" (es el titulo que ya usa la pantalla y buscan los tests).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui` 164/164 (nuevos: `LanguageSwitch`, cada icono, `hint`), `i18n` 27/27 (ES y EN con las
+  mismas claves), PWA 392/392. Lint y typecheck limpios.
+- Tests cambiados porque cambio el comportamiento por spec (no para esquivarlos): los del pie de
+  `routing.test.tsx` pasan a exigir que no haya pie, que sin sesion se pueda cambiar el idioma y
+  que no haya selector de tema; `profile.test.tsx` exige que la version ya no este; `settings.test`
+  (antes `appearance.test`) suma grupos, descripcion, version, unicidad y el redirect;
+  `menu.test.tsx` suma los grupos.
+- Capturas reales con Playwright (spec temporal, no commiteado): Ajustes a 360 en oscuro y claro,
+  menu como riel a 1440, ingreso con el selector ES/EN y las marcas de registro.
+- E2E en 360 y 1440 (`imperial`, `english`, `a11y`, `contrast`). Primera corrida: 7 pasan y
+  5 fallan. axe encontro un problema real: el boton del selector mostraba "ES" pero se llamaba
+  "Español" (`label-content-name-mismatch`, WCAG 2.5.3). Ahora se llama "ES Español" / "EN English".
+  Una segunda corrida no dio resultado: el servidor no levanto y Windows aborto los workers
+  (0xC0000142). En la tercera, con un worker: `a11y` (axe y desbordes a 360, 768, 1440 y con fuente
+  ancha) y `english` a 1440 pasan, incluido cerrar sesion desde el riel. `contrast` e `imperial`
+  pasaron en la primera.
+- **No verificado:** `english` a 360. Fallo 3 veces en el mismo paso: tras "Intermediates", la
+  pantalla de Distancias seguia en el splash a los 5 s (snapshot). Solo falla en el primer proyecto,
+  con el servidor de desarrollo en frio compilando la ruta perezosa; F1-29 no toca esa pantalla.
+
+### Pendiente / deuda
+
+- El paso a Distancias en frio (`english.spec.ts` y `critical-flow.spec.ts` a 360): esperar la
+  carga de la ruta perezosa o precalentar el servidor; revisarlo antes de F1-33.
+
+- A 360 px el titulo de cada pantalla queda pegado a la cabecera (sin separacion): F1-32.
+
+## 2026-11-17 — Las primitivas de la interfaz tienen la forma del instrumento
+
+**Tareas:** F1-28 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `Button`: borde de 2 px, canto `shadow-key` que la presion hunde (`translate-y-0.5`), variantes
+  nuevas `ghost` y `danger`, `size="lg"` (56 px) y `block`.
+- `Field` / `NumberField` / `PasswordField` / `Select`: borde de 2 px; `NumberField` en mono
+  tabular; error con cruz ademas del color; `Select` con flecha propia; sufijo de unidad en mono.
+- `Segmented`: pista hundida con borde y un cuadrado indicador en la opcion elegida (forma, no solo
+  color).
+- `StatusBadge`: mono MAYUSCULAS, `calculated` con borde punteado. `InfoAlert`: borde de 2 px y
+  `title` opcional. `Toast`: `shadow-panel` y barra de tiempo `accent` de 3 px que se vacia
+  (decorativa). `UpdatePrompt`: `shadow-panel`. `EmptyState` / `ErrorState`: glifo de escala y
+  marco (punteado / `danger`). `Skeleton`: barrido de escaner (`sm-scan`), anulado por
+  `prefers-reduced-motion`.
+- `SectionCard`: prop `index` ("01") en `mark` mono, titulo en mono, regla punteada `line`.
+  `AppHeader`: `bg-raised`, borde de 2 px, titulo en display. `NavDrawer` / `BottomSheet`:
+  `shadow-panel`, bordes de 2 px; la hoja con `rounded-t-lg`, asa y `safe-area`. `NavGroup` nuevo
+  (`01 — TIRO`); `NavItem` con `icon` y barra izquierda `accent` de 4 px en el actual.
+- El foco de cada primitiva queda en el `:focus-visible` global (3 px `focus`), sin anillos propios.
+- `/sandbox` muestra las variantes nuevas (claves i18n ES y EN).
+
+### Decisiones (con link a ADR si corresponde)
+
+- El logo real en `AppHeader`, los iconos de linea y los grupos del menu de la app se conectan en
+  F1-29 (menu y Ajustes), F1-30/31 y F1-32: aca quedan las primitivas listas (`logo`, `icon`,
+  `NavGroup`).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui`: 140/140 (8 nuevos: variantes y tamaños de `Button`, barra del toast, titulo de
+  `InfoAlert`, `NavGroup`, indice de `SectionCard`). Lint y typecheck limpios; `i18n` 27/27.
+- `/sandbox` a 420 px en oscuro y claro, comparado con `docs/redesign/screenshots/`: botones,
+  campos, segmentado, chapas, avisos, estados, toast, menu (grupo, item actual, chapa) y hoja.
+- PWA: 385/385 unit tests.
+- E2E a 360 (26 specs): 21 pasaron y 3 fallaron en la primera corrida. Al investigarlos:
+  - `a11y` con fuente ancha (Verdana forzada): la mira, el Doctor y la hoja de marca se pasaban
+    12–16 px. Un probe temporal mostro la causa: las tablas de marcas y del Doctor, ensanchadas
+    por la chapa en mayusculas y el boton "Editar" con borde de 2 px. Las dos tablas ahora tienen
+    su propio scroll horizontal (`overflow-x-auto`); R-07 rehace la de la mira.
+  - Flujo critico en ingles: falto un heading por tiempo con la suite en paralelo; corrido con un
+    worker, pasa.
+  - `setups`: fallaba por el limite total de 30 s, en pasos distintos cada vez. En el commit de
+    F1-27 tarda 22,7 s y con F1-28 entre 23,8 y 24,1 s (2 de 2 en verde). Se le dio
+    `setTimeout(90_000)`, como ya tienen las otras pruebas de flujo largo.
+  - Re-corrida de `a11y` y del flujo critico (ES y EN) con un worker: 4/4 en verde.
+
+### Pendiente / deuda
+
+- `setups.spec.ts` con 90 s de limite: es un flujo de 4 cargas completas. Si en CI sigue
+  lento, mirar el arranque del servidor de desarrollo.
+- Logo real, iconos y grupos del menu en la app: F1-29.
+
+
+## 2026-11-17 — Toda la app se dibuja sobre papel de plano
+
+**Tareas:** F1-27 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `styles.css`: cuadricula blueprint en el `body` (linea menor cada 8 px en `grid`, mayor cada
+  40 px en `grid-major`, fija al scroll). `Shell` deja de pintar `bg-bg` opaco para que se vea.
+- `GuestFrame` (`app/guest-frame.tsx`): marcas de registro en dos esquinas, decorativas
+  (`aria-hidden`, sin eventos de puntero, respetan el `safe-area`), en `_guest`, `/reset-password`
+  y `/verify-email`. R-06 le suma el `LanguageSwitch`.
+- Impresion: el fondo blanco ya anulaba la imagen; las marcas se ocultan. `print.spec.ts` ahora
+  exige `background-image: none` en papel.
+- `.claude/launch.json`: configuracion `dev-local` para ver pantallas con API en el panel.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La cuadricula es una regla de base en la PWA y no un componente de `ui`: es el fondo de la pagina,
+  no algo que se compone.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Navegador a 375 px, `/sign-in` en oscuro y claro: cuadricula visible y tenue, marcas en las
+  esquinas, titulo ya en Chakra Petch.
+- PWA: lint, typecheck y 385/385 unit tests.
+- E2E a 360: `contrast` (oscuro y claro), `a11y` (axe y desbordes a 360 y fuente ancha) y `print`
+  en verde (5 pasan; el de 768 se salta en el proyecto de 360 por diseño). `print` vuelto a correr
+  con el assert nuevo: 1/1.
+
+### Pendiente / deuda
+
+- El criterio "ningun dato sobre la cuadricula" todavia no se cumple en todas las pantallas: el
+  formulario de ingreso, sus links y el pie de preferencias apoyan texto directo sobre el fondo. Lo
+  resuelven R-06 (se va el pie) y R-09 (formularios en `SectionCard`); se revisa en R-10.
+
+## 2026-11-17 — La app habla con su propia tipografia, tambien sin señal
+
+**Tareas:** F1-26 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- 8 woff2 (Chakra Petch 600/700, IBM Plex Sans 400/500/600, IBM Plex Mono 400/500/600; 144 KB) y
+  sus licencias OFL en `packages/ui/src/fonts/`; `fonts.css` con un `@font-face` por archivo
+  (`swap`, `unicode-range` latin, URL relativa) exportado como `@sight-mapper/ui/fonts.css` e
+  importado en la PWA antes de los tokens.
+- `theme.css`: `--font-display`, `--font-ui` y `--font-mono` con la fuente propia primero y el
+  sistema de respaldo.
+- `workbox.globPatterns` suma `woff2`.
+- Tests nuevos: `packages/ui/src/fonts.test.ts` (8 caras, archivos que existen, `swap`, licencias,
+  ningun host externo, stacks) y en `e2e/installable.spec.ts` el precache de las tres familias.
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-012](adr/012-own-fonts-precached.md). Vite empaqueta las fuentes con hash en `/assets/`
+  (cache inmutable de Caddy); la CSP no cambia (`font-src 'self'`).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `ui`: 132/132. Lint de `ui` y `pwa` limpio. `scripts/csp.test.mjs`: 3/3.
+- Build: los 8 woff2 salen con hash en `dist/assets/` y los 8 estan en el precache de `sw.js`
+  (75 entradas, 893 KiB).
+- E2E a 360 (`installable` + `contrast`): 6/6, incluido el precache de fuentes y el contraste AA
+  de todas las pantallas en oscuro y claro.
+- Lighthouse CI (3 corridas, `/sign-in`): JS, accesibilidad y buenas practicas pasan. **LCP:
+  3,07–3,10 s** con fuentes contra **2,41–2,49 s** sin ellas (mismo arbol, medido en el commit de
+  F1-25). El elemento LCP es un `<p>` en Plex Sans. Se probo `preload` de Plex Sans 400 (2,81–3,10 s)
+  y `font-display: optional` (3,07–3,10 s): ninguno mueve el numero, porque la simulacion de
+  Lighthouse pone las descargas de fuentes antes del texto. Se dejo `swap` sin `preload`.
+- **No verificado:** el render real de las fuentes offline en un telefono (DevTools → Rendered
+  fonts) a mano.
+
+### Pendiente / deuda
+
+- ~~**Decision del autor:** el aviso de LCP paso de ~2,5 s a ~3,1 s. Opciones: aceptarlo (es aviso,
+  no gate), recortar pesos (por ejemplo sin Plex Sans 500 ni Chakra 600) o medirlo en campo antes
+  de decidir.~~ **Decidido (2026-11-17): se acepta** el aviso de ~3,1 s; no se recortan pesos.
+
+## 2026-11-16 — La app ya usa la paleta blueprint y tocables de 48 px
+
+**Tareas:** F1-25 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `tokens.css`: valores finales de los dos temas (DESIGN-SYSTEM §2.1) en los tres bloques, con los
+  nombres de siempre y los nuevos `surface-raised`, `line`, `grid`, `grid-major`, `focus`,
+  `shadow-key`, `shadow-panel`, `size-touch-lg` (56), `grid-step` (8) y `grid-step-major` (40).
+  En claro el acento pasa a navy `#10286b` con tinta amarilla; lo medido a `#6b4f00`.
+- `theme.css`: utilidades `raised`, `line`, `grid`, `grid-major`, `focus`, `shadow-key`,
+  `shadow-panel`, `radius-lg` y `font-mono`.
+- Tocables 44 → 48 px: `TOUCH_TARGET_PX`, `LinkButtonClass`, las herramientas de la mira y cuatro
+  `style` con `44` a mano en la PWA (ahora usan `touchTarget`/`TOUCH_TARGET_PX`).
+- Foco con `--sm-focus`; `theme-color` y manifest a `#0b1b45`, mas un `theme-color` claro
+  `#eef2f9` por media query. El script inline del tema no se toco (su hash esta en la CSP).
+
+### Decisiones (con link a ADR si corresponde)
+
+- El canto del boton primario se mide contra `bg` (≥3:1) y no contra `accent`: en claro el navy del
+  acento y el canto casi negro son parecidos, y lo que tiene que verse es la tecla sobre la pagina.
+- Los 9 asserts `'44px'` de los tests de `ui` pasan a `${TOUCH_TARGET_PX}px`: el requisito cambio
+  por spec (RF-X-02), no es esquivar un test.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `tokens.test.ts` reescrito con los criterios de R-02: texto ≥7 y el resto ≥4,5 sobre `bg`,
+  `surface`, `surface-raised` y `surface-sunken`; `accent-ink` sobre `accent` ≥7; `border` y
+  `focus` ≥3; cuadricula entre 1,1 y 1,5 sobre `bg`; sombras armadas con los colores del tema;
+  bloque `system` identico a `light`. `ui`: 120/120.
+- `pnpm lint` y `pnpm typecheck` en verde. `pnpm test` del monorepo: todo verde salvo un test de
+  `pwa/test/sight.test.tsx` ("invites the archer to measure the first mark") que fallo una vez con
+  toda la suite en paralelo y paso 3 de 3 corriendo solo (tambien sin estos cambios): flaky por
+  tiempo, no por los tokens.
+- `scripts/csp.test.mjs` en verde.
+- `/sandbox` en el navegador, dark y light: el acento claro es navy con texto amarillo, lo medido
+  dorado oscuro, lo calculado cian. La consola solo muestra 502 de `/api` (solo corria `vite`, sin
+  API), de la carga inicial de `/` y no de los estilos.
+- **No corrido:** E2E de contraste y axe (quedan para F1-33, o antes si algun paso los rompe).
+
+### Pendiente / deuda
+
+- El flaky de `sight.test.tsx` bajo carga: mirar si necesita un `findBy` con mas tiempo.
+- F1-26 (fuentes) y F1-27 (fondo).
+
+## 2026-11-16 — La spec ya describe el rediseño blueprint: configuracion solo en Ajustes y fuentes propias
+
+**Tareas:** F1-23, F1-24 · **Commit/PR:** rama `feat/redesign-blueprint` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- F1-23: traspaso del rediseño commiteado (`docs/redesign/`), comando `/redesign`, decisiones
+  D-1..D-8 aceptadas por el autor (todas las recomendaciones) y tareas F1-23..F1-33 en el plan
+  (F1 pasa a 33 tareas / 119 puntos; F1-22 depende ahora del rediseño). El plan se contrasto con el
+  repo y se corrigio: ruta del `Caddyfile`, 9 asserts de `44px` en los tests de `ui`, riel lateral
+  de 1440 que ninguna tarea cubria, ubicacion de `QuickAccessToggle`.
+- F1-24 (spec primero): RF-ACC-04 (solo en Ajustes, idioma en invitado y donde se guarda), RF-X-02
+  (48 px), RF-X-03 (version en Ajustes), §14 con 4 puntos nuevos; `UX-UI.md` con los tokens finales
+  de ambos temas, tipografia, forma, rasgos retro, componentes nuevos, §4.5 Ajustes y §4.6 invitado;
+  `FUNCIONAL.md` (`/settings`, redirect, criterios de HU-ACC-04); `TECNICO.md` §14 (fuentes y LCP);
+  ADR-012; `CLAUDE.md` (estado, stack, ADRs) y `docs/README.md`.
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-012](adr/012-own-fonts-precached.md): Chakra Petch + IBM Plex Sans/Mono, woff2 propias y
+  precacheadas; reemplaza la regla "sin web fonts".
+- Marca sospechosa: triangulo en chapa y tabla, anillo en la regla (la spec decia anillo; se
+  conserva en la regla y se suma la forma en la chapa).
+- Idioma elegido sin sesion: se guarda en el navegador y gana sobre el del navegador; con sesion
+  manda `profile.locale`.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `spec-reviewer` sobre los docs: cubre SPEC-CHANGES §1–§8 y los 4 criterios de R-01. Marco 15
+  puntos; se corrigieron todos menos el de alcance (codigo de R-02 en el arbol), que se resolvio
+  separando los commits.
+- Sin codigo en este paso: no corresponde correr tests.
+
+### Pendiente / deuda
+
+- F1-25 en adelante. La prueba al sol y el lector de pantalla siguen siendo del autor (F1-18/F1-19).
+
+## 2026-11-16 — La configuracion de despliegue vive en el repo, lista para Railway
+
+**Tareas:** F0-20 (parcial: lo que no necesita cuentas) · **Commit/PR:** rama `feat/f0-railway-config` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- PR #1 mergeado a `main` (cd18b18) con la CI entera en verde.
+- **API:** `apps/api/railway.json` con Railpack, build de turbo, `preDeployCommand` con las migraciones (TECNICO §12: si fallan, no arranca), healthcheck `/ready` y reinicio ante falla.
+- **PWA:**
+  - `apps/pwa/railway.json` y `apps/pwa/Dockerfile`: build en Node 22 con `VITE_API_URL` como argumento de build, servido con Caddy.
+  - `apps/pwa/Caddyfile`: fallback de SPA, cache inmutable de `/assets/*`, `no-cache` para `index.html`, `sw.js` y el manifest, compresion, HSTS, `nosniff`, `X-Frame-Options`, `Permissions-Policy` y una **CSP estricta** (sin `unsafe-inline` ni `unsafe-eval`; el script del tema entra por hash).
+- `scripts/csp.test.mjs`: falla si un script inline de `index.html` cambia sin actualizar su hash, si queda un hash viejo o si la CSP pierde `frame-ancestors`, `form-action` u `object-src`.
+- `.dockerignore`: ni `node_modules`, ni builds, ni `.env`, ni los datos reales del autor entran a la imagen.
+
+### Decisiones (con link a ADR si corresponde)
+
+- La PWA en Docker + Caddy (lo que dice TECNICO §12) y la API con Railpack: la API no necesita mas que Node.
+- `style-src 'self'` sin `unsafe-inline`: React y Motion escriben estilos por CSSOM, que la CSP no bloquea.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `node --test scripts/csp.test.mjs` (3).
+- El build servido con la CSP de produccion, en el navegador:
+  - el login se dibuja;
+  - el script del tema corre (`data-theme=dark` desde `localStorage`);
+  - el CSS carga;
+  - ninguna violacion de CSP en la consola.
+- El service worker no registra en el panel del navegador, con o sin CSP: es el panel. Playwright si lo registra (`installable.spec.ts`).
+- **Sin probar:** el `Dockerfile`, el `Caddyfile` real y los `railway.json`. No hay Docker ni Caddy en esta maquina, ni proyecto en Railway.
+
+### Pendiente / deuda
+
+- Todo lo de afuera de F0-20: dominio, proyecto Railway (staging y prod), clusters Atlas con backups y PITR, Google OAuth, DNS y monitor de uptime.
+- El primer despliegue a staging prueba estos archivos de verdad.
+
+---
+ de 184 a 171 KB y vuelve a ser gate
 
 **Tareas:** F0-19 (presupuestos de TECNICO §14) · **Commit/PR:** [PR #1](https://github.com/BraianVaylet/sight-mapper-archery-project/pull/1) · **Tarjeta:** sin tablero (F0-04)
 

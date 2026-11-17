@@ -33,7 +33,7 @@ src/features/   auth · setups · sight · distances · doctor · print · equip
   presentacion, con `convert/` del dominio y el separador decimal del locale.
 - **Medido ≠ estimado:** punto lleno + linea solida vs rombo + punteado + `≈`. `StatusBadge`
   nunca depende solo del color.
-- **UI:** primitivas de `@sight-mapper/ui` (tocables ≥ 44 px, dark y light, AA). Importar
+- **UI:** primitivas de `@sight-mapper/ui` (tocables ≥ 48 px, dark y light, AA). Importar
   `tokens.css` y `theme.css` despues de `tailwindcss`. Estados vacio / carga / error en todo
   listado (`EmptyState`, `Skeleton`, `ErrorState`).
 - **Optimista:** guardar una marca no bloquea con spinner; toast con "Deshacer" (8 s).

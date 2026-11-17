@@ -26,6 +26,7 @@ import { Route as AppArrowsNewRouteImport } from './routes/_app.arrows.new'
 import { Route as AppBowsIndexRouteImport } from './routes/_app.bows.index'
 import { Route as AppBowsIdRouteImport } from './routes/_app.bows.$id'
 import { Route as AppBowsNewRouteImport } from './routes/_app.bows.new'
+import { Route as AppSettingsIndexRouteImport } from './routes/_app.settings.index'
 import { Route as AppSettingsAppearanceRouteImport } from './routes/_app.settings.appearance'
 import { Route as AppSetupsNewRouteImport } from './routes/_app.setups.new'
 import { Route as AppSightsIndexRouteImport } from './routes/_app.sights.index'
@@ -120,6 +121,11 @@ const AppBowsNewRoute = AppBowsNewRouteImport.update({
   path: '/bows/new',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsAppearanceRoute = AppSettingsAppearanceRouteImport.update({
   id: '/settings/appearance',
   path: '/settings/appearance',
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/sights/new': typeof AppSightsNewRoute
   '/arrows/': typeof AppArrowsIndexRoute
   '/bows/': typeof AppBowsIndexRoute
+  '/settings/': typeof AppSettingsIndexRoute
   '/sights/': typeof AppSightsIndexRoute
   '/setups/$setupId/distances': typeof AppSetupsSetupIdDistancesRoute
   '/setups/$setupId/doctor': typeof AppSetupsSetupIdDoctorRoute
@@ -219,6 +226,7 @@ export interface FileRoutesByTo {
   '/sights/new': typeof AppSightsNewRoute
   '/arrows': typeof AppArrowsIndexRoute
   '/bows': typeof AppBowsIndexRoute
+  '/settings': typeof AppSettingsIndexRoute
   '/sights': typeof AppSightsIndexRoute
   '/setups/$setupId/distances': typeof AppSetupsSetupIdDistancesRoute
   '/setups/$setupId/doctor': typeof AppSetupsSetupIdDoctorRoute
@@ -249,6 +257,7 @@ export interface FileRoutesById {
   '/_app/sights/new': typeof AppSightsNewRoute
   '/_app/arrows/': typeof AppArrowsIndexRoute
   '/_app/bows/': typeof AppBowsIndexRoute
+  '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/sights/': typeof AppSightsIndexRoute
   '/_app/setups/$setupId/distances': typeof AppSetupsSetupIdDistancesRoute
   '/_app/setups/$setupId/doctor': typeof AppSetupsSetupIdDoctorRoute
@@ -278,6 +287,7 @@ export interface FileRouteTypes {
     | '/sights/new'
     | '/arrows/'
     | '/bows/'
+    | '/settings/'
     | '/sights/'
     | '/setups/$setupId/distances'
     | '/setups/$setupId/doctor'
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
     | '/sights/new'
     | '/arrows'
     | '/bows'
+    | '/settings'
     | '/sights'
     | '/setups/$setupId/distances'
     | '/setups/$setupId/doctor'
@@ -334,6 +345,7 @@ export interface FileRouteTypes {
     | '/_app/sights/new'
     | '/_app/arrows/'
     | '/_app/bows/'
+    | '/_app/settings/'
     | '/_app/sights/'
     | '/_app/setups/$setupId/distances'
     | '/_app/setups/$setupId/doctor'
@@ -471,6 +483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBowsNewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings/': {
+      id: '/_app/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/appearance': {
       id: '/_app/settings/appearance'
       path: '/settings/appearance'
@@ -558,6 +577,7 @@ interface AppRouteChildren {
   AppSightsNewRoute: typeof AppSightsNewRoute
   AppArrowsIndexRoute: typeof AppArrowsIndexRoute
   AppBowsIndexRoute: typeof AppBowsIndexRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppSightsIndexRoute: typeof AppSightsIndexRoute
   AppSetupsSetupIdDistancesRoute: typeof AppSetupsSetupIdDistancesRoute
   AppSetupsSetupIdDoctorRoute: typeof AppSetupsSetupIdDoctorRoute
@@ -580,6 +600,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSightsNewRoute: AppSightsNewRoute,
   AppArrowsIndexRoute: AppArrowsIndexRoute,
   AppBowsIndexRoute: AppBowsIndexRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppSightsIndexRoute: AppSightsIndexRoute,
   AppSetupsSetupIdDistancesRoute: AppSetupsSetupIdDistancesRoute,
   AppSetupsSetupIdDoctorRoute: AppSetupsSetupIdDoctorRoute,

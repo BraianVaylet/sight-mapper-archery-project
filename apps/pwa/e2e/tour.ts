@@ -59,15 +59,21 @@ export async function tourEveryScreen(
     ['print', `${setupPath}/print`, 'Listado imprimible'],
     ['trash', '/trash', 'Papelera'],
     ['profile', '/profile', 'Cuenta'],
-    ['appearance', '/settings/appearance', 'Apariencia'],
+    ['settings', '/settings', 'Ajustes'],
   ] as const) {
     await page.goto(path);
     await expect(page.getByRole('heading', { name: ready, level: 1 })).toBeVisible();
     await settled(name);
   }
 
+  // The menu: a drawer behind a button on a phone, a side rail always in view from 1440 px.
   await page.goto('/');
-  await page.getByRole('button', { name: 'Abrir el menú' }).click();
-  await expect(page.getByRole('dialog')).toBeVisible();
+  const button = page.getByRole('button', { name: 'Abrir el menú' });
+  const rail = page.getByRole('navigation', { name: 'Menú' });
+  await expect(button.or(rail)).toBeVisible();
+  if (await button.isVisible()) {
+    await button.click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+  }
   await settled('menu');
 }

@@ -35,8 +35,8 @@ export default defineConfig(({ mode }) => {
           scope: '/',
           display: 'standalone',
           orientation: 'portrait',
-          background_color: '#10286b',
-          theme_color: '#10286b',
+          background_color: '#0b1b45',
+          theme_color: '#0b1b45',
           icons: [
             { src: 'pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
             { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,png,svg,ico,webmanifest}'],
+          globPatterns: ['**/*.{js,css,html,png,svg,ico,webmanifest,woff2}'],
           navigateFallback: '/index.html',
           // The API and the identity endpoints are never answered from the cache.
           navigateFallbackDenylist: [/^\/api\//],

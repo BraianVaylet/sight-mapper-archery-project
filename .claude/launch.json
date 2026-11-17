@@ -4,7 +4,19 @@
     {
       "name": "pwa",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@sight-mapper/pwa", "dev"],
+      "runtimeArgs": [
+        "--filter",
+        "@sight-mapper/pwa",
+        "dev"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "dev-local",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "dev:local"
+      ],
       "port": 5173
     }
   ]

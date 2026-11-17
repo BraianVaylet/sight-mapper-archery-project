@@ -97,13 +97,13 @@ afterEach(() => vi.restoreAllMocks());
 const open = (api = server()) => renderApp('/profile', api.fetch);
 
 describe('Your account', () => {
-  it('shows who is signed in and the version of the app', async () => {
+  it('shows who is signed in; the version lives in Settings now', async () => {
     open();
     expect(await screen.findByRole('heading', { name: 'Cuenta', level: 1 })).toBeVisible();
     const card = within(screen.getByRole('region', { name: 'Tu cuenta' }));
     expect(card.getByText('ana')).toBeInTheDocument();
     expect(card.getByText('ana@example.com')).toBeInTheDocument();
-    expect(card.getByText('Versión de la app')).toBeInTheDocument();
+    expect(card.queryByText('Versión de la app')).toBeNull();
   });
 });
 

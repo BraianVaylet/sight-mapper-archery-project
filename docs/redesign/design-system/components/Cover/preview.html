@@ -1,0 +1,49 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Sight Mapper</title>
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--bg); color:var(--ink); font-family:var(--font-sans); overflow:hidden; }
+  .cover { position:relative; height:288px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:288px; overflow:hidden; }
+  .art svg { display:block; width:480px; height:288px; }
+  .acc { fill:var(--accent); }
+  .cut { fill:var(--on-accent); }
+  .deep { fill:var(--ink); }
+  .hole { fill:var(--bg); }
+  .tint { fill:var(--border); }
+  .cyan { fill:var(--calc); }
+  .blk { rx:var(--radius-md); }
+  .words { position:absolute; left:var(--space-6); bottom:var(--space-6); max-width:440px; }
+  .name { margin:0; font-family:var(--font-display); font-size:96px; line-height:.95; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
+  .tag { margin:var(--space-2) 0 0 4px; font-size:14px; line-height:20px; color:var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 288" width="480" height="288">
+<!--
+  blocks      accent 120x256 slab bled off the top (the signal yellow / navy ink) · ink 160x160 · border 160x208 bleeding off the right · calc 80x16 once (the estimated)  ~ 35% of 960x288
+  arrangement one tall accent slab with satellites, bottoms on one line space-6 above the edge, space-4 gutters
+  pattern     literal motif (the sight scale): 13 ticks cut into the slab in on-accent at grid-step x2 pitch, major every 4th, plus a 4x4 plus-grid at grid-step-major cut out of the ink block (blueprint)
+  scales      sides in grid-step multiples; gutters space-4; pitch 16 and grid-step-major 40; corners radius-md
+-->
+<rect class="acc blk" x="40" y="-8" width="120" height="256" rx="4"/>
+<rect class="cut" x="100" y="24" width="60" height="4"/><rect class="cut" x="124" y="40" width="36" height="4"/><rect class="cut" x="124" y="56" width="36" height="4"/><rect class="cut" x="124" y="72" width="36" height="4"/><rect class="cut" x="100" y="88" width="60" height="4"/><rect class="cut" x="124" y="104" width="36" height="4"/><rect class="cut" x="124" y="120" width="36" height="4"/><rect class="cut" x="124" y="136" width="36" height="4"/><rect class="cut" x="100" y="152" width="60" height="4"/><rect class="cut" x="124" y="168" width="36" height="4"/><rect class="cut" x="124" y="184" width="36" height="4"/><rect class="cut" x="124" y="200" width="36" height="4"/><rect class="cut" x="100" y="216" width="60" height="4"/>
+<rect class="cyan" x="176" y="64" width="80" height="16"/>
+<rect class="deep blk" x="176" y="88" width="160" height="160" rx="4"/>
+<rect class="hole" x="188" y="106.5" width="16" height="3"/><rect class="hole" x="194.5" y="100" width="3" height="16"/><rect class="hole" x="228" y="106.5" width="16" height="3"/><rect class="hole" x="234.5" y="100" width="3" height="16"/><rect class="hole" x="268" y="106.5" width="16" height="3"/><rect class="hole" x="274.5" y="100" width="3" height="16"/><rect class="hole" x="308" y="106.5" width="16" height="3"/><rect class="hole" x="314.5" y="100" width="3" height="16"/><rect class="hole" x="188" y="146.5" width="16" height="3"/><rect class="hole" x="194.5" y="140" width="3" height="16"/><rect class="hole" x="228" y="146.5" width="16" height="3"/><rect class="hole" x="234.5" y="140" width="3" height="16"/><rect class="hole" x="268" y="146.5" width="16" height="3"/><rect class="hole" x="274.5" y="140" width="3" height="16"/><rect class="hole" x="308" y="146.5" width="16" height="3"/><rect class="hole" x="314.5" y="140" width="3" height="16"/><rect class="hole" x="188" y="186.5" width="16" height="3"/><rect class="hole" x="194.5" y="180" width="3" height="16"/><rect class="hole" x="228" y="186.5" width="16" height="3"/><rect class="hole" x="234.5" y="180" width="3" height="16"/><rect class="hole" x="268" y="186.5" width="16" height="3"/><rect class="hole" x="274.5" y="180" width="3" height="16"/><rect class="hole" x="308" y="186.5" width="16" height="3"/><rect class="hole" x="314.5" y="180" width="3" height="16"/><rect class="hole" x="188" y="226.5" width="16" height="3"/><rect class="hole" x="194.5" y="220" width="3" height="16"/><rect class="hole" x="228" y="226.5" width="16" height="3"/><rect class="hole" x="234.5" y="220" width="3" height="16"/><rect class="hole" x="268" y="226.5" width="16" height="3"/><rect class="hole" x="274.5" y="220" width="3" height="16"/><rect class="hole" x="308" y="226.5" width="16" height="3"/><rect class="hole" x="314.5" y="220" width="3" height="16"/>
+<rect class="tint blk" x="352" y="40" width="160" height="208" rx="4"/>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">Sight<br>Mapper</h1>
+<p class="tag">Marcas de mira para arqueros. Un instrumento de bolsillo que se lee al sol.</p>
+</div>
+</div>
+</body>
+</html>

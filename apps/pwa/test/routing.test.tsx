@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { usePreferences } from '../src/app/preferences.js';
@@ -96,24 +96,35 @@ describe('failures', () => {
 });
 
 describe('the frame', () => {
-  it('has a skip link, one main landmark and the version', async () => {
+  it('has a skip link, one main landmark and no footer', async () => {
     renderApp('/verify-email', signedOut().fetch);
     await screen.findByRole('heading', { name: 'Verificar email' });
     expect(screen.getByRole('link', { name: 'Ir al contenido' })).toHaveAttribute('href', '#main');
     expect(screen.getAllByRole('main')).toHaveLength(1);
-    expect(screen.getByText('Versión dev')).toBeInTheDocument();
+    expect(screen.queryByRole('contentinfo')).toBeNull();
   });
 
-  it('switches language and theme from the footer, on any screen', async () => {
+  it('switches the language without a session, and offers no theme there (RF-ACC-04)', async () => {
     renderApp('/verify-email', signedOut().fetch);
     await screen.findByRole('heading', { name: 'Verificar email' });
+    expect(screen.queryByRole('radio', { name: 'Oscuro' })).toBeNull();
 
-    await userEvent.click(screen.getByRole('radio', { name: 'English' }));
+    const switcher = within(screen.getByRole('group', { name: 'Idioma' }));
+    await userEvent.click(switcher.getByRole('button', { name: /English/ }));
     expect(await screen.findByRole('heading', { name: 'Verify email' })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('en');
-
-    await userEvent.click(screen.getByRole('radio', { name: 'Dark' }));
-    await waitFor(() => expect(document.documentElement.getAttribute('data-theme')).toBe('dark'));
-    expect(usePreferences.getState().theme).toBe('dark');
+    expect(usePreferences.getState().locale).toBe('en');
+    expect(switcher.getByRole('button', { name: /English/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
+
+  it.each(['/sign-in', '/sign-up', '/forgot-password', '/reset-password?token=t'])(
+    '%s offers the language switch',
+    async (path) => {
+      renderApp(path, signedOut().fetch);
+      expect(await screen.findByRole('group', { name: 'Idioma' })).toBeInTheDocument();
+    },
+  );
 });

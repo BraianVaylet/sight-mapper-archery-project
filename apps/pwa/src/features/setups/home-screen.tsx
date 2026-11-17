@@ -1,11 +1,12 @@
 import type { SetupView } from '@sight-mapper/schemas';
 import { formatDateTime } from '@sight-mapper/i18n';
-import { ErrorState, SectionCard, Skeleton, StatusBadge } from '@sight-mapper/ui';
+import { ErrorState, Icon, SetupCard, Skeleton, StatusBadge } from '@sight-mapper/ui';
 import { Link } from '@tanstack/react-router';
 import { describeError } from '../../app/errors.js';
 import { useI18n } from '../../app/i18n.js';
 import { componentName } from '../equipment/names.js';
-import { LinkButtonClass } from '../equipment/link-button.js';
+import { useQuickAccess } from '../account/profile.js';
+import { LinkButtonLargeClass, LinkButtonSecondaryClass } from '../equipment/link-button.js';
 import { FirstSetupGuide } from './first-setup-guide.js';
 import { setupHooks, useToggleFavorite } from './setups.js';
 
@@ -20,40 +21,30 @@ export function useSetupName() {
     });
 }
 
-function Star({ on }: { on: boolean }) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
-      <path
-        d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"
-        fill={on ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 /** Your setups (HU-STP-02): favourites first, then the latest edit. The star changes at once. */
 export function HomeScreen() {
   const { t, locale, translate } = useI18n();
   const list = setupHooks.useList({ status: 'active' });
   const favorite = useToggleFavorite();
   const nameOf = useSetupName();
+  const quickAccess = useQuickAccess();
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl">{t('screens.home')}</h1>
-        <Link to="/setups/new" className={LinkButtonClass}>
-          {t('setups.home.new')}
-        </Link>
+    // Room at the bottom for the fixed primary action.
+    <section className="flex flex-col gap-4 pb-28">
+      <div className="flex flex-col gap-1">
+        {list.data === undefined || list.data.items.length === 0 ? null : (
+          <p className="font-mono text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+            {t('setups.home.countLabel', { count: list.data.items.length })}
+          </p>
+        )}
+        <h1 className="font-display text-3xl font-bold">{t('screens.home')}</h1>
       </div>
 
       {list.isPending ? (
         <div aria-busy="true" className="flex flex-col gap-3">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
         </div>
       ) : list.isError ? (
         <ErrorState
@@ -67,77 +58,67 @@ export function HomeScreen() {
       ) : list.data.items.length === 0 ? (
         <FirstSetupGuide />
       ) : (
-        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {list.data.items.map((setup) => (
             <li key={setup.id}>
-              <SectionCard title={nameOf(setup)} as="h2">
-                <div className="flex items-start justify-between gap-3">
-                  <dl className="flex flex-col gap-1 font-ui text-base">
-                    <dt className="sr-only">{t('setups.form.bow')}</dt>
-                    <dd>
-                      {componentName(setup.bow) ?? '?'}
-                      {setup.bow.status === 'archived' ? (
-                        <span className="ml-2 text-sm text-warning">
-                          ({t('setups.home.bowArchived')})
-                        </span>
-                      ) : null}
-                    </dd>
-                    <dt className="sr-only">{t('setups.form.sight')}</dt>
-                    <dd>
-                      {t('setups.home.sightLine', {
-                        sight: componentName(setup.sight) ?? '?',
-                        pin: t(`setups.home.pin${capitalize(setup.sight.pinType)}`),
-                      })}
-                      {setup.sight.status === 'archived' ? (
-                        <span className="ml-2 text-sm text-warning">
-                          ({t('setups.home.sightArchived')})
-                        </span>
-                      ) : null}
-                    </dd>
-                    <dt className="sr-only">{t('setups.form.arrows')}</dt>
-                    <dd className="text-muted">
-                      {setup.arrowSets.map((set) => set.name).join(', ')}
-                    </dd>
-                  </dl>
-                  <button
-                    type="button"
-                    aria-pressed={setup.isFavorite}
-                    aria-label={
-                      setup.isFavorite ? t('setups.home.unfavorite') : t('setups.home.favorite')
-                    }
-                    onClick={() => favorite.mutate({ id: setup.id, isFavorite: !setup.isFavorite })}
-                    style={{ minWidth: 44, minHeight: 44 }}
-                    className={`inline-flex shrink-0 items-center justify-center rounded-sm border border-border ${
-                      setup.isFavorite ? 'text-mark' : 'text-muted'
-                    }`}
-                  >
-                    <Star on={setup.isFavorite} />
-                  </button>
-                </div>
-                <p className="font-ui text-sm text-muted">
-                  {t('setups.home.marks', { count: setup.marksCount })} ·{' '}
-                  {t('setups.home.edited', { date: formatDateTime(setup.updatedAt, locale) })}
-                </p>
-                <div className="flex flex-wrap items-center gap-4">
-                  {setup.status === 'archived' ? (
-                    <StatusBadge kind="calculated">{t('setups.home.archivedBadge')}</StatusBadge>
-                  ) : null}
-                  <Link
-                    to="/setups/$setupId"
-                    params={{ setupId: setup.id }}
-                    className="font-ui text-base text-info underline underline-offset-2"
-                  >
-                    {t('setups.home.open')}
-                  </Link>
-                  <Link
-                    to="/setups/$setupId/edit"
-                    params={{ setupId: setup.id }}
-                    className="font-ui text-base text-info underline underline-offset-2"
-                  >
-                    {t('setups.home.edit')}
-                  </Link>
-                </div>
-              </SectionCard>
+              <SetupCard
+                title={nameOf(setup)}
+                favorite={{
+                  pressed: setup.isFavorite,
+                  label: setup.isFavorite ? t('setups.home.unfavorite') : t('setups.home.favorite'),
+                  onToggle: () => favorite.mutate({ id: setup.id, isFavorite: !setup.isFavorite }),
+                }}
+                details={[
+                  {
+                    label: t('setups.form.bow'),
+                    value: componentName(setup.bow) ?? '?',
+                    note:
+                      setup.bow.status === 'archived' ? t('setups.home.bowArchived') : undefined,
+                  },
+                  {
+                    label: t('setups.form.sight'),
+                    value: t('setups.home.sightLine', {
+                      sight: componentName(setup.sight) ?? '?',
+                      pin: t(`setups.home.pin${capitalize(setup.sight.pinType)}`),
+                    }),
+                    tone: 'mark',
+                    note:
+                      setup.sight.status === 'archived'
+                        ? t('setups.home.sightArchived')
+                        : undefined,
+                  },
+                  {
+                    label: t('setups.form.arrows'),
+                    value: setup.arrowSets.map((set) => set.name).join(', '),
+                  },
+                ]}
+                quickAccessLabel={
+                  quickAccess?.setupId === setup.id ? t('quickAccess.badge') : undefined
+                }
+                meta={`${t('setups.home.marks', { count: setup.marksCount })} · ${t('setups.home.edited', { date: formatDateTime(setup.updatedAt, locale) })}`}
+                actions={
+                  <>
+                    {setup.status === 'archived' ? (
+                      <StatusBadge kind="calculated">{t('setups.home.archivedBadge')}</StatusBadge>
+                    ) : null}
+                    <Link
+                      to="/setups/$setupId"
+                      params={{ setupId: setup.id }}
+                      className={LinkButtonSecondaryClass}
+                    >
+                      {t('setups.home.open')}
+                      <Icon name="chevron" />
+                    </Link>
+                    <Link
+                      to="/setups/$setupId/edit"
+                      params={{ setupId: setup.id }}
+                      className="inline-flex min-h-12 items-center font-ui text-base text-info underline underline-offset-[3px]"
+                    >
+                      {t('setups.home.edit')}
+                    </Link>
+                  </>
+                }
+              />
             </li>
           ))}
         </ul>
@@ -151,10 +132,20 @@ export function HomeScreen() {
 
       <Link
         to="/trash"
-        className="self-start font-ui text-base text-info underline underline-offset-2"
+        className="inline-flex min-h-12 items-center self-start font-ui text-base text-info underline underline-offset-[3px]"
       >
         {t('setups.home.trash')}
       </Link>
+
+      {/* The one primary action of the Home, in the thumb zone (UX-UI §4.1). */}
+      <div className="no-print fixed inset-x-0 bottom-0 z-30 border-t-2 border-border bg-surface px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
+        <div className="mx-auto max-w-[1200px]">
+          <Link to="/setups/new" className={LinkButtonLargeClass}>
+            <Icon name="plus" />
+            {t('setups.home.new')}
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }

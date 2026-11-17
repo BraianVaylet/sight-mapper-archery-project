@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { Button } from './button.js';
 import { Field, NumberField, PasswordField, Select } from './fields.js';
 import { Segmented } from './segmented.js';
+import { TOUCH_TARGET_PX } from '../touch.js';
 
 describe('Button', () => {
   it('is a plain button by default, so a form never submits by accident', () => {
@@ -32,17 +33,35 @@ describe('Button', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it.each(['primary', 'secondary', 'link'] as const)(
-    'the %s variant keeps the 44 px target',
+  it.each(['primary', 'secondary', 'ghost', 'danger', 'link'] as const)(
+    'the %s variant keeps the 48 px target',
     (variant) => {
       render(<Button variant={variant}>x</Button>);
-      expect(screen.getByRole('button')).toHaveStyle({ minHeight: '44px', minWidth: '44px' });
+      expect(screen.getByRole('button')).toHaveStyle({
+        minHeight: `${TOUCH_TARGET_PX}px`,
+        minWidth: `${TOUCH_TARGET_PX}px`,
+      });
     },
   );
 
   it('lets the caller add to the style without losing the target size', () => {
     render(<Button style={{ color: 'red' }}>x</Button>);
-    expect(screen.getByRole('button')).toHaveStyle({ minHeight: '44px', color: 'rgb(255, 0, 0)' });
+    expect(screen.getByRole('button')).toHaveStyle({
+      minHeight: `${TOUCH_TARGET_PX}px`,
+      color: 'rgb(255, 0, 0)',
+    });
+  });
+});
+
+describe('Button sizes', () => {
+  it('grows to the 56 px of the fixed primary action with size="lg"', () => {
+    render(<Button size="lg">Add mark</Button>);
+    expect(screen.getByRole('button')).toHaveStyle({ minHeight: 'var(--sm-size-touch-lg)' });
+  });
+
+  it('takes the full width with block', () => {
+    render(<Button block>Add mark</Button>);
+    expect(screen.getByRole('button')).toHaveClass('w-full');
   });
 });
 
@@ -81,7 +100,7 @@ describe('Field', () => {
 
   it('keeps the 44 px target', () => {
     render(<Field label="X" />);
-    expect(screen.getByLabelText('X')).toHaveStyle({ minHeight: '44px' });
+    expect(screen.getByLabelText('X')).toHaveStyle({ minHeight: `${TOUCH_TARGET_PX}px` });
   });
 });
 
@@ -130,8 +149,8 @@ describe('PasswordField', () => {
 
   it('keeps both targets at 44 px', () => {
     render(<PasswordField label="Password" showLabel="Show" hideLabel="Hide" />);
-    expect(screen.getByLabelText('Password')).toHaveStyle({ minHeight: '44px' });
-    expect(screen.getByRole('button')).toHaveStyle({ minHeight: '44px' });
+    expect(screen.getByLabelText('Password')).toHaveStyle({ minHeight: `${TOUCH_TARGET_PX}px` });
+    expect(screen.getByRole('button')).toHaveStyle({ minHeight: `${TOUCH_TARGET_PX}px` });
   });
 });
 
@@ -169,7 +188,7 @@ describe('Select', () => {
 
   it('keeps the 44 px target', () => {
     render(<Select label="Arrow set" options={options} />);
-    expect(screen.getByLabelText('Arrow set')).toHaveStyle({ minHeight: '44px' });
+    expect(screen.getByLabelText('Arrow set')).toHaveStyle({ minHeight: `${TOUCH_TARGET_PX}px` });
   });
 });
 
@@ -235,6 +254,24 @@ describe('Segmented', () => {
     expect(screen.getByRole('radio', { name: 'Single' })).toBeChecked();
   });
 
+  it('describes the setting with its hint', () => {
+    render(
+      <Segmented
+        label="Units"
+        hint="Only how distances are shown"
+        value="m"
+        onChange={() => {}}
+        options={[
+          { value: 'm', label: 'Metric' },
+          { value: 'y', label: 'Imperial' },
+        ]}
+      />,
+    );
+    expect(screen.getByRole('radiogroup', { name: 'Units' })).toHaveAccessibleDescription(
+      'Only how distances are shown',
+    );
+  });
+
   it('marks the selection with a shape as well as a colour', () => {
     render(<Harness />);
     expect(screen.getByRole('radio', { name: 'Single' }).querySelector('svg')).not.toBeNull();
@@ -244,7 +281,7 @@ describe('Segmented', () => {
   it('keeps every option at 44 px and shows an error', () => {
     render(<Harness error="Required" />);
     for (const radio of screen.getAllByRole('radio'))
-      expect(radio).toHaveStyle({ minHeight: '44px' });
+      expect(radio).toHaveStyle({ minHeight: `${TOUCH_TARGET_PX}px` });
     expect(screen.getByRole('alert')).toHaveTextContent('Required');
   });
 });

@@ -27,7 +27,7 @@ export function ArrowsScreen() {
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl">{t('screens.arrows')}</h1>
+        <h1 className="font-display text-3xl font-bold">{t('screens.arrows')}</h1>
         <Link to="/arrows/new" className={LinkButtonClass}>
           {t('arrows.list.new')}
         </Link>

@@ -4,12 +4,12 @@ import type { ReactNode } from 'react';
 import { useI18n } from '../../app/i18n.js';
 import { arrowSetHooks } from '../equipment/arrow-sets.js';
 import { bowHooks } from '../equipment/bows.js';
-import { LinkButtonClass } from '../equipment/link-button.js';
+import { LinkButtonSecondaryClass } from '../equipment/link-button.js';
 import { componentName } from '../equipment/names.js';
 import { sightHooks } from '../equipment/sights.js';
 
 /** Marker glyphs: not words, so they stay out of the catalogs. */
-const GLYPH = { done: '✓', pending: '○' } as const;
+const GLYPH = { done: '✓' } as const;
 
 type Step = {
   key: string;
@@ -45,7 +45,7 @@ export function FirstSetupGuide() {
       done: bow !== undefined,
       detail: bow === undefined ? undefined : componentName(bow),
       action: (
-        <Link to="/bows/new" search={{ next: 'home' }} className={LinkButtonClass}>
+        <Link to="/bows/new" search={{ next: 'home' }} className={LinkButtonSecondaryClass}>
           {t('onboarding.addBow')}
         </Link>
       ),
@@ -56,7 +56,7 @@ export function FirstSetupGuide() {
       done: sight !== undefined,
       detail: sight === undefined ? undefined : componentName(sight),
       action: (
-        <Link to="/sights/new" search={{ next: 'home' }} className={LinkButtonClass}>
+        <Link to="/sights/new" search={{ next: 'home' }} className={LinkButtonSecondaryClass}>
           {t('onboarding.addSight')}
         </Link>
       ),
@@ -67,7 +67,7 @@ export function FirstSetupGuide() {
       done: set !== undefined,
       detail: set?.name,
       action: (
-        <Link to="/arrows/new" search={{ next: 'home' }} className={LinkButtonClass}>
+        <Link to="/arrows/new" search={{ next: 'home' }} className={LinkButtonSecondaryClass}>
           {t('onboarding.addArrows')}
         </Link>
       ),
@@ -78,7 +78,7 @@ export function FirstSetupGuide() {
       done: false,
       detail: equipped ? t('onboarding.setupReady') : t('onboarding.setupWaiting'),
       action: equipped ? (
-        <Link to="/setups/new" className={LinkButtonClass}>
+        <Link to="/setups/new" className={LinkButtonSecondaryClass}>
           {t('onboarding.createSetup')}
         </Link>
       ) : null,
@@ -88,11 +88,13 @@ export function FirstSetupGuide() {
   return (
     <section
       aria-labelledby="first-setup-title"
-      className="flex flex-col gap-4 rounded-md border border-border bg-surface p-4"
+      className="flex flex-col gap-4 rounded-md border-2 border-border bg-surface p-4"
     >
       <div className="flex flex-col gap-1">
-        <p className="font-ui text-sm text-muted">{t('setups.home.emptyTitle')}</p>
-        <h2 id="first-setup-title" className="font-display text-xl">
+        <p className="font-mono text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+          {t('setups.home.emptyTitle')}
+        </p>
+        <h2 id="first-setup-title" className="font-display text-2xl font-semibold">
           {t('onboarding.title')}
         </h2>
         <p className="font-ui text-base text-muted">{t('setups.home.emptyBody')}</p>
@@ -105,13 +107,19 @@ export function FirstSetupGuide() {
             data-step={step.key}
             data-state={step.done ? 'done' : index === current ? 'current' : 'later'}
             className={cx(
-              'flex flex-wrap items-center justify-between gap-3 rounded-sm border px-3 py-2',
-              index === current ? 'border-mark' : 'border-border',
+              'flex flex-wrap items-center justify-between gap-3 rounded-sm border-2 border-l-4 px-3 py-2',
+              index === current ? 'border-border border-l-accent bg-raised' : 'border-line',
             )}
           >
             <div className="flex min-w-0 items-start gap-3">
-              <span aria-hidden="true" className="font-ui text-lg">
-                {step.done ? GLYPH.done : GLYPH.pending}
+              <span
+                aria-hidden="true"
+                className={cx(
+                  'font-mono text-sm font-semibold',
+                  step.done ? 'text-mark' : 'text-muted',
+                )}
+              >
+                {step.done ? GLYPH.done : String(index + 1).padStart(2, '0')}
               </span>
               <div className="flex min-w-0 flex-col">
                 <span

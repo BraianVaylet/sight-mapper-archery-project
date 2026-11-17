@@ -147,7 +147,7 @@ const PRIVATE: [string, string][] = [
   ['Print', `/setups/${SETUP_ID}/print`],
   ['Trash', '/trash'],
   ['Profile', '/profile'],
-  ['Appearance', '/settings/appearance'],
+  ['Settings', '/settings'],
 ];
 
 describe('Every private screen reads in English (F1-13)', () => {

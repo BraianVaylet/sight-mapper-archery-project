@@ -1,0 +1,30 @@
+<!-- @dsCard group="Screens" height=1000 page -->
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ajustes</title>
+<style>body{background:transparent} .phone{width:390px;margin:0 auto;display:flex;flex-direction:column;min-height:100%;border-left:2px solid var(--border);border-right:2px solid var(--border)} .phone main{flex:1;padding:16px;display:flex;flex-direction:column;gap:16px}</style></head>
+<body class="">
+
+<div class="phone sm-blueprint">
+<header class="sm-header"><button class="sm-btn sm-btn--ghost sm-btn--icon" aria-label="Volver"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M15 6l-6 6 6 6"/></svg></button><div class="sm-header__titles"><p class="sm-header__title">Ajustes</p><p class="sm-header__sub">Preferencias y cuenta</p></div><button class="sm-btn sm-btn--icon" aria-label="Abrir menú"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></header>
+<main>
+  <section class="sm-card" aria-labelledby="g1">
+    <div class="sm-card__head"><span class="sm-card__index">01</span><h2 id="g1" class="sm-card__title">Pantalla</h2><span class="sm-card__rule"></span></div>
+    <div class="sm-setting"><div class="sm-setting__head"><p class="sm-setting__name">Tema</p></div><p class="sm-setting__desc">Claro para pleno sol, oscuro para interior o noche.</p>
+      <div class="sm-seg__track" role="radiogroup" aria-label="Tema"><button class="sm-seg__opt" role="radio" aria-checked="false">Sistema</button><button class="sm-seg__opt" role="radio" aria-checked="true">Oscuro</button><button class="sm-seg__opt" role="radio" aria-checked="false">Claro</button></div></div>
+  </section>
+  <section class="sm-card" aria-labelledby="g2">
+    <div class="sm-card__head"><span class="sm-card__index">02</span><h2 id="g2" class="sm-card__title">Idioma y unidades</h2><span class="sm-card__rule"></span></div>
+    <div class="sm-setting"><p class="sm-setting__name">Idioma</p>
+      <div class="sm-seg__track" role="radiogroup" aria-label="Idioma"><button class="sm-seg__opt" role="radio" aria-checked="true">Español</button><button class="sm-seg__opt" role="radio" aria-checked="false">English</button></div></div>
+    <div class="sm-setting"><p class="sm-setting__name">Unidades</p><p class="sm-setting__desc">Distancias en metros o yardas; escala en mm o pulgadas.</p>
+      <div class="sm-seg__track" role="radiogroup" aria-label="Unidades"><button class="sm-seg__opt" role="radio" aria-checked="true">Métrico</button><button class="sm-seg__opt" role="radio" aria-checked="false">Imperial</button></div></div>
+  </section>
+  <section class="sm-card" aria-labelledby="g3">
+    <div class="sm-card__head"><span class="sm-card__index">03</span><h2 id="g3" class="sm-card__title">Acerca de</h2><span class="sm-card__rule"></span></div>
+    <div class="sm-setting"><div class="sm-setting__head"><p class="sm-setting__name">Versión</p><span class="sm-num sm-muted">1.4.0</span></div></div>
+  </section>
+</main>
+</div>
+</body>
+</html>

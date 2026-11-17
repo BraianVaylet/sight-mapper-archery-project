@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
@@ -187,6 +187,16 @@ describe('Opening the app on the quick access (HU-STP-03)', () => {
     await app.router.navigate({ to: '/' });
     expect(await screen.findByRole('heading', { name: 'Tus setups', level: 1 })).toBeVisible();
     expect(app.router.state.location.pathname).toBe('/');
+  });
+
+  it('marks on the Home the setup the app opens on, and only that one', async () => {
+    const { app } = renderApp('/bows', server(HERE).fetch);
+    await screen.findByRole('heading', { name: 'Arcos', level: 1 });
+    await app.router.navigate({ to: '/' });
+    const hunting = within(await screen.findByRole('region', { name: 'Hunting' }));
+    expect(await hunting.findByText('Acceso rápido')).toBeInTheDocument();
+    const target = within(screen.getByRole('region', { name: 'Target' }));
+    expect(target.queryByText('Acceso rápido')).toBeNull();
   });
 
   it('applies after signing in: opening the app signed out and then entering', async () => {
