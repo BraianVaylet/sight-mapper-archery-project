@@ -286,6 +286,6 @@ function defaultEmailSender(env: Env, logger: Logger): EmailSender {
   if (env.RESEND_API_KEY !== undefined && env.EMAIL_FROM !== undefined) {
     return createResendSender({ apiKey: env.RESEND_API_KEY, from: env.EMAIL_FROM });
   }
-  // `parseEnv` only lets this through in APP_ENV=local.
+  // `parseEnv` only lets this through in APP_ENV=local or with verification switched off.
   return createLogEmailSender(logger);
 }

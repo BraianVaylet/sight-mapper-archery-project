@@ -100,7 +100,7 @@ export function createAuth(deps: AuthDeps): AuthModule {
 
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: true,
+      requireEmailVerification: env.AUTH_REQUIRE_EMAIL_VERIFICATION,
       minPasswordLength: MIN_PASSWORD_LENGTH,
       maxPasswordLength: 128,
       resetPasswordTokenExpiresIn: HOUR_S,
@@ -112,7 +112,7 @@ export function createAuth(deps: AuthDeps): AuthModule {
     },
 
     emailVerification: {
-      sendOnSignUp: true,
+      sendOnSignUp: env.AUTH_REQUIRE_EMAIL_VERIFICATION,
       autoSignInAfterVerification: true,
       expiresIn: HOUR_S,
       sendVerificationEmail: ({ user, url }, request) => {

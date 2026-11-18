@@ -1,20 +1,32 @@
 import { Button, Field, InfoAlert, PasswordField } from '@sight-mapper/ui';
 import { useForm } from '@tanstack/react-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { useClients } from '../../app/clients.js';
 import { describeError } from '../../app/errors.js';
 import { useI18n } from '../../app/i18n.js';
 import { signUp } from './auth-api.js';
 import { AuthCard, FormError, TextLink } from './auth-card.js';
 import { fieldError, fieldOfError, formSchemas, validateWith } from './form-utils.js';
+import { forgetSession } from './session.js';
 
 export function SignUpScreen() {
   const { t, translate } = useI18n();
   const { authHttp } = useClients();
 
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
   const mutation = useMutation({
     mutationFn: (value: Parameters<typeof signUp>[1]) =>
       signUp(authHttp, value, window.location.origin),
+    onSuccess: async (result) => {
+      // Signed in already: verification is switched off on this API.
+      if (typeof result?.token === 'string') {
+        forgetSession(queryClient);
+        await navigate({ to: '/', replace: true });
+      }
+    },
   });
 
   const form = useForm({
@@ -37,7 +49,7 @@ export function SignUpScreen() {
       ? describeError(translate, mutation.error).text
       : undefined);
 
-  if (mutation.isSuccess) {
+  if (mutation.isSuccess && typeof mutation.data?.token !== 'string') {
     return (
       <AuthCard title={t('auth.signUp.checkEmailTitle')}>
         <InfoAlert variant="info">

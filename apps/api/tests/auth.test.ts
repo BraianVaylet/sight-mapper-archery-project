@@ -27,6 +27,7 @@ const env: Env = {
   GOOGLE_CLIENT_SECRET: undefined,
   RESEND_API_KEY: undefined,
   EMAIL_FROM: undefined,
+  AUTH_REQUIRE_EMAIL_VERIFICATION: true,
   CORS_ORIGINS: [ORIGIN],
   LOG_LEVEL: 'debug',
 };
@@ -499,5 +500,40 @@ describe('what never reaches the logs', () => {
     expect(sessionToken.length).toBeGreaterThan(10);
     expect(text).not.toContain(sessionToken);
     expect(text).not.toContain(new URL(linkTo(user.email)).pathname.split('/').pop() ?? '#');
+  });
+});
+
+describe('with email verification switched off (AUTH_REQUIRE_EMAIL_VERIFICATION=false)', () => {
+  it('signs the archer in on sign-up, with no verification email', async () => {
+    const container = createContainer({
+      env: { ...env, AUTH_REQUIRE_EMAIL_VERIFICATION: false },
+      logger: createLogger({ level: 'silent' }),
+      clock: fixedClock('2026-11-01T12:00:00Z'),
+      // A sibling connection: the models are already registered on the shared one.
+      connection: connection.useDb('sightmapper_auth_off', { useCache: false }),
+      emails: sender,
+    });
+    const user = newUser();
+    const before = mails.length;
+    const res = await container.app.request('/api/auth/sign-up/email', {
+      method: 'POST',
+      headers: { origin: ORIGIN, 'x-forwarded-for': nextIp(), 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: user.email,
+        password: PASSWORD,
+        name: user.name,
+        username: user.username,
+      }),
+    });
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { token: unknown }).token).toEqual(expect.any(String));
+    expect(cookieOf(res)).toContain('better-auth.session_token=');
+
+    const session = await container.app.request('/api/auth/get-session', {
+      headers: { origin: ORIGIN, cookie: cookieOf(res) },
+    });
+    expect(((await session.json()) as { user: { email: string } }).user.email).toBe(user.email);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(mails.length).toBe(before);
   });
 });

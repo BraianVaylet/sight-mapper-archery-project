@@ -19,9 +19,12 @@ export const signIn = (http: HttpClient, { identifier, password }: SignInForm) =
     ? http.post('sign-in/email', { body: { email: identifier.trim(), password } })
     : http.post('sign-in/username', { body: { username: identifier.trim(), password } });
 
-/** The username doubles as the display name: the product has no other. */
+/**
+ * The username doubles as the display name: the product has no other. `token` is `null` while the
+ * API asks for email verification; with verification switched off it signs the archer in at once.
+ */
 export const signUp = (http: HttpClient, form: SignUpForm, origin: string) =>
-  http.post('sign-up/email', {
+  http.post<{ token?: string | null } | null>('sign-up/email', {
     body: {
       email: form.email,
       password: form.password,

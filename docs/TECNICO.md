@@ -194,6 +194,9 @@ Content-Type: application/json
   3–30, `[a-z0-9._]`), Google (`socialProviders.google`).
 - `requireEmailVerification: true`; emails via Resend con plantillas ES/EN segun el locale del
   navegador al registrarse.
+  - Interruptor temporal `AUTH_REQUIRE_EMAIL_VERIFICATION=false` (default `true`): el registro deja
+    entrar sin email de verificacion y Resend deja de ser obligatorio (los links de reset solo se
+    loguean). Para probar en un entorno hosteado antes de tener dominio y Resend; se saca al cerrar F0-20.
 - Reset: token de un solo uso, 1 h; al cambiar la contraseña se revocan las demas sesiones.
 - Cookies `httpOnly`, `Secure`, `SameSite=Lax`. PWA y API en el **mismo sitio** (subdominios del
   mismo dominio) para que Lax funcione: depende de la decision abierta de dominio (spec §17.1).
