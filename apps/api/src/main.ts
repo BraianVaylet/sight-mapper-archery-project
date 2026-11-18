@@ -33,7 +33,8 @@ async function start(): Promise<void> {
 
   scheduler?.start();
 
-  const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
+  // `::` listens on IPv6 and IPv4: Railway's private network (the PWA's proxy) may use either.
+  const server = serve({ fetch: app.fetch, port: env.PORT, hostname: '::' }, (info) => {
     logger.info({ port: info.port, appEnv: env.APP_ENV }, 'api listening');
   });
 

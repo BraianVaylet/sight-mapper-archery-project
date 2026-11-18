@@ -52,7 +52,9 @@ Variables de entorno (validadas con Zod al arrancar; si falta una, el proceso no
 | `EMAIL_FROM`             | api  | `Sight Mapper <no-reply@…>`                      |
 | `CORS_ORIGINS`           | api  | lista separada por comas, sin comodines          |
 | `LOG_LEVEL`              | api  | `info`                                           |
-| `VITE_API_URL`           | pwa  | URL publica de la API                            |
+| `VITE_API_URL`           | pwa  | URL publica de la API; vacia = mismo origen (Caddy hace de proxy de `/api/*`) |
+| `API_UPSTREAM`           | pwa  | API por la red privada de Railway, `api.railway.internal:3000` (Caddy) |
+| `AUTH_REQUIRE_EMAIL_VERIFICATION` | api | `true` por defecto; `false` temporal para probar sin Resend |
 | ~~`VITE_APP_VERSION`~~   | pwa  | ~~inyectada en build desde `package.json`~~ [~] reemplazada: `vite.config.ts` lee el `version` del `package.json` raiz (RF-X-03) |
 
 Secretos solo en Railway y en GitHub Actions secrets. `.env.example` sin valores reales. El hook de
