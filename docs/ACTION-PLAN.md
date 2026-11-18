@@ -602,7 +602,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** Ajustes muestra `0.1.0`; test que lee el valor inyectado; runbook de release dice
   donde se sube la version.
 
-### [ ] F1-39 · Rangos de arco y flechas revisados y explicados
+### [x] F1-39 · Rangos de arco y flechas revisados y explicados
 
 - **Modulo:** schemas, pwa, i18n, docs · **Puntos:** 3 · **Depende de:** F1-34, F1-37
 - **Descripcion:** cada min/max de `bowFields` y `arrowSetFields` queda justificado en DICCIONARIO

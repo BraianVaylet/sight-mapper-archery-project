@@ -94,7 +94,25 @@ g y gr enteros. Las notas dan el equivalente imperial; el metrico se calcula igu
 `N_PER_KGF`, UNIDADES §2). Las **fuentes** de cada motivo (catalogos de fabricantes) las agrega
 F1-39. Revisados el 2026-11-17: se ensancharon los minimos de
 `iboSpeedMps` (60 → 45), `drawLengthMm` (450 → 300), `drawWeightN` (45 → 20) y `cutLengthMm`
-(400 → 300), que dejaban afuera arcos y flechas juveniles.
+(400 → 300), que dejaban afuera arcos y flechas juveniles. [+] En F1-39 (2026-11-17), al buscar las
+fuentes, tambien el maximo de `spine` (2000 → 2600): el aluminio juvenil de Easton llega a 2501.
+
+[+] **Fuentes de los motivos** (consultadas el 2026-11-17; las marcas `[F1]`..`[F3]` en las notas):
+
+- **[F1] Arco juvenil, Diamond (Bowtech) Atomic:** 6–29 lb, apertura 12–24", IBO 191 fps (≈ 58 m/s),
+  24" eje a eje, brace 6". Es el piso de `drawWeightN`, `drawLengthMm` e `iboSpeedMps`: el minimo
+  viejo de IBO (60 m/s ≈ 197 fps) lo dejaba afuera. Ficha en
+  [Mike's Archery](https://mikesarchery.com/diamond-archery-atomic-youth-compound-bow-pkg-6-29-rh-green/)
+  y [Midwest Archery](https://midwestarchery.com/products/diamond-atomic-youth-compound-bow-rh).
+- **[F2] Spine y GPI, tabla de seleccion de Easton (target):** juveniles de 2000 (3.4 gpi) a 1000, y
+  aluminio 1214 con spine 2501.
+  [Easton Target 2025](https://eastonarchery.com/wp-content/uploads/2024/11/Easton-Target-2025-Small.pdf),
+  [tabla de seleccion](https://www.southamptonarcheryclub.org/files/EastonShaftSelector.pdf).
+- **[F3] Techo de IBO:** el compuesto de serie mas rapido bien documentado en 2025 es el Mathews
+  LIFT XD, ~363 fps (≈ 111 m/s), con margen hasta 135 m/s.
+  [AllOutdoor](https://www.alloutdoor.com/2025/09/16/fastest-mathews-bow/).
+- El resto de los motivos (brace, eje a eje, radio de mira, peep, D-loop, pesos de punta y total)
+  son rangos de uso corriente sin una fuente unica; su margen es contra errores de tipeo.
 
 ### 3.1 `bows`
 
@@ -104,10 +122,10 @@ F1-39. Revisados el 2026-11-17: se ensancharon los minimos de
 | `nickname`      | string   | —        | —                        | no   | 1–40                     | Si falta: fabricante + modelo |
 | `manufacturer`  | string   | —        | —                        | *    | 1–60                     | *al menos uno de los dos      |
 | `model`         | string   | —        | —                        | *    | 1–60                     |                               |
-| `iboSpeedMps`   | number   | m/s      | m/s / fps                | no   | ~~60–135~~ [~] 45–135    | ≈ 148–442 fps. Motivo: compuestos juveniles (~150 fps) a los mas rapidos del mercado (~375 fps) con margen |
+| `iboSpeedMps`   | number   | m/s      | m/s / fps                | no   | ~~60–135~~ [~] 45–135    | ≈ 148–442 fps. Motivo: compuestos juveniles (~190 fps) [F1] a los mas rapidos de serie (~363 fps) [F3], con margen |
 | `letOffPct`     | number   | %        | %                        | no   | 0–99                     | Motivo: 100% seria peso cero en la pared; reales 65–90% |
-| `drawLengthMm`  | number   | mm       | cm / in                  | no   | ~~450–900~~ [~] 300–900  | ≈ 11.9–35.4 in. Motivo: modulos juveniles desde ~12 in hasta ~34 in de adulto alto |
-| `drawWeightN`   | number   | N        | kg / lb                  | no   | ~~45–450~~ [~] 20–450    | ≈ 4.5–101 lb. Motivo: juveniles desde ~5 lb hasta caza pesada (~90 lb) con margen |
+| `drawLengthMm`  | number   | mm       | cm / in                  | no   | ~~450–900~~ [~] 300–900  | ≈ 11.9–35.4 in. Motivo: modulos juveniles desde 12 in [F1] hasta ~34 in de adulto alto |
+| `drawWeightN`   | number   | N        | kg / lb                  | no   | ~~45–450~~ [~] 20–450    | ≈ 4.5–101.1 lb. Motivo: juveniles desde 6 lb [F1] hasta caza pesada (~90 lb), con margen |
 | `camType`       | enum     | —        | —                        | no   | `single \| hybrid \| binary` |                           |
 | `axleToAxleMm`  | number   | mm       | cm / in                  | no   | 500–1200                 | ≈ 19.7–47.2 in. Motivo: juveniles (~25 in) a target largos (~41 in) con margen |
 | `braceHeightMm` | number   | mm       | mm / in                  | no   | 100–260                  | ≈ 4.0–10.2 in. Imperial admite `6 1/4`. Motivo: compuestos de 5 a 8 in con margen |
@@ -144,7 +162,7 @@ Derivados (no se guardan): `scaleMinMm`, `scaleMaxMm`, `travelMm`.
 | `name`             | string | —        | —                        | si   | 1–40       | "Short name"                          |
 | `manufacturer`     | string | —        | —                        | no   | 0–60       |                                       |
 | `model`            | string | —        | —                        | no   | 0–60       |                                       |
-| `spine`            | number | rating   | rating                   | no   | 100–2000   | Rating de industria: no se convierte. Motivo: tablas de fabricantes (~150 caza pesada a ~2000 juvenil) |
+| `spine`            | number | rating   | rating                   | no   | ~~100–2000~~ [~] 100–2600 | Rating de industria: no se convierte. Motivo: tablas de fabricantes, de ~150 (caza pesada) a 2501 (aluminio juvenil Easton 1214) [F2] |
 | `cutLengthMm`      | number | mm       | cm / in                  | no   | ~~400–900~~ [~] 300–900 | ≈ 11.9–35.4 in. Motivo: acompaña al largo de apertura (juvenil a adulto alto) |
 | `gpi`              | number | gr/in    | gr/in                    | no   | 2–30       | Rating de industria: no se convierte. Motivo: tubos de 5 a 15 gpi tipicos con margen |
 | `pointWeightG`     | number | g        | g / gr                   | no   | 1–30       | ≈ 16–462 gr. Motivo: puntas de 60 a 300 gr tipicas con margen |

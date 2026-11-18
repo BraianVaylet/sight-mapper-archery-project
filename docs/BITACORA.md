@@ -18,6 +18,37 @@
 
 ---
 
+## 2026-11-17 — Los rangos de arco y flechas se ven en tu unidad y con su motivo
+
+**Tareas:** F1-39 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/schemas`: `BOW_RANGES` y `ARROW_RANGES` como datos (los campos se arman de ahi);
+  minimos ensanchados: IBO 60 → 45 m/s, apertura 450 → 300 mm, libraje 45 → 20 N, largo de flecha
+  400 → 300 mm; y maximo de spine 2000 → 2600 (aparecio al buscar fuentes: aluminio juvenil Easton
+  1214 = 2501).
+- PWA: `showRange` (redondeo hacia adentro; in, lb y kg con 1 decimal, el resto entero). Cada campo
+  numerico muestra "Entre 148–442 fps" como ayuda, y un valor fuera de rango dice "Fuera de rango: va
+  de 4,5–101,1 lb." en la unidad de su seccion. Antes el error decia el limite canonico de Zod
+  ("como minimo 45", en newtons): esa era la confusion que reporto el autor.
+- DICCIONARIO §3: equivalentes rehechos y seccion de fuentes [F1]..[F3] (Diamond Atomic, tabla de
+  Easton, Mathews LIFT XD).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Schemas 133/133 (bordes nuevos y test "solo se ensancha": los minimos viejos siguen validos).
+- `units.test.ts`: rangos calculados a mano en metrico e imperial, y una propiedad: los dos extremos
+  mostrados, leidos de vuelta, caen dentro del rango canonico en los dos sistemas.
+- PWA 410/410 (ayuda y error en libras, arco juvenil de 15 lb y 16 in aceptado); API de equipo
+  50/50; lint y typecheck.
+- E2E a11y, contraste, imperial, ingles, setups y teclado a 360 y 1440: 16 pasan, 2 skip por diseño.
+
+### Pendiente / deuda
+
+- Los motivos sin fuente unica (brace, eje a eje, radio, peep, D-loop, pesos) quedan como rangos de
+  uso corriente con margen anti-tipeo.
+
 ## 2026-11-17 — La version de la app sale del package.json
 
 **Tareas:** F1-38 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)

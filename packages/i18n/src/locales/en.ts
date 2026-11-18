@@ -3,6 +3,7 @@ import type { Messages } from '../types.js';
 export const en: Messages = {
   common: {
     appName: 'Sight Mapper',
+    rangeHint: 'Between {{range}} {{unit}}',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
@@ -710,6 +711,7 @@ export const en: Messages = {
     too_big: 'Must be at most {{maximum}}.',
     equipment: {
       manufacturerOrModel: 'Enter the manufacturer or the model.',
+      outOfRange: 'Out of range: it goes from {{range}} {{unit}}.',
     },
     mark: {
       distancePrecision: 'Distance allows up to 3 decimals.',

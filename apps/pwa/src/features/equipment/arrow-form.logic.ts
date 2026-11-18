@@ -1,15 +1,19 @@
 import type { DecimalSeparator } from '@sight-mapper/domain';
 import {
   createArrowSet,
+  ARROW_RANGES,
   toValidationIssues,
   type ArrowSet,
   type CreateArrowSet,
   type UpdateArrowSet,
 } from '@sight-mapper/schemas';
 import type { UnitSystem, ValidationIssue } from '@sight-mapper/types';
-import { readQuantity, showQuantity, unitOf } from './units.js';
+import { asRangeIssue, rangeParams, readQuantity, showQuantity, unitOf } from './units.js';
 
 export { unitOf };
+
+/** The canonical range of each number field (RN-EQP-03), for its hint and its error. */
+export const RANGES = ARROW_RANGES;
 
 /** Every number the form asks for, with the quantity it measures (UNIDADES §1). */
 export const NUMBER_FIELDS = [
@@ -116,7 +120,7 @@ export function toArrowSetInput(
   if (!parsed.success) {
     for (const issue of toValidationIssues(parsed.error)) {
       const name = String(issue.path[0] ?? '');
-      if (name !== '' && errors[name] === undefined) errors[name] = issue;
+      if (name !== '' && errors[name] === undefined) errors[name] = asRangeIssue(issue);
     }
   }
   if (Object.keys(errors).length > 0) return { ok: false, errors };
@@ -134,4 +138,14 @@ export function toArrowSetPatch(result: {
     ...fields,
     ...result.clears.map((name) => [name, null]),
   ]) as UpdateArrowSet;
+}
+
+/** The range of a number field in the archer's unit, for its hint and its out-of-range error. */
+export function rangeOf(
+  name: NumberFieldName,
+  system: UnitSystem,
+  separator: DecimalSeparator,
+): { range: string; unit: string } {
+  const field = NUMBER_FIELDS.find((candidate) => candidate.name === name);
+  return rangeParams(RANGES[name], field?.quantity ?? 'rating', system, separator);
 }

@@ -5,6 +5,7 @@
 export const es = {
   common: {
     appName: 'Sight Mapper',
+    rangeHint: 'Entre {{range}} {{unit}}',
     save: 'Guardar',
     cancel: 'Cancelar',
     delete: 'Borrar',
@@ -710,6 +711,7 @@ export const es = {
     too_big: 'Debe ser como máximo {{maximum}}.',
     equipment: {
       manufacturerOrModel: 'Ingresá el fabricante o el modelo.',
+      outOfRange: 'Fuera de rango: va de {{range}} {{unit}}.',
     },
     mark: {
       distancePrecision: 'La distancia admite hasta 3 decimales.',
