@@ -36,8 +36,18 @@ function memory(options: { loseRaceOnce?: boolean } = {}) {
 describe('defaultPreferences', () => {
   it('takes the language of the browser, the same units for everyone, and the system theme', () => {
     const units = { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' };
-    expect(defaultPreferences('es')).toEqual({ locale: 'es', units, theme: 'system' });
-    expect(defaultPreferences('en')).toEqual({ locale: 'en', units, theme: 'system' });
+    expect(defaultPreferences('es')).toEqual({
+      locale: 'es',
+      units,
+      theme: 'system',
+      doctorToleranceMm: null,
+    });
+    expect(defaultPreferences('en')).toEqual({
+      locale: 'en',
+      units,
+      theme: 'system',
+      doctorToleranceMm: null,
+    });
   });
 
   it('hands out a fresh units object each time, never the shared default', () => {
@@ -56,6 +66,7 @@ describe('ensureProfile', () => {
       locale: 'es',
       units: { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' },
       theme: 'system',
+      doctorToleranceMm: null,
       quickAccess: null,
       deletionRequestedAt: null,
       version: 1,

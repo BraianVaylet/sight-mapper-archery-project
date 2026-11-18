@@ -17,6 +17,7 @@ const schema = createBusinessSchema(
       sight: { type: String, required: true },
     },
     theme: { type: String, required: true },
+    doctorToleranceMm: { type: Number, default: null },
     quickAccess: { type: Schema.Types.Mixed, default: null },
     deletionRequestedAt: { type: Date, default: null },
   },
@@ -29,6 +30,8 @@ type Row = {
   locale: Profile['locale'];
   units: Profile['units'];
   theme: Profile['theme'];
+  /** Absent in profiles from before F1-40: read as the default. */
+  doctorToleranceMm?: number | null;
   quickAccess: Profile['quickAccess'];
   deletionRequestedAt: Date | null;
   version: number;
@@ -47,6 +50,7 @@ const toProfile = (row: Row): Profile => ({
     sight: row.units.sight,
   },
   theme: row.theme,
+  doctorToleranceMm: row.doctorToleranceMm ?? null,
   quickAccess: row.quickAccess ?? null,
   deletionRequestedAt: row.deletionRequestedAt === null ? null : fromDate(row.deletionRequestedAt),
   version: row.version,
@@ -59,10 +63,12 @@ const toProfile = (row: Row): Profile => ({
  * store a null), and a section of the units is set by its own path (`units.bow`), so the others
  * stay as they are.
  */
-const setOf = (patch: PreferencesPatch): Record<string, string> => {
-  const set: Record<string, string> = {};
+const setOf = (patch: PreferencesPatch): Record<string, string | number | null> => {
+  const set: Record<string, string | number | null> = {};
   if (patch.locale !== undefined) set['locale'] = patch.locale;
   if (patch.theme !== undefined) set['theme'] = patch.theme;
+  // `null` is a value here: it puts the default back.
+  if (patch.doctorToleranceMm !== undefined) set['doctorToleranceMm'] = patch.doctorToleranceMm;
   for (const [section, system] of Object.entries(patch.units ?? {})) {
     if (system !== undefined) set[`units.${section}`] = system;
   }
@@ -87,6 +93,7 @@ export function createProfileRepositories(connection: DbConnection): ProfileRepo
               locale: profile.locale,
               units: profile.units,
               theme: profile.theme,
+              doctorToleranceMm: profile.doctorToleranceMm,
               quickAccess: profile.quickAccess,
               deletionRequestedAt: null,
               version: profile.version,

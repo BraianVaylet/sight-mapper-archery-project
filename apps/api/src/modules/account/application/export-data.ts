@@ -28,6 +28,7 @@ export function createExportData(deps: ExportDeps) {
         locale: profile.locale,
         units: profile.units,
         theme: profile.theme,
+        doctorToleranceMm: profile.doctorToleranceMm,
         quickAccess: profile.quickAccess,
         deletionRequestedAt:
           profile.deletionRequestedAt === null ? null : profile.deletionRequestedAt.toString(),

@@ -157,3 +157,13 @@ describe('doctorProgress', () => {
     expect(doctorProgress(9)).toEqual({ ready: true, have: 5, need: 5 });
   });
 });
+
+describe("the archer's Doctor tolerance (RN-CAL-06)", () => {
+  it('leaves the good set ok with the default, and flags its 60 m endpoint at 1 mm', () => {
+    expect(analyse(HUNTER, CM).doctor?.status).toBe('ok');
+    expect(analyse(HUNTER, CM, null).doctor?.status).toBe('ok');
+    const strict = analyse(HUNTER, CM, 1);
+    expect(strict.doctor?.suspect?.markId).toBe('m-60'); // 2.75 mm over a 2.5 mm endpoint threshold
+    expect(strict.suspectIds.has('m-60')).toBe(true);
+  });
+});

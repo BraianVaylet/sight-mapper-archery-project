@@ -1,7 +1,13 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import fixtures from '../../test/fixtures/real-sets.json' with { type: 'json' };
-import { DOCTOR_ENDPOINT_FACTOR, DOCTOR_MIN_ABS_MM } from '../constants.js';
+import {
+  DOCTOR_ENDPOINT_FACTOR,
+  DOCTOR_MIN_ABS_MM,
+  DOCTOR_TOLERANCE_MAX_MM,
+  DOCTOR_TOLERANCE_MIN_MM,
+  DOCTOR_TOLERANCE_STEP_MM,
+} from '../constants.js';
 import { readingToMm } from '../convert/scale.js';
 import { DomainError } from '../errors.js';
 import { diagnose, type DoctorMark, type DoctorOptions } from './doctor.js';
@@ -254,7 +260,133 @@ describe('thresholds', () => {
   });
 });
 
+describe('the archer’s own tolerance (RN-CAL-06, ADR-013)', () => {
+  it('without one, the calibrated 4 mm: the same report as passing it', () => {
+    expect(diagnose(hunter, options)).toEqual(
+      diagnose(hunter, { ...options, toleranceMm: DOCTOR_MIN_ABS_MM }),
+    );
+    expect(diagnose(pierce, { ...options, toleranceMm: undefined })).toEqual(
+      diagnose(pierce, options),
+    );
+  });
+
+  it('sets the base of every threshold: 6 mm inside, 6 × 2.5 = 15 mm at the endpoints', () => {
+    const { residuals } = diagnose(hunter, { ...options, toleranceMm: 6 });
+    expect(residuals.map((r) => r.thresholdMm)).toEqual([15, 6, 6, 6, 15]);
+  });
+
+  it('still never goes under one quantum: a 2 mm step with a 1 mm tolerance gives 2 mm', () => {
+    const { residuals } = diagnose(hunter, { direction: 'down', quantumMm: 2, toleranceMm: 1 });
+    expect(residuals.map((r) => r.thresholdMm)).toEqual([5, 2, 2, 2, 5]);
+  });
+
+  // Leave-one-out residuals worked out by hand (exact least squares): Hunter 2.5, -0.864, -0.167,
+  // 1.045, -2.75; Pierce 0, -0.318, 1.167, -0.955, 1.75.
+  it('at 1 mm it flags the doubtful 40 m, and the good set too (SIGHT-MATH §8.3)', () => {
+    const doubtful = fixtures.sets[1] as { suspectMark: number };
+    const strict = { ...options, toleranceMm: 1 };
+    expect(diagnose(pierce, strict).suspect?.markId).toBe(`${doubtful.suspectMark}m`); // 1.167 / 1
+    // The good set's worst is its 60 m endpoint: 2.75 / 2.5 = 1.1.
+    expect(diagnose(hunter, strict).suspect?.markId).toBe('60m');
+  });
+
+  it('at the next step, 1.5 mm, both real sets are ok again', () => {
+    for (const set of [hunter, pierce]) {
+      expect(diagnose(set, { ...options, toleranceMm: 1.5 }).status).toBe('ok');
+    }
+  });
+
+  it('has a default the archer can pick: inside the range and on a step', () => {
+    expect(DOCTOR_MIN_ABS_MM).toBeGreaterThanOrEqual(DOCTOR_TOLERANCE_MIN_MM);
+    expect(DOCTOR_MIN_ABS_MM).toBeLessThanOrEqual(DOCTOR_TOLERANCE_MAX_MM);
+    expect(Number.isInteger(DOCTOR_MIN_ABS_MM / DOCTOR_TOLERANCE_STEP_MM)).toBe(true);
+  });
+
+  /** Any 2 to 8 marks at distinct distances, any values, any quantum: no shape assumed. */
+  const anySet = fc
+    .record({
+      distances: fc.uniqueArray(fc.integer({ min: 5, max: 120 }), { minLength: 2, maxLength: 8 }),
+      values: fc.array(fc.double({ min: -80, max: 80, noNaN: true }), {
+        minLength: 8,
+        maxLength: 8,
+      }),
+      quantumMm: fc.double({ min: 0.5, max: 5, noNaN: true }),
+      direction: fc.constantFrom<'down' | 'up'>('down', 'up'),
+    })
+    .map(({ distances, values, quantumMm, direction }) => ({
+      set: distances.map((d, i) => mark(d, values[i] ?? 0)),
+      opts: { direction, quantumMm },
+    }));
+  const steps = fc.integer({ min: 2, max: 20 }).map((n) => n / 2); // 1..10 mm in 0.5 steps
+
+  it('without one, always the same report as the calibrated 4 mm, for any set', () => {
+    fc.assert(
+      fc.property(anySet, ({ set, opts }) => {
+        expect(diagnose(set, opts)).toEqual(
+          diagnose(set, { ...opts, toleranceMm: DOCTOR_MIN_ABS_MM }),
+        );
+      }),
+    );
+  });
+
+  it('under one quantum it changes nothing: the quantum is the floor', () => {
+    fc.assert(
+      fc.property(anySet, steps, steps, ({ set, opts }, a, b) => {
+        const quantumMm = Math.max(a, b);
+        expect(diagnose(set, { ...opts, quantumMm, toleranceMm: Math.min(a, b) })).toEqual(
+          diagnose(set, { ...opts, quantumMm, toleranceMm: quantumMm }),
+        );
+      }),
+    );
+  });
+
+  it('a larger tolerance never flags more, and what is ok stays ok', () => {
+    const flagged = (report: ReturnType<typeof diagnose>) =>
+      new Set([...(report.suspect ? [report.suspect.markId] : []), ...report.secondary]);
+    fc.assert(
+      fc.property(anySet, steps, steps, ({ set, opts }, x, y) => {
+        const strict = diagnose(set, { ...opts, toleranceMm: Math.min(x, y) });
+        const loose = diagnose(set, { ...opts, toleranceMm: Math.max(x, y) });
+        const strictIds = flagged(strict);
+        for (const id of flagged(loose)) expect(strictIds.has(id)).toBe(true);
+        if (strict.status === 'ok') expect(loose.status).toBe('ok');
+      }),
+    );
+  });
+
+  it('never changes the monotonicity check: a broken direction is broken at any tolerance', () => {
+    const broken = marks([
+      [20, 10],
+      [30, 20],
+      [40, 15],
+      [50, 40],
+      [60, 55],
+    ]);
+    for (const toleranceMm of [1, 4, 10]) {
+      expect(diagnose(broken, { ...options, toleranceMm }).monotonicity).toEqual([
+        { markIds: ['30m', '40m'] }, // 20 → 15 goes back up the scale
+      ]);
+    }
+  });
+});
+
 describe('inputs', () => {
+  it('rejects a tolerance outside 1-10 mm or off the 0.5 steps, as a DomainError', () => {
+    for (const toleranceMm of [
+      0,
+      -0,
+      -1,
+      0.5,
+      10.5,
+      1.25,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+    ]) {
+      expect(() => diagnose(hunter, { ...options, toleranceMm })).toThrow(DomainError);
+    }
+  });
+
   it('rejects what is a bug of the caller, as a DomainError', () => {
     const bad: [string, DoctorMark[], DoctorOptions][] = [
       ['duplicate distance', [mark(20, 1), { ...mark(20, 2), id: 'other' }], options],

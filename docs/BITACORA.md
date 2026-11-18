@@ -18,6 +18,41 @@
 
 ---
 
+## 2026-11-18 — El Doctor explica su umbral y el arquero ajusta la tolerancia
+
+**Tareas:** F1-40 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/domain`: `DoctorOptions.toleranceMm` (opcional; sin el, `DOCTOR_MIN_ABS_MM`) y
+  constantes `DOCTOR_TOLERANCE_MIN_MM/MAX_MM/STEP_MM` (1, 10, 0.5). Fuera de rango o de paso es
+  `DomainError`. Umbral: `max(base, quantum)`, ×2.5 en los extremos (sin cambio de regla).
+- Schemas y API (`account`): `profiles.doctorToleranceMm` (`null` = default), en el `PATCH` de
+  preferencias, el perfil y el export; un perfil viejo sin el campo se lee como `null`.
+- PWA: pantalla `/doctor` (entrada "Doctor" en el grupo 01 del menu) con la explicacion del
+  calculo, un ejemplo con la tolerancia actual, el selector de 1 a 10 mm, las pulgadas si la seccion
+  mira es imperial, aviso a 1 mm y "Volver al valor por defecto". Elegir 4 mm guarda `null`, asi
+  una recalibracion llega al arquero. El diagnostico de cada setup usa la tolerancia del perfil.
+- SIGHT-MATH §8.3 precisado (ver Verificado).
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-013](adr/013-doctor-tolerance-per-archer.md). El dominio valida el rango, no solo Zod: un
+  valor extremo daba umbrales infinitos o la sospechosa equivocada.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `domain-reviewer`: residuos recalculados a mano con minimos cuadrados exactos (Hunter 2.5, -0.864,
+  -0.167, 1.045, -2.75; Pierce 0, -0.318, 1.167, -0.955, 1.75). Sus 7 hallazgos aplicados: rango en
+  el dominio, `-0`/`-Infinity` en los invalidos, propiedades sobre sets arbitrarios (default = 4 mm,
+  piso del quantum, "mas tolerancia nunca señala mas y lo ok sigue ok"), test de que el default es
+  elegible, y la correccion de §8.3: entre 1.10 y 1.16 mm los dos sets se separarian, pero con pasos
+  de 0.5 mm no se puede elegir; a 1 mm el bueno se señala por su 60 m (2.75 / 2.5).
+- Dominio 258/258 (cobertura 99,75 %), schemas 135/135, API 417/417, PWA 422/422; lint y typecheck.
+- E2E axe, contraste y desbordes con `/doctor` en el recorrido, flujo critico y mira, a 360 y 1440:
+  pasan (un locator de `sight.spec` se ajusto: el riel ahora tambien tiene "Doctor"). Capturas de
+  `/doctor` a 360 (claro) y 1440 (oscuro).
+
 ## 2026-11-17 — Los rangos de arco y flechas se ven en tu unidad y con su motivo
 
 **Tareas:** F1-39 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)

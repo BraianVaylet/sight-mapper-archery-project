@@ -122,6 +122,7 @@ describe('The side menu (F1-06)', () => {
     const menu = await open();
     const shooting = within(within(menu).getByRole('region', { name: 'Tiro' }));
     expect(shooting.getByRole('button', { name: 'Tus setups' })).toBeInTheDocument();
+    expect(shooting.getByRole('button', { name: 'Doctor' })).toBeInTheDocument();
     expect(shooting.getByRole('button', { name: /Estadísticas/ })).toBeInTheDocument();
     const account = within(within(menu).getByRole('region', { name: 'Cuenta' }));
     expect(account.getByRole('button', { name: 'Ajustes' })).toBeInTheDocument();
@@ -134,6 +135,8 @@ describe('The side menu (F1-06)', () => {
     await waitFor(() => expect(app.router.state.location.pathname).toBe('/settings'));
     await userEvent.click(within(await open()).getByRole('button', { name: 'Cuenta' }));
     await waitFor(() => expect(app.router.state.location.pathname).toBe('/profile'));
+    await userEvent.click(within(await open()).getByRole('button', { name: 'Doctor' }));
+    await waitFor(() => expect(app.router.state.location.pathname).toBe('/doctor'));
   });
 
   it('logs out: ends the session, forgets the data and goes to sign-in', async () => {

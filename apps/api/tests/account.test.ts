@@ -73,6 +73,7 @@ describe('GET /me', () => {
       locale: 'en',
       units: { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' },
       theme: 'system',
+      doctorToleranceMm: null,
       quickAccess: null,
       deletionRequestedAt: null,
       purgeAt: null,
@@ -142,6 +143,36 @@ describe('PATCH /me/preferences', () => {
     expect(await response.json()).toMatchObject({
       units: { marks: 'metric', bow: 'metric', arrows: 'imperial', sight: 'imperial' },
       version: 3,
+    });
+  });
+
+  it('keeps the Doctor tolerance of the archer, and null puts the default back (RN-CAL-06)', async () => {
+    const user = newUser();
+    await call(user, 'GET', '/api/v1/me');
+    const set = await patch(user, { doctorToleranceMm: 6.5 });
+    expect(await set.json()).toMatchObject({ doctorToleranceMm: 6.5, version: 2 });
+    const reset = await patch(user, { doctorToleranceMm: null }, 2);
+    expect(await reset.json()).toMatchObject({ doctorToleranceMm: null, version: 3 });
+  });
+
+  it('refuses a Doctor tolerance outside 1-10 mm or between half-millimetre steps', async () => {
+    const user = newUser();
+    await call(user, 'GET', '/api/v1/me');
+    for (const doctorToleranceMm of [0.5, 11, 4.2]) {
+      const response = await patch(user, { doctorToleranceMm });
+      expect(response.status).toBe(400);
+      expect((await errorOf(response)).code).toBe('SM-CORE-400-001');
+    }
+  });
+
+  it('reads a profile saved before the tolerance existed as the default', async () => {
+    const user = newUser();
+    await call(user, 'GET', '/api/v1/me');
+    await connection.db
+      ?.collection('profiles')
+      .updateOne({ userId: user }, { $unset: { doctorToleranceMm: '' } });
+    expect(await (await call(user, 'GET', '/api/v1/me')).json()).toMatchObject({
+      doctorToleranceMm: null,
     });
   });
 

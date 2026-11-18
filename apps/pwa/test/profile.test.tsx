@@ -16,6 +16,7 @@ const EXPORT = {
     locale: 'es',
     units: allUnits('metric'),
     theme: 'system',
+    doctorToleranceMm: null,
     quickAccess: null,
     deletionRequestedAt: null,
   },

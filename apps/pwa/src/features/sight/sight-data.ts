@@ -27,7 +27,8 @@ export function useSightData(setup: SetupView, arrowParam: string | undefined) {
   const marks = useMemo(() => marksQuery.data?.items ?? [], [marksQuery.data]);
 
   const scale = useMemo(() => toScale(setup.sight), [setup.sight]);
-  const analysis = useMemo(() => analyse(marks, scale), [marks, scale]);
+  const toleranceMm = profile.data?.doctorToleranceMm ?? null;
+  const analysis = useMemo(() => analyse(marks, scale, toleranceMm), [marks, scale, toleranceMm]);
 
   return { system, separator, arrowId, marksQuery, marks, scale, analysis };
 }

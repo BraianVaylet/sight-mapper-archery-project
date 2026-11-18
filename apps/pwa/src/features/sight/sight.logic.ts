@@ -109,9 +109,14 @@ export type SightAnalysis = {
 
 /**
  * What the app knows from the measured marks of a pair, and nothing it has to store: the model
- * runs again from the marks every time (ADR-001). The measured mark answers exactly.
+ * runs again from the marks every time (ADR-001). The measured mark answers exactly. The Doctor
+ * uses the archer's base tolerance when there is one (`null`: the calibrated default, RN-CAL-06).
  */
-export function analyse(marks: readonly Mark[], scale: SightScale): SightAnalysis {
+export function analyse(
+  marks: readonly Mark[],
+  scale: SightScale,
+  toleranceMm: number | null = null,
+): SightAnalysis {
   const points = marks.map((m) => ({ distanceM: m.distanceM, valueMm: m.scaleValueMm }));
   const model = createMarkModel(points);
   const bounds = scaleBoundsMm(scale);
@@ -121,7 +126,11 @@ export function analyse(marks: readonly Mark[], scale: SightScale): SightAnalysi
     count >= CALC_MIN_MARKS_INTERPOLATE
       ? diagnose(
           marks.map((m) => ({ id: m.id, distanceM: m.distanceM, valueMm: m.scaleValueMm })),
-          { direction: scale.direction, quantumMm: readingToMm(scale.resolution, scale) },
+          {
+            direction: scale.direction,
+            quantumMm: readingToMm(scale.resolution, scale),
+            toleranceMm: toleranceMm ?? undefined,
+          },
         )
       : undefined;
 

@@ -47,6 +47,27 @@ describe('updatePreferences', () => {
   });
 });
 
+describe('doctorToleranceMm (RN-CAL-06)', () => {
+  const parse = (value: unknown) =>
+    updatePreferences.safeParse({ doctorToleranceMm: value }).success;
+
+  it('takes 1 to 10 mm in steps of half a millimetre, and null for the default', () => {
+    expect([1, 1.5, 4, 6.5, 10, null].map(parse)).toEqual([true, true, true, true, true, true]);
+  });
+
+  it('refuses anything outside the range or between steps', () => {
+    expect([0.5, 10.5, 1.2, 4.25, -1, Number.NaN, '4'].map(parse)).toEqual([
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]);
+  });
+});
+
 describe('quick access', () => {
   it('is a setup and an arrow set', () => {
     expect(quickAccess.safeParse({ setupId: ID.a, arrowSetId: ID.b }).success).toBe(true);
@@ -64,6 +85,7 @@ describe('profile', () => {
   const stored = {
     locale: 'es',
     units: DEFAULT_UNITS,
+    doctorToleranceMm: null,
     theme: 'system',
     quickAccess: null,
     deletionRequestedAt: null,

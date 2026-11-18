@@ -9,6 +9,8 @@ export type Profile = {
   /** One system per section (RF-ACC-04). */
   readonly units: Units;
   readonly theme: Theme;
+  /** The archer's base tolerance of the Doctor, in mm; `null` = the calibrated default (RN-CAL-06). */
+  readonly doctorToleranceMm: number | null;
   readonly quickAccess: { readonly setupId: string; readonly arrowSetId: string } | null;
   readonly deletionRequestedAt: Temporal.Instant | null;
   readonly version: number;
@@ -22,10 +24,10 @@ export type Profile = {
  * changed in Settings.
  */
 export function defaultPreferences(locale: Locale): Preferences {
-  return { locale, units: { ...DEFAULT_UNITS }, theme: 'system' };
+  return { locale, units: { ...DEFAULT_UNITS }, theme: 'system', doctorToleranceMm: null };
 }
 
-export type Preferences = Pick<Profile, 'locale' | 'units' | 'theme'>;
+export type Preferences = Pick<Profile, 'locale' | 'units' | 'theme' | 'doctorToleranceMm'>;
 
 /**
  * What a PATCH may carry: any preference, each optional, and any section of the units. An absent
@@ -35,6 +37,8 @@ export type PreferencesPatch = {
   locale?: Locale | undefined;
   theme?: Theme | undefined;
   units?: { [K in keyof Units]?: UnitSystem | undefined } | undefined;
+  /** `null` puts the default back. */
+  doctorToleranceMm?: number | null | undefined;
 };
 
 /** Reads and writes the profile of one archer: the user id is fixed when the repository is made. */

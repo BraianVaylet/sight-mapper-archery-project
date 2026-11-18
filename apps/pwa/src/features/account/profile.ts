@@ -48,6 +48,9 @@ export function withPatch(current: Profile, patch: UpdatePreferences): Profile {
     locale: patch.locale ?? current.locale,
     theme: patch.theme ?? current.theme,
     units,
+    // `null` is a value: it puts the default back.
+    doctorToleranceMm:
+      patch.doctorToleranceMm === undefined ? current.doctorToleranceMm : patch.doctorToleranceMm,
   };
 }
 

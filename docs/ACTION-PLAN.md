@@ -612,7 +612,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** tabla de rangos con motivo en el diccionario; tests de borde en schemas; ningun
   arco o set de flechas real del autor queda afuera.
 
-### [ ] F1-40 · Tolerancia del Doctor explicada y configurable
+### [x] F1-40 · Tolerancia del Doctor explicada y configurable
 
 - **Modulo:** domain, schemas, api (account), pwa, i18n · **Puntos:** 5 · **Depende de:** F1-34
 - **Descripcion:** nueva entrada "Doctor" en el menu (grupo Tiro) con una pantalla que explica el
