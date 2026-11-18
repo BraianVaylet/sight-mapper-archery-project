@@ -12,12 +12,20 @@ codigo de ahi.
 
 ## Estado
 
-Documentacion completa (2026-10-29). **Fase 0 en curso** (ver `docs/ACTION-PLAN.md`): hechas F0-01,
-02, 03, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 16, 18, 19 y 21; **F1-01 (preferencias) y F1-02 (arcos) hechas, F1-03 (miras), F1-04 (flechas), F1-05 (setups, Home y papelera), F1-06 (menu), F1-07 (marcas, API), F1-08 (pantalla de la mira), F1-09 (hoja de marca) y F1-10 (intermedias y curva), F1-11 (Mark Doctor), F1-12 (imperial), F1-13 (ingles), F1-14 (listado imprimible), F1-15 (acceso rapido), F1-16 (perfil: exportar y baja), F1-17 (onboarding), F1-18 (tema light verificado, falta la prueba al sol) F1-19 (accesibilidad y responsive, falta el lector de pantalla real) F1-20 (E2E del flujo critico, falta correrlo en GitHub y staging) y F1-21 (importar datos reales, falta correrlo en produccion) hechas; F1-22 (release) parcial: metricas, runbook y canal de feedback (issues de GitHub), falta todo lo que necesita produccion**; F0-17 (pwa) hecha, salvo el boton de Google (F0-20); casi F0-15 (auth:
-falta probar Google, que necesita F0-20). Bloqueadas F0-04 y F0-20. El Mark Doctor (F0-06) esta calibrado con solo 2 sets reales: recalibrar con mas.
-**Rediseño retro-futurista blueprint hecho** (F1-23..F1-32; F1-33 casi: PR #2 con CI en verde, falta
-la prueba al sol y el lector de pantalla), rama `feat/redesign-blueprint`; traspaso, decisiones y plan
-en `docs/redesign/` (comando `/redesign`).
+Al 2026-11-18 (detalle en `docs/ACTION-PLAN.md` y `docs/BITACORA.md`):
+
+- **Fase 0:** hecha salvo F0-15 casi (auth: falta probar Google) y F0-04 y F0-20 **bloqueadas**
+  (tablero; Railway, Atlas, dominio y Google OAuth).
+- **Fase 1 (MVP):** F1-01..F1-21 hechas. Quedan pruebas manuales: al sol (F1-18) y con lector de
+  pantalla (F1-19), y correr el E2E (F1-20) y la importacion (F1-21) contra staging/prod.
+- **Rediseño blueprint** (F1-23..F1-33): mergeado en PR #2; F1-33 espera la prueba al sol y el
+  lector de pantalla. Traspaso y decisiones en `docs/redesign/` (comando `/redesign`).
+- **Ajustes post-rediseño** (F1-34..F1-41): mergeados en PR #3 y PR #4 — logo → Home, menu a la
+  derecha, unidades por seccion (`profiles.units`), version del `package.json` raiz (`0.1.0`),
+  rangos de equipo con motivo, tolerancia del Doctor por arquero (ADR-013) y logo nuevo.
+- **F1-22 (release):** metricas, runbook y canal de feedback listos; falta todo lo que necesita
+  produccion (F0-20), incluida la migracion `20261117000000-profile-units.js`.
+- El Mark Doctor esta calibrado con solo 2 sets reales: recalibrar con mas (cambia solo el default).
 
 Herramientas del repo: `.claude/` (agentes `spec-reviewer`, `domain-reviewer`,
 `security-reviewer`, `test-writer`; comandos `/adr`, `/bitacora`, `/new-task`, `/new-module`; hooks
@@ -80,4 +88,4 @@ responsive 360/768/1440 · dark y light · ES y EN · OpenAPI · entrada en `doc
 
 ## Decisiones tomadas — no re-litigar
 
-`docs/adr/000`–`012`. Indice en `docs/adr/README.md`.
+`docs/adr/000`–`013`. Indice en `docs/adr/README.md`.
