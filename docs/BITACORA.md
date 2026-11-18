@@ -28,10 +28,17 @@
   verificacion ni manda el email al registrarse, y `parseEnv` deja arrancar fuera de local sin
   `RESEND_API_KEY`/`EMAIL_FROM` (reset por log).
 - La PWA: si el registro devuelve sesion (`token`), entra directo a Home en vez de "revisa tu email".
+- Caddy de la PWA hace de proxy de `/api/*` hacia `API_UPSTREAM` (red privada de Railway) y confia en
+  el `X-Forwarded-For` del borde (rangos privados). La API escucha en `::` (IPv4 + IPv6).
+- Railway (proyecto `sight-mapper`, staged): servicio `api` creado (Railpack, mismo build/predeploy/
+  healthcheck que `apps/api/railway.json`, endpoint privado `api`); a la PWA se le saco el
+  `startCommand` autodetectado (`pnpm dev`, rompia la imagen de Caddy). Variables cargadas en ambos.
 
 ### Decisiones
 
 - Interruptor temporal, no cambio de ADR-007: el default sigue exigiendo verificacion.
+- Mismo origen por proxy en vez de dos dominios: los `*.up.railway.app` son sitios distintos (Public
+  Suffix List) y la cookie `SameSite=Lax` no viajaria. Cumple ADR-007 sin dominio propio.
 
 ### Verificado
 
