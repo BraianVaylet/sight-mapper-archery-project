@@ -32,13 +32,16 @@ export type SightFormValues = Record<(typeof TEXT_FIELDS)[number], string> &
 export const hasFixedSize = (unit: string): boolean =>
   unit === 'mm' || unit === 'cm' || unit === 'in';
 
-export const emptyValues = (): SightFormValues => ({
+/** The scale unit a new sight starts on, from the sight section of the units (RF-ACC-04). */
+export type NewScaleUnit = 'mm' | 'in';
+
+export const emptyValues = (unit: NewScaleUnit = 'mm'): SightFormValues => ({
   nickname: '',
   manufacturer: '',
   model: '',
   notes: '',
   pinType: 'monopin',
-  unit: 'cm',
+  unit,
   direction: 'down',
   min: '',
   max: '',
@@ -56,8 +59,9 @@ const show = (value: number | null | undefined, separator: DecimalSeparator): st
 export function toFormValues(
   sight: Partial<Sight> | undefined,
   separator: DecimalSeparator,
+  newUnit: NewScaleUnit = 'mm',
 ): SightFormValues {
-  const values = emptyValues();
+  const values = emptyValues(newUnit);
   if (sight === undefined) return values;
   for (const name of TEXT_FIELDS) values[name] = sight[name] ?? '';
   values.pinType = sight.pinType ?? values.pinType;

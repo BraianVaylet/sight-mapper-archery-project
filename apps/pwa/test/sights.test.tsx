@@ -1,12 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 const PROFILE = {
   locale: 'es',
-  unitSystem: 'metric',
+  units: allUnits('metric'),
   theme: 'system',
   quickAccess: null,
   deletionRequestedAt: null,
@@ -117,6 +117,9 @@ describe('New sight (HU-SGT-01)', () => {
     const api = sightsServer();
     await open(api);
     await userEvent.type(screen.getByLabelText('Modelo'), 'Ultraview');
+    // A new sight starts on mm (the sight section is metric); the author's is in cm.
+    expect(screen.getByLabelText('Unidad de la escala')).toHaveValue('mm');
+    await userEvent.selectOptions(screen.getByLabelText('Unidad de la escala'), 'cm');
     await fillScale('0', '10', '0,1');
     expect(
       await screen.findByRole('img', { name: /Vista previa de la escala/ }),
@@ -131,6 +134,14 @@ describe('New sight (HU-SGT-01)', () => {
       scale: { unit: 'cm', min: 0, max: 10, resolution: 0.1, direction: 'down' },
     });
     expect(api.sent[0]?.headers.get('idempotency-key')).toBeTruthy();
+  });
+
+  it('starts a new sight on inches when the sight section is imperial (RF-ACC-04)', async () => {
+    const api = sightsServer({
+      routes: { 'GET /api/v1/me': () => json({ ...PROFILE, units: allUnits('imperial') }) },
+    });
+    await open(api);
+    expect(await screen.findByLabelText('Unidad de la escala')).toHaveValue('in');
   });
 
   it('works out the unit size from the physical length: 1 to 9 over 80 mm is 10 mm', async () => {

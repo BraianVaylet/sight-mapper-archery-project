@@ -49,3 +49,11 @@ export function fakeApi(routes: Record<string, Handler>) {
   };
   return { fetch: impl, calls };
 }
+
+/** The same system in every section of the units (RF-ACC-04): what a test "in imperial" means. */
+export const allUnits = (system: 'metric' | 'imperial') => ({
+  marks: system,
+  bow: system,
+  arrows: system,
+  sight: system,
+});

@@ -1,12 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 const PROFILE = {
   locale: 'es',
-  unitSystem: 'metric',
+  units: allUnits('metric'),
   theme: 'system',
   quickAccess: null,
   deletionRequestedAt: null,
@@ -51,7 +51,7 @@ function arrowsServer(
     };
   const api = fakeApi({
     'GET /api/auth/get-session': () => json(ANA),
-    'GET /api/v1/me': () => json({ ...PROFILE, unitSystem: options.system ?? 'metric' }),
+    'GET /api/v1/me': () => json({ ...PROFILE, units: allUnits(options.system ?? 'metric') }),
     'GET /api/v1/arrow-sets': () => json({ items: options.items ?? [], nextCursor: null }),
     [`GET /api/v1/arrow-sets/${SET_ID}`]: () =>
       json({ ...arrowSet(), usage: { setups: 0, marks: 0 } }),

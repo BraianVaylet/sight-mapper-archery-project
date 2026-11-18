@@ -5,6 +5,7 @@
 export const es = {
   common: {
     appName: 'Sight Mapper',
+    rangeHint: 'Entre {{range}} {{unit}}',
     save: 'Guardar',
     cancel: 'Cancelar',
     delete: 'Borrar',
@@ -135,10 +136,34 @@ export const es = {
     about: 'Acerca de',
     themeHint: 'Oscuro para la noche, claro para el sol. "Del sistema" sigue a tu teléfono.',
     languageHint: 'Textos, mensajes y separador decimal.',
-    units: 'Unidades',
-    unitsHint: 'Solo cambia cómo se muestran las distancias: tus marcas no se tocan.',
-    metric: 'Métrico (metros)',
-    imperial: 'Imperial (yardas)',
+    unitsIntro:
+      'Cada sección con su sistema. Solo cambia cómo se muestran los datos: nada guardado se toca.',
+    unitSections: {
+      marks: {
+        label: 'Distancias',
+        hint: 'Las distancias de tus marcas. Las lecturas siguen en la escala de cada mira.',
+        metric: 'Métrico (m)',
+        imperial: 'Imperial (yd)',
+      },
+      bow: {
+        label: 'Arco',
+        hint: 'Apertura, libraje y velocidad del formulario del arco.',
+        metric: 'Métrico (mm, kg, m/s)',
+        imperial: 'Imperial (in, lb, fps)',
+      },
+      arrows: {
+        label: 'Flechas',
+        hint: 'Largo, pesos y velocidad del formulario de flechas.',
+        metric: 'Métrico (mm, g, m/s)',
+        imperial: 'Imperial (in, gr, fps)',
+      },
+      sight: {
+        label: 'Mira nueva',
+        hint: 'La unidad con la que arranca la escala de una mira nueva. Las que ya cargaste no cambian.',
+        metric: 'Métrico (mm)',
+        imperial: 'Imperial (in)',
+      },
+    },
     version: 'Versión de la app',
   },
   bows: {
@@ -363,6 +388,7 @@ export const es = {
     settings: 'Ajustes',
     profile: 'Cuenta',
     groupShooting: 'Tiro',
+    doctor: 'Doctor',
     homeLink: '{{app}}: ir al inicio',
     groupAccount: 'Cuenta',
     logout: 'Cerrar sesión',
@@ -472,6 +498,25 @@ export const es = {
     statusOk: 'Coherente',
     statusOff: 'Se aparta',
     unit: { mm: 'mm', cm: 'cm', in: 'in', click: 'clicks', custom: 'unid.' },
+  },
+  doctorTolerance: {
+    intro:
+      'El Doctor señala la marca que probablemente salió mal medida. Acá ves cómo decide y cuánto tolera.',
+    howTitle: 'Cómo se calcula',
+    how1: 'Compara cada marca con la curva que forman las otras, sin ella. Si se aparta más que su umbral, la señala.',
+    how2: 'Umbral = el mayor entre tu tolerancia y el paso más chico de la mira.',
+    how3: 'La marca más corta y la más larga se estiman extrapolando: su umbral es 2,5 veces mayor.',
+    how4: 'Nunca cambia ni borra una marca: decidís vos.',
+    example:
+      'Ejemplo con {{tolerance}} mm y una mira de paso 1 mm: una marca del medio se señala si se aparta {{inner}} mm o más; la más corta y la más larga, {{ends}} mm.',
+    toleranceTitle: 'Tolerancia',
+    label: 'Tolerancia base',
+    hint: 'Para todos tus setups. Más baja encuentra errores más chicos, y también señala más marcas bien medidas.',
+    option: '{{value}} mm',
+    optionDefault: '{{value}} mm (por defecto)',
+    inches: 'Equivale a {{inches}} in.',
+    lowWarning: 'Con 1 mm puede señalar marcas bien medidas.',
+    reset: 'Volver al valor por defecto',
   },
   onboarding: {
     title: 'Tu primer setup en 4 pasos',
@@ -601,6 +646,7 @@ export const es = {
     sights: 'Miras',
     arrows: 'Flechas',
     settings: 'Ajustes',
+    doctorTolerance: 'Doctor',
     profile: 'Cuenta',
     sandbox: 'Banco de pruebas',
   },
@@ -686,6 +732,7 @@ export const es = {
     too_big: 'Debe ser como máximo {{maximum}}.',
     equipment: {
       manufacturerOrModel: 'Ingresá el fabricante o el modelo.',
+      outOfRange: 'Fuera de rango: va de {{range}} {{unit}}.',
     },
     mark: {
       distancePrecision: 'La distancia admite hasta 3 decimales.',

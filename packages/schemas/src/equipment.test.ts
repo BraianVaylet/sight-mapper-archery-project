@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ARROW_RANGES,
+  BOW_RANGES,
   arrowSet,
   bow,
   componentUsage,
@@ -60,10 +62,10 @@ describe('createBow', () => {
 
   // DICCIONARIO §3.1: [min, max] inclusive, in canonical units
   it.each([
-    ['iboSpeedMps', 60, 135],
+    ['iboSpeedMps', 45, 135],
     ['letOffPct', 0, 99],
-    ['drawLengthMm', 450, 900],
-    ['drawWeightN', 45, 450],
+    ['drawLengthMm', 300, 900],
+    ['drawWeightN', 20, 450],
     ['axleToAxleMm', 500, 1200],
     ['braceHeightMm', 100, 260],
     ['sightRadiusMm', 400, 1200],
@@ -246,8 +248,8 @@ describe('arrow sets', () => {
   });
 
   it.each([
-    ['spine', 100, 2000],
-    ['cutLengthMm', 400, 900],
+    ['spine', 100, 2600],
+    ['cutLengthMm', 300, 900],
     ['gpi', 2, 30],
     ['pointWeightG', 1, 30],
     ['extraWeightG', 0, 30],
@@ -259,6 +261,21 @@ describe('arrow sets', () => {
     expect(parse(max)).toBe(true);
     expect(parse(min - 0.01)).toBe(false);
     expect(parse(max + 0.01)).toBe(false);
+  });
+
+  it('only widens: every value the ranges before F1-39 took is still valid (RN-EQP-03)', () => {
+    const before = {
+      bow: { iboSpeedMps: 60, drawLengthMm: 450, drawWeightN: 45 },
+      arrows: { cutLengthMm: 400 },
+    };
+    for (const [field, oldMin] of Object.entries(before.bow)) {
+      expect(createBow.safeParse({ ...okBow, [field]: oldMin }).success).toBe(true);
+      expect(BOW_RANGES[field as keyof typeof BOW_RANGES][0]).toBeLessThanOrEqual(oldMin);
+    }
+    for (const [field, oldMin] of Object.entries(before.arrows)) {
+      expect(createArrowSet.safeParse({ ...ok, [field]: oldMin }).success).toBe(true);
+      expect(ARROW_RANGES[field as keyof typeof ARROW_RANGES][0]).toBeLessThanOrEqual(oldMin);
+    }
   });
 
   it('vaneCount is an integer from 2 to 6', () => {

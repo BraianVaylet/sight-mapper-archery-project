@@ -17,7 +17,8 @@ export function useSightData(setup: SetupView, arrowParam: string | undefined) {
   const { locale } = useI18n();
   const http = useHttp();
   const profile = useQuery(profileQuery(http));
-  const system = profile.data?.unitSystem ?? 'metric';
+  // Distances follow the marks section; readings stay in the scale of the sight (RF-ACC-04).
+  const system = profile.data?.units.marks ?? 'metric';
   const separator = decimalSeparator(locale);
 
   const arrowId =
@@ -26,7 +27,8 @@ export function useSightData(setup: SetupView, arrowParam: string | undefined) {
   const marks = useMemo(() => marksQuery.data?.items ?? [], [marksQuery.data]);
 
   const scale = useMemo(() => toScale(setup.sight), [setup.sight]);
-  const analysis = useMemo(() => analyse(marks, scale), [marks, scale]);
+  const toleranceMm = profile.data?.doctorToleranceMm ?? null;
+  const analysis = useMemo(() => analyse(marks, scale, toleranceMm), [marks, scale, toleranceMm]);
 
   return { system, separator, arrowId, marksQuery, marks, scale, analysis };
 }

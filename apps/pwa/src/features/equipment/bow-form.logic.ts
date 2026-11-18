@@ -1,7 +1,8 @@
 import type { DecimalSeparator } from '@sight-mapper/domain';
-import { readQuantity, showQuantity, unitOf } from './units.js';
+import { asRangeIssue, rangeParams, readQuantity, showQuantity, unitOf } from './units.js';
 import {
   createBow,
+  BOW_RANGES,
   toValidationIssues,
   type Bow,
   type CreateBow,
@@ -29,6 +30,9 @@ export type TextFieldName = (typeof TEXT_FIELDS)[number];
 export type BowFormValues = Record<NumberFieldName | TextFieldName | 'camType', string>;
 
 export { unitOf };
+
+/** The canonical range of each number field (RN-EQP-03), for its hint and its error. */
+export const RANGES = BOW_RANGES;
 
 export const emptyValues = (): BowFormValues => ({
   nickname: '',
@@ -112,7 +116,7 @@ export function toBowInput(values: BowFormValues, system: UnitSystem, id: string
   if (!parsed.success) {
     for (const issue of toValidationIssues(parsed.error)) {
       const name = String(issue.path[0] ?? '');
-      if (name !== '' && errors[name] === undefined) errors[name] = issue;
+      if (name !== '' && errors[name] === undefined) errors[name] = asRangeIssue(issue);
     }
   }
   if (Object.keys(errors).length > 0) return { ok: false, errors };
@@ -124,4 +128,14 @@ export function toBowInput(values: BowFormValues, system: UnitSystem, id: string
 export function toBowPatch(result: { input: CreateBow; clears: readonly string[] }): UpdateBow {
   const fields = Object.entries(result.input).filter(([name]) => name !== 'id');
   return Object.fromEntries([...fields, ...result.clears.map((name) => [name, null])]) as UpdateBow;
+}
+
+/** The range of a number field in the archer's unit, for its hint and its out-of-range error. */
+export function rangeOf(
+  name: NumberFieldName,
+  system: UnitSystem,
+  separator: DecimalSeparator,
+): { range: string; unit: string } {
+  const field = NUMBER_FIELDS.find((candidate) => candidate.name === name);
+  return rangeParams(RANGES[name], field?.quantity ?? 'rating', system, separator);
 }

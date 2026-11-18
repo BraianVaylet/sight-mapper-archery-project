@@ -3,6 +3,7 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { buildAppVersion } from './build/app-version.js';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
@@ -53,7 +54,10 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     define: {
-      __APP_VERSION__: JSON.stringify(env['VITE_APP_VERSION'] || 'dev'),
+      // The root package.json, plus the commit outside production (RF-X-03, F1-38).
+      __APP_VERSION__: JSON.stringify(
+        buildAppVersion(new URL('../../package.json', import.meta.url)),
+      ),
     },
     server: {
       port: 5173,

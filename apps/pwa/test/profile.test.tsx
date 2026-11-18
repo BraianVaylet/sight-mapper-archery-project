@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 // HU-ACC-05 (download my data) and HU-ACC-06 (ask for deletion, cancel it).
@@ -10,12 +10,13 @@ type Sent = { method: string; path: string; ifMatch: string | null; idempotencyK
 type Handler = (request: Request) => Response | Promise<Response>;
 
 const EXPORT = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   exportedAt: '2026-11-02T12:00:00Z',
   profile: {
     locale: 'es',
-    unitSystem: 'metric',
+    units: allUnits('metric'),
     theme: 'system',
+    doctorToleranceMm: null,
     quickAccess: null,
     deletionRequestedAt: null,
   },
@@ -46,7 +47,7 @@ function server(
     });
   const profile = () => ({
     locale: 'es',
-    unitSystem: 'metric',
+    units: allUnits('metric'),
     theme: 'system',
     quickAccess: null,
     deletionRequestedAt: requestedAt,

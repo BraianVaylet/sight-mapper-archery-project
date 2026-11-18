@@ -9,6 +9,10 @@ import { connectMongo, mongoReadiness, withTransaction } from '../src/core/db/co
 import { fromDate, toDate } from '../src/core/db/temporal.js';
 import { AppError } from '../src/core/http/errors.js';
 import { createLogger } from '../src/core/logger/logger.js';
+import {
+  down as profileUnitsDown,
+  up as profileUnitsUp,
+} from '../migrations/20261117000000-profile-units.js';
 import { startReplSet } from './helpers/mongo.js';
 
 const NOW = toDate(Temporal.Instant.from('2026-10-30T12:00:00Z'));
@@ -196,11 +200,15 @@ describe('migrations', () => {
 
   it('applies the indexes once and does nothing the second time', async () => {
     const first = await run(({ db, client }) => up(db, client));
-    expect(first).toEqual(['20261030000000-initial-indexes.js', '20261101000000-auth-indexes.js']);
+    expect(first).toEqual([
+      '20261030000000-initial-indexes.js',
+      '20261101000000-auth-indexes.js',
+      '20261117000000-profile-units.js',
+    ]);
     const second = await run(({ db, client }) => up(db, client));
     expect(second).toEqual([]);
     const applied = await run(({ db }) => status(db));
-    expect(applied.filter((m) => m.appliedAt !== 'PENDING')).toHaveLength(2);
+    expect(applied.filter((m) => m.appliedAt !== 'PENDING')).toHaveLength(3);
   });
 
   it('creates the indexes of the data dictionary', async () => {
@@ -297,7 +305,58 @@ describe('migrations', () => {
     });
   });
 
+  it('moves the single unit system of old profiles to units.marks, once (F1-37)', async () => {
+    const legacy = (id: string, unitSystem?: string) => ({
+      _id: id as never,
+      userId: `u-${id}`,
+      locale: 'en',
+      theme: 'system',
+      ...(unitSystem === undefined ? {} : { unitSystem }),
+    });
+    const current = {
+      _id: 'p-new' as never,
+      userId: 'u-p-new',
+      units: { marks: 'imperial', bow: 'metric', arrows: 'metric', sight: 'imperial' },
+    };
+    await run(async ({ db }) => {
+      await db
+        .collection('profiles')
+        .insertMany([
+          legacy('p-imp', 'imperial'),
+          legacy('p-met', 'metric'),
+          legacy('p-none'),
+          current,
+        ]);
+      await profileUnitsUp(db);
+      await profileUnitsUp(db); // a second run changes nothing
+    });
+    const rows = await run(async ({ db }) =>
+      db
+        .collection('profiles')
+        .find({}, { projection: { units: 1, unitSystem: 1 } })
+        .toArray(),
+    );
+    const byId = Object.fromEntries(rows.map((r) => [String(r._id), r]));
+    const rest = { bow: 'imperial', arrows: 'imperial', sight: 'metric' };
+    expect(byId['p-imp']).toEqual({ _id: 'p-imp', units: { marks: 'imperial', ...rest } });
+    expect(byId['p-met']).toEqual({ _id: 'p-met', units: { marks: 'metric', ...rest } });
+    expect(byId['p-none']).toEqual({ _id: 'p-none', units: { marks: 'metric', ...rest } });
+    expect(byId['p-new']).toEqual({ _id: 'p-new', units: current.units }); // already migrated: untouched
+
+    await run(async ({ db }) => {
+      await profileUnitsDown(db);
+      expect(await db.collection('profiles').findOne({ _id: 'p-imp' as never })).toMatchObject({
+        unitSystem: 'imperial',
+      });
+      expect(await db.collection('profiles').countDocuments({ units: { $exists: true } })).toBe(0);
+      await db.collection('profiles').deleteMany({});
+    });
+  });
+
   it('reverts one migration at a time', async () => {
+    const unitsFirst = await run(({ db, client }) => down(db, client));
+    expect(unitsFirst).toEqual(['20261117000000-profile-units.js']);
+
     const authFirst = await run(({ db, client }) => down(db, client));
     expect(authFirst).toEqual(['20261101000000-auth-indexes.js']);
     expect((await run(({ db }) => db.collection('user').indexes())).map((i) => i.name)).toEqual([

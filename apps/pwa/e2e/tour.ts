@@ -60,6 +60,7 @@ export async function tourEveryScreen(
     ['trash', '/trash', 'Papelera'],
     ['profile', '/profile', 'Cuenta'],
     ['settings', '/settings', 'Ajustes'],
+    ['doctor tolerance', '/doctor', 'Doctor'],
   ] as const) {
     await page.goto(path);
     await expect(page.getByRole('heading', { name: ready, level: 1 })).toBeVisible();

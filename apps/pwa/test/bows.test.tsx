@@ -1,12 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 const PROFILE = {
   locale: 'es',
-  unitSystem: 'metric',
+  units: allUnits('metric'),
   theme: 'system',
   quickAccess: null,
   deletionRequestedAt: null,
@@ -53,7 +53,7 @@ function bowsServer(
     };
   const api = fakeApi({
     'GET /api/auth/get-session': () => json(ANA),
-    'GET /api/v1/me': () => json({ ...PROFILE, unitSystem: options.system ?? 'metric' }),
+    'GET /api/v1/me': () => json({ ...PROFILE, units: allUnits(options.system ?? 'metric') }),
     'GET /api/v1/bows': () => json({ items: options.items ?? [], nextCursor: null }),
     [`GET /api/v1/bows/${BOW_ID}`]: () => json({ ...bow(), usage: { setups: 0, marks: 0 } }),
     'POST /api/v1/bows': record(() => json(bow(), 201)),
@@ -145,8 +145,39 @@ describe('New bow', () => {
     await userEvent.type(screen.getByLabelText('Let-off'), '120');
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
     expect(screen.getByLabelText('Let-off')).toHaveAttribute('aria-invalid', 'true');
-    await waitFor(() => expect(screen.getByLabelText('Let-off')).toHaveAccessibleDescription(/99/));
+    await waitFor(() =>
+      expect(screen.getByLabelText('Let-off')).toHaveAccessibleDescription(
+        /Fuera de rango: va de 0–99 %\./,
+      ),
+    );
     expect(api.sent).toEqual([]);
+  });
+
+  it('shows each range in the unit of the bow section, and says it again when refused (RN-EQP-03)', async () => {
+    const api = bowsServer({ system: 'imperial' });
+    await open(api);
+    // The hint, before anything is typed: pounds, not the newtons the schema keeps.
+    expect(screen.getByLabelText('Libraje')).toHaveAccessibleDescription('Entre 4,5–101,1 lb');
+    expect(screen.getByLabelText('Velocidad IBO')).toHaveAccessibleDescription('Entre 148–442 fps');
+    await userEvent.type(screen.getByLabelText('Modelo'), 'Alpha');
+    await userEvent.type(screen.getByLabelText('Libraje'), '120');
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await waitFor(() =>
+      expect(screen.getByLabelText('Libraje')).toHaveAccessibleDescription(
+        /Fuera de rango: va de 4,5–101,1 lb\./,
+      ),
+    );
+    expect(api.sent).toEqual([]);
+  });
+
+  it('takes a youth bow the old ranges refused: 15 lb at 16 in', async () => {
+    const api = bowsServer({ system: 'imperial' });
+    await open(api);
+    await userEvent.type(screen.getByLabelText('Modelo'), 'Genesis');
+    await userEvent.type(screen.getByLabelText('Libraje'), '15');
+    await userEvent.type(screen.getByLabelText('Largo de apertura'), '16');
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await waitFor(() => expect(api.sent.length).toBeGreaterThan(0));
   });
 
   it('says a word is not a number, on that field', async () => {

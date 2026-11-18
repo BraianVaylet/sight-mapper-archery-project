@@ -1,4 +1,5 @@
 import { useHttp } from '@sight-mapper/client';
+import type { Units } from '@sight-mapper/schemas';
 import { LOCALES, UNIT_SYSTEMS } from '@sight-mapper/types';
 import { InfoAlert, SectionCard, Segmented, Skeleton } from '@sight-mapper/ui';
 import { useQuery } from '@tanstack/react-query';
@@ -7,6 +8,9 @@ import { useI18n } from '../../app/i18n.js';
 import { THEMES, usePreferences } from '../../app/preferences.js';
 import { profileQuery } from './profile.js';
 import { usePreferenceActions } from './use-preference-actions.js';
+
+/** The sections of the units, in the order the archer meets them (UX-UI §4.5). */
+const UNIT_SECTIONS: readonly (keyof Units)[] = ['marks', 'bow', 'arrows', 'sight'];
 
 /**
  * Settings (RF-ACC-04, UX-UI §4.5): the only place for theme, language and units. Each change shows
@@ -49,18 +53,27 @@ export function SettingsScreen({ version = __APP_VERSION__ }: { version?: string
           onChange={actions.locale}
           options={LOCALES.map((value) => ({ value, label: t(`language.${value}`) }))}
         />
+        <p className="font-ui text-sm text-muted">{t('settings.unitsIntro')}</p>
         {profile.data === undefined ? (
-          <div aria-busy="true">
-            <Skeleton className="h-12 w-full" />
+          <div aria-busy="true" className="flex flex-col gap-3">
+            {UNIT_SECTIONS.map((section) => (
+              <Skeleton key={section} className="h-12 w-full" />
+            ))}
           </div>
         ) : (
-          <Segmented
-            label={t('settings.units')}
-            hint={t('settings.unitsHint')}
-            value={profile.data.unitSystem}
-            onChange={actions.unitSystem}
-            options={UNIT_SYSTEMS.map((value) => ({ value, label: t(`settings.${value}`) }))}
-          />
+          UNIT_SECTIONS.map((section) => (
+            <Segmented
+              key={section}
+              label={t(`settings.unitSections.${section}.label`)}
+              hint={t(`settings.unitSections.${section}.hint`)}
+              value={profile.data.units[section]}
+              onChange={(system) => actions.units(section, system)}
+              options={UNIT_SYSTEMS.map((value) => ({
+                value,
+                label: t(`settings.unitSections.${section}.${value}`),
+              }))}
+            />
+          ))
         )}
       </SectionCard>
 

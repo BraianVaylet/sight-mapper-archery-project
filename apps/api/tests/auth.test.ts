@@ -207,7 +207,7 @@ describe('sign-up', () => {
     await waitFor(async () => (await profileOf(String(doc?._id))) !== null);
     expect(await profileOf(String(doc?._id))).toMatchObject({
       locale: 'es',
-      unitSystem: 'metric',
+      units: { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' },
       theme: 'system',
       quickAccess: null,
       deletionRequestedAt: null,
@@ -226,7 +226,7 @@ describe('sign-up', () => {
     await waitFor(async () => (await profileOf(String(doc?._id))) !== null);
     expect(await profileOf(String(doc?._id))).toMatchObject({
       locale: 'en',
-      unitSystem: 'imperial',
+      units: { marks: 'metric' },
     });
   });
 

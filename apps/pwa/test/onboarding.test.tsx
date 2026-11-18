@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { ANA, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 // F1-17: the guide on the empty Home (FUNCIONAL §2.1), and the way back from each form.
@@ -47,7 +47,7 @@ function server(
     'GET /api/v1/me': () =>
       json({
         locale: 'es',
-        unitSystem: 'metric',
+        units: allUnits('metric'),
         theme: 'system',
         quickAccess: null,
         deletionRequestedAt: null,
@@ -218,7 +218,7 @@ describe('The way back from each form', () => {
       'GET /api/v1/me': () =>
         json({
           locale: 'es',
-          unitSystem: 'metric',
+          units: allUnits('metric'),
           theme: 'system',
           quickAccess: null,
           deletionRequestedAt: null,

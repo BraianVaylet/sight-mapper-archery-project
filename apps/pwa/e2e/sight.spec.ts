@@ -17,6 +17,7 @@ test('measure marks on the sight screen, read an estimate between them, replace 
 
   await page.goto('/sights/new');
   await page.getByLabel('Modelo').fill('Ultraview');
+  await page.getByLabel('Unidad de la escala').selectOption('cm');
   await page.getByLabel('Mínimo').fill('0');
   await page.getByLabel('Máximo').fill('10');
   await page.getByLabel('Paso más chico').fill('0,1');
@@ -101,7 +102,8 @@ test('measure marks on the sight screen, read an estimate between them, replace 
   await expect(page.getByText('Marcas: 3 · 20–40 m')).toBeVisible();
 
   // The Doctor opens at 5 marks: consistent ones are called consistent...
-  await expect(page.getByText('Doctor').locator('..')).toContainText('3/5');
+  // The tool of the sight screen, not the Doctor entry of the menu rail (1440 px).
+  await expect(page.getByRole('button', { name: /^Doctor \d/ })).toContainText('3/5');
   for (const [distance, reading] of [
     ['50', '2,6'],
     ['60', '3,6'],

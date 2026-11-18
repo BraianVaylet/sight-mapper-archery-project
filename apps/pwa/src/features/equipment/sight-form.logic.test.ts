@@ -150,12 +150,21 @@ describe('toFormValues', () => {
     expect(values.unitSizeMm).toBe('');
   });
 
-  it('starts a new sight on cm, growing downward, monopin', () => {
+  it('starts a new sight on mm, growing downward, monopin', () => {
     expect(toFormValues(undefined, '.')).toMatchObject({
-      unit: 'cm',
+      unit: 'mm',
       direction: 'down',
       pinType: 'monopin',
     });
+  });
+
+  it('starts a new sight on inches when the sight section is imperial (RF-ACC-04)', () => {
+    expect(toFormValues(undefined, '.', 'in').unit).toBe('in');
+  });
+
+  it('keeps the unit of a saved sight whatever the sight section says', () => {
+    const saved = { scale: { unit: 'cm', min: 0, max: 10, resolution: 0.1, direction: 'down' } };
+    expect(toFormValues(saved as never, '.', 'in').unit).toBe('cm');
   });
 });
 

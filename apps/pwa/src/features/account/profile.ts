@@ -1,6 +1,7 @@
 import { isApiError, useHttp } from '@sight-mapper/client';
-import type { Profile, QuickAccess, UpdatePreferences } from '@sight-mapper/schemas';
-import type { UnitSystem } from '@sight-mapper/types';
+import type { Profile, QuickAccess, UpdatePreferences, Units } from '@sight-mapper/schemas';
+// From `types`, not `schemas`: the shell imports this module, and `schemas` would load Zod with it.
+import { DEFAULT_UNITS } from '@sight-mapper/types';
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const profileKey = ['me'] as const;
@@ -19,10 +20,34 @@ export const profileQuery = (http: ReturnType<typeof useHttp>) =>
     staleTime: 5 * 60_000,
   });
 
-/** The archer's unit system; metric until the profile arrives. */
-export function useUnitSystem(): UnitSystem {
+/**
+ * The archer's unit system of each section (RF-ACC-04); the defaults of a new archer until the
+ * profile arrives. Each screen takes the section it shows: `marks` for distances, `bow`, `arrows`,
+ * `sight` for the scale a new sight starts on.
+ */
+export function useUnits(): Units {
   const http = useHttp();
-  return useQuery(profileQuery(http)).data?.unitSystem ?? 'metric';
+  return useQuery(profileQuery(http)).data?.units ?? DEFAULT_UNITS;
+}
+
+/** The profile with a patch applied, as the cache shows it before the server answers. */
+export function withPatch(current: Profile, patch: UpdatePreferences): Profile {
+  const units = { ...current.units };
+  for (const [section, system] of Object.entries(patch.units ?? {}) as [
+    keyof Units,
+    Units[keyof Units] | undefined,
+  ][]) {
+    if (system !== undefined) units[section] = system;
+  }
+  return {
+    ...current,
+    locale: patch.locale ?? current.locale,
+    theme: patch.theme ?? current.theme,
+    units,
+    // `null` is a value: it puts the default back.
+    doctorToleranceMm:
+      patch.doctorToleranceMm === undefined ? current.doctorToleranceMm : patch.doctorToleranceMm,
+  };
 }
 
 const versionOf = (current: Profile | undefined) =>
@@ -48,7 +73,7 @@ export function useUpdatePreferences() {
     onMutate: async (patch) => {
       await queryClient.cancelQueries({ queryKey: profileKey });
       const previous = queryClient.getQueryData<Profile>(profileKey);
-      if (previous !== undefined) queryClient.setQueryData(profileKey, { ...previous, ...patch });
+      if (previous !== undefined) queryClient.setQueryData(profileKey, withPatch(previous, patch));
       return { previous };
     },
     onError: (error, _patch, context) => {

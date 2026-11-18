@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
+import { allUnits, ANA, errorEnvelope, fakeApi, json } from './fake-api.js';
 import { renderApp } from './render-app.js';
 
 const BOW_ID = '01927e5a-0000-7000-8000-0000000000b1';
@@ -61,7 +61,7 @@ function imperialServer(initial = MARKS, extra: Record<string, Handler> = {}) {
     'GET /api/v1/me': () =>
       json({
         locale: 'es',
-        unitSystem: 'imperial',
+        units: allUnits('imperial'),
         theme: 'system',
         quickAccess: null,
         deletionRequestedAt: null,

@@ -11,7 +11,8 @@ import { sightHooks } from '../equipment/sights.js';
 import { signOut } from '../auth/auth-api.js';
 import { forgetSession } from '../auth/session.js';
 
-type Destination = '/' | '/bows' | '/sights' | '/arrows' | '/trash' | '/settings' | '/profile';
+type Destination =
+  '/' | '/bows' | '/sights' | '/arrows' | '/doctor' | '/trash' | '/settings' | '/profile';
 
 /** The app icon itself: a navy tile, the same in both themes (UX-UI §3). */
 function Logo() {
@@ -87,6 +88,12 @@ export function AppFrame() {
             count={arrows.data?.items.length}
             onSelect={go('/arrows')}
             current={current('/arrows')}
+          />
+          <NavItem
+            icon={<Icon name="doctor" />}
+            label={t('menu.doctor')}
+            onSelect={go('/doctor')}
+            current={current('/doctor')}
           />
           <NavItem icon={<Icon name="stats" />} label={t('menu.stats')} badge={t('menu.soon')} />
         </NavGroup>

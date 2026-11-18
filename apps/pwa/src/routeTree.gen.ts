@@ -15,6 +15,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AppDoctorRouteImport } from './routes/_app.doctor'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppTrashRouteImport } from './routes/_app.trash'
 import { Route as GuestForgotPasswordRouteImport } from './routes/_guest.forgot-password'
@@ -64,6 +65,11 @@ const VerifyEmailRoute = VerifyEmailRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDoctorRoute = AppDoctorRouteImport.update({
+  id: '/doctor',
+  path: '/doctor',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProfileRoute = AppProfileRouteImport.update({
@@ -183,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sandbox': typeof SandboxRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/doctor': typeof AppDoctorRoute
   '/profile': typeof AppProfileRoute
   '/trash': typeof AppTrashRoute
   '/forgot-password': typeof GuestForgotPasswordRoute
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sandbox': typeof SandboxRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/doctor': typeof AppDoctorRoute
   '/profile': typeof AppProfileRoute
   '/trash': typeof AppTrashRoute
   '/forgot-password': typeof GuestForgotPasswordRoute
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sandbox': typeof SandboxRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/_app/doctor': typeof AppDoctorRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/trash': typeof AppTrashRoute
   '/_guest/forgot-password': typeof GuestForgotPasswordRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sandbox'
     | '/verify-email'
+    | '/doctor'
     | '/profile'
     | '/trash'
     | '/forgot-password'
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sandbox'
     | '/verify-email'
+    | '/doctor'
     | '/profile'
     | '/trash'
     | '/forgot-password'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sandbox'
     | '/verify-email'
+    | '/_app/doctor'
     | '/_app/profile'
     | '/_app/trash'
     | '/_guest/forgot-password'
@@ -404,6 +416,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/doctor': {
+      id: '/_app/doctor'
+      path: '/doctor'
+      fullPath: '/doctor'
+      preLoaderRoute: typeof AppDoctorRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profile': {
@@ -564,6 +583,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppDoctorRoute: typeof AppDoctorRoute
   AppProfileRoute: typeof AppProfileRoute
   AppTrashRoute: typeof AppTrashRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -587,6 +607,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppDoctorRoute: AppDoctorRoute,
   AppProfileRoute: AppProfileRoute,
   AppTrashRoute: AppTrashRoute,
   AppIndexRoute: AppIndexRoute,

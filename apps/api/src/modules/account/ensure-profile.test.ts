@@ -34,17 +34,24 @@ function memory(options: { loseRaceOnce?: boolean } = {}) {
 }
 
 describe('defaultPreferences', () => {
-  it('gives Spanish speakers metres and English speakers yards, and follows the system theme', () => {
+  it('takes the language of the browser, the same units for everyone, and the system theme', () => {
+    const units = { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' };
     expect(defaultPreferences('es')).toEqual({
       locale: 'es',
-      unitSystem: 'metric',
+      units,
       theme: 'system',
+      doctorToleranceMm: null,
     });
     expect(defaultPreferences('en')).toEqual({
       locale: 'en',
-      unitSystem: 'imperial',
+      units,
       theme: 'system',
+      doctorToleranceMm: null,
     });
+  });
+
+  it('hands out a fresh units object each time, never the shared default', () => {
+    expect(defaultPreferences('es').units).not.toBe(defaultPreferences('es').units);
   });
 });
 
@@ -57,8 +64,9 @@ describe('ensureProfile', () => {
       id: 'p1',
       userId: 'u1',
       locale: 'es',
-      unitSystem: 'metric',
+      units: { marks: 'metric', bow: 'imperial', arrows: 'imperial', sight: 'metric' },
       theme: 'system',
+      doctorToleranceMm: null,
       quickAccess: null,
       deletionRequestedAt: null,
       version: 1,
@@ -86,7 +94,9 @@ describe('ensureProfile', () => {
     const a = await ensure('u1', 'es');
     const b = await ensure('u2', 'en');
     expect([a.userId, b.userId]).toEqual(['u1', 'u2']);
-    expect([a.unitSystem, b.unitSystem]).toEqual(['metric', 'imperial']);
+    expect([a.locale, b.locale]).toEqual(['es', 'en']);
+    // The units no longer follow the language (RF-ACC-04): the same defaults for both.
+    expect(b.units).toEqual(a.units);
   });
 
   it('returns the winner when a concurrent call created it first', async () => {

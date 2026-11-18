@@ -3,6 +3,7 @@ import type { Messages } from '../types.js';
 export const en: Messages = {
   common: {
     appName: 'Sight Mapper',
+    rangeHint: 'Between {{range}} {{unit}}',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
@@ -133,10 +134,34 @@ export const en: Messages = {
     about: 'About',
     themeHint: 'Dark for the night, light for the sun. "System" follows your phone.',
     languageHint: 'Texts, messages and decimal separator.',
-    units: 'Units',
-    unitsHint: 'Only changes how distances are shown: your marks stay as they are.',
-    metric: 'Metric (meters)',
-    imperial: 'Imperial (yards)',
+    unitsIntro:
+      'Each section with its own system. It only changes how data is shown: nothing saved is touched.',
+    unitSections: {
+      marks: {
+        label: 'Distances',
+        hint: 'The distances of your marks. Readings stay in the scale of each sight.',
+        metric: 'Metric (m)',
+        imperial: 'Imperial (yd)',
+      },
+      bow: {
+        label: 'Bow',
+        hint: 'Draw length, draw weight and speed on the bow form.',
+        metric: 'Metric (mm, kg, m/s)',
+        imperial: 'Imperial (in, lb, fps)',
+      },
+      arrows: {
+        label: 'Arrows',
+        hint: 'Length, weights and speed on the arrow form.',
+        metric: 'Metric (mm, g, m/s)',
+        imperial: 'Imperial (in, gr, fps)',
+      },
+      sight: {
+        label: 'New sight',
+        hint: 'The unit a new sight starts its scale on. The ones you already loaded do not change.',
+        metric: 'Metric (mm)',
+        imperial: 'Imperial (in)',
+      },
+    },
     version: 'App version',
   },
   bows: {
@@ -362,6 +387,7 @@ export const en: Messages = {
     settings: 'Settings',
     profile: 'Account',
     groupShooting: 'Shooting',
+    doctor: 'Doctor',
     homeLink: '{{app}}: go to home',
     groupAccount: 'Account',
     logout: 'Sign out',
@@ -471,6 +497,25 @@ export const en: Messages = {
     statusOk: 'Consistent',
     statusOff: 'Off trend',
     unit: { mm: 'mm', cm: 'cm', in: 'in', click: 'clicks', custom: 'units' },
+  },
+  doctorTolerance: {
+    intro:
+      'The Doctor points at the mark that was probably measured wrong. Here you see how it decides and how much it tolerates.',
+    howTitle: 'How it works',
+    how1: 'It compares each mark with the curve the others make, without it. If it stands off more than its threshold, it points at it.',
+    how2: 'Threshold = the larger of your tolerance and the smallest step of the sight.',
+    how3: 'The shortest and the longest marks are estimated by extrapolating: their threshold is 2.5 times larger.',
+    how4: 'It never changes or deletes a mark: you decide.',
+    example:
+      'Example with {{tolerance}} mm and a sight with a 1 mm step: a mark in the middle is pointed at if it stands off {{inner}} mm or more; the shortest and the longest, {{ends}} mm.',
+    toleranceTitle: 'Tolerance',
+    label: 'Base tolerance',
+    hint: 'For all your setups. Lower finds smaller errors, and also points at more marks that were measured well.',
+    option: '{{value}} mm',
+    optionDefault: '{{value}} mm (default)',
+    inches: 'That is {{inches}} in.',
+    lowWarning: 'At 1 mm it may point at marks that were measured well.',
+    reset: 'Back to the default',
   },
   onboarding: {
     title: 'Your first setup in 4 steps',
@@ -600,6 +645,7 @@ export const en: Messages = {
     sights: 'Sights',
     arrows: 'Arrows',
     settings: 'Settings',
+    doctorTolerance: 'Doctor',
     profile: 'Account',
     sandbox: 'Test bench',
   },
@@ -686,6 +732,7 @@ export const en: Messages = {
     too_big: 'Must be at most {{maximum}}.',
     equipment: {
       manufacturerOrModel: 'Enter the manufacturer or the model.',
+      outOfRange: 'Out of range: it goes from {{range}} {{unit}}.',
     },
     mark: {
       distancePrecision: 'Distance allows up to 3 decimals.',

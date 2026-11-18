@@ -8,6 +8,14 @@ export const EXTRAPOLATION_WARN_RATIO = 0.25;
  * quantum, whichever is larger) is not an error. Calibrated on two real sets (SIGHT-MATH §8.3).
  */
 export const DOCTOR_MIN_ABS_MM = 4;
+/**
+ * The base tolerance an archer may set instead of `DOCTOR_MIN_ABS_MM` (RN-CAL-06, ADR-013): from
+ * 1 mm (below it the threshold sits inside the repeatability of a measured mark) to 10 mm (one
+ * unit of a cm scale), in steps of 0.5.
+ */
+export const DOCTOR_TOLERANCE_MIN_MM = 1;
+export const DOCTOR_TOLERANCE_MAX_MM = 10;
+export const DOCTOR_TOLERANCE_STEP_MM = 0.5;
 /** Endpoints are predicted by extrapolation, so they get more tolerance. */
 export const DOCTOR_ENDPOINT_FACTOR = 2.5;
 export const MAX_DISTANCE_M = 300;

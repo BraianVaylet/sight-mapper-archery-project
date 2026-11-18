@@ -196,7 +196,11 @@ mas sets, sobre todo uno con un error evidente.
 parametro: `diagnose()` recibe en sus opciones la tolerancia base (1–10 mm, pasos de 0.5) y, si no llega, usa
 `DOCTOR_MIN_ABS_MM`. La regla no cambia: umbral = `max(base, quantum)`, ×`DOCTOR_ENDPOINT_FACTOR` en
 los extremos, que no se configura. El caso del set dudoso muestra el costo de bajarla: bajo ~1.2 mm
-se señalan tambien marcas buenas; la pantalla lo dice. Recalibrar con mas sets cambia solo el
+con 1 mm
+se señalan tambien marcas del set bueno (su 60 m, un extremo: 2.75 / 2.5 = 1.1; y la 50 m y
+la 20 m como secundarias); la pantalla lo dice. Entre 1.10 y 1.16 mm los dos sets se separarian (el
+bueno da ok y la 40 m del dudoso, 1.167, sigue señalada), pero con pasos de 0.5 mm ningun valor
+permitido cae ahi: 1.5 mm ya deja ok a los dos. Recalibrar con mas sets cambia solo el
 default. Nada de §13 se toca: el Doctor sigue sin modificar ninguna marca.
 
 ## 9. Intermedias y consultas

@@ -20,6 +20,7 @@ import { profileQuery } from '../account/profile.js';
 import { fieldError } from '../auth/form-utils.js';
 import {
   NUMBER_FIELDS,
+  rangeOf,
   toArrowSetInput,
   toArrowSetPatch,
   toFormValues,
@@ -48,7 +49,7 @@ export function ArrowFormScreen({
   const { t, translate } = useI18n();
   const detail = arrowSetHooks.useDetail(id);
   const profile = useQuery(profileQuery(useHttp()));
-  const system = profile.data?.unitSystem ?? 'metric';
+  const system = profile.data?.units.arrows ?? 'imperial';
 
   // The form waits for the profile: fields that change unit under the archer's fingers are worse
   // than a short skeleton.
@@ -90,12 +91,11 @@ function ArrowForm({
   next: AfterSave | undefined;
 }) {
   const { t, locale, translate } = useI18n();
+  const separator = decimalSeparator(locale);
   const navigate = useNavigate();
   const afterSave = useAfterSave('arrowSet', '/arrows', next);
   const [newSetId] = useState(() => newId());
-  const [values, setValues] = useState<ArrowFormValues>(() =>
-    toFormValues(set, system, decimalSeparator(locale)),
-  );
+  const [values, setValues] = useState<ArrowFormValues>(() => toFormValues(set, system, separator));
   const [errors, setErrors] = useState<Partial<Record<string, ValidationIssue>>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -107,9 +107,15 @@ function ArrowForm({
 
   const set_ = (name: keyof ArrowFormValues) => (value: string) =>
     setValues((current) => ({ ...current, [name]: value }));
+  // An out-of-range error says the range in the archer's unit, like the hint (RN-EQP-03).
   const errorOf = (name: string) => {
     const issue = errors[name];
-    return issue === undefined ? undefined : fieldError([issue], translate);
+    if (issue === undefined) return undefined;
+    const range =
+      issue.messageKey === 'validation.equipment.outOfRange'
+        ? rangeOf(name as NumberFieldName, system, separator)
+        : {};
+    return fieldError([{ ...issue, params: { ...issue.params, ...range } }], translate);
   };
 
   async function submit() {
@@ -144,6 +150,7 @@ function ArrowForm({
         key={name}
         label={t(`arrows.form.${name}`)}
         unit={field === undefined ? undefined : unitOf(field.quantity, system) || undefined}
+        hint={t('common.rangeHint', rangeOf(name, system, separator)).trim()}
         value={values[name]}
         onChange={(event) => set_(name)(event.target.value)}
         error={errorOf(name)}

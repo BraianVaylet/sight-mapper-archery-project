@@ -17,14 +17,15 @@ import { useI18n } from '../../app/i18n.js';
 import { useClients } from '../../app/clients.js';
 import { sessionQuery } from '../auth/session.js';
 import { saveJsonFile } from './download.js';
-import { profileQuery, useCancelDeletion, useRequestDeletion, useUnitSystem } from './profile.js';
+import { profileQuery, useCancelDeletion, useRequestDeletion, useUnits } from './profile.js';
 
 /** The account (HU-ACC-05, HU-ACC-06): who is signed in, a copy of the data, and the way out. */
 export function ProfileScreen() {
   const { t, locale, translate } = useI18n();
   const http = useHttp();
   const { authHttp } = useClients();
-  const system = useUnitSystem();
+  // Error params here are distances, if any: the marks section (docs/errors.md §2).
+  const system = useUnits().marks;
   const units = { system, locale };
 
   const session = useQuery(sessionQuery(authHttp));

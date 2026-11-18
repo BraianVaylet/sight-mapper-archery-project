@@ -97,7 +97,8 @@ describe('toBowInput: what it refuses, field by field', () => {
   it('refuses a let-off of 120 % on that field (HU-BOW-01)', () => {
     const result = toBowInput(filled({ letOffPct: '120' }), 'metric', ID);
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.errors['letOffPct']?.messageKey).toBe('validation.too_big');
+    if (!result.ok)
+      expect(result.errors['letOffPct']?.messageKey).toBe('validation.equipment.outOfRange');
   });
 
   it('says a typed word is not a number, on its own field', () => {

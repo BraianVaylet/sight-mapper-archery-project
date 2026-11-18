@@ -2,10 +2,12 @@
 # headers and the SPA fallback of apps/pwa/Caddyfile. Build context: the repository root.
 
 FROM node:22-alpine AS build
-# Railway passes service variables as build arguments only when they are declared.
+# Railway passes service variables as build arguments only when they are declared. The version comes
+# from the root package.json; these two say which commit and whether it is production (RF-X-03).
 ARG VITE_API_URL
-ARG VITE_APP_VERSION
-ENV VITE_API_URL=$VITE_API_URL VITE_APP_VERSION=$VITE_APP_VERSION
+ARG RAILWAY_GIT_COMMIT_SHA
+ARG RAILWAY_ENVIRONMENT_NAME
+ENV VITE_API_URL=$VITE_API_URL RAILWAY_GIT_COMMIT_SHA=$RAILWAY_GIT_COMMIT_SHA RAILWAY_ENVIRONMENT_NAME=$RAILWAY_ENVIRONMENT_NAME
 RUN corepack enable
 WORKDIR /repo
 COPY . .

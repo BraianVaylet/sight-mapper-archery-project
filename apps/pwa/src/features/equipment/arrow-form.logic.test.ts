@@ -82,7 +82,7 @@ describe('toArrowSetInput (HU-ARW-01)', () => {
     const result = toArrowSetInput(named({ spine: '20', gpi: 'pesado' }), 'metric', ID);
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.errors['spine']?.messageKey).toBe('validation.too_small');
+      expect(result.errors['spine']?.messageKey).toBe('validation.equipment.outOfRange');
       expect(result.errors['gpi']?.messageKey).toBe('validation.arrow.number');
     }
   });

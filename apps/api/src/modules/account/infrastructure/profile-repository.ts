@@ -10,8 +10,14 @@ const MONGO_DUPLICATE_KEY = 11000;
 const schema = createBusinessSchema(
   {
     locale: { type: String, required: true },
-    unitSystem: { type: String, required: true },
+    units: {
+      marks: { type: String, required: true },
+      bow: { type: String, required: true },
+      arrows: { type: String, required: true },
+      sight: { type: String, required: true },
+    },
     theme: { type: String, required: true },
+    doctorToleranceMm: { type: Number, default: null },
     quickAccess: { type: Schema.Types.Mixed, default: null },
     deletionRequestedAt: { type: Date, default: null },
   },
@@ -22,8 +28,10 @@ type Row = {
   _id: string;
   userId: string;
   locale: Profile['locale'];
-  unitSystem: Profile['unitSystem'];
+  units: Profile['units'];
   theme: Profile['theme'];
+  /** Absent in profiles from before F1-40: read as the default. */
+  doctorToleranceMm?: number | null;
   quickAccess: Profile['quickAccess'];
   deletionRequestedAt: Date | null;
   version: number;
@@ -35,8 +43,14 @@ const toProfile = (row: Row): Profile => ({
   id: row._id,
   userId: row.userId,
   locale: row.locale,
-  unitSystem: row.unitSystem,
+  units: {
+    marks: row.units.marks,
+    bow: row.units.bow,
+    arrows: row.units.arrows,
+    sight: row.units.sight,
+  },
   theme: row.theme,
+  doctorToleranceMm: row.doctorToleranceMm ?? null,
   quickAccess: row.quickAccess ?? null,
   deletionRequestedAt: row.deletionRequestedAt === null ? null : fromDate(row.deletionRequestedAt),
   version: row.version,
@@ -44,12 +58,22 @@ const toProfile = (row: Row): Profile => ({
   updatedAt: fromDate(row.updatedAt),
 });
 
-/** `{ theme: undefined }` must not become a write: Mongo would store a null. */
-const definedOnly = (patch: PreferencesPatch): Record<string, string> =>
-  Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined)) as Record<
-    string,
-    string
-  >;
+/**
+ * The `$set` of a preferences patch: `{ theme: undefined }` must not become a write (Mongo would
+ * store a null), and a section of the units is set by its own path (`units.bow`), so the others
+ * stay as they are.
+ */
+const setOf = (patch: PreferencesPatch): Record<string, string | number | null> => {
+  const set: Record<string, string | number | null> = {};
+  if (patch.locale !== undefined) set['locale'] = patch.locale;
+  if (patch.theme !== undefined) set['theme'] = patch.theme;
+  // `null` is a value here: it puts the default back.
+  if (patch.doctorToleranceMm !== undefined) set['doctorToleranceMm'] = patch.doctorToleranceMm;
+  for (const [section, system] of Object.entries(patch.units ?? {})) {
+    if (system !== undefined) set[`units.${section}`] = system;
+  }
+  return set;
+};
 
 /** Every query carries the user id fixed here; the isolation plugin refuses one that does not. */
 export function createProfileRepositories(connection: DbConnection): ProfileRepositories {
@@ -67,8 +91,9 @@ export function createProfileRepositories(connection: DbConnection): ProfileRepo
               _id: profile.id,
               userId,
               locale: profile.locale,
-              unitSystem: profile.unitSystem,
+              units: profile.units,
               theme: profile.theme,
+              doctorToleranceMm: profile.doctorToleranceMm,
               quickAccess: profile.quickAccess,
               deletionRequestedAt: null,
               version: profile.version,
@@ -86,7 +111,7 @@ export function createProfileRepositories(connection: DbConnection): ProfileRepo
             Model as unknown as Model<Row>,
             { userId, id },
             expectedVersion,
-            { $set: { ...definedOnly(patch), updatedAt: toDate(now) } },
+            { $set: { ...setOf(patch), updatedAt: toDate(now) } },
             'profile',
           );
           return toProfile(row);

@@ -12,13 +12,14 @@ test('load a bow, a sight and arrows, build a setup, star it, trash it and bring
   await page.goto('/bows/new');
   await page.getByLabel('Fabricante').fill('Hoyt');
   await page.getByLabel('Modelo').fill('Alpha');
-  await page.getByLabel('Brace height').fill('158,75');
+  await page.getByLabel('Brace height').fill('6 1/4'); // the bow section starts imperial: inches
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page.getByRole('heading', { name: 'Hoyt Alpha' })).toBeVisible();
 
   // The author's sight: cm, 0 to 10, steps of 0.1. The ruler preview appears while typing.
   await page.goto('/sights/new');
   await page.getByLabel('Modelo').fill('Ultraview');
+  await page.getByLabel('Unidad de la escala').selectOption('cm');
   await page.getByLabel('Mínimo').fill('0');
   await page.getByLabel('Máximo').fill('10');
   await page.getByLabel('Paso más chico').fill('0,1');

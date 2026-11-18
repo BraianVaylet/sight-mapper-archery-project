@@ -3,6 +3,9 @@ import {
   CALC_MIN_MARKS_INTERPOLATE,
   DOCTOR_ENDPOINT_FACTOR,
   DOCTOR_MIN_ABS_MM,
+  DOCTOR_TOLERANCE_MAX_MM,
+  DOCTOR_TOLERANCE_MIN_MM,
+  DOCTOR_TOLERANCE_STEP_MM,
 } from '../constants.js';
 import { DomainError } from '../errors.js';
 import { fitParabola } from '../model/parabola.js';
@@ -36,6 +39,11 @@ export type DoctorOptions = {
   readonly direction: 'down' | 'up';
   /** The smallest step the archer can set, in mm: a residual below it is not an error. */
   readonly quantumMm: number;
+  /**
+   * The archer's base tolerance in mm (RN-CAL-06), `DOCTOR_MIN_ABS_MM` when absent. The rule does
+   * not change: the threshold is the larger of it and one quantum, ×2.5 at the endpoints.
+   */
+  readonly toleranceMm?: number | undefined;
 };
 
 /**
@@ -46,8 +54,8 @@ export type DoctorOptions = {
  *   down: readings must move one way. A pair that does not is `inconsistent`, on both marks.
  * - **Leave-one-out (5+ marks).** Each mark is compared with the parabola fitted *without it*:
  *   a bad mark pulls a global fit toward itself and hides its own residual. A residual beyond
- *   an absolute tolerance (4 mm, never under one quantum) makes it a candidate; the endpoints,
- *   predicted by extrapolation, get more tolerance.
+ *   an absolute tolerance (4 mm or the archer's own, never under one quantum) makes it a
+ *   candidate; the endpoints, predicted by extrapolation, get more tolerance.
  *
  * Marks need unique distances (RN-MRK-04); anything else is a caller bug (`DomainError`).
  */
@@ -67,7 +75,9 @@ export function diagnose(marks: readonly DoctorMark[], options: DoctorOptions): 
 
   const monotonicity = findMonotonicityBreaks(sorted, options.direction);
   const full = sorted.length >= CALC_MIN_MARKS_DOCTOR;
-  const outliers = full ? leaveOneOut(sorted, options.quantumMm) : null;
+  const outliers = full
+    ? leaveOneOut(sorted, options.quantumMm, options.toleranceMm ?? DOCTOR_MIN_ABS_MM)
+    : null;
 
   const base = {
     level: full ? ('full' as const) : ('monotonicity' as const),
@@ -88,6 +98,18 @@ export function diagnose(marks: readonly DoctorMark[], options: DoctorOptions): 
 function validate(marks: readonly DoctorMark[], options: DoctorOptions): void {
   if (!Number.isFinite(options.quantumMm) || options.quantumMm <= 0) {
     throw new DomainError('quantumMm must be a finite number greater than zero');
+  }
+  // The archer's range (RN-CAL-06): outside it the ratios overflow and the report could carry an
+  // infinite threshold or the wrong suspect. 0.5 is exact in binary, so the step check is exact.
+  const tolerance = options.toleranceMm;
+  if (
+    tolerance !== undefined &&
+    (!Number.isFinite(tolerance) ||
+      tolerance < DOCTOR_TOLERANCE_MIN_MM ||
+      tolerance > DOCTOR_TOLERANCE_MAX_MM ||
+      !Number.isInteger(tolerance / DOCTOR_TOLERANCE_STEP_MM))
+  ) {
+    throw new DomainError('toleranceMm must be 1 to 10 mm in steps of 0.5');
   }
   const distances = new Set<number>();
   const ids = new Set<string>();
@@ -113,7 +135,7 @@ function findMonotonicityBreaks(sorted: readonly DoctorMark[], direction: 'down'
   return breaks;
 }
 
-function leaveOneOut(sorted: readonly DoctorMark[], quantumMm: number) {
+function leaveOneOut(sorted: readonly DoctorMark[], quantumMm: number, toleranceMm: number) {
   const residualsMm = sorted.map((mark, i) => {
     const others = sorted.filter((_, j) => j !== i);
     return mark.valueMm - fitParabola(others).evaluate(mark.distanceM);
@@ -121,7 +143,7 @@ function leaveOneOut(sorted: readonly DoctorMark[], quantumMm: number) {
 
   // An absolute tolerance, not one estimated from these residuals: with five marks a bad one drags
   // the other four fits toward itself, inflates any such estimate and hides itself (SIGHT-MATH §8.3).
-  const base = Math.max(DOCTOR_MIN_ABS_MM, quantumMm);
+  const base = Math.max(toleranceMm, quantumMm);
   const last = sorted.length - 1;
 
   const residuals = sorted.map((mark, i) => ({

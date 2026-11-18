@@ -1,4 +1,4 @@
-import { isApiError, newId } from '@sight-mapper/client';
+import { isApiError, newId, useHttp } from '@sight-mapper/client';
 import { formatReading } from '@sight-mapper/domain';
 import { decimalSeparator, formatNumber } from '@sight-mapper/i18n';
 import type { ScaleChangeStrategy, ValidationIssue } from '@sight-mapper/types';
@@ -14,10 +14,11 @@ import {
   Select,
   Skeleton,
 } from '@sight-mapper/ui';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { describeError } from '../../app/errors.js';
-import { useUnitSystem } from '../account/profile.js';
+import { profileQuery, useUnits } from '../account/profile.js';
 import { useI18n } from '../../app/i18n.js';
 import { fieldError } from '../auth/form-utils.js';
 import { Ruler } from '../sight/ruler.js';
@@ -45,8 +46,11 @@ export function SightFormScreen({
 }) {
   const { t, translate } = useI18n();
   const detail = sightHooks.useDetail(id);
+  const profile = useQuery(profileQuery(useHttp()));
 
-  if (id !== undefined && detail.isPending) {
+  // A new sight waits for the profile too: its scale starts on the unit of the sight section, and
+  // a unit that flips under the archer's fingers is worse than a short skeleton.
+  if ((id !== undefined && detail.isPending) || (id === undefined && profile.isPending)) {
     return (
       <div aria-busy="true" className="flex flex-col gap-3">
         <Skeleton className="h-8 w-1/2" />
@@ -82,12 +86,16 @@ function SightForm({
   next: AfterSave | undefined;
 }) {
   const { t, locale, translate } = useI18n();
-  const system = useUnitSystem();
+  const units = useUnits();
+  // Error params with a distance follow the marks section (docs/errors.md §2).
+  const system = units.marks;
   const navigate = useNavigate();
   const afterSave = useAfterSave('sight', '/sights', next);
   const separator = decimalSeparator(locale);
   const [newSightId] = useState(() => newId());
-  const [values, setValues] = useState<SightFormValues>(() => toFormValues(sight, separator));
+  const [values, setValues] = useState<SightFormValues>(() =>
+    toFormValues(sight, separator, units.sight === 'imperial' ? 'in' : 'mm'),
+  );
   const [errors, setErrors] = useState<Partial<Record<string, ValidationIssue>>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [needStrategy, setNeedStrategy] = useState(false);

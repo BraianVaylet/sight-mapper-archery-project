@@ -53,8 +53,9 @@ const json = <
 function toWire(p: Profile) {
   return {
     locale: p.locale,
-    unitSystem: p.unitSystem,
+    units: p.units,
     theme: p.theme,
+    doctorToleranceMm: p.doctorToleranceMm,
     quickAccess: p.quickAccess,
     deletionRequestedAt: p.deletionRequestedAt === null ? null : p.deletionRequestedAt.toString(),
     purgeAt: p.deletionRequestedAt === null ? null : purgeAtOf(p.deletionRequestedAt).toString(),
@@ -95,7 +96,7 @@ export function registerAccountRoutes(registry: RouteRegistry, deps: AccountRout
       method: 'patch',
       path: '/api/v1/me/preferences',
       tags: ['account'],
-      summary: 'Change language, unit system or theme',
+      summary: 'Change language, the unit system of any section, theme or the Doctor tolerance',
       request: { body: { required: true, content: json(updatePreferencesBody) } },
       responses: { 200: { description: 'The profile, updated', content: json(profile) } },
     }),

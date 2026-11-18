@@ -36,6 +36,21 @@ export type Locale = (typeof LOCALES)[number];
 export const UNIT_SYSTEMS = ['metric', 'imperial'] as const;
 export type UnitSystem = (typeof UNIT_SYSTEMS)[number];
 
+/** The sections that each pick a unit system (RF-ACC-04). */
+export const UNIT_SECTIONS = ['marks', 'bow', 'arrows', 'sight'] as const;
+export type UnitSection = (typeof UNIT_SECTIONS)[number];
+
+/**
+ * What a new archer starts with: distances metric, equipment in the units of the trade. Here and
+ * not in `schemas` so the shell can read it without loading Zod (TECNICO §14).
+ */
+export const DEFAULT_UNITS: Readonly<Record<UnitSection, UnitSystem>> = {
+  marks: 'metric',
+  bow: 'imperial',
+  arrows: 'imperial',
+  sight: 'metric',
+};
+
 export const THEMES = ['dark', 'light', 'system'] as const;
 export type Theme = (typeof THEMES)[number];
 

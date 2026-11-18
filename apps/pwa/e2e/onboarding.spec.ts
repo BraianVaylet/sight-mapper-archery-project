@@ -27,6 +27,7 @@ test('a new archer follows the guide from an empty Home to the first sight mark'
   // 2. The sight, with its scale.
   await step('sight').getByRole('link', { name: 'Cargar mira' }).click();
   await page.getByLabel('Modelo').fill('Ultraview');
+  await page.getByLabel('Unidad de la escala').selectOption('cm');
   await page.getByLabel('Mínimo').fill('0');
   await page.getByLabel('Máximo').fill('10');
   await page.getByLabel('Paso más chico').fill('0,1');
@@ -67,6 +68,7 @@ test('an archer who loads the sight first still gets there: the guide does not f
   await signUpAndVerify(page);
   await page.goto('/sights/new?next=home');
   await page.getByLabel('Modelo').fill('Ultraview');
+  await page.getByLabel('Unidad de la escala').selectOption('cm');
   await page.getByLabel('Mínimo').fill('0');
   await page.getByLabel('Máximo').fill('10');
   await page.getByLabel('Paso más chico').fill('0,1');

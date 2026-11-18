@@ -43,6 +43,13 @@ test('sign up, build equipment and a setup, measure marks, use the tools and sig
   await expect(page.getByRole('heading', { name: 'Email verified' })).toBeVisible();
   await page.getByRole('link', { name: 'Go home' }).click();
   await expect(page.getByRole('heading', { name: 'Your setups' })).toBeVisible();
+
+  // English no longer means yards (RF-ACC-04): every archer starts in metres and picks yards here.
+  await page.goto('/settings');
+  await page.getByRole('radio', { name: 'Imperial (yd)' }).click();
+  await expect(page.getByRole('radio', { name: 'Imperial (yd)' })).toBeChecked();
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Your setups' })).toBeVisible();
   await expect(page.getByText('You have no setups yet')).toBeVisible();
   await inEnglish(page, 'home');
 
@@ -56,6 +63,7 @@ test('sign up, build equipment and a setup, measure marks, use the tools and sig
   await page.goto('/sights/new');
   await inEnglish(page, 'new sight');
   await page.getByLabel('Model').fill('Ultraview');
+  await page.getByLabel('Scale unit').selectOption('cm');
   await page.getByLabel('Minimum').fill('0');
   await page.getByLabel('Maximum').fill('10');
   await page.getByLabel('Smallest step').fill('0.1');

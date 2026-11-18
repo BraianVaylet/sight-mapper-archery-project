@@ -1,13 +1,16 @@
 import type { Temporal } from '@js-temporal/polyfill';
-import { DELETION_DAYS } from '@sight-mapper/schemas';
+import { DEFAULT_UNITS, DELETION_DAYS, type Units } from '@sight-mapper/schemas';
 import type { Locale, Theme, UnitSystem } from '@sight-mapper/types';
 
 export type Profile = {
   readonly id: string;
   readonly userId: string;
   readonly locale: Locale;
-  readonly unitSystem: UnitSystem;
+  /** One system per section (RF-ACC-04). */
+  readonly units: Units;
   readonly theme: Theme;
+  /** The archer's base tolerance of the Doctor, in mm; `null` = the calibrated default (RN-CAL-06). */
+  readonly doctorToleranceMm: number | null;
   readonly quickAccess: { readonly setupId: string; readonly arrowSetId: string } | null;
   readonly deletionRequestedAt: Temporal.Instant | null;
   readonly version: number;
@@ -16,19 +19,27 @@ export type Profile = {
 };
 
 /**
- * A new archer's preferences come from the language of their browser (DICCIONARIO §3.6): Spanish
- * speakers get metres, English speakers yards. They can change both in Appearance.
+ * A new archer's language comes from their browser (DICCIONARIO §3.6); the units are the same for
+ * everyone (RF-ACC-04): distances metric, bow and arrows imperial, a new sight in mm. All of it is
+ * changed in Settings.
  */
-export function defaultPreferences(
-  locale: Locale,
-): Pick<Profile, 'locale' | 'unitSystem' | 'theme'> {
-  return { locale, unitSystem: locale === 'es' ? 'metric' : 'imperial', theme: 'system' };
+export function defaultPreferences(locale: Locale): Preferences {
+  return { locale, units: { ...DEFAULT_UNITS }, theme: 'system', doctorToleranceMm: null };
 }
 
-export type Preferences = Pick<Profile, 'locale' | 'unitSystem' | 'theme'>;
+export type Preferences = Pick<Profile, 'locale' | 'units' | 'theme' | 'doctorToleranceMm'>;
 
-/** What a PATCH may carry: any preference, each optional. An absent one is not touched. */
-export type PreferencesPatch = { [K in keyof Preferences]?: Preferences[K] | undefined };
+/**
+ * What a PATCH may carry: any preference, each optional, and any section of the units. An absent
+ * one is not touched.
+ */
+export type PreferencesPatch = {
+  locale?: Locale | undefined;
+  theme?: Theme | undefined;
+  units?: { [K in keyof Units]?: UnitSystem | undefined } | undefined;
+  /** `null` puts the default back. */
+  doctorToleranceMm?: number | null | undefined;
+};
 
 /** Reads and writes the profile of one archer: the user id is fixed when the repository is made. */
 export type ProfileRepository = {

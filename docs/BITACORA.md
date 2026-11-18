@@ -18,6 +18,159 @@
 
 ---
 
+## 2026-11-18 — El logo pasa a ser la regla con media mira
+
+**Tareas:** F1-41 (cierra F1-34..F1-41) · **Commit/PR:** PR #4 (`feat/units-ranges-doctor`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `apps/pwa/scripts/make-icons.mjs` dibuja el icono nuevo segun el mockup del autor: tile navy
+  `#10286b` y regla blanca de siempre; en lugar del pin amarillo, media mira `#ffcc00` (semicirculo
+  abierto hacia la regla, con las puntas contra sus extremos, y un punto sobre la regla a mitad de
+  altura). Regenera `pwa-192`, `pwa-512` (tambien maskable), `apple-touch-icon` y `favicon-32`, y
+  ahora tambien `sight-mapper-icon-512.png` y `sight-mapper-icon.svg` del design system.
+- Descripcion del logo actualizada en `Logos/README.md`, `DESIGN-SYSTEM.md` y
+  `design-system/README.md`. Capturas de `docs/screens/` regeneradas (dark y light), con la pantalla
+  Doctor nueva (`19-doctor-tolerance`); el menu pasa a `20-menu`.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- El dibujo llega a 0,763 del medio lado, medido sobre los pixeles del PNG: dentro de la zona segura
+  maskable (0,8). Revisado a 512 px y a 32 px (favicon y cabecera): la media mira se reconoce.
+- E2E de instalacion (manifest, iconos, service worker) 8/8; contraste con capturas 4/4.
+
+### Pendiente / deuda
+
+- El mockup del autor sigue solo en el chat; la referencia del repo es el SVG generado.
+- Prueba al sol del icono en un telefono real (manual, con la de F1-33).
+
+## 2026-11-18 — El Doctor explica su umbral y el arquero ajusta la tolerancia
+
+**Tareas:** F1-40 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/domain`: `DoctorOptions.toleranceMm` (opcional; sin el, `DOCTOR_MIN_ABS_MM`) y
+  constantes `DOCTOR_TOLERANCE_MIN_MM/MAX_MM/STEP_MM` (1, 10, 0.5). Fuera de rango o de paso es
+  `DomainError`. Umbral: `max(base, quantum)`, ×2.5 en los extremos (sin cambio de regla).
+- Schemas y API (`account`): `profiles.doctorToleranceMm` (`null` = default), en el `PATCH` de
+  preferencias, el perfil y el export; un perfil viejo sin el campo se lee como `null`.
+- PWA: pantalla `/doctor` (entrada "Doctor" en el grupo 01 del menu) con la explicacion del
+  calculo, un ejemplo con la tolerancia actual, el selector de 1 a 10 mm, las pulgadas si la seccion
+  mira es imperial, aviso a 1 mm y "Volver al valor por defecto". Elegir 4 mm guarda `null`, asi
+  una recalibracion llega al arquero. El diagnostico de cada setup usa la tolerancia del perfil.
+- SIGHT-MATH §8.3 precisado (ver Verificado).
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-013](adr/013-doctor-tolerance-per-archer.md). El dominio valida el rango, no solo Zod: un
+  valor extremo daba umbrales infinitos o la sospechosa equivocada.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- `domain-reviewer`: residuos recalculados a mano con minimos cuadrados exactos (Hunter 2.5, -0.864,
+  -0.167, 1.045, -2.75; Pierce 0, -0.318, 1.167, -0.955, 1.75). Sus 7 hallazgos aplicados: rango en
+  el dominio, `-0`/`-Infinity` en los invalidos, propiedades sobre sets arbitrarios (default = 4 mm,
+  piso del quantum, "mas tolerancia nunca señala mas y lo ok sigue ok"), test de que el default es
+  elegible, y la correccion de §8.3: entre 1.10 y 1.16 mm los dos sets se separarian, pero con pasos
+  de 0.5 mm no se puede elegir; a 1 mm el bueno se señala por su 60 m (2.75 / 2.5).
+- Dominio 258/258 (cobertura 99,75 %), schemas 135/135, API 417/417, PWA 422/422; lint y typecheck.
+- E2E axe, contraste y desbordes con `/doctor` en el recorrido, flujo critico y mira, a 360 y 1440:
+  pasan (un locator de `sight.spec` se ajusto: el riel ahora tambien tiene "Doctor"). Capturas de
+  `/doctor` a 360 (claro) y 1440 (oscuro).
+
+## 2026-11-17 — Los rangos de arco y flechas se ven en tu unidad y con su motivo
+
+**Tareas:** F1-39 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/schemas`: `BOW_RANGES` y `ARROW_RANGES` como datos (los campos se arman de ahi);
+  minimos ensanchados: IBO 60 → 45 m/s, apertura 450 → 300 mm, libraje 45 → 20 N, largo de flecha
+  400 → 300 mm; y maximo de spine 2000 → 2600 (aparecio al buscar fuentes: aluminio juvenil Easton
+  1214 = 2501).
+- PWA: `showRange` (redondeo hacia adentro; in, lb y kg con 1 decimal, el resto entero). Cada campo
+  numerico muestra "Entre 148–442 fps" como ayuda, y un valor fuera de rango dice "Fuera de rango: va
+  de 4,5–101,1 lb." en la unidad de su seccion. Antes el error decia el limite canonico de Zod
+  ("como minimo 45", en newtons): esa era la confusion que reporto el autor.
+- DICCIONARIO §3: equivalentes rehechos y seccion de fuentes [F1]..[F3] (Diamond Atomic, tabla de
+  Easton, Mathews LIFT XD).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Schemas 133/133 (bordes nuevos y test "solo se ensancha": los minimos viejos siguen validos).
+- `units.test.ts`: rangos calculados a mano en metrico e imperial, y una propiedad: los dos extremos
+  mostrados, leidos de vuelta, caen dentro del rango canonico en los dos sistemas.
+- PWA 410/410 (ayuda y error en libras, arco juvenil de 15 lb y 16 in aceptado); API de equipo
+  50/50; lint y typecheck.
+- E2E a11y, contraste, imperial, ingles, setups y teclado a 360 y 1440: 16 pasan, 2 skip por diseño.
+
+### Pendiente / deuda
+
+- Los motivos sin fuente unica (brace, eje a eje, radio, peep, D-loop, pesos) quedan como rangos de
+  uso corriente con margen anti-tipeo.
+
+## 2026-11-17 — La version de la app sale del package.json
+
+**Tareas:** F1-38 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `apps/pwa/build/app-version.ts`: `appVersion` (pura) arma la version del `package.json` raiz,
+  sola en produccion y con `+<sha corto>` en el resto; `buildAppVersion` toma el sha de
+  `RAILWAY_GIT_COMMIT_SHA`, `GITHUB_SHA` o `git`, y produccion de `RAILWAY_ENVIRONMENT_NAME`.
+- `vite.config.ts` la inyecta en `__APP_VERSION__`; se quita `VITE_APP_VERSION` (env, Dockerfile,
+  `.env.example`). El Dockerfile declara los dos `ARG` de Railway (la imagen se arma sin `.git`).
+- `package.json` raiz a `0.1.0`. Runbook de release: paso "Version subida".
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- Tests de `build/` 6/6 (produccion, sha, sin sha, sha invalido, prioridad de las fuentes, git
+  local); Ajustes 10/10; lint y typecheck de la PWA.
+- Build real: `0.1.0+30c9df9` en local y `0.1.0` con `RAILWAY_ENVIRONMENT_NAME=production`, leido
+  del bundle de Ajustes.
+
+### Pendiente / deuda
+
+- Confirmar en Railway (F0-20) que pasa `RAILWAY_GIT_COMMIT_SHA` y `RAILWAY_ENVIRONMENT_NAME` como
+  build args.
+
+## 2026-11-17 — Cada seccion tiene su propio sistema de unidades
+
+**Tareas:** F1-37 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `@sight-mapper/schemas`: `units` (`marks`, `bow`, `arrows`, `sight`), `DEFAULT_UNITS`
+  (metrico, imperial, imperial, metrico) y `PATCH /me/preferences` con `units` parcial (una seccion
+  por vez; `{}` y el viejo `unitSystem` se rechazan con `SM-CORE-400-001`). Export a
+  `schemaVersion: 2`.
+- API (`account`): el perfil guarda `units`; un patch escribe solo `units.<seccion>`. Las unidades
+  ya no dependen del idioma del navegador. Migracion `20261117000000-profile-units.js`
+  (`unitSystem` → `units.marks`, el resto por defecto; idempotente, con `down`).
+- PWA: Ajustes muestra un selector por seccion con su descripcion; `useUnits()` reemplaza a
+  `useUnitSystem()`. Distancias y errores con distancia usan `marks`; el form del arco `bow`; el de
+  flechas `arrows`; una mira nueva arranca en `mm` o `in` segun `sight` (antes en `cm`) y espera al
+  perfil. El script de importacion acepta las dos formas.
+
+### Decisiones (con link a ADR si corresponde)
+
+- [ADR-013](adr/013-doctor-tolerance-per-archer.md). El cambio optimista del perfil fusiona solo la
+  seccion tocada (`withPatch`).
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- API 414/414 (perfil con `units`, patch de una seccion, rechazo de la forma vieja, export v2,
+  migracion contra mongod real: imperial, metrico, sin valor y ya migrado, dos corridas, `down`).
+- PWA 397/397 (Ajustes con cuatro secciones y defaults, patch de una sola seccion, mira nueva en
+  `in` con la seccion imperial, una mira guardada conserva su unidad).
+- E2E completo a 360 y 1440: 42 pasan y 7 fallaban por supuestos viejos (ingles = yardas, mira
+  nueva en `cm`, export v1); corregidos, los 4 specs afectados pasan (10/10). Lint y typecheck.
+
+### Pendiente / deuda
+
+- La migracion corre en el job de release (TECNICO §6); en produccion se verifica con F0-20.
+
 ## 2026-11-17 — El menu pasa a la derecha
 
 **Tareas:** F1-36 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)

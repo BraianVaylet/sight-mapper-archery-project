@@ -577,7 +577,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** animacion y sombra espejadas; Escape y foco de vuelta al boton; capturas 360/768/1440
   dark y light; axe sin violaciones.
 
-### [ ] F1-37 · Unidades por seccion en Ajustes
+### [x] F1-37 · Unidades por seccion en Ajustes
 
 - **Modulo:** schemas, types, api (account), pwa, i18n · **Puntos:** 5 · **Depende de:** F1-34
 - **Descripcion:** `unitSystem` unico se reemplaza en el perfil por cuatro preferencias:
@@ -593,7 +593,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** Zod compartido; aislamiento por usuario; OpenAPI; test de migracion; E2E del flujo
   critico ajustado (hoy usa ES/metrico y EN/imperial como un todo).
 
-### [ ] F1-38 · Version de la app desde el `package.json`
+### [x] F1-38 · Version de la app desde el `package.json`
 
 - **Modulo:** pwa, repo · **Puntos:** 1 · **Depende de:** F1-34
 - **Descripcion:** `__APP_VERSION__` sale del `version` del `package.json` raiz (no de
@@ -602,7 +602,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** Ajustes muestra `0.1.0`; test que lee el valor inyectado; runbook de release dice
   donde se sube la version.
 
-### [ ] F1-39 · Rangos de arco y flechas revisados y explicados
+### [x] F1-39 · Rangos de arco y flechas revisados y explicados
 
 - **Modulo:** schemas, pwa, i18n, docs · **Puntos:** 3 · **Depende de:** F1-34, F1-37
 - **Descripcion:** cada min/max de `bowFields` y `arrowSetFields` queda justificado en DICCIONARIO
@@ -612,7 +612,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** tabla de rangos con motivo en el diccionario; tests de borde en schemas; ningun
   arco o set de flechas real del autor queda afuera.
 
-### [ ] F1-40 · Tolerancia del Doctor explicada y configurable
+### [x] F1-40 · Tolerancia del Doctor explicada y configurable
 
 - **Modulo:** domain, schemas, api (account), pwa, i18n · **Puntos:** 5 · **Depende de:** F1-34
 - **Descripcion:** nueva entrada "Doctor" en el menu (grupo Tiro) con una pantalla que explica el
@@ -624,7 +624,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** dominio puro y con `fast-check` del nuevo parametro; `domain-reviewer`; rango de
   la tolerancia acotado y justificado; ES/EN; en mm, y tambien en in si la seccion mira esta en imperial.
 
-### [ ] F1-41 · Logo nuevo: regla blanca + media mira
+### [x] F1-41 · Logo nuevo: regla blanca + media mira
 
 - **Modulo:** pwa, ui, docs · **Puntos:** 2 · **Depende de:** F1-34
 - **Descripcion:** redibujar el icono como SVG segun el mockup del autor (2026-11-17): se mantienen

@@ -8,6 +8,7 @@
 
 | Paso | Como se verifica |
 | ---- | ---------------- |
+| [+] Version subida | El `version` del `package.json` **raiz** (semver; unica fuente, RF-X-03) cambio en el commit a promover. La PWA lo inyecta en el build: en prod va solo (`RAILWAY_ENVIRONMENT_NAME=production`), en el resto con `+<sha corto>` |
 | `main` verde en CI, incluido el job `e2e` | GitHub Actions: los tres jobs en verde para el commit a promover |
 | Staging desplegado con ese mismo commit | `GET https://<staging-api>/ready` → 200 y ~~la version de la PWA en el pie coincide con el commit~~ [~] la version en Ajustes es la del `package.json` raiz con el sha corto del commit (`0.1.0+abc1234`) |
 | El flujo critico contra staging | `critical-flow.spec.ts` con `baseURL` de staging y un buzon de prueba para los links (pendiente F1-20) |

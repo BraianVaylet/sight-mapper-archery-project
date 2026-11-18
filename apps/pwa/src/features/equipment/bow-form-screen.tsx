@@ -21,11 +21,13 @@ import { profileQuery } from '../account/profile.js';
 import { fieldError } from '../auth/form-utils.js';
 import {
   NUMBER_FIELDS,
+  rangeOf,
   toBowInput,
   toBowPatch,
   toFormValues,
   unitOf,
   type BowFormValues,
+  type NumberFieldName,
 } from './bow-form.logic.js';
 import { useAfterSave, type AfterSave } from './after-save.js';
 import { bowHooks, type BowResource } from './bows.js';
@@ -45,7 +47,7 @@ export function BowFormScreen({
   const profile = useQuery(profileQuery(useHttp()));
   // The units come from the profile. The form waits for it: fields that change unit under the
   // archer's fingers (and drop what they typed) are worse than a short skeleton.
-  const system = profile.data?.unitSystem ?? 'metric';
+  const system = profile.data?.units.bow ?? 'imperial';
 
   if ((id !== undefined && detail.isPending) || profile.isPending) {
     return (
@@ -123,9 +125,15 @@ function BowForm({
     }
   }
 
+  // An out-of-range error says the range in the archer's unit, like the hint (RN-EQP-03).
   const errorOf = (name: string) => {
     const issue = errors[name];
-    return issue === undefined ? undefined : fieldError([issue], translate);
+    if (issue === undefined) return undefined;
+    const range =
+      issue.messageKey === 'validation.equipment.outOfRange'
+        ? rangeOf(name as NumberFieldName, system, separator)
+        : {};
+    return fieldError([{ ...issue, params: { ...issue.params, ...range } }], translate);
   };
   const busy = create.isPending || update.isPending;
   const inUse = bow?.usage !== undefined && bow.usage.setups > 0;
@@ -181,6 +189,7 @@ function BowForm({
             key={field.name}
             label={t(`bows.form.${field.name}`)}
             unit={unitOf(field.quantity, system)}
+            hint={t('common.rangeHint', rangeOf(field.name, system, separator))}
             value={values[field.name]}
             onChange={(event) => set(field.name)(event.target.value)}
             error={errorOf(field.name)}

@@ -11,6 +11,40 @@ import { at, bounded, componentStatus, optional, resourceFields, text, uuidv7 } 
 
 // All numeric ranges are canonical units (DICCIONARIO §3): mm, g, N, m/s.
 
+/** A closed range `[min, max]` in canonical units. */
+export type Range = readonly [min: number, max: number];
+
+/**
+ * The ranges of the bow (DICCIONARIO §3.1, RN-EQP-03): real gear from youth to heavy hunting, plus a
+ * margin against typos. They only ever widen: a stored value must stay savable. The form shows them
+ * in the unit of the bow section.
+ */
+export const BOW_RANGES = {
+  iboSpeedMps: [45, 135],
+  letOffPct: [0, 99],
+  drawLengthMm: [300, 900],
+  drawWeightN: [20, 450],
+  axleToAxleMm: [500, 1200],
+  braceHeightMm: [100, 260],
+  sightRadiusMm: [400, 1200],
+  peepHeightMm: [20, 250],
+  dLoopLengthMm: [5, 150],
+} as const satisfies Record<string, Range>;
+
+/** The ranges of an arrow set (DICCIONARIO §3.3, RN-EQP-03); same rules as `BOW_RANGES`. */
+export const ARROW_RANGES = {
+  spine: [100, 2600],
+  cutLengthMm: [300, 900],
+  gpi: [2, 30],
+  pointWeightG: [1, 30],
+  extraWeightG: [0, 30],
+  totalWeightG: [10, 60],
+  vaneCount: [2, 6],
+  measuredSpeedMps: [30, 135],
+} as const satisfies Record<string, Range>;
+
+const inRange = ([min, max]: Range) => optional(bounded(min, max));
+
 const hasManufacturerOrModel = (v: {
   manufacturer?: string | null | undefined;
   model?: string | null | undefined;
@@ -24,16 +58,16 @@ export const bowFields = {
   nickname: optional(text(1, 40)),
   manufacturer: optional(text(1, 60)),
   model: optional(text(1, 60)),
-  iboSpeedMps: optional(bounded(60, 135)),
-  letOffPct: optional(bounded(0, 99)),
-  drawLengthMm: optional(bounded(450, 900)),
-  drawWeightN: optional(bounded(45, 450)),
+  iboSpeedMps: inRange(BOW_RANGES.iboSpeedMps),
+  letOffPct: inRange(BOW_RANGES.letOffPct),
+  drawLengthMm: inRange(BOW_RANGES.drawLengthMm),
+  drawWeightN: inRange(BOW_RANGES.drawWeightN),
   camType: optional(z.enum(CAM_TYPES)),
-  axleToAxleMm: optional(bounded(500, 1200)),
-  braceHeightMm: optional(bounded(100, 260)),
-  sightRadiusMm: optional(bounded(400, 1200)),
-  peepHeightMm: optional(bounded(20, 250)),
-  dLoopLengthMm: optional(bounded(5, 150)),
+  axleToAxleMm: inRange(BOW_RANGES.axleToAxleMm),
+  braceHeightMm: inRange(BOW_RANGES.braceHeightMm),
+  sightRadiusMm: inRange(BOW_RANGES.sightRadiusMm),
+  peepHeightMm: inRange(BOW_RANGES.peepHeightMm),
+  dLoopLengthMm: inRange(BOW_RANGES.dLoopLengthMm),
   rest: optional(z.string().trim().max(80)),
   notes: optional(z.string().trim().max(500)),
 };
@@ -131,17 +165,17 @@ export const arrowSetFields = {
   name: text(1, 40),
   manufacturer: shortText(60),
   model: shortText(60),
-  spine: optional(bounded(100, 2000)),
-  cutLengthMm: optional(bounded(400, 900)),
-  gpi: optional(bounded(2, 30)),
-  pointWeightG: optional(bounded(1, 30)),
-  extraWeightG: optional(bounded(0, 30)),
-  totalWeightG: optional(bounded(10, 60)),
+  spine: inRange(ARROW_RANGES.spine),
+  cutLengthMm: inRange(ARROW_RANGES.cutLengthMm),
+  gpi: inRange(ARROW_RANGES.gpi),
+  pointWeightG: inRange(ARROW_RANGES.pointWeightG),
+  extraWeightG: inRange(ARROW_RANGES.extraWeightG),
+  totalWeightG: inRange(ARROW_RANGES.totalWeightG),
   vanes: shortText(60),
-  vaneCount: optional(z.int().min(2).max(6)),
+  vaneCount: optional(z.int().min(ARROW_RANGES.vaneCount[0]).max(ARROW_RANGES.vaneCount[1])),
   vaneColor: shortText(30),
   nock: shortText(60),
-  measuredSpeedMps: optional(bounded(30, 135)),
+  measuredSpeedMps: inRange(ARROW_RANGES.measuredSpeedMps),
   notes: optional(z.string().trim().max(500)),
 };
 
