@@ -18,6 +18,7 @@ const baseEnv: Env = {
   GOOGLE_CLIENT_SECRET: undefined,
   RESEND_API_KEY: undefined,
   EMAIL_FROM: undefined,
+  AUTH_REQUIRE_EMAIL_VERIFICATION: true,
   CORS_ORIGINS: ['http://localhost:5173'],
   LOG_LEVEL: 'debug',
 };

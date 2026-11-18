@@ -24,6 +24,13 @@ const envSchema = z
     GOOGLE_CLIENT_SECRET: optionalText,
     RESEND_API_KEY: optionalText,
     EMAIL_FROM: optionalText,
+    /**
+     * Temporary switch for early hosted testing: `false` lets a new archer in right after sign-up,
+     * without the verification email. Defaults to `true` (ADR-007).
+     */
+    AUTH_REQUIRE_EMAIL_VERIFICATION: optionalText
+      .pipe(z.enum(['true', 'false']).default('true'))
+      .transform((value) => value === 'true'),
     CORS_ORIGINS: z
       .string()
       .default('')
@@ -49,8 +56,9 @@ const envSchema = z
         message: 'GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET go together',
       });
     }
-    // Locally the verification link is logged; anywhere else real mail must go out.
-    if (env.APP_ENV !== 'local') {
+    // Locally the verification link is logged; anywhere else real mail must go out, unless
+    // verification is switched off (reset links are then only logged).
+    if (env.APP_ENV !== 'local' && env.AUTH_REQUIRE_EMAIL_VERIFICATION) {
       for (const name of ['RESEND_API_KEY', 'EMAIL_FROM'] as const) {
         if (env[name] === undefined) {
           ctx.addIssue({

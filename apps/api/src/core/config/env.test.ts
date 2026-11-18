@@ -27,6 +27,7 @@ describe('parseEnv', () => {
       GOOGLE_CLIENT_SECRET: undefined,
       RESEND_API_KEY: undefined,
       EMAIL_FROM: undefined,
+      AUTH_REQUIRE_EMAIL_VERIFICATION: true,
       CORS_ORIGINS: [],
       LOG_LEVEL: 'info',
     });
@@ -116,5 +117,19 @@ describe('parseEnv', () => {
     );
     expect(parseEnv(hosted).APP_ENV).toBe('staging');
     expect(parseEnv(minimal).APP_ENV).toBe('local');
+  });
+
+  it('requires email verification unless switched off, and then lets a host run without mail', () => {
+    expect(parseEnv(minimal).AUTH_REQUIRE_EMAIL_VERIFICATION).toBe(true);
+    const off = parseEnv({
+      ...minimal,
+      APP_ENV: 'staging',
+      AUTH_REQUIRE_EMAIL_VERIFICATION: 'false',
+    });
+    expect(off.AUTH_REQUIRE_EMAIL_VERIFICATION).toBe(false);
+    expect(off.RESEND_API_KEY).toBeUndefined();
+    expect(() => parseEnv({ ...minimal, AUTH_REQUIRE_EMAIL_VERIFICATION: 'no' })).toThrow(
+      /AUTH_REQUIRE_EMAIL_VERIFICATION/,
+    );
   });
 });

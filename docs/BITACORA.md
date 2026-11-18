@@ -18,6 +18,33 @@
 
 ---
 
+## 2026-11-18 — La verificacion por email se puede apagar para probar en Railway
+
+**Tareas:** F0-20 (preparacion) · **Commit/PR:** `fix/optional-email-verification` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- Variable `AUTH_REQUIRE_EMAIL_VERIFICATION` (default `true`). En `false`: Better Auth no pide
+  verificacion ni manda el email al registrarse, y `parseEnv` deja arrancar fuera de local sin
+  `RESEND_API_KEY`/`EMAIL_FROM` (reset por log).
+- La PWA: si el registro devuelve sesion (`token`), entra directo a Home en vez de "revisa tu email".
+
+### Decisiones
+
+- Interruptor temporal, no cambio de ADR-007: el default sigue exigiendo verificacion.
+
+### Verificado
+
+- `env.test.ts` (default, `false` en staging sin Resend, valor invalido) y un test de integracion
+  en `auth.test.ts`: con el interruptor apagado el registro devuelve token y cookie, `get-session`
+  trae al arquero y no sale ningun email. API 419/419; PWA typecheck/lint/test verdes.
+
+### Pendiente / deuda
+
+- Volver a `true` (o borrar la variable) cuando haya dominio y Resend (F0-20).
+
+---
+
 ## 2026-11-18 — El logo pasa a ser la regla con media mira
 
 **Tareas:** F1-41 (cierra F1-34..F1-41) · **Commit/PR:** PR #4 (`feat/units-ranges-doctor`) · **Tarjeta:** sin tablero (F0-04)

@@ -30,6 +30,7 @@ const env: Env = {
   GOOGLE_CLIENT_SECRET: undefined,
   RESEND_API_KEY: undefined,
   EMAIL_FROM: undefined,
+  AUTH_REQUIRE_EMAIL_VERIFICATION: true,
   CORS_ORIGINS: [ORIGIN],
   LOG_LEVEL: 'silent',
 };
