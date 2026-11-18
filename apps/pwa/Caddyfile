@@ -1,13 +1,23 @@
 # The PWA in production (TECNICO §12): static files, the SPA fallback and the security headers.
-# API_ORIGIN is the API's public origin (https://api.<domain>), set as a Railway variable; PORT is
-# set by Railway.
+# API_UPSTREAM is the API over Railway's private network (api.railway.internal:3000): /api/* goes
+# there, so PWA and API share one origin and the session cookie stays first-party (ADR-007).
+# API_ORIGIN is only needed if the PWA ever calls the API on another origin. PORT is set by Railway.
 {
 	admin off
+	servers {
+		# Railway's edge reaches us from a private address: keep the archer's IP in
+		# X-Forwarded-For, the API's rate limits are per IP.
+		trusted_proxies static private_ranges
+	}
 }
 
 :{$PORT:8080} {
 	root * /srv
 	encode zstd gzip
+
+	handle /api/* {
+		reverse_proxy {$API_UPSTREAM:localhost:3000}
+	}
 
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
@@ -28,6 +38,10 @@
 	@entry path / /index.html /sw.js /registerSW.js /manifest.webmanifest
 	header @entry Cache-Control "no-cache"
 
-	try_files {path} /index.html
-	file_server
+	# In its own handle: try_files runs before handle in Caddy's order and would turn /api/* into
+	# /index.html.
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
 }
