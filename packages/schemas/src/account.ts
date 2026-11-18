@@ -1,4 +1,9 @@
-import { LOCALES, THEMES, UNIT_SYSTEMS } from '@sight-mapper/types';
+import {
+  DEFAULT_UNITS as TYPES_DEFAULT_UNITS,
+  LOCALES,
+  THEMES,
+  UNIT_SYSTEMS,
+} from '@sight-mapper/types';
 import { z } from 'zod';
 import { isoDateTime, uuidv7 } from './common.js';
 
@@ -16,13 +21,8 @@ export const units = z.object({
 });
 export type Units = z.infer<typeof units>;
 
-/** What a new archer starts with: distances metric, equipment in the units of the trade. */
-export const DEFAULT_UNITS: Units = {
-  marks: 'metric',
-  bow: 'imperial',
-  arrows: 'imperial',
-  sight: 'metric',
-};
+/** What a new archer starts with; it lives in `@sight-mapper/types` (no Zod), re-exported here. */
+export const DEFAULT_UNITS: Units = TYPES_DEFAULT_UNITS;
 
 /**
  * The archer's base tolerance of the Mark Doctor (RN-CAL-06, ADR-013): 1 to 10 mm in steps of 0.5.

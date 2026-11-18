@@ -1,11 +1,7 @@
 import { isApiError, useHttp } from '@sight-mapper/client';
-import {
-  DEFAULT_UNITS,
-  type Profile,
-  type QuickAccess,
-  type UpdatePreferences,
-  type Units,
-} from '@sight-mapper/schemas';
+import type { Profile, QuickAccess, UpdatePreferences, Units } from '@sight-mapper/schemas';
+// From `types`, not `schemas`: the shell imports this module, and `schemas` would load Zod with it.
+import { DEFAULT_UNITS } from '@sight-mapper/types';
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const profileKey = ['me'] as const;
