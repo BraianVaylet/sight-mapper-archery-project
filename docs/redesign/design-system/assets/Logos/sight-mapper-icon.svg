@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Sight Mapper">
+<rect width="512" height="512" fill="#10286b"/>
+<clipPath id="left"><rect width="250.88" height="512"/></clipPath>
+<path d="M259.84 102.4A153.6 153.6 0 0 0 259.84 409.6" fill="none" stroke="#ffcc00" stroke-width="17.92" clip-path="url(#left)"/>
+<g fill="#ffffff"><rect x="250.88" y="102.4" width="17.92" height="307.2"/><rect x="268.8" y="98.3" width="102.4" height="8.19"/><rect x="268.8" y="129.02" width="56.32" height="8.19"/><rect x="268.8" y="159.74" width="56.32" height="8.19"/><rect x="268.8" y="190.46" width="56.32" height="8.19"/><rect x="268.8" y="221.18" width="56.32" height="8.19"/><rect x="268.8" y="251.9" width="102.4" height="8.19"/><rect x="268.8" y="282.62" width="56.32" height="8.19"/><rect x="268.8" y="313.34" width="56.32" height="8.19"/><rect x="268.8" y="344.06" width="56.32" height="8.19"/><rect x="268.8" y="374.78" width="56.32" height="8.19"/><rect x="268.8" y="405.5" width="102.4" height="8.19"/></g>
+<circle cx="259.84" cy="256" r="23.04" fill="#ffcc00"/>
+</svg>

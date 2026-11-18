@@ -18,6 +18,32 @@
 
 ---
 
+## 2026-11-18 — El logo pasa a ser la regla con media mira
+
+**Tareas:** F1-41 (cierra F1-34..F1-41) · **Commit/PR:** PR #4 (`feat/units-ranges-doctor`) · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- `apps/pwa/scripts/make-icons.mjs` dibuja el icono nuevo segun el mockup del autor: tile navy
+  `#10286b` y regla blanca de siempre; en lugar del pin amarillo, media mira `#ffcc00` (semicirculo
+  abierto hacia la regla, con las puntas contra sus extremos, y un punto sobre la regla a mitad de
+  altura). Regenera `pwa-192`, `pwa-512` (tambien maskable), `apple-touch-icon` y `favicon-32`, y
+  ahora tambien `sight-mapper-icon-512.png` y `sight-mapper-icon.svg` del design system.
+- Descripcion del logo actualizada en `Logos/README.md`, `DESIGN-SYSTEM.md` y
+  `design-system/README.md`. Capturas de `docs/screens/` regeneradas (dark y light), con la pantalla
+  Doctor nueva (`19-doctor-tolerance`); el menu pasa a `20-menu`.
+
+### Verificado (como se probo, no solo "tests verdes")
+
+- El dibujo llega a 0,763 del medio lado, medido sobre los pixeles del PNG: dentro de la zona segura
+  maskable (0,8). Revisado a 512 px y a 32 px (favicon y cabecera): la media mira se reconoce.
+- E2E de instalacion (manifest, iconos, service worker) 8/8; contraste con capturas 4/4.
+
+### Pendiente / deuda
+
+- El mockup del autor sigue solo en el chat; la referencia del repo es el SVG generado.
+- Prueba al sol del icono en un telefono real (manual, con la de F1-33).
+
 ## 2026-11-18 — El Doctor explica su umbral y el arquero ajusta la tolerancia
 
 **Tareas:** F1-40 · **Commit/PR:** PR #3 (`feat/post-redesign-adjustments`) · **Tarjeta:** sin tablero (F0-04)

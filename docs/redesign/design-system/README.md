@@ -66,7 +66,7 @@ No agregar mas: scanlines, ruido, CRT curvo o tipografias pixel bajan la legibil
 
 - SVG inline de 20px (16 en chapas), trazo 2px, terminaciones cuadradas, `currentColor`, `aria-hidden="true"`. Dibujo geometrico simple: menu, volver, mas, chevron, viento, doctor, imprimir, curva, arco, mira, flecha, papelera, ajustes (deslizadores), perfil, pin, salir.
 - Las formas de estado de marca (circulo, rombo, triangulo, cruz) son parte del sistema y no se reemplazan por iconos.
-- Logo: el icono de la app (`assets/Logos/sight-mapper-icon-512.png`, escala con marca amarilla sobre navy). Es un tile navy propio: se usa igual en ambos temas, sin recolorear.
+- Logo: el icono de la app (`assets/Logos/sight-mapper-icon-512.png` y `sight-mapper-icon.svg`, ~~escala con marca amarilla sobre navy~~ [~] escala blanca con media mira amarilla (un semicirculo abierto hacia la escala y un punto sobre ella a mitad de altura) sobre navy; F1-41, 2026-11-18). Es un tile navy propio: se usa igual en ambos temas, sin recolorear.
 
 ## Movimiento
 

@@ -624,7 +624,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** dominio puro y con `fast-check` del nuevo parametro; `domain-reviewer`; rango de
   la tolerancia acotado y justificado; ES/EN; en mm, y tambien en in si la seccion mira esta en imperial.
 
-### [ ] F1-41 · Logo nuevo: regla blanca + media mira
+### [x] F1-41 · Logo nuevo: regla blanca + media mira
 
 - **Modulo:** pwa, ui, docs · **Puntos:** 2 · **Depende de:** F1-34
 - **Descripcion:** redibujar el icono como SVG segun el mockup del autor (2026-11-17): se mantienen
