@@ -25,6 +25,7 @@ const sight = (over: Record<string, unknown> = {}) => ({
   model: 'Ultraview',
   pinType: 'monopin',
   scale: SCALE,
+  windageScale: null,
   status: 'active',
   ...over,
 });
@@ -187,9 +188,41 @@ describe('New sight (HU-SGT-01)', () => {
     await userEvent.type(screen.getByLabelText('Modelo'), 'Bad');
     await fillScale('10', '5', '1');
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
-    expect(await screen.findByText('El máximo debe ser mayor que el mínimo.')).toBeInTheDocument();
+    // The horizontal scale is still a copy of the vertical one, so it says the same.
+    expect(await screen.findAllByText('El máximo debe ser mayor que el mínimo.')).toHaveLength(2);
     expect(screen.getByLabelText('Máximo')).toHaveAttribute('aria-invalid', 'true');
     expect(api.sent).toEqual([]);
+  });
+
+  it('sends the horizontal scale as a copy of the vertical one, growing right (F1-42)', async () => {
+    const api = sightsServer();
+    await open(api);
+    await userEvent.type(screen.getByLabelText('Modelo'), 'Ultraview');
+    await fillScale('0', '10', '1');
+    expect(screen.getByLabelText('Máximo horizontal')).toHaveValue('10');
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(await screen.findByRole('heading', { name: 'Miras' })).toBeInTheDocument();
+    expect(posted(api)).toMatchObject({
+      windageScale: { unit: 'mm', min: 0, max: 10, resolution: 1, direction: 'right' },
+    });
+  });
+
+  it('stops copying once the archer edits the horizontal scale', async () => {
+    const api = sightsServer();
+    await open(api);
+    await userEvent.type(screen.getByLabelText('Modelo'), 'Ultraview');
+    await fillScale('0', '10', '1');
+    await userEvent.clear(screen.getByLabelText('Mínimo horizontal'));
+    await userEvent.type(screen.getByLabelText('Mínimo horizontal'), '-10');
+    await userEvent.clear(screen.getByLabelText('Máximo'));
+    await userEvent.type(screen.getByLabelText('Máximo'), '20');
+    expect(screen.getByLabelText('Máximo horizontal')).toHaveValue('10');
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(await screen.findByRole('heading', { name: 'Miras' })).toBeInTheDocument();
+    expect(posted(api)).toMatchObject({
+      scale: { max: 20 },
+      windageScale: { min: -10, max: 10 },
+    });
   });
 
   it('does not draw a preview for numbers that make no scale', async () => {
@@ -200,6 +233,14 @@ describe('New sight (HU-SGT-01)', () => {
 });
 
 describe('Edit sight', () => {
+  it('invites to add the horizontal scale to a sight that has none (F1-42)', async () => {
+    renderApp(`/sights/${SIGHT_ID}`, sightsServer().fetch);
+    expect(
+      await screen.findByText(/Esta mira todavía no tiene escala horizontal/),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Mínimo horizontal')).toHaveValue('');
+  });
+
   it('opens with the saved values and saves with the version it saw', async () => {
     const api = sightsServer();
     renderApp(`/sights/${SIGHT_ID}`, api.fetch);

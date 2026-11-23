@@ -256,6 +256,22 @@ export const es = {
       direction: 'La numeración',
       dirDown: 'Crece hacia abajo',
       dirUp: 'Crece hacia arriba',
+      windage: {
+        title: 'Escala horizontal',
+        unit: 'Unidad de la escala horizontal',
+        min: 'Mínimo horizontal',
+        max: 'Máximo horizontal',
+        resolution: 'Paso más chico horizontal',
+        unitSizeMm: 'Tamaño de una unidad horizontal',
+        lengthMm: 'Largo horizontal entre mínimo y máximo',
+        direction: 'La numeración horizontal (vista desde atrás de la mira)',
+        dirRight: 'Crece hacia la derecha',
+        dirLeft: 'Crece hacia la izquierda',
+        copied:
+          'La copiamos de la escala vertical: corregila si tu perilla horizontal es distinta.',
+        missing:
+          'Esta mira todavía no tiene escala horizontal. Cargala para anotar la deriva de cada marca.',
+      },
       travel: 'Recorrido: {{travel}} mm',
       noPhysicalSize: 'Sin tamaño de unidad: el tape a escala no va a estar disponible.',
       preview: 'Vista previa de la regla',

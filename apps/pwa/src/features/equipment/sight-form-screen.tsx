@@ -29,12 +29,97 @@ import {
   toSightInput,
   toSightPatch,
   travelMm,
+  withWindageCopy,
+  type ScaleFormValues,
   type SightFormValues,
 } from './sight-form.logic.js';
 import { useAfterSave, type AfterSave } from './after-save.js';
 import { sightHooks, type SightResource } from './sights.js';
 
 const NAME_FIELDS = ['nickname', 'manufacturer', 'model'] as const;
+
+type ScaleFieldsProps = {
+  block: ScaleFormValues;
+  onChange: (name: keyof ScaleFormValues, value: string) => void;
+  errorOf: (name: string) => string | undefined;
+  /** Prefix of the error keys of this block: `''` or `'windage.'`. */
+  errorPrefix: string;
+  label: (
+    name: 'unit' | 'min' | 'max' | 'resolution' | 'unitSizeMm' | 'lengthMm' | 'direction',
+  ) => string;
+  directions: readonly { value: string; label: string }[];
+};
+
+/** The fields of one scale: the vertical one and the horizontal one share them (F1-42). */
+function ScaleFields({
+  block,
+  onChange,
+  errorOf,
+  errorPrefix,
+  label,
+  directions,
+}: ScaleFieldsProps) {
+  const { t } = useI18n();
+  const fixed = hasFixedSize(block.unit);
+  const number = (name: 'min' | 'max' | 'resolution') => (
+    <NumberField
+      label={label(name)}
+      value={block[name]}
+      onChange={(event) => onChange(name, event.target.value)}
+      error={errorOf(errorPrefix + name)}
+    />
+  );
+  return (
+    <>
+      <Select
+        label={label('unit')}
+        value={block.unit}
+        onChange={(event) => onChange('unit', event.target.value)}
+        options={[
+          { value: 'mm', label: t('sights.form.unitMm') },
+          { value: 'cm', label: t('sights.form.unitCm') },
+          { value: 'in', label: t('sights.form.unitIn') },
+          { value: 'click', label: t('sights.form.unitClick') },
+          { value: 'custom', label: t('sights.form.unitCustom') },
+        ]}
+      />
+      <div className="grid gap-4 sm:grid-cols-3">
+        {number('min')}
+        {number('max')}
+        {number('resolution')}
+      </div>
+      {fixed ? null : (
+        <>
+          <NumberField
+            label={label('unitSizeMm')}
+            unit="mm"
+            hint={t('sights.form.unitSizeHint')}
+            value={block.unitSizeMm}
+            onChange={(event) => onChange('unitSizeMm', event.target.value)}
+            error={errorOf(errorPrefix + 'unitSizeMm')}
+          />
+          <NumberField
+            label={label('lengthMm')}
+            unit="mm"
+            value={block.lengthMm}
+            onChange={(event) => onChange('lengthMm', event.target.value)}
+            error={errorOf(errorPrefix + 'lengthMm')}
+          />
+        </>
+      )}
+      <Segmented
+        label={label('direction')}
+        value={
+          directions.some((d) => d.value === block.direction)
+            ? block.direction
+            : (directions[0]?.value ?? '')
+        }
+        onChange={(value) => onChange('direction', value)}
+        options={directions}
+      />
+    </>
+  );
+}
 
 /** New sight (no `id`) or edit of one: scale with preview, archive and protected delete. */
 export function SightFormScreen({
@@ -96,6 +181,9 @@ function SightForm({
   const [values, setValues] = useState<SightFormValues>(() =>
     toFormValues(sight, separator, units.sight === 'imperial' ? 'in' : 'mm'),
   );
+  // A new sight's horizontal scale follows the vertical one until the archer touches it (F1-42).
+  const [windageTouched, setWindageTouched] = useState(sight !== undefined);
+  const legacyWithoutWindage = sight !== undefined && sight.windageScale === null;
   const [errors, setErrors] = useState<Partial<Record<string, ValidationIssue>>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [needStrategy, setNeedStrategy] = useState(false);
@@ -106,8 +194,15 @@ function SightForm({
   const action = sightHooks.useAction();
   const failure = create.error ?? update.error ?? remove.error ?? action.error;
 
-  const set = (name: keyof SightFormValues) => (value: string) =>
-    setValues((current) => ({ ...current, [name]: value }));
+  const set = (name: Exclude<keyof SightFormValues, 'windage'>) => (value: string) =>
+    setValues((current) => {
+      const next = { ...current, [name]: value };
+      return windageTouched ? next : withWindageCopy(next);
+    });
+  const setWindage = (name: keyof ScaleFormValues, value: string) => {
+    setWindageTouched(true);
+    setValues((current) => ({ ...current, windage: { ...current.windage, [name]: value } }));
+  };
   const errorOf = (name: string) => {
     const issue = errors[name];
     return issue === undefined ? undefined : fieldError([issue], translate);
@@ -116,9 +211,15 @@ function SightForm({
   const scale = useMemo(() => previewScale(values), [values]);
   const travel = travelMm(values);
   const fixed = hasFixedSize(values.unit);
+  const verticalLabel = (name: Parameters<ScaleFieldsProps['label']>[0]) =>
+    t(`sights.form.${name}`);
+  const windageLabel = (name: Parameters<ScaleFieldsProps['label']>[0]) =>
+    t(`sights.form.windage.${name}`);
 
   async function submit(strategy?: ScaleChangeStrategy) {
-    const result = toSightInput(values, sight?.id ?? newSightId);
+    const result = toSightInput(values, sight?.id ?? newSightId, {
+      requireWindage: sight === undefined,
+    });
     if (!result.ok) {
       setErrors(result.errors);
       return;
@@ -132,7 +233,10 @@ function SightForm({
           id: sight.id,
           patch: {
             ...toSightPatch(result),
-            ...(strategy === undefined ? {} : { scaleChangeStrategy: strategy }),
+            // One answer covers both scales: the archer chooses what to keep, not which axis.
+            ...(strategy === undefined
+              ? {}
+              : { scaleChangeStrategy: strategy, windageScaleChangeStrategy: strategy }),
           },
         });
       }
@@ -194,62 +298,13 @@ function SightForm({
       </SectionCard>
 
       <SectionCard index="02" title={t('sights.form.sectionScale')}>
-        <Select
-          label={t('sights.form.unit')}
-          value={values.unit}
-          onChange={(event) => set('unit')(event.target.value)}
-          options={[
-            { value: 'mm', label: t('sights.form.unitMm') },
-            { value: 'cm', label: t('sights.form.unitCm') },
-            { value: 'in', label: t('sights.form.unitIn') },
-            { value: 'click', label: t('sights.form.unitClick') },
-            { value: 'custom', label: t('sights.form.unitCustom') },
-          ]}
-        />
-        <div className="grid gap-4 sm:grid-cols-3">
-          <NumberField
-            label={t('sights.form.min')}
-            value={values.min}
-            onChange={(event) => set('min')(event.target.value)}
-            error={errorOf('min')}
-          />
-          <NumberField
-            label={t('sights.form.max')}
-            value={values.max}
-            onChange={(event) => set('max')(event.target.value)}
-            error={errorOf('max')}
-          />
-          <NumberField
-            label={t('sights.form.resolution')}
-            value={values.resolution}
-            onChange={(event) => set('resolution')(event.target.value)}
-            error={errorOf('resolution')}
-          />
-        </div>
-        {fixed ? null : (
-          <>
-            <NumberField
-              label={t('sights.form.unitSizeMm')}
-              unit="mm"
-              hint={t('sights.form.unitSizeHint')}
-              value={values.unitSizeMm}
-              onChange={(event) => set('unitSizeMm')(event.target.value)}
-              error={errorOf('unitSizeMm')}
-            />
-            <NumberField
-              label={t('sights.form.lengthMm')}
-              unit="mm"
-              value={values.lengthMm}
-              onChange={(event) => set('lengthMm')(event.target.value)}
-              error={errorOf('lengthMm')}
-            />
-          </>
-        )}
-        <Segmented
-          label={t('sights.form.direction')}
-          value={values.direction === 'up' ? 'up' : 'down'}
-          onChange={set('direction')}
-          options={[
+        <ScaleFields
+          block={values}
+          onChange={(name, value) => set(name)(value)}
+          errorOf={errorOf}
+          errorPrefix=""
+          label={verticalLabel}
+          directions={[
             { value: 'down', label: t('sights.form.dirDown') },
             { value: 'up', label: t('sights.form.dirUp') },
           ]}
@@ -278,7 +333,27 @@ function SightForm({
         )}
       </SectionCard>
 
-      <SectionCard index="03" title={t('sights.form.sectionNotes')}>
+      <SectionCard index="03" title={t('sights.form.windage.title')}>
+        {legacyWithoutWindage ? (
+          <InfoAlert variant="info">{t('sights.form.windage.missing')}</InfoAlert>
+        ) : null}
+        {sight === undefined && !windageTouched ? (
+          <p className="font-ui text-sm text-muted">{t('sights.form.windage.copied')}</p>
+        ) : null}
+        <ScaleFields
+          block={values.windage}
+          onChange={setWindage}
+          errorOf={errorOf}
+          errorPrefix="windage."
+          label={windageLabel}
+          directions={[
+            { value: 'right', label: t('sights.form.windage.dirRight') },
+            { value: 'left', label: t('sights.form.windage.dirLeft') },
+          ]}
+        />
+      </SectionCard>
+
+      <SectionCard index="04" title={t('sights.form.sectionNotes')}>
         <Field
           label={t('sights.form.notes')}
           value={values.notes}

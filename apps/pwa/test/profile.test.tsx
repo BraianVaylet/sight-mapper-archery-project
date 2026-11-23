@@ -10,7 +10,7 @@ type Sent = { method: string; path: string; ifMatch: string | null; idempotencyK
 type Handler = (request: Request) => Response | Promise<Response>;
 
 const EXPORT = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   exportedAt: '2026-11-02T12:00:00Z',
   profile: {
     locale: 'es',

@@ -158,6 +158,7 @@ describe('toFormValues', () => {
     arrowSetId: IDS.arrowSetId,
     distanceM: 45.72,
     scaleValueMm: 16,
+    windageMm: null,
     origin: 'measured',
     note: 'viento',
     measuredAt: '2026-11-03T12:00:00Z',
