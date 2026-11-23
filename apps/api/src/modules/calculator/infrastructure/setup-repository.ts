@@ -16,6 +16,8 @@ const schema = createBusinessSchema(
     sightId: { type: String, required: true },
     arrowSetIds: { type: [String], required: true },
     isFavorite: { type: Boolean, required: true, default: false },
+    /** F1-42. Missing on setups with no windage written down. */
+    windageMm: { type: Number },
     status: { type: String, required: true, default: 'active' },
   },
   { collection: 'setups' },
@@ -29,6 +31,7 @@ type Row = {
   sightId: string;
   arrowSetIds: string[];
   isFavorite: boolean;
+  windageMm?: number | null;
   status: Setup['status'];
   version: number;
   createdAt: Date;
@@ -44,6 +47,7 @@ const toSetup = (row: Row): Setup => ({
   sightId: row.sightId,
   arrowSetIds: row.arrowSetIds,
   isFavorite: row.isFavorite,
+  windageMm: row.windageMm ?? null,
   status: row.status,
   version: row.version,
   createdAt: fromDate(row.createdAt),
@@ -52,6 +56,13 @@ const toSetup = (row: Row): Setup => ({
 });
 
 const FIELD_OF = { bow: 'bowId', sight: 'sightId', arrowSet: 'arrowSetIds' } as const;
+
+/** The live setups among these that have a windage written down. */
+const withWindage = (userId: string, setupIds: readonly string[]) => ({
+  userId,
+  _id: { $in: [...setupIds] },
+  windageMm: { $ne: null },
+});
 
 export function createSetupRepositories(connection: DbConnection): SetupRepositories {
   const Setups = connection.model('Setup', schema) as unknown as Model<Row>;
@@ -112,6 +123,7 @@ export function createSetupRepositories(connection: DbConnection): SetupReposito
               sightId: setup.sightId,
               arrowSetIds: [...setup.arrowSetIds],
               isFavorite: setup.isFavorite,
+              ...(setup.windageMm === null ? {} : { windageMm: setup.windageMm }),
               status: setup.status,
               version: setup.version,
               createdAt: toDate(setup.createdAt),
@@ -129,6 +141,8 @@ export function createSetupRepositories(connection: DbConnection): SetupReposito
           else if (patch.name !== undefined) set['name'] = patch.name;
           if (patch.isFavorite !== undefined) set['isFavorite'] = patch.isFavorite;
           if (patch.arrowSetIds !== undefined) set['arrowSetIds'] = [...patch.arrowSetIds];
+          if (patch.windageMm === null) unset['windageMm'] = 1;
+          else if (patch.windageMm !== undefined) set['windageMm'] = patch.windageMm;
           const row = await updateWithVersion(
             Setups,
             { userId, id },
@@ -198,6 +212,28 @@ export function createSetupRepositories(connection: DbConnection): SetupReposito
             .select('_id')
             .lean<{ _id: string }[]>();
           return rows.map((row) => row._id);
+        },
+
+        async windagesOf(setupIds) {
+          if (setupIds.length === 0) return [];
+          const rows = await Setups.find(withWindage(userId, setupIds))
+            .select('windageMm')
+            .lean<{ windageMm: number }[]>();
+          return rows.map((row) => row.windageMm);
+        },
+
+        async scaleWindages(setupIds, factor, now) {
+          if (setupIds.length === 0) return;
+          // One pipeline update, like the marks: the windage times the factor, to a millionth of a mm.
+          await Setups.updateMany(withWindage(userId, setupIds), [
+            {
+              $set: {
+                windageMm: { $round: [{ $multiply: ['$windageMm', factor] }, 6] },
+                updatedAt: toDate(now),
+                version: { $add: ['$version', 1] },
+              },
+            },
+          ]);
         },
       };
 

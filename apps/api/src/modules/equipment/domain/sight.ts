@@ -36,7 +36,7 @@ export type ScaleChange = {
 export type SightMarksPort = {
   /**
    * Live marks measured on this sight, whatever the setup or arrow set. On the `windage` axis,
-   * only those with a windage written down (RN-SGT-05).
+   * the setups of this sight that have a base windage written down (RN-SGT-05).
    */
   count(userId: string, sightId: string, axis?: ScaleChange['axis']): Promise<number>;
   /** How many marks would fall off the scale once `change` is applied. */

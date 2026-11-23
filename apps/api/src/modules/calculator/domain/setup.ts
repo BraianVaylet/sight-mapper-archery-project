@@ -11,6 +11,8 @@ export type Setup = {
   readonly sightId: string;
   readonly arrowSetIds: readonly string[];
   readonly isFavorite: boolean;
+  /** Base windage in mm, one for every distance and arrow set (F1-42). `null`: not written down. */
+  readonly windageMm: number | null;
   readonly status: ComponentStatus;
   readonly version: number;
   readonly createdAt: Temporal.Instant;
@@ -32,6 +34,8 @@ export type SetupPatch = {
   readonly name?: string | null | undefined;
   readonly isFavorite?: boolean | undefined;
   readonly arrowSetIds?: readonly string[] | undefined;
+  /** `null` clears it. */
+  readonly windageMm?: number | null | undefined;
 };
 
 export type ComponentKind = 'bow' | 'sight' | 'arrowSet';
@@ -62,6 +66,10 @@ export type SetupRepository = {
   restore(id: string, now: Temporal.Instant): Promise<Setup>;
   /** Ids of the live setups (archived ones too) that use a component. */
   idsUsing(kind: ComponentKind, componentId: string): Promise<readonly string[]>;
+  /** The windages written down on these setups (those without one are left out), for a scale change. */
+  windagesOf(setupIds: readonly string[]): Promise<readonly number[]>;
+  /** Rewrites those windages: each becomes `windage * factor` (keeping readings). */
+  scaleWindages(setupIds: readonly string[], factor: number, now: Temporal.Instant): Promise<void>;
 };
 
 export type SetupRepositories = { forUser(userId: string): SetupRepository };

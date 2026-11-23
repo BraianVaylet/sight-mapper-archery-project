@@ -45,6 +45,7 @@ export function createSetupViews(deps: SetupViewsDeps) {
           sightId: setup.sightId,
           arrowSetIds: [...setup.arrowSetIds],
           isFavorite: setup.isFavorite,
+          windageMm: setup.windageMm,
           status: setup.status,
           bow,
           sight,
