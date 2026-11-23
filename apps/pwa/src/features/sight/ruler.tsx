@@ -326,6 +326,17 @@ function HorizontalRuler({
                   strokeWidth={2}
                 />
               )}
+              {/* Equal windages are common: a label pushed aside keeps a leader to its real spot. */}
+              {Math.abs(spot.labelPositionPx - x) > 1 ? (
+                <line
+                  x1={x}
+                  x2={spot.labelPositionPx}
+                  y1={top - 6}
+                  y2={top - 10}
+                  className="stroke-muted"
+                  strokeWidth={1}
+                />
+              ) : null}
               <text
                 x={spot.labelPositionPx}
                 y={top - 14}

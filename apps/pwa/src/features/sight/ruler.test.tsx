@@ -96,6 +96,27 @@ describe('Ruler, horizontal (windage, F1-42)', () => {
     expect(guideX(container)).toBe(300);
   });
 
+  it('joins a label pushed aside to its real spot, so equal windages are not misread', () => {
+    const { container } = render(
+      <Ruler
+        orientation="horizontal"
+        scale={windage}
+        marks={[
+          { id: 'a', reading: 2.5, measured: true, label: '18 m' },
+          { id: 'b', reading: 2.5, measured: true, label: '30 m' },
+        ]}
+        label="Deriva"
+        formatValue={(v) => v.toFixed(0)}
+        lengthPx={300}
+      />,
+    );
+    const lines = [...container.querySelectorAll('[data-mark="measured"]')].map(
+      (g) => g.querySelectorAll('line').length,
+    );
+    // One guide line each, plus a leader on the label that had to move.
+    expect(lines.reduce((sum, n) => sum + n, 0)).toBe(3);
+  });
+
   it('picks a mark when it is tapped', () => {
     const picked: string[] = [];
     const { container } = draw('down', (id) => picked.push(id));
