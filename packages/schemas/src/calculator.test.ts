@@ -199,31 +199,29 @@ describe('listMarksQuery', () => {
   });
 });
 
-describe('windage of a mark (F1-42)', () => {
-  const ok = { id: ID.a, setupId: ID.b, arrowSetId: ID.c, distanceM: 40, scaleValueMm: 35 };
+describe('windage of a setup (F1-42, RN-STP-08)', () => {
+  const stored = {
+    ...resource,
+    id: ID.a,
+    bowId: ID.b,
+    sightId: ID.c,
+    arrowSetIds: [ID.d],
+    isFavorite: false,
+    status: 'active',
+  };
 
-  it('is optional on create, and may be null', () => {
-    expect(createMark.parse(ok).windageMm).toBeUndefined();
-    expect(createMark.parse({ ...ok, windageMm: null }).windageMm).toBeNull();
-    expect(createMark.parse({ ...ok, windageMm: -2.5 }).windageMm).toBe(-2.5);
+  it('reads as null on a stored setup that has none', () => {
+    expect(setup.parse(stored).windageMm).toBeNull();
+    expect(setup.parse({ ...stored, windageMm: -2.5 }).windageMm).toBe(-2.5);
   });
 
-  it('can be cleared on update', () => {
-    expect(updateMark.parse({ windageMm: null })).toEqual({ windageMm: null });
+  it('is set and cleared by a PATCH', () => {
+    expect(updateSetup.parse({ windageMm: 3 })).toEqual({ windageMm: 3 });
+    expect(updateSetup.parse({ windageMm: null })).toEqual({ windageMm: null });
   });
 
-  it('reads as null on a stored mark that has none', () => {
-    const stored = {
-      ...resource,
-      id: ID.a,
-      setupId: ID.b,
-      arrowSetId: ID.c,
-      distanceM: 40,
-      scaleValueMm: 35,
-      origin: 'measured',
-      note: null,
-      measuredAt: NOW,
-    };
-    expect(mark.parse(stored).windageMm).toBeNull();
+  it('is no longer part of a mark', () => {
+    const ok = { id: ID.a, setupId: ID.b, arrowSetId: ID.c, distanceM: 40, scaleValueMm: 35 };
+    expect(createMark.parse({ ...ok, windageMm: 3 })).not.toHaveProperty('windageMm');
   });
 });
