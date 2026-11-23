@@ -27,18 +27,18 @@ describe('buildAppVersion', () => {
   const root = JSON.parse(readFileSync(ROOT, 'utf8')) as { version: string };
 
   it('reads the version of the root package.json', () => {
-    expect(root.version).toBe('0.1.0');
+    expect(root.version).toBe('0.2.0');
     expect(buildAppVersion(ROOT, { RAILWAY_ENVIRONMENT_NAME: 'production', GITHUB_SHA: SHA })).toBe(
-      '0.1.0',
+      '0.2.0',
     );
   });
 
   it('takes the commit Railway or GitHub reports before asking git', () => {
-    expect(buildAppVersion(ROOT, { RAILWAY_GIT_COMMIT_SHA: SHA })).toBe('0.1.0+4d5db01');
-    expect(buildAppVersion(ROOT, { GITHUB_SHA: SHA })).toBe('0.1.0+4d5db01');
+    expect(buildAppVersion(ROOT, { RAILWAY_GIT_COMMIT_SHA: SHA })).toBe('0.2.0+4d5db01');
+    expect(buildAppVersion(ROOT, { GITHUB_SHA: SHA })).toBe('0.2.0+4d5db01');
   });
 
   it('falls back to the local git commit outside CI', () => {
-    expect(buildAppVersion(ROOT, {})).toMatch(/^0\.1\.0(\+[0-9a-f]{7})?$/);
+    expect(buildAppVersion(ROOT, {})).toMatch(/^0\.2\.0(\+[0-9a-f]{7})?$/);
   });
 });
