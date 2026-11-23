@@ -3,7 +3,6 @@ import { BottomSheet, Button, Field, InfoAlert, NumberField } from '@sight-mappe
 import type { SightScale } from '@sight-mapper/domain';
 import type { CreateMark, Mark } from '@sight-mapper/schemas';
 import type { UnitSystem } from '@sight-mapper/types';
-import { Link } from '@tanstack/react-router';
 import { useState, type ReactNode } from 'react';
 import { decimalSeparator } from '@sight-mapper/i18n';
 import { useI18n } from '../../app/i18n.js';
@@ -28,10 +27,6 @@ export type MarkSheetProps = {
   error: string | undefined;
   ids: { setupId: string; arrowSetId: string };
   scale: SightScale;
-  /** The horizontal scale (F1-42); `null` when the sight has none yet. */
-  windageScale: SightScale | null;
-  /** For the link that adds the horizontal scale to the sight. */
-  sightId: string;
   system: UnitSystem;
   onSubmit: (input: CreateMark, values: MarkFormValues) => void;
   onDelete: (() => void) | undefined;
@@ -62,12 +57,11 @@ function Step({
  */
 export function MarkSheet(props: MarkSheetProps) {
   const { t, locale, translate } = useI18n();
-  const { mode, mark, scale, windageScale, system, ids } = props;
+  const { mode, mark, scale, system, ids } = props;
   const separator = decimalSeparator(locale);
   const context: MarkFormContext = {
     system,
     scale,
-    windageScale,
     separator,
     distanceUnit: t(
       system === 'metric' ? 'sight.distanceUnitMetric' : 'sight.distanceUnitImperial',
@@ -157,23 +151,6 @@ export function MarkSheet(props: MarkSheetProps) {
           </Step>
         </div>
 
-        {windageScale === null ? (
-          <Link
-            to="/sights/$id"
-            params={{ id: props.sightId }}
-            className="inline-flex min-h-12 items-center self-start font-ui text-base text-info underline underline-offset-[3px]"
-          >
-            {t('mark.windageEditSight')}
-          </Link>
-        ) : (
-          <NumberField
-            label={t('mark.windage')}
-            hint={t('mark.windageHint')}
-            value={values.windage}
-            onChange={(event) => set('windage')(event.target.value)}
-            error={say(errors.windage)}
-          />
-        )}
         <Field
           label={t('mark.note')}
           value={values.note}

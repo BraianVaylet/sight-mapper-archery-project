@@ -31,7 +31,6 @@ const mark = (distanceM: number, reading: number): Mark => ({
   arrowSetId: 'a',
   distanceM,
   scaleValueMm: reading * 10,
-  windageMm: null,
   origin: 'measured',
   measuredAt: '2026-11-03T12:00:00Z',
 });

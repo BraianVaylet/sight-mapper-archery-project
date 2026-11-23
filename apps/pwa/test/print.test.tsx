@@ -50,7 +50,11 @@ const mark = (distanceM: number, reading: number) => ({
 
 const HUNTER = [mark(20, 0.3), mark(30, 0.8), mark(40, 1.6), mark(50, 2.6), mark(60, 3.6)];
 
-function server(marks: ReturnType<typeof mark>[], unitSystem: 'metric' | 'imperial' = 'metric') {
+function server(
+  marks: ReturnType<typeof mark>[],
+  unitSystem: 'metric' | 'imperial' = 'metric',
+  over: Record<string, unknown> = {},
+) {
   return fakeApi({
     'GET /api/auth/get-session': () => json(ANA),
     'GET /api/v1/me': () =>
@@ -63,7 +67,7 @@ function server(marks: ReturnType<typeof mark>[], unitSystem: 'metric' | 'imperi
         version: 1,
       }),
     'GET /api/v1/setups': () => json({ items: [setup], nextCursor: null }),
-    [`GET /api/v1/setups/${SETUP_ID}`]: () => json(setup),
+    [`GET /api/v1/setups/${SETUP_ID}`]: () => json({ ...setup, ...over }),
     [`GET /api/v1/setups/${SETUP_ID}/marks`]: () => json({ items: marks }),
   });
 }
@@ -78,6 +82,25 @@ const rowsOf = async () => {
 };
 
 describe('The printable list (HU-CAL-05)', () => {
+  it('heads the sheet with the base windage of the setup, when it has one (F1-42)', async () => {
+    const windy = {
+      windageMm: 4.5,
+      sight: {
+        ...setup.sight,
+        windageScale: { unit: 'mm', min: -10, max: 10, resolution: 0.5, direction: 'right' },
+      },
+    };
+    renderApp(`/setups/${SETUP_ID}/print`, server(HUNTER, 'metric', windy).fetch);
+    const s = await sheet();
+    expect(s.getByText('Deriva')).toBeInTheDocument();
+    expect(s.getByText('4,5')).toBeInTheDocument();
+  });
+
+  it('leaves the windage out of the sheet when the setup has none', async () => {
+    open(HUNTER);
+    expect((await sheet()).queryByText('Deriva')).toBeNull();
+  });
+
   it('heads the sheet with the setup, the bow, the sight, the arrows, the date and the unit', async () => {
     open(HUNTER);
     const s = await sheet();

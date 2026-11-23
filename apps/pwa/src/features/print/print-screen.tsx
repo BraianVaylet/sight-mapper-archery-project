@@ -19,6 +19,7 @@ import { RangeFields, useRange } from '../distances/range-controls.js';
 import { componentName } from '../equipment/names.js';
 import { useSetupName } from '../setups/home-screen.js';
 import { useSightData } from '../sight/sight-data.js';
+import { showReading } from '../sight/sight.logic.js';
 import { WithSetup } from '../sight/with-setup.js';
 import { printSheet } from './print.logic.js';
 
@@ -50,6 +51,11 @@ function PrintView({
   const nameOf = useSetupName();
   const { system, separator, arrowId, marksQuery, marks, scale, windageScale, analysis } =
     useSightData(setup, arrowSetId);
+  /** The base windage of the setup (F1-42): one for the whole sheet, so it goes in the head. */
+  const windage =
+    setup.windageMm === null || windageScale === null
+      ? undefined
+      : showReading(setup.windageMm, windageScale, separator);
 
   const go = (search: Record<string, unknown>) =>
     void navigate({
@@ -60,7 +66,7 @@ function PrintView({
     });
   const rangeState = useRange({ marks, system, step, from, to, go });
   const grid = buildGrid(analysis, rangeState.range, system);
-  const sheet = printSheet(grid, { marks, scale: windageScale });
+  const sheet = printSheet(grid);
 
   const unit = t(system === 'metric' ? 'sight.distanceUnitMetric' : 'sight.distanceUnitImperial');
   const arrowOptions = setup.arrowSets.map((a) => ({ value: a.id, label: a.name }));
@@ -152,6 +158,12 @@ function PrintView({
             ))}
             <dt className="font-semibold">{t('print.unitLine')}</dt>
             <dd>{t('print.step', { step: rangeState.range.step, unit })}</dd>
+            {windage === undefined ? null : (
+              <>
+                <dt className="font-semibold">{t('print.windage')}</dt>
+                <dd className="tabular-nums">{windage}</dd>
+              </>
+            )}
           </dl>
 
           <table className="w-full max-w-md border-collapse font-ui text-lg">
@@ -164,11 +176,6 @@ function PrintView({
                 <th scope="col" className="py-1 font-semibold">
                   {t('sight.reading')}
                 </th>
-                {sheet.columns.windage ? (
-                  <th scope="col" className="py-1 pl-6 font-semibold">
-                    {t('print.windage')}
-                  </th>
-                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -186,13 +193,6 @@ function PrintView({
                     {formatReading(row.reading, scale, separator)}
                     {row.caution ? ' *' : ''}
                   </td>
-                  {sheet.columns.windage ? (
-                    <td className="py-1 pl-6 tabular-nums font-semibold">
-                      {row.windage === null || windageScale === null
-                        ? ''
-                        : formatReading(row.windage, windageScale, separator)}
-                    </td>
-                  ) : null}
                 </tr>
               ))}
             </tbody>
