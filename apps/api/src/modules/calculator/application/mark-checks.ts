@@ -1,5 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill';
-import { scaleBoundsMm } from '@sight-mapper/domain';
+import { scaleBoundsMm, windageAxisScale } from '@sight-mapper/domain';
 import { AppError } from '../../../core/http/errors.js';
 import type { Mark } from '../domain/mark.js';
 import type { Clock, EquipmentReadPort, Setup, SetupRepositories } from '../domain/setup.js';
@@ -46,6 +46,24 @@ export function createMarkChecks(deps: MarkChecksDeps) {
       });
       if (scaleValueMm < minMm || scaleValueMm > maxMm) {
         throw new AppError('SM-MARK-422-001', { minMm, maxMm });
+      }
+    },
+
+    /** RN-MRK-07: a windage needs a horizontal scale on the sight, and must lie within it. */
+    async onWindageScale(userId: string, setup: Setup, windageMm: number): Promise<void> {
+      const [sight] = await deps.equipment.sights(userId, [setup.sightId]);
+      if (sight === undefined) {
+        throw new AppError('SM-STP-422-001', { kind: 'sight', id: setup.sightId });
+      }
+      if (sight.windageScale === null) throw new AppError('SM-MARK-422-003', {});
+      const { minMm, maxMm } = scaleBoundsMm(
+        windageAxisScale({
+          ...sight.windageScale,
+          unitSizeMm: sight.windageScale.unitSizeMm ?? null,
+        }),
+      );
+      if (windageMm < minMm || windageMm > maxMm) {
+        throw new AppError('SM-MARK-422-004', { minMm, maxMm });
       }
     },
 

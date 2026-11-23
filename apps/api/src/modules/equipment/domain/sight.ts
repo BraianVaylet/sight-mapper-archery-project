@@ -12,8 +12,8 @@ export type SightFields = Omit<CreateSight, 'id'>;
 
 export type Sight = SightFields & ComponentMeta;
 
-/** What a PATCH writes: the sight's own fields, without the instruction about its marks. */
-export type SightPatch = Omit<UpdateSight, 'scaleChangeStrategy'>;
+/** What a PATCH writes: the sight's own fields, without the instructions about its marks. */
+export type SightPatch = Omit<UpdateSight, 'scaleChangeStrategy' | 'windageScaleChangeStrategy'>;
 
 export type SightRepositories = ComponentRepositories<Sight, SightPatch>;
 
@@ -22,6 +22,11 @@ export type ScaleChange = {
   readonly from: SightScaleInput;
   readonly to: SightScaleInput;
   readonly strategy: ScaleChangeStrategy | undefined;
+  /**
+   * Which scale changed (F1-42). For `windage`, `from` and `to` are the horizontal scales already
+   * mapped onto an axis (`windageAxisScale`), so the same arithmetic applies.
+   */
+  readonly axis: 'vertical' | 'windage';
 };
 
 /**
@@ -29,8 +34,11 @@ export type ScaleChange = {
  * a sight. Equipment never imports calculator. Until that module exists the answer is "none".
  */
 export type SightMarksPort = {
-  /** Live marks measured on this sight, whatever the setup or arrow set. */
-  count(userId: string, sightId: string): Promise<number>;
+  /**
+   * Live marks measured on this sight, whatever the setup or arrow set. On the `windage` axis,
+   * only those with a windage written down (RN-SGT-05).
+   */
+  count(userId: string, sightId: string, axis?: ScaleChange['axis']): Promise<number>;
   /** How many marks would fall off the scale once `change` is applied. */
   countOutside(userId: string, sightId: string, change: ScaleChange): Promise<number>;
   /** Rewrites the marks for the new scale, keeping readings or positions. */

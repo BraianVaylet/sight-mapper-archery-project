@@ -11,6 +11,8 @@ export type Mark = {
   readonly distanceM: number;
   /** Position on the scale in mm (ADR-005): the reading times the size of one unit. */
   readonly scaleValueMm: number;
+  /** Windage in mm on the horizontal scale (F1-42). `null`: not written down. Never estimated. */
+  readonly windageMm: number | null;
   readonly origin: MarkOrigin;
   readonly note?: string | null | undefined;
   readonly measuredAt: Temporal.Instant;
@@ -20,10 +22,14 @@ export type Mark = {
   readonly deletedAt: Temporal.Instant | null;
 };
 
-/** What a PATCH writes. `null` clears the note. */
+/** Which scale of the sight a position is on: the height (`scaleValueMm`) or the windage. */
+export type MarkAxis = 'vertical' | 'windage';
+
+/** What a PATCH writes. `null` clears the note or the windage. */
 export type MarkPatch = {
   readonly distanceM?: number | undefined;
   readonly scaleValueMm?: number | undefined;
+  readonly windageMm?: number | null | undefined;
   readonly note?: string | null | undefined;
   readonly measuredAt?: Temporal.Instant | undefined;
 };
@@ -57,10 +63,18 @@ export type MarkRepository = {
   trashBySetup(setupId: string, now: Temporal.Instant): Promise<void>;
   restoreBySetup(setupId: string, now: Temporal.Instant): Promise<void>;
 
-  /** Positions of every live mark of these setups, for a scale change on their sight. */
-  positionsOf(setupIds: readonly string[]): Promise<readonly number[]>;
-  /** Rewrites those marks: every position becomes `position * factor` (keeping readings). */
-  scalePositions(setupIds: readonly string[], factor: number, now: Temporal.Instant): Promise<void>;
+  /**
+   * Positions on one axis of every live mark of these setups, for a scale change on their sight.
+   * Marks with no windage have no position on that axis.
+   */
+  positionsOf(setupIds: readonly string[], axis: MarkAxis): Promise<readonly number[]>;
+  /** Rewrites those positions: each becomes `position * factor` (keeping readings). */
+  scalePositions(
+    setupIds: readonly string[],
+    factor: number,
+    now: Temporal.Instant,
+    axis: MarkAxis,
+  ): Promise<void>;
 };
 
 export type MarkRepositories = { forUser(userId: string): MarkRepository };

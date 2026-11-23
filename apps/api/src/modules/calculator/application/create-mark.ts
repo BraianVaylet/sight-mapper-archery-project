@@ -25,6 +25,10 @@ export function createCreateMark(deps: CreateMarkDeps) {
     const setup = await deps.checks.setupOf(userId, input.setupId);
     deps.checks.arrowSetBelongs(setup, input.arrowSetId);
     await deps.checks.onScale(userId, setup, input.scaleValueMm);
+    if (typeof input.windageMm === 'number') {
+      await deps.checks.onWindageScale(userId, setup, input.windageMm);
+    }
+    const windageMm = input.windageMm ?? null;
     const measuredAt = deps.checks.measuredAt(
       input.measuredAt === undefined ? undefined : Temporal.Instant.from(input.measuredAt),
     );
@@ -44,6 +48,7 @@ export function createCreateMark(deps: CreateMarkDeps) {
           existing.id,
           {
             scaleValueMm: input.scaleValueMm,
+            windageMm,
             measuredAt,
             note: input.note ?? null,
           },
@@ -60,6 +65,7 @@ export function createCreateMark(deps: CreateMarkDeps) {
         arrowSetId: input.arrowSetId,
         distanceM: input.distanceM,
         scaleValueMm: input.scaleValueMm,
+        windageMm,
         origin: 'measured',
         ...(input.note == null ? {} : { note: input.note }),
         measuredAt,
