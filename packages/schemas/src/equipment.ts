@@ -5,6 +5,7 @@ import {
   SCALE_CHANGE_STRATEGIES,
   SCALE_DIRECTIONS,
   SCALE_UNITS,
+  WINDAGE_DIRECTIONS,
 } from '@sight-mapper/types';
 import { z } from 'zod';
 import { at, bounded, componentStatus, optional, resourceFields, text, uuidv7 } from './common.js';
@@ -93,38 +94,63 @@ export type Bow = z.infer<typeof bow>;
 /** Fixed mm per unit for non-custom scales (UNIDADES §3). Mirrors the domain constants. */
 const FIXED_UNIT_SIZE_MM = { mm: 1, cm: 10, in: 25.4 } as const;
 
-export const sightScale = z
-  .object({
-    unit: z.enum(SCALE_UNITS),
-    unitSizeMm: optional(z.number().gt(0)),
-    min: z.number(),
-    max: z.number(),
-    resolution: z.number().gt(0),
-    direction: z.enum(SCALE_DIRECTIONS).default('down'),
-  })
-  .superRefine((scale, ctx) => {
-    if (scale.min >= scale.max) {
-      ctx.addIssue({ code: 'custom', path: ['max'], message: 'validation.scale.minLessThanMax' });
-    } else if (scale.resolution > scale.max - scale.min) {
+/**
+ * A scale of the sight, vertical or horizontal: both follow the same rules and differ only in the
+ * directions of their axis (F1-42).
+ */
+const scaleShape = <const D extends readonly [string, ...string[]]>(
+  directions: D,
+  defaultDirection: D[number],
+) =>
+  z
+    .object({
+      unit: z.enum(SCALE_UNITS),
+      unitSizeMm: optional(z.number().gt(0)),
+      min: z.number(),
+      max: z.number(),
+      resolution: z.number().gt(0),
+      direction: z.enum(directions).default(defaultDirection),
+    })
+    .superRefine(checkScale);
+
+function checkScale(
+  scale: {
+    unit: string;
+    unitSizeMm?: number | null | undefined;
+    min: number;
+    max: number;
+    resolution: number;
+  },
+  ctx: z.RefinementCtx,
+): void {
+  if (scale.min >= scale.max) {
+    ctx.addIssue({ code: 'custom', path: ['max'], message: 'validation.scale.minLessThanMax' });
+  } else if (scale.resolution > scale.max - scale.min) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['resolution'],
+      message: 'validation.scale.resolutionTooLarge',
+    });
+  }
+
+  if (scale.unit === 'mm' || scale.unit === 'cm' || scale.unit === 'in') {
+    const fixed = FIXED_UNIT_SIZE_MM[scale.unit];
+    if (scale.unitSizeMm != null && scale.unitSizeMm !== fixed) {
       ctx.addIssue({
         code: 'custom',
-        path: ['resolution'],
-        message: 'validation.scale.resolutionTooLarge',
+        path: ['unitSizeMm'],
+        message: 'validation.sight.fixedUnitSize',
       });
     }
+  }
+}
 
-    if (scale.unit === 'mm' || scale.unit === 'cm' || scale.unit === 'in') {
-      const fixed = FIXED_UNIT_SIZE_MM[scale.unit];
-      if (scale.unitSizeMm != null && scale.unitSizeMm !== fixed) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['unitSizeMm'],
-          message: 'validation.sight.fixedUnitSize',
-        });
-      }
-    }
-  });
+export const sightScale = scaleShape(SCALE_DIRECTIONS, 'down');
 export type SightScaleInput = z.infer<typeof sightScale>;
+
+/** The horizontal scale (windage): numbers grow `right` or `left`, seen from behind the sight. */
+export const windageScale = scaleShape(WINDAGE_DIRECTIONS, 'right');
+export type WindageScaleInput = z.infer<typeof windageScale>;
 
 export const sightFields = {
   nickname: optional(text(1, 40)),
@@ -137,7 +163,13 @@ export const sightFields = {
 };
 
 export const createSight = z
-  .object({ id: uuidv7, ...sightFields, pinType: sightFields.pinType.default('monopin') })
+  .object({
+    id: uuidv7,
+    ...sightFields,
+    pinType: sightFields.pinType.default('monopin'),
+    /** Optional in the API: sights and imports from before F1-42 have none. The PWA form asks for it. */
+    windageScale: windageScale.nullable().default(null),
+  })
   .refine(hasManufacturerOrModel, needManufacturerOrModel);
 export type CreateSight = z.infer<typeof createSight>;
 
@@ -146,6 +178,10 @@ export const updateSight = z
     ...sightFields,
     /** Required by the API when the unit or size changes and the sight already has marks. */
     scaleChangeStrategy: z.enum(SCALE_CHANGE_STRATEGIES),
+    /** Once set, the horizontal scale can change but never go back to null. */
+    windageScale,
+    /** The same as `scaleChangeStrategy`, for the windage of the marks. */
+    windageScaleChangeStrategy: z.enum(SCALE_CHANGE_STRATEGIES),
   })
   .partial();
 export type UpdateSight = z.infer<typeof updateSight>;
@@ -153,6 +189,7 @@ export type UpdateSight = z.infer<typeof updateSight>;
 export const sight = z.object({
   ...resourceFields,
   ...sightFields,
+  windageScale: windageScale.nullable().default(null),
   status: componentStatus,
 });
 export type Sight = z.infer<typeof sight>;

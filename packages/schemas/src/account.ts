@@ -82,8 +82,11 @@ export const profile = z.object({
 export type Profile = z.infer<typeof profile>;
 
 /** Everything stored about an archer, in canonical units (RF-ACC-05, HU-ACC-05). */
-/** 2: the profile carries `units` instead of a single `unitSystem` (F1-37) and `doctorToleranceMm` (F1-40). */
-export const EXPORT_SCHEMA_VERSION = 2;
+/**
+ * 2: the profile carries `units` instead of a single `unitSystem` (F1-37) and `doctorToleranceMm` (F1-40).
+ * 3: sights carry `windageScale`, marks `windageMm` (F1-42).
+ */
+export const EXPORT_SCHEMA_VERSION = 3;
 const exportedRows = z.array(z.record(z.string(), z.unknown()));
 export const accountExport = z.object({
   schemaVersion: z.literal(EXPORT_SCHEMA_VERSION),

@@ -198,3 +198,32 @@ describe('listMarksQuery', () => {
     expect(MAX_MARKS_PER_PAIR).toBe(500);
   });
 });
+
+describe('windage of a mark (F1-42)', () => {
+  const ok = { id: ID.a, setupId: ID.b, arrowSetId: ID.c, distanceM: 40, scaleValueMm: 35 };
+
+  it('is optional on create, and may be null', () => {
+    expect(createMark.parse(ok).windageMm).toBeUndefined();
+    expect(createMark.parse({ ...ok, windageMm: null }).windageMm).toBeNull();
+    expect(createMark.parse({ ...ok, windageMm: -2.5 }).windageMm).toBe(-2.5);
+  });
+
+  it('can be cleared on update', () => {
+    expect(updateMark.parse({ windageMm: null })).toEqual({ windageMm: null });
+  });
+
+  it('reads as null on a stored mark that has none', () => {
+    const stored = {
+      ...resource,
+      id: ID.a,
+      setupId: ID.b,
+      arrowSetId: ID.c,
+      distanceM: 40,
+      scaleValueMm: 35,
+      origin: 'measured',
+      note: null,
+      measuredAt: NOW,
+    };
+    expect(mark.parse(stored).windageMm).toBeNull();
+  });
+});
