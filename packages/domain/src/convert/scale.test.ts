@@ -1,7 +1,10 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '../errors.js';
+import { positionOf } from '../ruler/ruler.js';
 import {
+  windageAxisScale,
+  type WindageScale,
   formatReading,
   hasPhysicalScale,
   mmToReading,
@@ -143,5 +146,31 @@ describe('roundReading / formatReading', () => {
     expect(roundReading(3.26, scale)).toBe(3.5);
     expect(formatReading(3.26, scale)).toBe('3.5');
     expect(formatReading(3, scale, ',')).toBe('3,0');
+  });
+});
+
+describe('windageAxisScale', () => {
+  const right: WindageScale = {
+    unit: 'mm',
+    unitSizeMm: null,
+    min: -10,
+    max: 10,
+    resolution: 0.5,
+    direction: 'right',
+  };
+  const left: WindageScale = { ...right, direction: 'left' };
+
+  it('maps right to down and left to up', () => {
+    expect(windageAxisScale(right).direction).toBe('down');
+    expect(windageAxisScale(left).direction).toBe('up');
+  });
+
+  it('keeps every other field as it is', () => {
+    expect(windageAxisScale(right)).toEqual({ ...right, direction: 'down' });
+  });
+
+  it('puts the minimum at the start of the axis for right and at the end for left', () => {
+    expect(positionOf(-10, windageAxisScale(right), 200)).toBe(0);
+    expect(positionOf(-10, windageAxisScale(left), 200)).toBe(200);
   });
 });

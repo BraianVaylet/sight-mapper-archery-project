@@ -13,6 +13,7 @@ import {
   SCALE_UNITS,
   THEMES,
   UNIT_SYSTEMS,
+  WINDAGE_DIRECTIONS,
 } from './enums.js';
 
 // DICCIONARIO §5. A change here is a change to the data dictionary.
@@ -23,6 +24,7 @@ describe('enums match the data dictionary', () => {
     ['PinType', PIN_TYPES, ['monopin', 'dualpin', 'multipin']],
     ['ScaleUnit', SCALE_UNITS, ['mm', 'cm', 'in', 'click', 'custom']],
     ['ScaleDirection', SCALE_DIRECTIONS, ['down', 'up']],
+    ['WindageDirection', WINDAGE_DIRECTIONS, ['right', 'left']],
     ['ComponentStatus', COMPONENT_STATUSES, ['active', 'archived']],
     ['MarkOrigin', MARK_ORIGINS, ['measured', 'seeded']],
     ['ComputedKind', COMPUTED_KINDS, ['measured', 'interpolated', 'extrapolated']],

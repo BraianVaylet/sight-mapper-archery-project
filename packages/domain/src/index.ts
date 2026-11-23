@@ -14,8 +14,9 @@ export {
   scaleBoundsMm,
   unitSizeFromLength,
   unitSizeMm,
+  windageAxisScale,
 } from './convert/scale.js';
-export type { ScaleUnit, SightScale } from './convert/scale.js';
+export type { ScaleUnit, SightScale, WindageScale } from './convert/scale.js';
 export * from './errors.js';
 export { calculateGrid, gridDistances, queryDistance } from './model/grid.js';
 export type { DistanceRow, GridRequest, ScaleBoundsMm } from './model/grid.js';

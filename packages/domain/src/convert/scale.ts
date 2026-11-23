@@ -16,6 +16,22 @@ export type SightScale = {
 };
 
 /**
+ * The horizontal scale of a sight (windage, F1-42): the same shape as `SightScale`, with the
+ * direction of its own axis, seen by the archer from behind the sight.
+ */
+export type WindageScale = Omit<SightScale, 'direction'> & {
+  readonly direction: 'right' | 'left';
+};
+
+/**
+ * A windage scale as a regular `SightScale`, so conversion, bounds and the ruler apply unchanged:
+ * `right` grows along the axis like `down` (minimum at the start), `left` like `up`.
+ */
+export function windageAxisScale(scale: WindageScale): SightScale {
+  return { ...scale, direction: scale.direction === 'right' ? 'down' : 'up' };
+}
+
+/**
  * Millimetres per scale unit. `mm`, `cm` and `in` are fixed; `click` and `custom` use the size
  * the archer loaded, or a nominal 1 when there is none (no physical scale).
  */
