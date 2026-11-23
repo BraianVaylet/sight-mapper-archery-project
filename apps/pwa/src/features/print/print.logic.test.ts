@@ -81,6 +81,41 @@ describe('the printable list (HU-CAL-05)', () => {
 
   it('is empty, not broken, when the range does not make sense', () => {
     const s = sheet(HUNTER, 60, 20);
-    expect(s).toEqual({ rows: [], omitted: 0, hasEstimates: false, hasCautions: false });
+    expect(s).toEqual({
+      rows: [],
+      omitted: 0,
+      hasEstimates: false,
+      hasCautions: false,
+      columns: { windage: false },
+    });
+  });
+});
+
+describe('windage on the printable list (F1-42)', () => {
+  const WINDAGE: SightScale = { ...CM, unit: 'mm', min: -10, max: 10, resolution: 0.5 };
+  const windy = [{ ...mark(20, 0.3), windageMm: 2.5 }, mark(30, 0.8), mark(40, 1.6)];
+  const withWindage = (scale: SightScale | null) =>
+    printSheet(buildGrid(analyse(windy, CM), { from: 20, to: 40, step: 5 }, 'metric'), {
+      marks: windy,
+      scale,
+    });
+
+  it('prints the windage of the measured marks that have one, as a reading', () => {
+    const s = withWindage(WINDAGE);
+    expect(s.columns.windage).toBe(true);
+    expect(s.rows.map((r) => r.windage)).toEqual([2.5, null, null, null, null]);
+  });
+
+  it('never gives a calculated row a windage', () => {
+    const s = withWindage(WINDAGE);
+    expect(s.rows.filter((r) => !r.measured).every((r) => r.windage === null)).toBe(true);
+  });
+
+  it('has no windage column for a sight without a horizontal scale', () => {
+    expect(withWindage(null).columns.windage).toBe(false);
+  });
+
+  it('has no windage column when no printed mark has one', () => {
+    expect(sheet(HUNTER, 20, 60).columns.windage).toBe(false);
   });
 });

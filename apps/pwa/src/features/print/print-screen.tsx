@@ -48,10 +48,8 @@ function PrintView({
   const { t, locale, translate } = useI18n();
   const navigate = useNavigate();
   const nameOf = useSetupName();
-  const { system, separator, arrowId, marksQuery, marks, scale, analysis } = useSightData(
-    setup,
-    arrowSetId,
-  );
+  const { system, separator, arrowId, marksQuery, marks, scale, windageScale, analysis } =
+    useSightData(setup, arrowSetId);
 
   const go = (search: Record<string, unknown>) =>
     void navigate({
@@ -62,7 +60,7 @@ function PrintView({
     });
   const rangeState = useRange({ marks, system, step, from, to, go });
   const grid = buildGrid(analysis, rangeState.range, system);
-  const sheet = printSheet(grid);
+  const sheet = printSheet(grid, { marks, scale: windageScale });
 
   const unit = t(system === 'metric' ? 'sight.distanceUnitMetric' : 'sight.distanceUnitImperial');
   const arrowOptions = setup.arrowSets.map((a) => ({ value: a.id, label: a.name }));
@@ -166,6 +164,11 @@ function PrintView({
                 <th scope="col" className="py-1 font-semibold">
                   {t('sight.reading')}
                 </th>
+                {sheet.columns.windage ? (
+                  <th scope="col" className="py-1 pl-6 font-semibold">
+                    {t('print.windage')}
+                  </th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -183,6 +186,13 @@ function PrintView({
                     {formatReading(row.reading, scale, separator)}
                     {row.caution ? ' *' : ''}
                   </td>
+                  {sheet.columns.windage ? (
+                    <td className="py-1 pl-6 tabular-nums font-semibold">
+                      {row.windage === null || windageScale === null
+                        ? ''
+                        : formatReading(row.windage, windageScale, separator)}
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>

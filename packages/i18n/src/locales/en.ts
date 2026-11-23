@@ -590,6 +590,7 @@ export const en: Messages = {
     badge: 'Quick access',
   },
   print: {
+    windage: 'Windage',
     back: 'The sight',
     intro:
       'Pick the range and the step. The sheet below is what comes out on paper: the rest of the screen does not print.',

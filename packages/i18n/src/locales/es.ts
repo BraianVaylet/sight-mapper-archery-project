@@ -592,6 +592,7 @@ export const es = {
     badge: 'Acceso rápido',
   },
   print: {
+    windage: 'Deriva',
     back: 'La mira',
     intro:
       'Elegí el rango y el paso. La hoja de abajo es la que sale en papel: el resto de la pantalla no se imprime.',
