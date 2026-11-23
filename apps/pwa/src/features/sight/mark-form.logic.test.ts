@@ -42,6 +42,7 @@ const metric = (scale: SightScale = CM): MarkFormContext => ({
   scale,
   separator: ',',
   distanceUnit: 'm',
+  windageScale: null,
 });
 
 const values = (over: Partial<MarkFormValues> = {}): MarkFormValues => ({
@@ -49,6 +50,7 @@ const values = (over: Partial<MarkFormValues> = {}): MarkFormValues => ({
   reading: '1,6',
   note: '',
   measuredAt: '',
+  windage: '',
   ...over,
 });
 
@@ -169,6 +171,7 @@ describe('toFormValues', () => {
       distance: '',
       reading: '',
       note: '',
+      windage: '',
       measuredAt: '',
     });
   });
@@ -218,5 +221,63 @@ describe('dates for the datetime-local input', () => {
   it('is empty for nothing, or for something unreadable', () => {
     expect(fromLocalInput('')).toBeUndefined();
     expect(toLocalInput('not a date')).toBe('');
+  });
+});
+
+describe('windage (F1-42)', () => {
+  /** A horizontal scale with 2 mm per unit, -5 to 5: not the vertical one, on purpose. */
+  const WINDAGE: SightScale = {
+    unit: 'custom',
+    unitSizeMm: 2,
+    min: -5,
+    max: 5,
+    resolution: 0.5,
+    direction: 'down',
+  };
+  const windy = (): MarkFormContext => ({ ...metric(), windageScale: WINDAGE });
+  const input = (v: MarkFormValues, context = windy()) => {
+    const result = toMarkInput(v, IDS, context);
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    return result.input;
+  };
+
+  it('reads the windage on the horizontal scale, with the comma of the language', () => {
+    expect(input(values({ windage: '2,5' })).windageMm).toBe(5);
+  });
+
+  it('sends null when the windage is left empty, so an edit clears it', () => {
+    expect(input(values({ windage: '' })).windageMm).toBeNull();
+  });
+
+  it('refuses a windage off the horizontal scale, naming its ends as readings', () => {
+    expect(errorsOf(values({ windage: '6' }), windy()).windage).toEqual({
+      messageKey: 'mark.errors.windageOutOfScale',
+      params: { min: '-5,0', max: '5,0' },
+    });
+  });
+
+  it('says a word is not a number, on the windage', () => {
+    expect(errorsOf(values({ windage: 'x' }), windy()).windage?.messageKey).toBe(
+      'mark.errors.number',
+    );
+  });
+
+  it('ignores the windage when the sight has no horizontal scale', () => {
+    expect(input(values({ windage: '3' }), metric()).windageMm).toBeNull();
+  });
+
+  it('shows the saved windage as a reading of the horizontal scale', () => {
+    const saved = {
+      ...input(values({ windage: '2,5' })),
+      origin: 'measured',
+      version: 1,
+      createdAt: '2026-11-03T09:30:00Z',
+      updatedAt: '2026-11-03T09:30:00Z',
+      deletedAt: null,
+      measuredAt: '2026-11-03T09:30:00Z',
+      note: undefined,
+    } as unknown as Mark;
+    expect(toFormValues(saved, windy()).windage).toBe('2,5');
+    expect(toFormValues({ ...saved, windageMm: null }, windy()).windage).toBe('');
   });
 });

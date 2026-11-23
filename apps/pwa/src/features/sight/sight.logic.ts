@@ -18,6 +18,7 @@ import {
   type DoctorReport,
   type MarkKind,
   type SightScale,
+  windageAxisScale,
 } from '@sight-mapper/domain';
 import { formatNumber } from '@sight-mapper/i18n';
 import type { Mark, SightRef } from '@sight-mapper/schemas';
@@ -35,6 +36,18 @@ export const toScale = (sight: Pick<SightRef, 'scale'>): SightScale => ({
   resolution: sight.scale.resolution,
   direction: sight.scale.direction,
 });
+
+/**
+ * The horizontal scale of a sight on the ruler axis (F1-42), or `null` when the sight has none
+ * yet: then there is no windage to record or show.
+ */
+export const toWindageScale = (sight: Pick<SightRef, 'windageScale'>): SightScale | null =>
+  sight.windageScale === null
+    ? null
+    : windageAxisScale({
+        ...sight.windageScale,
+        unitSizeMm: sight.windageScale.unitSizeMm ?? null,
+      });
 
 /** What the archer reads on the sight for a position in mm, rounded to what they can set. */
 export const readingOf = (valueMm: number, scale: SightScale): number =>
