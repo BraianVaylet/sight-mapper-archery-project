@@ -814,6 +814,9 @@ export const es = {
       restoreExpired: 'Pasaron más de 30 días: ya no se puede deshacer.',
       outOfScale: 'La lectura está fuera de la escala de la mira ({{min}}–{{max}}).',
       arrowSetNotInSetup: 'Ese set de flechas no es de este setup.',
+      noWindageScale: 'Esta mira no tiene escala horizontal: cargala para anotar la deriva.',
+      windageOutOfScale:
+        'La deriva está fuera de la escala horizontal de la mira ({{min}}–{{max}}).',
     },
     calc: {
       needMarksInterpolate: 'Necesitás al menos {{need}} marcas para calcular (tenés {{have}}).',

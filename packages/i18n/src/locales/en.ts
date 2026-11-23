@@ -813,6 +813,8 @@ export const en: Messages = {
       restoreExpired: 'More than 30 days have passed: it can no longer be undone.',
       outOfScale: "The reading is outside the sight's scale ({{min}}–{{max}}).",
       arrowSetNotInSetup: "That arrow set isn't part of this setup.",
+      noWindageScale: 'This sight has no horizontal scale: add it to record windage.',
+      windageOutOfScale: "The windage is outside the sight's horizontal scale ({{min}}–{{max}}).",
     },
     calc: {
       needMarksInterpolate: 'You need at least {{need}} marks to calculate (you have {{have}}).',
