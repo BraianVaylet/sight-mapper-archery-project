@@ -169,6 +169,11 @@ describe('windageAxisScale', () => {
     expect(windageAxisScale(right)).toEqual({ ...right, direction: 'down' });
   });
 
+  it('refuses a direction that is not right or left', () => {
+    const vertical = { ...right, direction: 'down' } as unknown as WindageScale;
+    expect(() => windageAxisScale(vertical)).toThrow(DomainError);
+  });
+
   it('puts the minimum at the start of the axis for right and at the end for left', () => {
     expect(positionOf(-10, windageAxisScale(right), 200)).toBe(0);
     expect(positionOf(-10, windageAxisScale(left), 200)).toBe(200);

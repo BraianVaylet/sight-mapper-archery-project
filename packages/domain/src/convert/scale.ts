@@ -28,7 +28,15 @@ export type WindageScale = Omit<SightScale, 'direction'> & {
  * `right` grows along the axis like `down` (minimum at the start), `left` like `up`.
  */
 export function windageAxisScale(scale: WindageScale): SightScale {
-  return { ...scale, direction: scale.direction === 'right' ? 'down' : 'up' };
+  switch (scale.direction) {
+    case 'right':
+      return { ...scale, direction: 'down' };
+    case 'left':
+      return { ...scale, direction: 'up' };
+    default:
+      // A vertical direction here is a caller bug: guessing would flip the ruler in silence.
+      throw new DomainError('Windage direction must be right or left');
+  }
 }
 
 /**

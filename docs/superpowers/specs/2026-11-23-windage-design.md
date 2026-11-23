@@ -63,7 +63,7 @@ Lo eligio el usuario: enfoque 1, y "se va a tener dos rulers".
 - `sight.windageScale`: misma forma que `sight.scale`. Lo unico distinto es la direccion, propia
   del eje: `right` (los numeros crecen hacia la derecha) o `left`. Default `right`.
   - Enum nuevo `WINDAGE_DIRECTIONS = ['right', 'left']` en `@sight-mapper/types`.
-  - En la API es opcional: `windageScale: SightScale | null` en `createSight`, en el recurso `sight`
+  - En la API es opcional: `windageScale: WindageScale | null` en `createSight`, en el recurso `sight`
     y en `sightRef`. Lo obligatorio es el **formulario** de mira nueva en la PWA. Asi las miras
     viejas y `scripts/import-author-data.mjs` (que crea miras por `POST /sights`) siguen andando sin
     cambios. *Llamado propio, por la revision.*
