@@ -30,7 +30,11 @@ export type RulerProps = {
   selectedId?: string | undefined;
   /** Tapping a mark picks it. The table beside the ruler is the keyboard and screen-reader way. */
   onSelect?: ((id: string) => void) | undefined;
+  /** `horizontal` draws the windage scale (F1-42): the axis runs left to right. Default vertical. */
+  orientation?: 'vertical' | 'horizontal';
 };
+
+type OrientedProps = Omit<RulerProps, 'orientation'>;
 
 const PAD = 14;
 const AXIS_X = 150;
@@ -44,7 +48,15 @@ const TICK_LENGTH: Record<TickLevel, number> = { minor: 8, medium: 14, major: 22
  * by shape and line style, never by colour alone (UX-UI §1.3). Drawn as an analogue instrument
  * (UX-UI §5): major ticks in ink, numbers in mono, the picked mark on an accent line.
  */
-export function Ruler({
+export function Ruler({ orientation = 'vertical', ...props }: RulerProps) {
+  return orientation === 'horizontal' ? (
+    <HorizontalRuler {...props} />
+  ) : (
+    <VerticalRuler {...props} />
+  );
+}
+
+function VerticalRuler({
   scale,
   marks,
   label,
@@ -52,7 +64,7 @@ export function Ruler({
   lengthPx = 480,
   selectedId,
   onSelect,
-}: RulerProps) {
+}: OrientedProps) {
   const ticks = buildRuler({ scale, lengthPx });
   const placed = placeMarks(
     scale,
@@ -176,6 +188,148 @@ export function Ruler({
                 y={spot.labelPositionPx}
                 textAnchor="end"
                 dominantBaseline="middle"
+                className="fill-text font-mono text-xs font-medium"
+              >
+                {mark.label}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+    </svg>
+  );
+}
+
+/** Room above the axis for the marks and their labels, and below it for the ticks and numbers. */
+const H_AXIS_Y = 58;
+const H_HEIGHT = 108;
+const H_MARK_RISE = 30;
+/** A label like `20 m` needs about this much width before it touches its neighbour. */
+const H_LABEL_WIDTH_PX = 44;
+
+/**
+ * The same instrument lying down, for the horizontal scale (F1-42): positions come from the same
+ * domain functions, used as x. Only measured marks reach it (windage is never estimated), but the
+ * shapes stay those of the vertical ruler so the visual language is one.
+ */
+function HorizontalRuler({
+  scale,
+  marks,
+  label,
+  formatValue,
+  lengthPx = 480,
+  selectedId,
+  onSelect,
+}: OrientedProps) {
+  const ticks = buildRuler({ scale, lengthPx });
+  const placed = placeMarks(
+    scale,
+    lengthPx,
+    marks.map(({ id, reading }) => ({ id, reading })),
+    H_LABEL_WIDTH_PX,
+  );
+  const byId = new Map(marks.map((mark) => [mark.id, mark]));
+  const top = H_AXIS_Y - H_MARK_RISE;
+
+  return (
+    <svg
+      role="img"
+      aria-label={label}
+      viewBox={`0 0 ${lengthPx + PAD * 2} ${H_HEIGHT}`}
+      width={lengthPx + PAD * 2}
+      height={H_HEIGHT}
+      className="max-w-full text-text"
+    >
+      <g transform={`translate(${PAD} 0)`}>
+        <line
+          x1={0}
+          x2={lengthPx}
+          y1={H_AXIS_Y}
+          y2={H_AXIS_Y}
+          className="stroke-text"
+          strokeWidth={2}
+        />
+        {ticks.map((tick) => (
+          <g key={tick.value}>
+            <line
+              x1={tick.positionPx}
+              x2={tick.positionPx}
+              y1={H_AXIS_Y}
+              y2={H_AXIS_Y + TICK_LENGTH[tick.level]}
+              className={tick.level === 'major' ? 'stroke-text' : 'stroke-muted'}
+              strokeWidth={tick.level === 'major' ? 2 : 1}
+            />
+            {tick.labelled ? (
+              <text
+                x={tick.positionPx}
+                y={H_AXIS_Y + TICK_LENGTH.major + 14}
+                textAnchor="middle"
+                className="fill-muted font-mono text-xs font-medium"
+              >
+                {formatValue(tick.value)}
+              </text>
+            ) : null}
+          </g>
+        ))}
+
+        {placed.map((spot) => {
+          const mark = byId.get(spot.id);
+          if (mark === undefined) return null;
+          const x = positionOf(mark.reading, scale, lengthPx);
+          const selected = spot.id === selectedId;
+          return (
+            <g
+              key={spot.id}
+              data-mark={mark.measured ? 'measured' : 'estimated'}
+              data-selected={selected ? 'true' : undefined}
+              onClick={onSelect === undefined ? undefined : () => onSelect(spot.id)}
+              className={onSelect === undefined ? undefined : 'cursor-pointer'}
+            >
+              <line
+                x1={x}
+                x2={x}
+                y1={top}
+                y2={H_AXIS_Y}
+                className={
+                  selected ? 'stroke-accent' : mark.measured ? 'stroke-mark' : 'stroke-info'
+                }
+                strokeWidth={selected ? 3 : 2}
+                strokeDasharray={mark.measured ? undefined : '3 3'}
+              />
+              {/* A generous target for a thumb; invisible. */}
+              <rect x={x - 12} y={4} width={24} height={H_AXIS_Y - 4} fill="transparent" />
+              {selected ? (
+                <circle
+                  cx={x}
+                  cy={top}
+                  r={10}
+                  className="fill-none stroke-accent"
+                  strokeWidth={3}
+                />
+              ) : null}
+              {mark.suspect ? (
+                <circle
+                  cx={x}
+                  cy={top}
+                  r={13}
+                  className="fill-none stroke-warning"
+                  strokeWidth={2}
+                  strokeDasharray="2 2"
+                />
+              ) : null}
+              {mark.measured ? (
+                <circle cx={x} cy={top} r={5} className="fill-mark" />
+              ) : (
+                <path
+                  d={`M${x} ${top - 6}l6 6-6 6-6-6z`}
+                  className="fill-sunken stroke-info"
+                  strokeWidth={2}
+                />
+              )}
+              <text
+                x={spot.labelPositionPx}
+                y={top - 14}
+                textAnchor="middle"
                 className="fill-text font-mono text-xs font-medium"
               >
                 {mark.label}

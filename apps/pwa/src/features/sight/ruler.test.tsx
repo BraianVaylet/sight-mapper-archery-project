@@ -49,3 +49,59 @@ describe('Ruler', () => {
     expect(container.querySelectorAll('[data-mark]')).toHaveLength(0);
   });
 });
+
+describe('Ruler, horizontal (windage, F1-42)', () => {
+  const windage = {
+    unit: 'mm',
+    unitSizeMm: null,
+    min: -10,
+    max: 10,
+    resolution: 0.5,
+    direction: 'down',
+  } as const;
+  const one: RulerMark[] = [{ id: 'w', reading: -10, measured: true, label: '20 m' }];
+  const draw = (direction: 'down' | 'up', onSelect?: (id: string) => void) =>
+    render(
+      <Ruler
+        orientation="horizontal"
+        scale={{ ...windage, direction }}
+        marks={one}
+        label="Deriva"
+        formatValue={(v) => v.toFixed(0)}
+        lengthPx={300}
+        onSelect={onSelect}
+      />,
+    );
+  /** The guide line of a mark, in the frame of the axis (the padding is a transform): both ends share x. */
+  const guideX = (container: HTMLElement) => {
+    const line = container.querySelector('[data-mark="measured"] line');
+    expect(line?.getAttribute('x1')).toBe(line?.getAttribute('x2'));
+    return Number(line?.getAttribute('x1'));
+  };
+
+  it('is one named image, wider than tall', () => {
+    const { container } = draw('down');
+    expect(screen.getByRole('img', { name: 'Deriva' })).toBeInTheDocument();
+    const svg = container.querySelector('svg');
+    expect(Number(svg?.getAttribute('width'))).toBeGreaterThan(Number(svg?.getAttribute('height')));
+  });
+
+  it('puts the minimum at the left end when the numbers grow right', () => {
+    const { container } = draw('down');
+    expect(guideX(container)).toBe(0);
+  });
+
+  it('puts the minimum at the right end when the numbers grow left', () => {
+    const { container } = draw('up');
+    expect(guideX(container)).toBe(300);
+  });
+
+  it('picks a mark when it is tapped', () => {
+    const picked: string[] = [];
+    const { container } = draw('down', (id) => picked.push(id));
+    container
+      .querySelector<SVGGElement>('[data-mark="measured"]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(picked).toEqual(['w']);
+  });
+});
