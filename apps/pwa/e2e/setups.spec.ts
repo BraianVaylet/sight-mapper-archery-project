@@ -19,10 +19,10 @@ test('load a bow, a sight and arrows, build a setup, star it, trash it and bring
   // The author's sight: cm, 0 to 10, steps of 0.1. The ruler preview appears while typing.
   await page.goto('/sights/new');
   await page.getByLabel('Modelo').fill('Ultraview');
-  await page.getByLabel('Unidad de la escala').selectOption('cm');
-  await page.getByLabel('Mínimo').fill('0');
-  await page.getByLabel('Máximo').fill('10');
-  await page.getByLabel('Paso más chico').fill('0,1');
+  await page.getByLabel('Unidad de la escala', { exact: true }).selectOption('cm');
+  await page.getByLabel('Mínimo', { exact: true }).fill('0');
+  await page.getByLabel('Máximo', { exact: true }).fill('10');
+  await page.getByLabel('Paso más chico', { exact: true }).fill('0,1');
   await expect(page.getByRole('img', { name: /Vista previa de la escala/ })).toBeVisible();
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page.getByRole('heading', { name: 'Ultraview' })).toBeVisible();

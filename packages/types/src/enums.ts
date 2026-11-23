@@ -16,6 +16,10 @@ export type ScaleUnit = (typeof SCALE_UNITS)[number];
 export const SCALE_DIRECTIONS = ['down', 'up'] as const;
 export type ScaleDirection = (typeof SCALE_DIRECTIONS)[number];
 
+/** Where the numbers of the horizontal scale grow, seen by the archer from behind the sight. */
+export const WINDAGE_DIRECTIONS = ['right', 'left'] as const;
+export type WindageDirection = (typeof WINDAGE_DIRECTIONS)[number];
+
 export const COMPONENT_STATUSES = ['active', 'archived'] as const;
 export type ComponentStatus = (typeof COMPONENT_STATUSES)[number];
 

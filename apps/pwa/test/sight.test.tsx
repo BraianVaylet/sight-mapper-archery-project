@@ -46,13 +46,14 @@ const setup = {
 };
 
 /** A measured mark. `reading` is in the scale's own unit (cm); the API speaks millimetres. */
-const mark = (id: string, distanceM: number, reading: number) => ({
+const mark = (id: string, distanceM: number, reading: number, windageMm: number | null = null) => ({
   id,
   ...STAMPS,
   setupId: SETUP_ID,
   arrowSetId: ARROW_ID,
   distanceM,
   scaleValueMm: reading * 10,
+  windageMm,
   origin: 'measured',
   measuredAt: '2026-11-02T12:00:00Z',
 });
@@ -91,6 +92,7 @@ function sightServer(initial: ReturnType<typeof mark>[], extra: Record<string, H
         id: string;
         distanceM: number;
         scaleValueMm: number;
+        windageMm?: number | null;
         replace: boolean;
       };
       const same = marks.find((m) => m.distanceM === input.distanceM);
@@ -111,8 +113,13 @@ function sightServer(initial: ReturnType<typeof mark>[], extra: Record<string, H
       }
       const saved =
         same === undefined
-          ? mark(input.id, input.distanceM, input.scaleValueMm / 10)
-          : { ...same, version: same.version + 1, scaleValueMm: input.scaleValueMm };
+          ? mark(input.id, input.distanceM, input.scaleValueMm / 10, input.windageMm ?? null)
+          : {
+              ...same,
+              version: same.version + 1,
+              scaleValueMm: input.scaleValueMm,
+              windageMm: input.windageMm ?? null,
+            };
       marks = [...marks.filter((m) => m.id !== saved.id), saved].sort(
         (a, b) => a.distanceM - b.distanceM,
       );
@@ -120,7 +127,7 @@ function sightServer(initial: ReturnType<typeof mark>[], extra: Record<string, H
     },
     [`PATCH /api/v1/marks/${M30}`]: async (request) => {
       const { body } = await record(request);
-      const patch = body as { scaleValueMm?: number };
+      const patch = body as { scaleValueMm?: number; windageMm?: number | null };
       const current = marks.find((m) => m.id === M30);
       if (current === undefined)
         return errorEnvelope('SM-CORE-404-001', 'errors.core.notFound', 404);
@@ -128,6 +135,7 @@ function sightServer(initial: ReturnType<typeof mark>[], extra: Record<string, H
         ...current,
         version: current.version + 1,
         ...(patch.scaleValueMm === undefined ? {} : { scaleValueMm: patch.scaleValueMm }),
+        ...(patch.windageMm === undefined ? {} : { windageMm: patch.windageMm }),
       };
       marks = marks.map((m) => (m.id === M30 ? saved : m));
       return json(saved);
@@ -356,5 +364,117 @@ describe('The edit mark sheet (HU-MRK-03)', () => {
     expect(server.sent.some((s) => s.path === `/api/v1/marks/${M30}/restore`)).toBe(true);
     const deletion = server.sent.find((s) => s.method === 'DELETE');
     expect(deletion?.headers.get('If-Match')).toBe('"1"');
+  });
+});
+
+describe('Windage (F1-42)', () => {
+  /** mm, -10 to 10 in half millimetres: the horizontal scale of the sight. */
+  const WINDAGE = { unit: 'mm', min: -10, max: 10, resolution: 0.5, direction: 'right' };
+  const windySetup = { ...setup, sight: { ...setup.sight, windageScale: WINDAGE } };
+  const windy = (marks: ReturnType<typeof mark>[]) =>
+    sightServer(marks, { [`GET /api/v1/setups/${SETUP_ID}`]: () => json(windySetup) });
+  const WITH_WINDAGE = [mark(M20, 20, 0.3, 2.5), mark(M30, 30, 0.8, 3), mark(M40, 40, 1.6)];
+
+  it('reads out the windage of the selected mark, and puts it under its reading in the table', async () => {
+    renderApp(`/setups/${SETUP_ID}?d=20`, windy(WITH_WINDAGE).fetch);
+    await screen.findByRole('table');
+    expect(screen.getAllByText('Deriva 2,5').length).toBeGreaterThanOrEqual(2);
+    const row40 = screen.getByRole('button', { name: 'Elegir la marca de 40 m' }).closest('tr');
+    expect(within(row40 as HTMLElement).queryByText(/Deriva/)).toBeNull();
+  });
+
+  it('draws a horizontal ruler with the marks that have a windage', async () => {
+    const { container } = renderApp(`/setups/${SETUP_ID}`, windy(WITH_WINDAGE).fetch);
+    const ruler = await screen.findByRole('img', { name: 'Regla de la deriva de la mira' });
+    expect(ruler.querySelectorAll('[data-mark="measured"]')).toHaveLength(2);
+    expect(container).toBeTruthy();
+  });
+
+  it('says how to start when the sight has no horizontal scale, in the screen and in the sheet', async () => {
+    const user = userEvent.setup();
+    renderApp(`/setups/${SETUP_ID}`, sightServer(THREE).fetch);
+    await screen.findByRole('table');
+    expect(
+      screen.getByText('Esta mira no tiene escala horizontal: cargala para anotar la deriva.'),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '+ Agregar marca' }));
+    expect(screen.queryByLabelText('Deriva')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Cargar la escala horizontal' })).toBeInTheDocument();
+  });
+
+  it('saves a new mark with its windage', async () => {
+    const user = userEvent.setup();
+    const server = windy([]);
+    renderApp(`/setups/${SETUP_ID}`, server.fetch);
+    await screen.findByText('Todavía no hay marcas');
+    await user.click(screen.getByRole('button', { name: '+ Agregar marca' }));
+    await user.type(screen.getByLabelText('Distancia'), '20');
+    await user.type(screen.getByLabelText('Lectura'), '0,3');
+    await user.type(screen.getByLabelText('Deriva'), '-1,5');
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+    await screen.findByText('Marca guardada');
+    expect(server.sent.find((x) => x.method === 'POST')?.body).toMatchObject({ windageMm: -1.5 });
+  });
+
+  it('clears a windage on edit, and Undo puts it back', async () => {
+    const user = userEvent.setup();
+    const server = windy(WITH_WINDAGE);
+    renderApp(`/setups/${SETUP_ID}`, server.fetch);
+    await screen.findByRole('table');
+    await user.click(screen.getByRole('button', { name: 'Editar la marca de 30 m' }));
+    expect(screen.getByLabelText('Deriva')).toHaveValue('3,0');
+    await user.clear(screen.getByLabelText('Deriva'));
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+    await screen.findByText('Marca actualizada');
+    const patches = () => server.sent.filter((x) => x.method === 'PATCH');
+    expect(patches()[0]?.body).toMatchObject({ windageMm: null });
+    await user.click(screen.getByRole('button', { name: 'Deshacer' }));
+    await waitFor(() => expect(patches()[1]?.body).toMatchObject({ windageMm: 3 }));
+  });
+
+  it('keeps the windage when the archer replaces the mark at a distance', async () => {
+    const user = userEvent.setup();
+    const server = windy(WITH_WINDAGE);
+    renderApp(`/setups/${SETUP_ID}`, server.fetch);
+    await screen.findByRole('table');
+    await user.click(screen.getByRole('button', { name: '+ Agregar marca' }));
+    await user.type(screen.getByLabelText('Distancia'), '40');
+    await user.type(screen.getByLabelText('Lectura'), '1,7');
+    await user.type(screen.getByLabelText('Deriva'), '4');
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+    await user.click(await screen.findByRole('button', { name: 'Reemplazar' }));
+    await screen.findByText('Marca guardada');
+    const posts = server.sent.filter((x) => x.method === 'POST');
+    expect(posts[posts.length - 1]?.body).toMatchObject({ replace: true, windageMm: 4 });
+  });
+});
+
+describe('Windage refused by the server (F1-42, errors.md SM-MARK-422-004)', () => {
+  it('names the ends of the horizontal scale, not of the vertical one', async () => {
+    const user = userEvent.setup();
+    const WINDAGE = { unit: 'mm', min: -10, max: 10, resolution: 0.5, direction: 'right' };
+    const windySetup = { ...setup, sight: { ...setup.sight, windageScale: WINDAGE } };
+    const refusal = {
+      success: false,
+      error: {
+        code: 'SM-MARK-422-004',
+        messageKey: 'errors.mark.windageOutOfScale',
+        params: { minMm: -10, maxMm: 10 },
+        requestId: 'r1',
+        timestamp: '2026-11-02T12:00:00Z',
+      },
+    };
+    const server = sightServer(THREE, {
+      [`GET /api/v1/setups/${SETUP_ID}`]: () => json(windySetup),
+      'POST /api/v1/marks': () => json(refusal, 422),
+    });
+    renderApp(`/setups/${SETUP_ID}`, server.fetch);
+    await screen.findByRole('table');
+    await user.click(screen.getByRole('button', { name: '+ Agregar marca' }));
+    await user.type(screen.getByLabelText('Distancia'), '50');
+    await user.type(screen.getByLabelText('Lectura'), '2,6');
+    await user.type(screen.getByLabelText('Deriva'), '3');
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(await screen.findByText(/\(-10,0–10,0\)/)).toBeInTheDocument();
   });
 });

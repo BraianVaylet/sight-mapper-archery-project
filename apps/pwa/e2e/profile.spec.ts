@@ -29,7 +29,7 @@ test('download my data as a real file, ask for the deletion and cancel it', asyn
     setups: { name?: string }[];
     marks: { distanceM: number; scaleValueMm: number }[];
   };
-  expect(data.schemaVersion).toBe(2);
+  expect(data.schemaVersion).toBe(3);
   expect(data.bows.map((b) => b.model)).toEqual(['Alpha']);
   expect(data.setups.map((s) => s.name)).toEqual(['Caza']);
   expect(data.marks).toMatchObject([{ distanceM: 30, scaleValueMm: 8 }]);

@@ -19,7 +19,8 @@
 | **Semilla balistica**      | Seeded (F6)           | `origin: 'seeded'`    | Marca generada desde las specs del equipo antes de tirar. Siempre estimada; cede ante cualquier medida |
 | **Lectura**                | Sight reading         | `reading`             | El numero que el arquero ve en su mira (en la unidad de la escala)                                   |
 | **Posicion de escala**     | —                     | `scaleValueMm`        | La lectura convertida a milimetros fisicos. Canonico de persistencia                                 |
-| **Deriva**                 | Windage (F3)          | `windage`             | Posicion horizontal de la mira. Fuera del MVP                                                        |
+| **Deriva**                 | Windage               | `windageMm`           | ~~Posicion horizontal de la mira. Fuera del MVP~~ [~] Posicion horizontal de la mira en una marca, en mm de su escala horizontal (F1-42). Solo se anota; nunca se estima |
+| [+] **Escala horizontal**  | Windage scale         | `windageScale`        | La escala de la perilla horizontal. Misma forma que `SightScale`; direccion `right` \| `left`        |
 | **Arco**                   | Bow                   | `Bow`                 | El arco y su configuracion. MVP: compuesto                                                           |
 | **Mira**                   | Sight                 | `Sight`               | Mira fisica del arquero con su escala                                                                |
 | **Set de flechas**         | Arrow set             | `ArrowSet`            | Un grupo de flechas iguales. Es lo que mas cambia la calibracion                                     |
@@ -31,7 +32,7 @@
 | **Direccion de escala**    | Scale direction       | `scale.direction`     | `down`: los numeros crecen hacia abajo · `up`: crecen hacia arriba                                   |
 | **Recorrido**              | Adjustment range      | derivado              | Largo fisico entre minimo y maximo: `(max − min) × unitSizeMm`                                       |
 | **Tipo de pin**            | Pin configuration     | `pinType`             | `monopin`, `dualpin`, `multipin`                                                                     |
-| **Regla**                  | Sight scale (pantalla)| `Ruler`               | La regla vertical en pantalla que imita la escala de la mira. Pantalla estrella                      |
+| **Regla**                  | Sight scale (pantalla)| `Ruler`               | La regla ~~vertical~~ [~] vertical u horizontal (deriva) en pantalla que imita la escala de la mira. Pantalla estrella                      |
 | **Tape**                   | Sight tape            | `Tape` (F2)           | Cinta impresa a escala real que se pega en la mira                                                   |
 | **Listado imprimible**     | Print                 | `PrintableList`       | Hoja con la tabla distancia → lectura (el "papelito" impreso). MVP                                    |
 | **Distancias intermedias** | Intermediate distances| `intermediateGrid`    | Tabla de distancias entre un minimo y un maximo con paso fijo                                        |
@@ -150,10 +151,12 @@ fuentes, tambien el maximo de `spine` (2000 → 2600): el aluminio juvenil de Ea
 | `scale.max`        | number        | unidad de escala  | si   | `> min`                                                | Ej. 9                                  |
 | `scale.resolution` | number        | unidad de escala  | si   | `> 0`, `≤ max − min`                                   | Ej. 0.5 mm, 1 click, 0.1               |
 | `scale.direction`  | enum          | —                 | si   | `down \| up`                                           | Default `down`                         |
+| [+] `windageScale` | object\|null  | —                 | no*  | mismas reglas que `scale.*`                            | *el formulario de mira nueva la exige; `null` en miras previas a F1-42 |
+| [+] `windageScale.direction` | enum | —               | si   | `right \| left`                                        | Visto desde atras de la mira. Default `right` |
 | `notes`            | string        | —                 | no   | 0–500                                                  |                                        |
 | `status`           | enum          | —                 | si   | `active \| archived`                                   |                                        |
 
-Derivados (no se guardan): `scaleMinMm`, `scaleMaxMm`, `travelMm`.
+Derivados (no se guardan): `scaleMinMm`, `scaleMaxMm`, `travelMm`. [+] Igual para la escala horizontal: `windageMinMm`, `windageMaxMm`.
 
 ### 3.3 `arrowSets`
 
@@ -195,6 +198,7 @@ Derivados (no se guardan): `scaleMinMm`, `scaleMaxMm`, `travelMm`.
 | `arrowSetId`   | UUID      | —        | si   | `∈ setup.arrowSetIds`                      |                                   |
 | `distanceM`    | number    | m        | si   | `(0, 300]`, redondeo a 0.001               | Se muestra en m o yd              |
 | `scaleValueMm` | number    | mm       | si   | `∈ [scaleMinMm, scaleMaxMm]`               | Se muestra como lectura           |
+| [+] `windageMm` | number\|null | mm     | no   | `∈ [windageMinMm, windageMaxMm]`; exige `windageScale` | Se muestra como lectura horizontal. `null` = sin anotar |
 | `origin`       | enum      | —        | si   | `measured` (MVP) \| `seeded` (F6)          |                                   |
 | `note`         | string    | —        | no   | 0–200                                      | Ej. "con viento cruzado"          |
 | `measuredAt`   | Date (UTC)| —        | si   | no futura (+5 min de tolerancia)           | Default: ahora                    |
@@ -251,6 +255,7 @@ Paginacion por cursor sobre `(updatedAt, _id)`: el cursor es opaco (base64url de
 | `PinType`           | `monopin`, `dualpin`, `multipin`                   | `sights.pinType`         |
 | `ScaleUnit`         | `mm`, `cm`, `in`, `click`, `custom`                | `sights.scale.unit`      |
 | `ScaleDirection`    | `down`, `up`                                       | `sights.scale.direction` |
+| [+] `WindageDirection` | `right`, `left`                                 | `sights.windageScale.direction` |
 | `ComponentStatus`   | `active`, `archived`                               | equipo y setups          |
 | `MarkOrigin`        | `measured`, `seeded`                               | `marks.origin`           |
 | `ComputedKind`      | `measured`, `interpolated`, `extrapolated`         | dominio (no se guarda)   |

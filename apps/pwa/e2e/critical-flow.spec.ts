@@ -39,6 +39,9 @@ type Lang = {
     addMark: string;
     distance: string;
     reading: string;
+    windage: string;
+    windageMax: string;
+    windageRuler: string;
     pickMark: (d: number) => string;
     summary: string;
     intermediates: string;
@@ -85,6 +88,9 @@ const LANGS: Lang[] = [
       addMark: '+ Agregar marca',
       distance: 'Distancia',
       reading: 'Lectura',
+      windage: 'Deriva',
+      windageMax: 'Máximo horizontal',
+      windageRuler: 'Regla de la deriva de la mira',
       pickMark: (d) => `Elegir la marca de ${d} m`,
       summary: 'Marcas: 5 · 20–60 m',
       intermediates: 'Intermedias',
@@ -130,6 +136,9 @@ const LANGS: Lang[] = [
       addMark: '+ Add sight mark',
       distance: 'Distance',
       reading: 'Reading',
+      windage: 'Windage',
+      windageMax: 'Horizontal maximum',
+      windageRuler: 'Ruler of the sight windage',
       pickMark: (d) => `Pick the mark at ${d} yd`,
       summary: 'Marks: 5 · 20–60 yd',
       intermediates: 'Intermediates',
@@ -192,10 +201,12 @@ for (const l of LANGS) {
       await page.getByRole('button', { name: t.save }).click();
       await page.getByRole('link', { name: t.addSight }).click();
       await page.getByLabel(t.model).fill('Ultraview');
-      await page.getByLabel(t.scaleUnit).selectOption('cm');
-      await page.getByLabel(t.minimum).fill('0');
-      await page.getByLabel(t.maximum).fill('10');
-      await page.getByLabel(t.step).fill(n('0.1'));
+      await page.getByLabel(t.scaleUnit, { exact: true }).selectOption('cm');
+      await page.getByLabel(t.minimum, { exact: true }).fill('0');
+      await page.getByLabel(t.maximum, { exact: true }).fill('10');
+      await page.getByLabel(t.step, { exact: true }).fill(n('0.1'));
+      // The horizontal scale comes copied from the vertical one (F1-42): confirm it as it is.
+      await expect(page.getByLabel(t.windageMax)).toHaveValue('10');
       await page.getByRole('button', { name: t.save }).click();
       await page.getByRole('link', { name: t.addArrows }).click();
       await page.getByLabel(t.shortName).fill('Hunter 400');
@@ -216,10 +227,14 @@ for (const l of LANGS) {
         await page.getByRole('button', { name: t.addMark }).click();
         await page.getByLabel(t.distance, { exact: true }).fill(String(distance));
         await page.getByLabel(t.reading, { exact: true }).fill(n(reading));
+        // The windage is written down for 20 only: it is optional (F1-42).
+        if (distance === 20) await page.getByLabel(t.windage, { exact: true }).fill(n('5.5'));
         await page.getByRole('button', { name: t.save }).click();
         await expect(page.getByRole('button', { name: t.pickMark(distance) })).toBeVisible();
       }
       await expect(page.getByText(t.summary)).toBeVisible();
+      const windageRuler = page.getByRole('img', { name: t.windageRuler });
+      await expect(windageRuler.locator('[data-mark="measured"]')).toHaveCount(1);
 
       // Intermediates: the grid in the archer's unit, measured plain and the rest estimated.
       await page.getByRole('link', { name: t.intermediates }).click();

@@ -637,9 +637,23 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** legible a 32 px; maskable dentro de la zona segura; mismo tile en dark y light;
   manifest y precache actualizados; capturas regeneradas.
 
+### [x] F1-42 · Deriva por marca (F3-D adelantada)
+
+- **Modulo:** domain, schemas, api (equipment, calculator, account), pwa, i18n · **Puntos:** 5 · **Depende de:** F1-41
+- **Descripcion:** la mira suma una escala horizontal (`windageScale`, misma forma que la vertical,
+  direccion `right` | `left`) y cada marca una deriva opcional (`windageMm`), para volver al valor
+  real despues de corregir por viento. Segunda regla horizontal en la pantalla de la mira; deriva
+  en el HUD, la tabla y el listado imprimible. No se estima. Diseño:
+  `docs/superpowers/specs/2026-11-23-windage-design.md`; plan: `docs/superpowers/plans/2026-11-23-windage.md`.
+- **Criterios:** formulario de mira nueva con la escala horizontal precargada (copia de la
+  vertical); `SM-MARK-422-003` y `-004`; cambio de escala horizontal con estrategia (RN-SGT-05);
+  miras viejas sin escala horizontal siguen andando; export `schemaVersion` 3; ES/EN, dark/light,
+  360/768/1440, E2E.
+- **Estado:** hecho en `feat/windage` (2026-11-23). Detalle y decisiones en la bitacora.
+
 ### [ ] F1-22 · Release del MVP y prueba con arqueros
 
-- **Modulo:** infra, producto · **Puntos:** 3 · **Depende de:** todo F1 (incluidos F1-33 y F1-34..F1-41)
+- **Modulo:** infra, producto · **Puntos:** 3 · **Depende de:** todo F1 (incluidos F1-33, F1-34..F1-41 y F1-42)
 - **Descripcion:** promocion a prod, restore de backup probado en staging, script de metricas
   agregadas desde la base (spec §2, sin tracking de terceros), prueba con 5–10 arqueros (CBA, liga
   bahiense), canal de feedback.
@@ -666,7 +680,7 @@ Se desglosan en tareas al cerrar la fase anterior.
 - **F3-A** Corte por angulo con inclinometro (permisos iOS) y entrada manual.
 - **F3-B** Presets de rondas: WA 70/50, sala 18/25, NFAA Field/Hunter, 3D.
 - **F3-C** Wind / Weather: correccion manual por sesion (vertical y deriva).
-- **F3-D** Deriva por marca.
+- **F3-D** ~~Deriva por marca.~~ Adelantada a F1-42.
 - **F3-E** Recurvo (`bowType: recurve`, campos propios).
 
 ### F4 — Offline-first

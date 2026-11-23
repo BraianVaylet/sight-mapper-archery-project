@@ -10,7 +10,7 @@ import {
   text,
   uuidv7,
 } from './common.js';
-import { sightScale } from './equipment.js';
+import { sightScale, windageScale } from './equipment.js';
 
 // -------------------------------------------------------------- setups
 
@@ -59,6 +59,8 @@ const scaleValueMm = z.number();
 export const markFields = {
   distanceM,
   scaleValueMm,
+  /** Windage in mm on the horizontal scale (F1-42). `null` clears it; checked against the sight. */
+  windageMm: z.number().nullable().optional(),
   note: optional(z.string().trim().max(200)),
   measuredAt: isoDateTime.optional(),
 };
@@ -82,6 +84,7 @@ export const mark = z.object({
   arrowSetId: uuidv7,
   distanceM,
   scaleValueMm,
+  windageMm: z.number().nullable().default(null),
   origin: z.enum(MARK_ORIGINS),
   note: optional(z.string().max(200)),
   measuredAt: isoDateTime,
@@ -112,6 +115,7 @@ export const sightRef = z.object({
   ...refNames,
   pinType: z.enum(PIN_TYPES),
   scale: sightScale,
+  windageScale: windageScale.nullable().default(null),
 });
 export type SightRef = z.infer<typeof sightRef>;
 

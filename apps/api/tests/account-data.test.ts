@@ -123,7 +123,7 @@ describe('GET /me/export (HU-ACC-05)', () => {
       marks: Json[];
     }>(response);
 
-    expect(data.schemaVersion).toBe(2);
+    expect(data.schemaVersion).toBe(3);
     expect(data.exportedAt).toBe('2026-11-02T12:00:00Z');
     expect(data.profile).toMatchObject({
       locale: 'es',

@@ -84,6 +84,7 @@ export function useMarkActions(setupId: string, arrowSetId: string) {
         arrowSetId: input.arrowSetId,
         distanceM: input.distanceM,
         scaleValueMm: input.scaleValueMm,
+        windageMm: input.windageMm ?? null,
         origin: 'measured',
         ...(input.note == null ? {} : { note: input.note }),
         measuredAt: input.measuredAt ?? now,

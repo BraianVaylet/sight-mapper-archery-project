@@ -4,7 +4,7 @@ import type { DbConnection } from '../../../core/db/connection.js';
 import { fromDate, toDate } from '../../../core/db/temporal.js';
 import { rethrowDuplicateId, updateWithVersion } from '../../../core/db/versioned.js';
 import { AppError } from '../../../core/http/errors.js';
-import type { Mark, MarkRepositories } from '../domain/mark.js';
+import type { Mark, MarkAxis, MarkRepositories } from '../domain/mark.js';
 
 const MONGO_DUPLICATE_KEY = 11000;
 
@@ -14,6 +14,8 @@ const schema = createBusinessSchema(
     arrowSetId: { type: String, required: true },
     distanceM: { type: Number, required: true },
     scaleValueMm: { type: Number, required: true },
+    /** F1-42. Missing on marks from before it, and on marks with no windage written down. */
+    windageMm: { type: Number },
     origin: { type: String, required: true, default: 'measured' },
     note: { type: String },
     measuredAt: { type: Date, required: true },
@@ -30,6 +32,7 @@ type Row = {
   arrowSetId: string;
   distanceM: number;
   scaleValueMm: number;
+  windageMm?: number | null;
   origin: Mark['origin'];
   note?: string | null;
   measuredAt: Date;
@@ -46,6 +49,7 @@ const toMark = (row: Row): Mark => ({
   arrowSetId: row.arrowSetId,
   distanceM: row.distanceM,
   scaleValueMm: row.scaleValueMm,
+  windageMm: row.windageMm ?? null,
   origin: row.origin,
   ...(row.note == null ? {} : { note: row.note }),
   measuredAt: fromDate(row.measuredAt),
@@ -53,6 +57,19 @@ const toMark = (row: Row): Mark => ({
   createdAt: fromDate(row.createdAt),
   updatedAt: fromDate(row.updatedAt),
   deletedAt: row.deletedAt === null ? null : fromDate(row.deletedAt),
+});
+
+/** Where each axis lives on the document. */
+const FIELD_OF: Record<MarkAxis, 'scaleValueMm' | 'windageMm'> = {
+  vertical: 'scaleValueMm',
+  windage: 'windageMm',
+};
+
+/** The live marks of these setups with a position on the axis (not every mark has a windage). */
+const onAxis = (userId: string, setupIds: readonly string[], axis: MarkAxis) => ({
+  userId,
+  setupId: { $in: [...setupIds] },
+  ...(axis === 'windage' ? { windageMm: { $ne: null } } : {}),
 });
 
 export function createMarkRepositories(connection: DbConnection): MarkRepositories {
@@ -95,6 +112,7 @@ export function createMarkRepositories(connection: DbConnection): MarkRepositori
               arrowSetId: mark.arrowSetId,
               distanceM: mark.distanceM,
               scaleValueMm: mark.scaleValueMm,
+              ...(mark.windageMm === null ? {} : { windageMm: mark.windageMm }),
               origin: mark.origin,
               ...(mark.note == null ? {} : { note: mark.note }),
               measuredAt: toDate(mark.measuredAt),
@@ -113,6 +131,8 @@ export function createMarkRepositories(connection: DbConnection): MarkRepositori
           if (patch.distanceM !== undefined) set['distanceM'] = patch.distanceM;
           if (patch.scaleValueMm !== undefined) set['scaleValueMm'] = patch.scaleValueMm;
           if (patch.measuredAt !== undefined) set['measuredAt'] = toDate(patch.measuredAt);
+          if (patch.windageMm === null) unset['windageMm'] = 1;
+          else if (patch.windageMm !== undefined) set['windageMm'] = patch.windageMm;
           if (patch.note === null) unset['note'] = 1;
           else if (patch.note !== undefined) set['note'] = patch.note;
           const row = await updateWithVersion(
@@ -186,21 +206,23 @@ export function createMarkRepositories(connection: DbConnection): MarkRepositori
           ).setOptions({ withDeleted: true });
         },
 
-        async positionsOf(setupIds) {
+        async positionsOf(setupIds, axis) {
           if (setupIds.length === 0) return [];
-          const rows = await Marks.find({ userId, setupId: { $in: [...setupIds] } })
-            .select('scaleValueMm')
-            .lean<{ scaleValueMm: number }[]>();
-          return rows.map((row) => row.scaleValueMm);
+          const field = FIELD_OF[axis];
+          const rows = await Marks.find(onAxis(userId, setupIds, axis))
+            .select(field)
+            .lean<Partial<Record<typeof field, number>>[]>();
+          return rows.flatMap((row) => (row[field] === undefined ? [] : [row[field]]));
         },
 
-        async scalePositions(setupIds, factor, now) {
+        async scalePositions(setupIds, factor, now, axis) {
           if (setupIds.length === 0) return;
+          const field = FIELD_OF[axis];
           // One pipeline update: every position times the factor, rounded to a millionth of a mm.
-          await Marks.updateMany({ userId, setupId: { $in: [...setupIds] } }, [
+          await Marks.updateMany(onAxis(userId, setupIds, axis), [
             {
               $set: {
-                scaleValueMm: { $round: [{ $multiply: ['$scaleValueMm', factor] }, 6] },
+                [field]: { $round: [{ $multiply: ['$' + field, factor] }, 6] },
                 updatedAt: toDate(now),
                 version: { $add: ['$version', 1] },
               },

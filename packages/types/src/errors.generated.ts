@@ -254,6 +254,18 @@ export const ERROR_CATALOG = {
     messageKey: 'errors.mark.arrowSetNotInSetup',
     params: ['arrowSetId'],
   },
+  'SM-MARK-422-003': {
+    module: 'MARK',
+    status: 422,
+    messageKey: 'errors.mark.noWindageScale',
+    params: [],
+  },
+  'SM-MARK-422-004': {
+    module: 'MARK',
+    status: 422,
+    messageKey: 'errors.mark.windageOutOfScale',
+    params: ['minMm', 'maxMm'],
+  },
   'SM-CALC-422-001': {
     module: 'CALC',
     status: 422,

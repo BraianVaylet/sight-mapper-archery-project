@@ -306,3 +306,47 @@ describe('componentUsage', () => {
     expect(componentUsage.safeParse({ setups: 1.5, marks: 0 }).success).toBe(false);
   });
 });
+
+describe('windage scale (F1-42)', () => {
+  const okSight = { id: ID.a, manufacturer: 'Axcel', scale: customScale };
+  const clicks = { unit: 'click', unitSizeMm: null, min: 0, max: 20, resolution: 1 } as const;
+
+  it('is null when a new sight does not bring one', () => {
+    expect(createSight.parse(okSight).windageScale).toBeNull();
+  });
+
+  it('defaults its direction to right', () => {
+    expect(createSight.parse({ ...okSight, windageScale: clicks }).windageScale?.direction).toBe(
+      'right',
+    );
+  });
+
+  it('keeps the rules of the vertical scale', () => {
+    const result = createSight.safeParse({ ...okSight, windageScale: { ...clicks, min: 20 } });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path.join('.')).toBe('windageScale.max');
+    expect(result.error?.issues[0]?.message).toBe('validation.scale.minLessThanMax');
+  });
+
+  it('does not take the vertical directions', () => {
+    const result = createSight.safeParse({
+      ...okSight,
+      windageScale: { ...clicks, direction: 'down' },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('can be set or changed on update, never cleared', () => {
+    expect(updateSight.safeParse({ windageScale: clicks }).success).toBe(true);
+    expect(updateSight.safeParse({ windageScale: null }).success).toBe(false);
+    expect(
+      updateSight.safeParse({ windageScale: clicks, windageScaleChangeStrategy: 'keepReadings' })
+        .success,
+    ).toBe(true);
+  });
+
+  it('reads as null on a stored sight that has none', () => {
+    const parsed = sight.parse({ ...resource, ...okSight, pinType: 'monopin', status: 'active' });
+    expect(parsed.windageScale).toBeNull();
+  });
+});

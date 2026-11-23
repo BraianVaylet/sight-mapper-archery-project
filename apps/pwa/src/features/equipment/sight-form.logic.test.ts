@@ -6,6 +6,7 @@ import {
   toSightInput,
   toSightPatch,
   travelMm,
+  withWindageCopy,
   type SightFormValues,
 } from './sight-form.logic.js';
 
@@ -199,5 +200,89 @@ describe('toSightPatch', () => {
     const patch = toSightPatch(ok(toSightInput(cm(), ID)));
     expect(patch).not.toHaveProperty('id');
     expect(patch).toMatchObject({ scale: { unit: 'cm' }, nickname: null, notes: null });
+  });
+});
+
+describe('the horizontal scale (F1-42)', () => {
+  const windage = (over: Partial<SightFormValues['windage']> = {}) => ({
+    ...emptyValues().windage,
+    min: '-10',
+    max: '10',
+    resolution: '0,5',
+    ...over,
+  });
+
+  it('starts a new sight with an empty horizontal block on the same unit, growing right', () => {
+    expect(emptyValues('in').windage).toEqual({
+      unit: 'in',
+      direction: 'right',
+      min: '',
+      max: '',
+      resolution: '',
+      unitSizeMm: '',
+      lengthMm: '',
+    });
+  });
+
+  it('copies the vertical scale into the horizontal one, growing right', () => {
+    const copied = withWindageCopy(cm({ direction: 'up', unitSizeMm: '8' }));
+    expect(copied.windage).toEqual({
+      unit: 'cm',
+      direction: 'right',
+      min: '0',
+      max: '10',
+      resolution: '0,1',
+      unitSizeMm: '8',
+      lengthMm: '',
+    });
+  });
+
+  it('sends the horizontal scale it was given, read with the comma of the language', () => {
+    const { input } = ok(toSightInput(cm({ windage: windage({ unit: 'mm' }) }), ID));
+    expect(input.windageScale).toEqual({
+      unit: 'mm',
+      min: -10,
+      max: 10,
+      resolution: 0.5,
+      direction: 'right',
+    });
+  });
+
+  it('asks for it on a new sight, on the horizontal fields', () => {
+    const result = toSightInput(cm(), ID, { requireWindage: true });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors['windage.min']?.messageKey).toBe('validation.required');
+  });
+
+  it('lets an older sight be saved with the horizontal block still empty', () => {
+    const { input } = ok(toSightInput(cm(), ID, { requireWindage: false }));
+    expect(input.windageScale).toBeNull();
+    expect(toSightPatch({ input, clears: [] })).not.toHaveProperty('windageScale');
+  });
+
+  it('puts the errors of the horizontal scale on its own fields', () => {
+    const result = toSightInput(cm({ windage: windage({ min: '10', max: '0' }) }), ID);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors['windage.max']?.messageKey).toBe('validation.scale.minLessThanMax');
+      expect(result.errors['max']).toBeUndefined();
+    }
+  });
+
+  it('shows the saved horizontal scale, and an empty block for a sight without one', () => {
+    const scale = { unit: 'cm', min: 0, max: 10, resolution: 0.1, direction: 'down' } as const;
+    const saved = toFormValues(
+      { scale, windageScale: { unit: 'mm', min: -5, max: 5, resolution: 0.5, direction: 'left' } },
+      ',',
+    );
+    expect(saved.windage).toMatchObject({
+      unit: 'mm',
+      min: '-5',
+      max: '5',
+      resolution: '0,5',
+      direction: 'left',
+    });
+    const older = toFormValues({ scale, windageScale: null }, ',');
+    expect(older.windage).toMatchObject({ unit: 'cm', direction: 'right', min: '', max: '' });
   });
 });

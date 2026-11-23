@@ -1,8 +1,15 @@
-import { scaleBoundsMm, unitSizeMm } from '@sight-mapper/domain';
-import type { SightScaleInput, UpdateSight } from '@sight-mapper/schemas';
+import { scaleBoundsMm, unitSizeMm, windageAxisScale } from '@sight-mapper/domain';
+import type { SightScaleInput, UpdateSight, WindageScaleInput } from '@sight-mapper/schemas';
+import type { ScaleChangeStrategy } from '@sight-mapper/types';
 import { AppError } from '../../../core/http/errors.js';
 import type { Transact } from '../../../core/db/transaction.js';
-import type { Clock, Sight, SightMarksPort, SightRepositories } from '../domain/sight.js';
+import type {
+  Clock,
+  ScaleChange,
+  Sight,
+  SightMarksPort,
+  SightRepositories,
+} from '../domain/sight.js';
 
 export type UpdateSightDeps = {
   readonly sights: SightRepositories;
@@ -22,12 +29,48 @@ export function scaleMeaningChanged(from: SightScaleInput, to: SightScaleInput):
   return from.unit !== to.unit || size(from) !== size(to);
 }
 
+/** A horizontal scale on the axis the vertical arithmetic works on (`right → down`, `left → up`). */
+const onAxis = (scale: WindageScaleInput): SightScaleInput =>
+  windageAxisScale({ ...scale, unitSizeMm: scale.unitSizeMm ?? null });
+
+/** What one axis of the sight needs done to its marks, once every check has passed. */
+type Rescale = ScaleChange & { readonly meaningChanged: boolean };
+
 /**
- * HU-SGT-02. A sight with marks whose scale changes in meaning needs to be told what to keep
- * (`keepReadings` or `keepPositions`, SM-SGT-409-003), and a change that leaves marks off the
- * scale is refused as a whole (SM-SGT-409-002). Nothing is written until both pass.
+ * HU-SGT-02, RN-SGT-05. A sight with marks whose scale changes in meaning needs to be told what
+ * to keep (`keepReadings` or `keepPositions`, SM-SGT-409-003), and a change that leaves marks off
+ * the scale is refused as a whole (SM-SGT-409-002). The vertical and the horizontal scale follow
+ * the same rules, each on its own positions; adding a horizontal scale for the first time has no
+ * marks to move. Nothing is written until every check passes.
  */
 export function createUpdateSight(deps: UpdateSightDeps) {
+  /** The checks of one axis; returns what to rescale in the transaction, if anything. */
+  async function checkAxis(
+    userId: string,
+    sightId: string,
+    from: SightScaleInput,
+    to: SightScaleInput,
+    strategy: ScaleChangeStrategy | undefined,
+    axis: ScaleChange['axis'],
+  ): Promise<Rescale | null> {
+    const meaningChanged = scaleMeaningChanged(from, to);
+    const rangeChanged = to.min !== from.min || to.max !== from.max;
+    if (!meaningChanged && !rangeChanged) return null;
+
+    const marks = await deps.marks.count(userId, sightId, axis);
+    if (marks === 0) return null;
+    if (meaningChanged && strategy === undefined) {
+      throw new AppError('SM-SGT-409-003', { marks });
+    }
+    const change: ScaleChange = { from, to, strategy, axis };
+    const outside = await deps.marks.countOutside(userId, sightId, change);
+    if (outside > 0) {
+      const { minMm, maxMm } = scaleBoundsMm({ ...to, unitSizeMm: to.unitSizeMm ?? null });
+      throw new AppError('SM-SGT-409-002', { count: outside, minMm, maxMm });
+    }
+    return { ...change, meaningChanged };
+  }
+
   return async function updateSight(
     userId: string,
     id: string,
@@ -38,33 +81,36 @@ export function createUpdateSight(deps: UpdateSightDeps) {
     const current = await repository.find(id);
     if (current === null) throw new AppError('SM-CORE-404-002', { resource: 'sight' });
 
-    const { scaleChangeStrategy, ...fields } = patch;
-    const next = fields.scale ?? current.scale;
-    const meaningChanged = scaleMeaningChanged(current.scale, next);
-    const rangeChanged = next.min !== current.scale.min || next.max !== current.scale.max;
+    const { scaleChangeStrategy, windageScaleChangeStrategy, ...fields } = patch;
+    const pending: Rescale[] = [];
 
-    const marks = meaningChanged || rangeChanged ? await deps.marks.count(userId, id) : 0;
-    if (marks > 0) {
-      if (meaningChanged && scaleChangeStrategy === undefined) {
-        throw new AppError('SM-SGT-409-003', { marks });
-      }
-      const change = { from: current.scale, to: next, strategy: scaleChangeStrategy };
-      const outside = await deps.marks.countOutside(userId, id, change);
-      if (outside > 0) {
-        const { minMm, maxMm } = scaleBoundsMm({ ...next, unitSizeMm: next.unitSizeMm ?? null });
-        throw new AppError('SM-SGT-409-002', { count: outside, minMm, maxMm });
-      }
+    const vertical = await checkAxis(
+      userId,
+      id,
+      current.scale,
+      fields.scale ?? current.scale,
+      scaleChangeStrategy,
+      'vertical',
+    );
+    if (vertical !== null) pending.push(vertical);
+
+    if (fields.windageScale !== undefined && current.windageScale !== null) {
+      const windage = await checkAxis(
+        userId,
+        id,
+        onAxis(current.windageScale),
+        onAxis(fields.windageScale),
+        windageScaleChangeStrategy,
+        'windage',
+      );
+      if (windage !== null) pending.push(windage);
     }
 
-    // The marks follow the scale, in the same transaction: a failure leaves both as they were.
+    // The marks follow their scales, in the same transaction: a failure leaves all as it was.
     return deps.transact(async () => {
       const updated = await repository.update(id, fields, expectedVersion, deps.clock.now());
-      if (marks > 0 && meaningChanged) {
-        await deps.marks.rescale(userId, id, {
-          from: current.scale,
-          to: next,
-          strategy: scaleChangeStrategy,
-        });
+      for (const { meaningChanged, ...change } of pending) {
+        if (meaningChanged) await deps.marks.rescale(userId, id, change);
       }
       return updated;
     });

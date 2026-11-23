@@ -67,6 +67,9 @@ de **compuesto** (target, campo, 3D o caza) que ya calibra su mira a mano.
   archivado, borrado protegido.
 - Setups: arco + mira + 1..N sets de flechas. Favoritos y acceso rapido.
 - Marcas: carga manual, edicion, borrado con deshacer.
+- [+] **Deriva por marca** (F1-42, adelantada de F3): la mira tiene escala horizontal ademas de la
+  vertical, y cada marca puede anotar su deriva real para volver a ella despues de corregir por
+  viento. Solo se registra: no se estima.
 - Calculo escalonado: interpolacion (2 marcas), extrapolacion (3), **Mark Doctor** (5).
 - Distancias intermedias con paso configurable, consulta de distancia libre, curva.
 - **Sistema imperial** (yardas) y metrico, escalas en mm, cm, pulgadas, clicks o escala impresa.
@@ -78,8 +81,8 @@ de **compuesto** (target, campo, 3D o caza) que ya calibra su mira a mano.
 
 ### 4.2 Despues del MVP (roadmap, §15)
 
-MAKER (tape PDF a escala real), corte por angulo, presets de rondas, correccion por viento/clima y
-deriva, recurvo, offline-first, monetizacion, landing, semilla balistica, motor de condiciones,
+MAKER (tape PDF a escala real), corte por angulo, presets de rondas, correccion por viento/clima ~~y
+deriva~~ [~] (la deriva por marca entro al MVP, §4.1), recurvo, offline-first, monetizacion, landing, semilla balistica, motor de condiciones,
 comparar sets, historial, compartir con coach.
 
 ### 4.3 Fuera de alcance, en cualquier fase
@@ -164,6 +167,10 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
 - **RF-EQP-02** Alta, edicion, listado y detalle de **miras**, con su **escala nativa**: unidad
   (`mm` | `cm` | `in` | `click` | `custom`), tamaño de la unidad en mm cuando corresponde, minimo y
   maximo legibles, resolucion (quantum), direccion de la escala y tipo de pin.
+  [+] Tambien su **escala horizontal** (`windageScale`), con la misma forma; su direccion es
+  `right` | `left` (hacia donde crecen los numeros, visto por el arquero desde atras de la mira).
+  El formulario de mira nueva la exige y la precarga con una copia de la vertical. La API la acepta
+  `null`: las miras creadas antes de F1-42 no la tienen hasta que el arquero la carga.
 - **RF-EQP-03** Alta, edicion, listado y detalle de **sets de flechas**.
 - **RF-EQP-04** Todo componente se puede **archivar** y desarchivar. Archivado no aparece en los
   selectores de setups nuevos; los setups que lo usan siguen funcionando.
@@ -187,13 +194,17 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
 ### 6.5 `calculator/manual` (marcas)
 
 - **RF-MRK-01** Cargar una marca: distancia (en la unidad ~~del arquero~~ [~] de la seccion marcas) y lectura (en la escala de
-  la mira), nota opcional y fecha de medicion (default: ahora).
+  la mira), nota opcional y fecha de medicion (default: ahora). [+] Deriva opcional, leida en la
+  escala horizontal de la mira; solo se ofrece si la mira la tiene.
 - **RF-MRK-02** Una distancia repetida para el mismo (setup, set de flechas) es un **conflicto
   explicito**: el arquero elige reemplazar la anterior o cancelar.
 - **RF-MRK-03** Editar y borrar marcas; el borrado se puede deshacer.
 - **RF-MRK-04** Pantalla de la mira: encabezado (mira, arco), selector de set de flechas, lectura
   grande de la distancia seleccionada, **regla** con las marcas en su posicion exacta, tabla
-  distancia → lectura, boton de nueva marca siempre alcanzable con el pulgar.
+  distancia → lectura, boton de nueva marca siempre alcanzable con el pulgar. [+] Una segunda
+  **regla horizontal** con la deriva de las marcas medidas; la deriva tambien en la lectura grande,
+  en la tabla (bajo la lectura) y en el listado imprimible. Una distancia calculada no muestra deriva.
+  La columna de deriva del listado se imprime solo si alguna fila tiene deriva.
 
 ### 6.6 `calculator/auto` y `calculator/doctor`
 
@@ -258,6 +269,10 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
 - **RN-SGT-04** Cambiar `unit` o `unitSizeMm` de una mira con marcas exige `strategy`:
   `keepReadings` (default: las lecturas que el arquero anoto se conservan y se recalculan los mm) o
   `keepPositions` (la posicion fisica se conserva y cambian las lecturas). Sin `strategy`, 409.
+- [+] **RN-SGT-05** RN-SGT-01..04 valen igual para `windageScale`, sobre la deriva de las marcas
+  (`windageScaleChangeStrategy`); las marcas sin deriva no cuentan. Cargarla por primera vez no
+  pide estrategia. Una vez cargada no vuelve a `null`. La PWA pide **una sola** eleccion ("que
+  conservar") y la manda para las dos escalas: el arquero elige que conservar, no un eje.
 
 ### 7.3 Setups
 
@@ -277,6 +292,9 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
 - **RN-MRK-01** `0 < distanceM ≤ 300`.
 - **RN-MRK-02** `scaleValueMm ∈ [sight.scaleMinMm, sight.scaleMaxMm]`, verificado leyendo la mira
   en la misma operacion.
+- [+] **RN-MRK-07** `windageMm` es opcional (`null` = sin anotar). Si viene, la mira tiene que
+  tener `windageScale` (si no, 422 `SM-MARK-422-003`) y caer dentro de ella (si no, 422
+  `SM-MARK-422-004`). La deriva **no se estima** ni se usa en el calculo.
 - **RN-MRK-03** El `arrowSetId` de la marca pertenece al setup.
 - **RN-MRK-04** Unica por `(setupId, arrowSetId, distanceM)` entre las no borradas. Repetida → 409
   con el id existente; el cliente puede reenviar con `replace: true`.
@@ -455,7 +473,7 @@ real. Se detalla en tareas solo la fase en curso y la siguiente.
 | **F0** | Fundaciones            | Monorepo, tooling, CI, docs, dominio puro con tests, API y PWA esqueleto, Mongo, auth, Railway |
 | **F1** | MVP — Calculator       | Todo §4.1                                                                                     |
 | F2     | MAKER                  | Tape PDF a escala real, calibracion de impresora, editor de forma/tamaño (desktop)            |
-| F3     | Campo                  | Corte por angulo (inclinometro), presets de rondas, correccion manual viento/clima, deriva, recurvo |
+| F3     | Campo                  | Corte por angulo (inclinometro), presets de rondas, correccion manual viento/clima, ~~deriva~~ [~] (deriva por marca: F1-42), recurvo |
 | F4     | Offline-first          | Cola de escritura, sync, deteccion de escritura obsoleta en la UI                             |
 | F5     | Monetizacion y landing | Entitlements, pasarelas detras de adaptador, trial, landing con precios                       |
 | F6     | Diferenciacion         | Semilla balistica, motor de condiciones aprendido, comparar sets, historial, compartir con coach |
@@ -524,6 +542,7 @@ doctor.status          : insufficient | ok | suspect | inconsistent
 | Residuos contra la parabola total               | Residuos **leave-one-out** + monotonia        | Un outlier no esconde su propio residuo       |
 | Tres apps (api, pwa, landing)                   | Dos en el MVP (api, pwa)                      | Landing es F5                                 |
 | `Idempotency-Key` solo en cola offline          | En todo `POST` desde F0                       | El wire no cambia cuando llegue offline (F4)  |
+| [+] Deriva en F3                                | Deriva por marca en el MVP (F1-42)            | Volver al valor real tras corregir por viento |
 
 ## 20. Criterios transversales (DoR / DoD)
 

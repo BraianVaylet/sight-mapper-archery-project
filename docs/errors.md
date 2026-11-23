@@ -133,6 +133,8 @@ los convierte a la unidad de la seccion, con su `unit`, para mostrar el rango (R
 | `SM-MARK-410-001` | 410  | `errors.mark.restoreExpired`       | `deletedAt`                      | Deshacer despues de 30 dias                      |
 | `SM-MARK-422-001` | 422  | `errors.mark.outOfScale`           | `minMm`, `maxMm`                 | Lectura fuera de la escala de la mira            |
 | `SM-MARK-422-002` | 422  | `errors.mark.arrowSetNotInSetup`   | `arrowSetId`                     | El set de flechas no es del setup                |
+| `SM-MARK-422-003` | 422  | `errors.mark.noWindageScale`       | —                                | Deriva en una mira sin escala horizontal         |
+| `SM-MARK-422-004` | 422  | `errors.mark.windageOutOfScale`    | `minMm`, `maxMm`                 | Deriva fuera de la escala horizontal             |
 
 ### 4.7 `CALC` (cliente, desde `@sight-mapper/domain`)
 

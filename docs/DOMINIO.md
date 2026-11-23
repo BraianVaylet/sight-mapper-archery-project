@@ -90,8 +90,14 @@ cliente**.
   - `unit ∈ {click, custom}` ⇒ `unitSizeMm` es `null` o `> 0`.
   - Derivados canonicos: `scaleMinMm = min × unitSizeMm`, `scaleMaxMm = max × unitSizeMm` (si
     `unitSizeMm` es `null`, se usa `1` como factor nominal y la mira queda "sin escala fisica").
+- [+] `windageScale: WindageScale | null` (F1-42): la escala horizontal, con la misma forma que
+  `SightScale` salvo `direction: 'right' | 'left'` (visto desde atras de la mira). Mismas
+  invariantes. `null` solo en miras previas a F1-42; una vez cargada no vuelve a `null`. El dominio
+  la lleva a una `SightScale` comun con `windageAxisScale` (`right → down`, `left → up`) para
+  reusar conversion, limites y regla.
 - Operaciones con reglas especiales:
-  - `changeScale(newScale, strategy)` con marcas existentes: ver §4.2.
+  - `changeScale(newScale, strategy)` con marcas existentes: ver §4.2. [+] Igual para
+    `windageScale`, sobre `windageMm` (las marcas sin deriva no cuentan).
 - Estados: `active ⇄ archived`.
 
 ### 2.3 `ArrowSet` (Equipment)
@@ -115,11 +121,13 @@ cliente**.
 
 - **Agregado propio** (no hijo de `Setup`): se crea, edita y borra de a una, con alta frecuencia, y
   conviene que su concurrencia sea independiente del setup.
-- Campos: `setupId`, `arrowSetId`, `distanceM`, `scaleValueMm`, `origin`, `note?`, `measuredAt`.
+- Campos: `setupId`, `arrowSetId`, `distanceM`, `scaleValueMm`, [+] `windageMm?` (deriva, `null` = sin anotar), `origin`, `note?`, `measuredAt`.
 - Invariantes:
   - `0 < distanceM ≤ 300`, redondeada a 0.001 m.
   - `arrowSetId ∈ setup.arrowSetIds`.
   - `scaleValueMm ∈ [sight.scaleMinMm, sight.scaleMaxMm]` (leido en la misma operacion).
+  - [+] `windageMm` no nulo ⇒ la mira tiene `windageScale` y `windageMm ∈ [windageMinMm, windageMaxMm]`.
+    La deriva no entra al calculo ni al Doctor y nunca se estima.
   - Unica por `(userId, setupId, arrowSetId, distanceM)` entre las no borradas.
 - `origin`: `measured` (MVP) | `seeded` (F6). Lo calculado no se persiste.
 

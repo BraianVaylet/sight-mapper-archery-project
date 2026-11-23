@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import { useI18n } from '../../app/i18n.js';
 import { profileQuery } from '../account/profile.js';
 import { useMarks } from './marks.js';
-import { analyse, toScale } from './sight.logic.js';
+import { analyse, toScale, toWindageScale } from './sight.logic.js';
 
 /**
  * What every screen about one (setup, arrow set) pair needs: the archer's unit and separator,
@@ -27,8 +27,9 @@ export function useSightData(setup: SetupView, arrowParam: string | undefined) {
   const marks = useMemo(() => marksQuery.data?.items ?? [], [marksQuery.data]);
 
   const scale = useMemo(() => toScale(setup.sight), [setup.sight]);
+  const windageScale = useMemo(() => toWindageScale(setup.sight), [setup.sight]);
   const toleranceMm = profile.data?.doctorToleranceMm ?? null;
   const analysis = useMemo(() => analyse(marks, scale, toleranceMm), [marks, scale, toleranceMm]);
 
-  return { system, separator, arrowId, marksQuery, marks, scale, analysis };
+  return { system, separator, arrowId, marksQuery, marks, scale, windageScale, analysis };
 }

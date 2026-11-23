@@ -1,7 +1,7 @@
 import { scaleBoundsMm, unitSizeMm } from '@sight-mapper/domain';
 import type { SightScaleInput } from '@sight-mapper/schemas';
 import type { ScaleChangeStrategy } from '@sight-mapper/types';
-import type { MarkRepositories } from '../domain/mark.js';
+import type { MarkAxis, MarkRepositories } from '../domain/mark.js';
 import type { Clock, SetupMarksPort, SetupRepositories } from '../domain/setup.js';
 
 /** The marks of the setups, as the setup rules and the Home need them (the calculator's own port). */
@@ -20,6 +20,8 @@ type ScaleChange = {
   readonly from: SightScaleInput;
   readonly to: SightScaleInput;
   readonly strategy: ScaleChangeStrategy | undefined;
+  /** Which scale changed: the marks' heights or their windage (F1-42). */
+  readonly axis: MarkAxis;
 };
 
 const sizeOf = (scale: SightScaleInput) =>
@@ -47,15 +49,17 @@ export function createSightMarks(deps: {
     strategy === 'keepReadings' ? sizeOf(to) / sizeOf(from) : 1;
 
   return {
-    async count(userId: string, sightId: string): Promise<number> {
+    async count(userId: string, sightId: string, axis: MarkAxis = 'vertical'): Promise<number> {
       const ids = await setupIdsOf(userId, sightId);
+      if (axis === 'windage')
+        return (await deps.marks.forUser(userId).positionsOf(ids, axis)).length;
       const counts = await deps.marks.forUser(userId).countBySetup(ids);
       return [...counts.values()].reduce((sum, n) => sum + n, 0);
     },
 
     async countOutside(userId: string, sightId: string, change: ScaleChange): Promise<number> {
       const ids = await setupIdsOf(userId, sightId);
-      const positions = await deps.marks.forUser(userId).positionsOf(ids);
+      const positions = await deps.marks.forUser(userId).positionsOf(ids, change.axis);
       const factor = factorOf(change);
       const { minMm, maxMm } = scaleBoundsMm({
         ...change.to,
@@ -68,7 +72,7 @@ export function createSightMarks(deps: {
       const factor = factorOf(change);
       if (factor === 1) return;
       const ids = await setupIdsOf(userId, sightId);
-      await deps.marks.forUser(userId).scalePositions(ids, factor, deps.clock.now());
+      await deps.marks.forUser(userId).scalePositions(ids, factor, deps.clock.now(), change.axis);
     },
   };
 }

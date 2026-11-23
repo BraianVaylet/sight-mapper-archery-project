@@ -154,6 +154,22 @@ describe('POST /setups (HU-STP-01)', () => {
     expect(view).not.toHaveProperty('userId');
   });
 
+  it('shows the horizontal scale of the sight, or null when it has none (F1-42)', async () => {
+    const { user, bowId, sightId, arrowId } = await equipped();
+    const withWindage = await add(user, '/api/v1/sights', {
+      model: 'Con deriva',
+      scale: SCALE,
+      windageScale: { unit: 'mm', min: -10, max: 10, resolution: 0.5, direction: 'left' },
+    });
+    const plain = await addSetup(user, { bowId, sightId, arrowSetIds: [arrowId] });
+    const windage = await addSetup(user, { bowId, sightId: withWindage, arrowSetIds: [arrowId] });
+    const view = (id: string) => call(user, 'GET', `/api/v1/setups/${id}`).then((r) => bodyOf(r));
+    expect(await view(plain)).toMatchObject({ sight: { windageScale: null } });
+    expect(await view(windage)).toMatchObject({
+      sight: { windageScale: { unit: 'mm', min: -10, max: 10, direction: 'left' } },
+    });
+  });
+
   it('takes several arrow sets, in the order the archer gave them', async () => {
     const { user, bowId, sightId, arrowId } = await equipped();
     const second = await addArrows(user, 'Pierce 400');

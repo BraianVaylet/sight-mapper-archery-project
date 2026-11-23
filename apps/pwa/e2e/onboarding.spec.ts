@@ -27,10 +27,10 @@ test('a new archer follows the guide from an empty Home to the first sight mark'
   // 2. The sight, with its scale.
   await step('sight').getByRole('link', { name: 'Cargar mira' }).click();
   await page.getByLabel('Modelo').fill('Ultraview');
-  await page.getByLabel('Unidad de la escala').selectOption('cm');
-  await page.getByLabel('Mínimo').fill('0');
-  await page.getByLabel('Máximo').fill('10');
-  await page.getByLabel('Paso más chico').fill('0,1');
+  await page.getByLabel('Unidad de la escala', { exact: true }).selectOption('cm');
+  await page.getByLabel('Mínimo', { exact: true }).fill('0');
+  await page.getByLabel('Máximo', { exact: true }).fill('10');
+  await page.getByLabel('Paso más chico', { exact: true }).fill('0,1');
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(step('sight')).toHaveAttribute('data-state', 'done');
 
@@ -68,10 +68,10 @@ test('an archer who loads the sight first still gets there: the guide does not f
   await signUpAndVerify(page);
   await page.goto('/sights/new?next=home');
   await page.getByLabel('Modelo').fill('Ultraview');
-  await page.getByLabel('Unidad de la escala').selectOption('cm');
-  await page.getByLabel('Mínimo').fill('0');
-  await page.getByLabel('Máximo').fill('10');
-  await page.getByLabel('Paso más chico').fill('0,1');
+  await page.getByLabel('Unidad de la escala', { exact: true }).selectOption('cm');
+  await page.getByLabel('Mínimo', { exact: true }).fill('0');
+  await page.getByLabel('Máximo', { exact: true }).fill('10');
+  await page.getByLabel('Paso más chico', { exact: true }).fill('0,1');
   await page.getByRole('button', { name: 'Guardar' }).click();
   // Back on the guide, the sight is crossed off and the bow is still the one to do.
   await expect(page.locator('[data-step="sight"]')).toHaveAttribute('data-state', 'done');
