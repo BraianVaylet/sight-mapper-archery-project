@@ -42,6 +42,8 @@ type Lang = {
     windage: string;
     windageMax: string;
     windageRuler: string;
+    editWindage: string;
+    windageSaved: string;
     pickMark: (d: number) => string;
     summary: string;
     intermediates: string;
@@ -91,6 +93,8 @@ const LANGS: Lang[] = [
       windage: 'Deriva',
       windageMax: 'Máximo horizontal',
       windageRuler: 'Regla de la deriva de la mira',
+      editWindage: 'Editar deriva',
+      windageSaved: 'Deriva guardada',
       pickMark: (d) => `Elegir la marca de ${d} m`,
       summary: 'Marcas: 5 · 20–60 m',
       intermediates: 'Intermedias',
@@ -139,6 +143,8 @@ const LANGS: Lang[] = [
       windage: 'Windage',
       windageMax: 'Horizontal maximum',
       windageRuler: 'Ruler of the sight windage',
+      editWindage: 'Edit windage',
+      windageSaved: 'Windage saved',
       pickMark: (d) => `Pick the mark at ${d} yd`,
       summary: 'Marks: 5 · 20–60 yd',
       intermediates: 'Intermediates',
@@ -227,12 +233,15 @@ for (const l of LANGS) {
         await page.getByRole('button', { name: t.addMark }).click();
         await page.getByLabel(t.distance, { exact: true }).fill(String(distance));
         await page.getByLabel(t.reading, { exact: true }).fill(n(reading));
-        // The windage is written down for 20 only: it is optional (F1-42).
-        if (distance === 20) await page.getByLabel(t.windage, { exact: true }).fill(n('5.5'));
         await page.getByRole('button', { name: t.save }).click();
         await expect(page.getByRole('button', { name: t.pickMark(distance) })).toBeVisible();
       }
       await expect(page.getByText(t.summary)).toBeVisible();
+      // One base windage for the whole setup (F1-42), written down once.
+      await page.getByRole('button', { name: t.editWindage }).click();
+      await page.getByLabel(t.windage, { exact: true }).fill(n('5.5'));
+      await page.getByRole('button', { name: t.save }).click();
+      await expect(page.getByText(t.windageSaved)).toBeVisible();
       const windageRuler = page.getByRole('img', { name: t.windageRuler });
       await expect(windageRuler.locator('[data-mark="measured"]')).toHaveCount(1);
 

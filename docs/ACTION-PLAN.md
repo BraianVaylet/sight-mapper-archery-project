@@ -650,7 +650,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
   vertical); `SM-STP-422-003` y `-004`; cambio de escala horizontal con estrategia (RN-SGT-05);
   miras viejas sin escala horizontal siguen andando; export `schemaVersion` 3; ES/EN, dark/light,
   360/768/1440, E2E.
-- **Estado:** hecho en `feat/windage` (2026-11-23). Detalle y decisiones en la bitacora.
+- **Estado:** hecho en `feat/windage`, PR #8 (2026-11-23): una deriva por setup, no por marca. Detalle y decisiones en la bitacora.
 
 ### [ ] F1-22 · Release del MVP y prueba con arqueros
 
