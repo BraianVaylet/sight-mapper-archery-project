@@ -175,9 +175,9 @@ Numeros siempre con `font-variant-numeric: tabular-nums` para que no bailen las 
 - Direccion de la regla segun `scale.direction` de la mira (el diseño muestra ambas; es correcto
   que varie).
 - [+] Seccion "03 · Deriva" bajo la regla vertical (F1-42): una **regla horizontal** (`Ruler`
-  con `orientation="horizontal"`, direccion segun `windageScale.direction`) con las marcas medidas
-  que tienen deriva. La deriva va tambien en el `ReadingHud` (junto a la lectura, solo si la marca
-  es medida) y como segunda linea bajo la lectura en la tabla. Sin escala horizontal, la seccion
+  con `orientation="horizontal"`, direccion segun `windageScale.direction`) con la deriva de base
+  del setup (una sola marca) y un boton "Editar deriva" que abre una hoja con el campo. La deriva va
+  tambien en el `ReadingHud` (vale para cualquier distancia). Sin escala horizontal, la seccion
   muestra un aviso con link a editar la mira. El formulario de mira suma el bloque "Escala
   horizontal", precargado con una copia de la vertical en una mira nueva.
 - Agregar accion "Abrir siempre aca" (acceso rapido) en el menu de la pantalla.

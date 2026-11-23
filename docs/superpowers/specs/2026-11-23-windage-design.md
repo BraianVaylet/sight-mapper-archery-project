@@ -1,4 +1,12 @@
-# F3-D · Deriva por marca — diseño
+# F3-D · Deriva — diseño
+
+> **Revision 2026-11-23 (usuario, sobre el PR #8):** la deriva **no es por marca**. Es **una sola
+> deriva de base por setup** (`setup.windageMm`), que vale para todas las distancias y sets de
+> flechas. Se edita desde la pantalla de la mira (seccion 03, boton "Editar deriva", con deshacer);
+> la regla horizontal muestra esa unica marca; el HUD la muestra para cualquier distancia; el
+> listado la imprime en el encabezado. Errores `SM-STP-422-003/-004` (reemplazan a los de marca, que
+> nunca salieron). Un cambio de `windageScale` reescala la deriva de los setups que usan la mira. Lo
+> que sigue y habla de `mark.windageMm` queda como historia de la primera version.
 
 > Estado: listo para aprobar (revisado por un builder; preguntas abiertas respondidas). Fecha: 2026-11-23. Adelanta F3-D (ACTION-PLAN, fases siguientes)
 > a antes del cierre del MVP. Antes de codear se actualiza la spec (§4, §15, §19) y el DICCIONARIO.

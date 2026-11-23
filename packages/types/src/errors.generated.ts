@@ -230,6 +230,18 @@ export const ERROR_CATALOG = {
     messageKey: 'errors.setup.noArrowSets',
     params: [],
   },
+  'SM-STP-422-003': {
+    module: 'STP',
+    status: 422,
+    messageKey: 'errors.setup.noWindageScale',
+    params: [],
+  },
+  'SM-STP-422-004': {
+    module: 'STP',
+    status: 422,
+    messageKey: 'errors.setup.windageOutOfScale',
+    params: ['minMm', 'maxMm'],
+  },
   'SM-MARK-409-001': {
     module: 'MARK',
     status: 409,
@@ -253,18 +265,6 @@ export const ERROR_CATALOG = {
     status: 422,
     messageKey: 'errors.mark.arrowSetNotInSetup',
     params: ['arrowSetId'],
-  },
-  'SM-MARK-422-003': {
-    module: 'MARK',
-    status: 422,
-    messageKey: 'errors.mark.noWindageScale',
-    params: [],
-  },
-  'SM-MARK-422-004': {
-    module: 'MARK',
-    status: 422,
-    messageKey: 'errors.mark.windageOutOfScale',
-    params: ['minMm', 'maxMm'],
   },
   'SM-CALC-422-001': {
     module: 'CALC',

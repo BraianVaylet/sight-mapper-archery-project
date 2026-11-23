@@ -637,16 +637,17 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** legible a 32 px; maskable dentro de la zona segura; mismo tile en dark y light;
   manifest y precache actualizados; capturas regeneradas.
 
-### [x] F1-42 · Deriva por marca (F3-D adelantada)
+### [x] F1-42 · Deriva de base por setup (F3-D adelantada)
 
 - **Modulo:** domain, schemas, api (equipment, calculator, account), pwa, i18n · **Puntos:** 5 · **Depende de:** F1-41
 - **Descripcion:** la mira suma una escala horizontal (`windageScale`, misma forma que la vertical,
-  direccion `right` | `left`) y cada marca una deriva opcional (`windageMm`), para volver al valor
-  real despues de corregir por viento. Segunda regla horizontal en la pantalla de la mira; deriva
-  en el HUD, la tabla y el listado imprimible. No se estima. Diseño:
+  direccion `right` | `left`) y cada setup una sola deriva de base (`windageMm`), que vale para
+  todas las distancias, para volver al valor real despues de corregir por viento. Segunda regla
+  horizontal en la pantalla de la mira, donde se edita; deriva en el HUD y en el encabezado del
+  listado imprimible. No se estima. Diseño:
   `docs/superpowers/specs/2026-11-23-windage-design.md`; plan: `docs/superpowers/plans/2026-11-23-windage.md`.
 - **Criterios:** formulario de mira nueva con la escala horizontal precargada (copia de la
-  vertical); `SM-MARK-422-003` y `-004`; cambio de escala horizontal con estrategia (RN-SGT-05);
+  vertical); `SM-STP-422-003` y `-004`; cambio de escala horizontal con estrategia (RN-SGT-05);
   miras viejas sin escala horizontal siguen andando; export `schemaVersion` 3; ES/EN, dark/light,
   360/768/1440, E2E.
 - **Estado:** hecho en `feat/windage` (2026-11-23). Detalle y decisiones en la bitacora.
