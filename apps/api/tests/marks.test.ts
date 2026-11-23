@@ -623,114 +623,102 @@ describe('changing the scale of a sight that has marks (HU-SGT-02, test no negoc
   });
 });
 
-describe('the windage of a mark (F1-42, RN-MRK-07, RN-SGT-05)', () => {
+describe('the windage of a setup (F1-42, RN-STP-08, RN-SGT-05)', () => {
   /** mm, -10 to 10, half-millimetre steps: a horizontal scale centred on 0. */
   const WINDAGE = { unit: 'mm', min: -10, max: 10, resolution: 0.5, direction: 'right' };
   const windy = () => archer(CM, { windageScale: WINDAGE });
-  const windages = async (a: Archer) =>
-    (
-      await bodyOf<{
-        items: { distanceM: number; scaleValueMm: number; windageMm: number | null }[];
-      }>(await call(a.user, 'GET', `/api/v1/setups/${a.setupId}/marks?arrowSetId=${a.arrowId}`))
-    ).items.map((m) => [m.scaleValueMm, m.windageMm]);
+  const setupOf = async (a: Archer) =>
+    bodyOf<{ windageMm: number | null; version: number }>(
+      await call(a.user, 'GET', `/api/v1/setups/${a.setupId}`),
+    );
+  const setWindage = (a: Archer, windageMm: number | null, version = 1) =>
+    call(a.user, 'PATCH', `/api/v1/setups/${a.setupId}`, {
+      body: { windageMm },
+      headers: { 'if-match': `"${version}"` },
+    });
   const changeSight = (a: Archer, body: unknown, version = 1) =>
     call(a.user, 'PATCH', `/api/v1/sights/${a.sightId}`, {
       body,
       headers: { 'if-match': `"${version}"` },
     });
 
-  it('records the windage with the mark, and null when there is none', async () => {
+  it('starts with no windage, and stores the one the archer sets', async () => {
     const a = await windy();
-    const response = await post(a, { windageMm: 3 });
-    expect(response.status).toBe(201);
-    expect(await bodyOf(response)).toMatchObject({ windageMm: 3 });
-    await record(a, { distanceM: 50 });
-    expect(await windages(a)).toEqual([
-      [16, 3],
-      [16, null],
-    ]);
+    expect((await setupOf(a)).windageMm).toBeNull();
+    const response = await setWindage(a, 3);
+    expect(response.status).toBe(200);
+    expect(await bodyOf(response)).toMatchObject({ windageMm: 3, version: 2 });
+    expect((await setupOf(a)).windageMm).toBe(3);
   });
 
-  it('refuses a windage off the horizontal scale, with its bounds (SM-MARK-422-004)', async () => {
+  it('is cleared with null, and refuses a stale version', async () => {
     const a = await windy();
-    const response = await post(a, { windageMm: 11 });
+    await setWindage(a, 3);
+    expect(await bodyOf(await setWindage(a, null, 2))).toMatchObject({ windageMm: null });
+    expect((await setWindage(a, 1, 1)).status).toBe(412);
+  });
+
+  it('refuses a windage off the horizontal scale, with its bounds (SM-STP-422-004)', async () => {
+    const a = await windy();
+    const response = await setWindage(a, 11);
     expect(response.status).toBe(422);
     expect(await errorOf(response)).toMatchObject({
-      code: 'SM-MARK-422-004',
+      code: 'SM-STP-422-004',
       params: { minMm: -10, maxMm: 10 },
     });
   });
 
-  it('refuses a windage on a sight with no horizontal scale (SM-MARK-422-003)', async () => {
+  it('refuses a windage when the sight has no horizontal scale (SM-STP-422-003)', async () => {
     const a = await archer();
-    const response = await post(a, { windageMm: 1 });
+    const response = await setWindage(a, 1);
     expect(response.status).toBe(422);
-    expect((await errorOf(response)).code).toBe('SM-MARK-422-003');
+    expect((await errorOf(response)).code).toBe('SM-STP-422-003');
   });
 
-  it('is changed and cleared by a PATCH, checked against the scale, and refuses a stale version', async () => {
+  it('is no longer stored on a mark', async () => {
     const a = await windy();
-    const id = await record(a, { windageMm: 3 });
-    expect(await bodyOf(await patch(a, id, { windageMm: -2.5 }))).toMatchObject({
-      windageMm: -2.5,
-    });
-    expect((await errorOf(await patch(a, id, { windageMm: 20 }, 2))).code).toBe('SM-MARK-422-004');
-    expect(await bodyOf(await patch(a, id, { windageMm: null }, 2))).toMatchObject({
-      windageMm: null,
-    });
-    expect((await patch(a, id, { windageMm: 1 }, 1)).status).toBe(412);
+    const response = await post(a, { windageMm: 3 });
+    expect(response.status).toBe(201);
+    expect(await bodyOf(response)).not.toHaveProperty('windageMm');
   });
 
-  it('is idempotent: the same key three times makes one mark with its windage', async () => {
+  it('asks what to keep when the horizontal unit changes, and follows the choice', async () => {
     const a = await windy();
-    const body = markBody(a, { windageMm: 2 });
-    const send = () =>
-      call(a.user, 'POST', '/api/v1/marks', { body, headers: { 'idempotency-key': 'same-key' } });
-    const answers = await Promise.all([send(), send(), send()].map(async (r) => (await r).status));
-    expect(answers.filter((s) => s === 201).length).toBeGreaterThanOrEqual(1);
-    expect(await windages(a)).toEqual([[16, 2]]);
-  });
-
-  it('asks what to keep when the horizontal unit changes, and leaves the heights alone', async () => {
-    const a = await windy();
-    await record(a, { distanceM: 20, windageMm: 4 });
-    await record(a, { distanceM: 30 });
+    await setWindage(a, 4);
+    await record(a);
     const custom = { unit: 'custom', unitSizeMm: 2, min: -10, max: 10, resolution: 0.5 };
     const refused = await changeSight(a, { windageScale: custom });
     expect(refused.status).toBe(409);
     expect((await errorOf(refused)).code).toBe('SM-SGT-409-003');
-    const done = await changeSight(a, {
-      windageScale: custom,
-      windageScaleChangeStrategy: 'keepReadings',
-    });
-    expect(done.status).toBe(200);
-    expect(await windages(a)).toEqual([
-      [16, 8],
-      [16, null],
-    ]);
+    expect(
+      (await changeSight(a, { windageScale: custom, windageScaleChangeStrategy: 'keepReadings' }))
+        .status,
+    ).toBe(200);
+    expect((await setupOf(a)).windageMm).toBe(8);
+    expect((await list(a)).map((m) => m.scaleValueMm)).toEqual([16]);
   });
 
   it('keeps the windage when only the vertical scale changes', async () => {
     const a = await windy();
-    await record(a, { windageMm: 4 });
+    await setWindage(a, 4);
+    await record(a);
     const mm = { unit: 'mm', min: 0, max: 100, resolution: 1, direction: 'down' };
     expect((await changeSight(a, { scale: mm, scaleChangeStrategy: 'keepReadings' })).status).toBe(
       200,
     );
-    expect(await windages(a)).toEqual([[1.6, 4]]);
+    expect((await setupOf(a)).windageMm).toBe(4);
   });
 
-  it('refuses a horizontal range that leaves windages out, and writes nothing (SM-SGT-409-002)', async () => {
+  it('refuses a horizontal range that leaves the windage out, and writes nothing (SM-SGT-409-002)', async () => {
     const a = await windy();
-    await record(a, { windageMm: 4 });
-    const narrow = { ...WINDAGE, min: -3, max: 3 };
-    const response = await changeSight(a, { windageScale: narrow });
+    await setWindage(a, 4);
+    const response = await changeSight(a, { windageScale: { ...WINDAGE, min: -3, max: 3 } });
     expect(response.status).toBe(409);
     expect(await errorOf(response)).toMatchObject({ code: 'SM-SGT-409-002', params: { count: 1 } });
-    expect(await windages(a)).toEqual([[16, 4]]);
+    expect((await setupOf(a)).windageMm).toBe(4);
   });
 
-  it('needs no strategy when no mark has a windage to keep', async () => {
+  it('needs no strategy when no setup of the sight has a windage', async () => {
     const a = await windy();
     await record(a);
     const custom = { unit: 'custom', unitSizeMm: 2, min: -10, max: 10, resolution: 0.5 };

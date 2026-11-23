@@ -30,14 +30,9 @@ export function createUpdateMark(deps: UpdateMarkDeps) {
     const current = await repository.find(id);
     if (current === null) throw new AppError('SM-CORE-404-002', { resource: 'mark' });
 
-    if (patch.scaleValueMm !== undefined || typeof patch.windageMm === 'number') {
+    if (patch.scaleValueMm !== undefined) {
       const setup = await deps.checks.setupOf(userId, current.setupId);
-      if (patch.scaleValueMm !== undefined) {
-        await deps.checks.onScale(userId, setup, patch.scaleValueMm);
-      }
-      if (typeof patch.windageMm === 'number') {
-        await deps.checks.onWindageScale(userId, setup, patch.windageMm);
-      }
+      await deps.checks.onScale(userId, setup, patch.scaleValueMm);
     }
     const measuredAt =
       patch.measuredAt === undefined
@@ -62,7 +57,6 @@ export function createUpdateMark(deps: UpdateMarkDeps) {
         {
           distanceM: patch.distanceM,
           scaleValueMm: patch.scaleValueMm,
-          windageMm: patch.windageMm,
           note: patch.note,
           measuredAt,
         },

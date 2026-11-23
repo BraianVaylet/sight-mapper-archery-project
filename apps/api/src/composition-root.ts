@@ -184,7 +184,7 @@ export function createContainer(deps: ContainerDeps): Container {
         shared: createSetupUseCases({ setups, marks: setupMarks, clock, transact, bus }),
         views,
         create: createCreateSetup({ setups, check, clock }),
-        update: createUpdateSetup({ setups, marks: setupMarks, check, clock }),
+        update: createUpdateSetup({ setups, marks: setupMarks, check, equipment, clock }),
       });
       registerMarkRoutes(registry, {
         shared: createMarkUseCases({ marks, checks: markChecks, clock }),

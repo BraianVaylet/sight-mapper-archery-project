@@ -32,6 +32,7 @@ export function createCreateSetup(deps: CreateSetupDeps) {
       sightId: input.sightId,
       arrowSetIds: input.arrowSetIds,
       isFavorite: input.isFavorite,
+      windageMm: null,
       status: 'active',
       version: 1,
       createdAt: now,

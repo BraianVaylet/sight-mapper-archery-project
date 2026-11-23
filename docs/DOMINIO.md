@@ -97,7 +97,7 @@ cliente**.
   reusar conversion, limites y regla.
 - Operaciones con reglas especiales:
   - `changeScale(newScale, strategy)` con marcas existentes: ver §4.2. [+] Igual para
-    `windageScale`, sobre `windageMm` (las marcas sin deriva no cuentan).
+    `windageScale`, sobre el `windageMm` de los setups que usan la mira (sin deriva no cuentan).
 - Estados: `active ⇄ archived`.
 
 ### 2.3 `ArrowSet` (Equipment)
@@ -115,19 +115,19 @@ cliente**.
   - Al crear o agregar flechas, cada componente existe, es del usuario y esta `active`
     (verificado via `EquipmentReadPort`).
   - No se quita un `arrowSetId` que tiene marcas no borradas.
+  - [+] `windageMm` (deriva de base, F1-42): una para todo el setup; no nulo ⇒ la mira tiene
+    `windageScale` y `windageMm ∈ [windageMinMm, windageMaxMm]`. No entra al calculo ni al Doctor.
 - Estados: `active ⇄ archived`; papelera via `deletedAt` (§3).
 
 ### 2.5 `Mark` (Calculator)
 
 - **Agregado propio** (no hijo de `Setup`): se crea, edita y borra de a una, con alta frecuencia, y
   conviene que su concurrencia sea independiente del setup.
-- Campos: `setupId`, `arrowSetId`, `distanceM`, `scaleValueMm`, [+] `windageMm?` (deriva, `null` = sin anotar), `origin`, `note?`, `measuredAt`.
+- Campos: `setupId`, `arrowSetId`, `distanceM`, `scaleValueMm`, `origin`, `note?`, `measuredAt`.
 - Invariantes:
   - `0 < distanceM ≤ 300`, redondeada a 0.001 m.
   - `arrowSetId ∈ setup.arrowSetIds`.
   - `scaleValueMm ∈ [sight.scaleMinMm, sight.scaleMaxMm]` (leido en la misma operacion).
-  - [+] `windageMm` no nulo ⇒ la mira tiene `windageScale` y `windageMm ∈ [windageMinMm, windageMaxMm]`.
-    La deriva no entra al calculo ni al Doctor y nunca se estima.
   - Unica por `(userId, setupId, arrowSetId, distanceM)` entre las no borradas.
 - `origin`: `measured` (MVP) | `seeded` (F6). Lo calculado no se persiste.
 

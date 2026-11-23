@@ -124,6 +124,8 @@ los convierte a la unidad de la seccion, con su `unit`, para mostrar el rango (R
 | `SM-STP-410-001` | 410  | `errors.setup.restoreExpired`       | `deletedAt`                | Restaurar despues de 30 dias                              |
 | `SM-STP-422-001` | 422  | `errors.setup.componentUnavailable` | `kind`, `id`               | Componente inexistente, ajeno o archivado                 |
 | `SM-STP-422-002` | 422  | `errors.setup.noArrowSets`          | —                          | Quedaria sin sets de flechas                              |
+| `SM-STP-422-003` | 422  | `errors.setup.noWindageScale`       | —                          | Deriva en un setup cuya mira no tiene escala horizontal   |
+| `SM-STP-422-004` | 422  | `errors.setup.windageOutOfScale`    | `minMm`, `maxMm`           | Deriva fuera de la escala horizontal de la mira           |
 
 ### 4.6 `MARK`
 
@@ -133,8 +135,6 @@ los convierte a la unidad de la seccion, con su `unit`, para mostrar el rango (R
 | `SM-MARK-410-001` | 410  | `errors.mark.restoreExpired`       | `deletedAt`                      | Deshacer despues de 30 dias                      |
 | `SM-MARK-422-001` | 422  | `errors.mark.outOfScale`           | `minMm`, `maxMm`                 | Lectura fuera de la escala de la mira            |
 | `SM-MARK-422-002` | 422  | `errors.mark.arrowSetNotInSetup`   | `arrowSetId`                     | El set de flechas no es del setup                |
-| `SM-MARK-422-003` | 422  | `errors.mark.noWindageScale`       | —                                | Deriva en una mira sin escala horizontal         |
-| `SM-MARK-422-004` | 422  | `errors.mark.windageOutOfScale`    | `minMm`, `maxMm`                 | Deriva fuera de la escala horizontal             |
 
 ### 4.7 `CALC` (cliente, desde `@sight-mapper/domain`)
 

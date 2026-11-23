@@ -19,7 +19,7 @@
 | **Semilla balistica**      | Seeded (F6)           | `origin: 'seeded'`    | Marca generada desde las specs del equipo antes de tirar. Siempre estimada; cede ante cualquier medida |
 | **Lectura**                | Sight reading         | `reading`             | El numero que el arquero ve en su mira (en la unidad de la escala)                                   |
 | **Posicion de escala**     | —                     | `scaleValueMm`        | La lectura convertida a milimetros fisicos. Canonico de persistencia                                 |
-| **Deriva**                 | Windage               | `windageMm`           | ~~Posicion horizontal de la mira. Fuera del MVP~~ [~] Posicion horizontal de la mira en una marca, en mm de su escala horizontal (F1-42). Solo se anota; nunca se estima |
+| **Deriva**                 | Windage               | `windageMm`           | ~~Posicion horizontal de la mira. Fuera del MVP~~ [~] Posicion horizontal de la mira, una sola por setup y para todas las distancias, en mm de su escala horizontal (F1-42). Solo se anota; nunca se estima |
 | [+] **Escala horizontal**  | Windage scale         | `windageScale`        | La escala de la perilla horizontal. Misma forma que `SightScale`; direccion `right` \| `left`        |
 | **Arco**                   | Bow                   | `Bow`                 | El arco y su configuracion. MVP: compuesto                                                           |
 | **Mira**                   | Sight                 | `Sight`               | Mira fisica del arquero con su escala                                                                |
@@ -189,6 +189,7 @@ Derivados (no se guardan): `scaleMinMm`, `scaleMaxMm`, `travelMm`. [+] Igual par
 | `arrowSetIds` | UUID[]     | si   | 1..20, sin repetidos, propios y `active` al agregar |                                 |
 | `isFavorite`  | boolean    | si   | default `false`                               |                                       |
 | `status`      | enum       | si   | `active \| archived`                          |                                       |
+| [+] `windageMm` | number\|null (mm) | no | `∈ [windageMinMm, windageMaxMm]`; exige `sight.windageScale` | Deriva de base (F1-42), una para todo el setup. `null` = sin anotar |
 
 ### 3.5 `marks`
 
@@ -198,7 +199,6 @@ Derivados (no se guardan): `scaleMinMm`, `scaleMaxMm`, `travelMm`. [+] Igual par
 | `arrowSetId`   | UUID      | —        | si   | `∈ setup.arrowSetIds`                      |                                   |
 | `distanceM`    | number    | m        | si   | `(0, 300]`, redondeo a 0.001               | Se muestra en m o yd              |
 | `scaleValueMm` | number    | mm       | si   | `∈ [scaleMinMm, scaleMaxMm]`               | Se muestra como lectura           |
-| [+] `windageMm` | number\|null | mm     | no   | `∈ [windageMinMm, windageMaxMm]`; exige `windageScale` | Se muestra como lectura horizontal. `null` = sin anotar |
 | `origin`       | enum      | —        | si   | `measured` (MVP) \| `seeded` (F6)          |                                   |
 | `note`         | string    | —        | no   | 0–200                                      | Ej. "con viento cruzado"          |
 | `measuredAt`   | Date (UTC)| —        | si   | no futura (+5 min de tolerancia)           | Default: ahora                    |

@@ -23,14 +23,10 @@ export type MarkFormValues = {
   note: string;
   /** `datetime-local`: `2026-11-03T09:30`, in the device's zone. Empty means "now". */
   measuredAt: string;
-  /** On the horizontal scale (F1-42). Empty means no windage written down. */
-  windage: string;
 };
 
 export type FieldError = { messageKey: string; params: Record<string, string | number> };
-export type MarkFormErrors = Partial<
-  Record<'distance' | 'reading' | 'windage' | 'note', FieldError>
->;
+export type MarkFormErrors = Partial<Record<'distance' | 'reading' | 'note', FieldError>>;
 
 export type MarkFormContext = {
   system: UnitSystem;
@@ -38,8 +34,6 @@ export type MarkFormContext = {
   separator: DecimalSeparator;
   /** `m` or `yd`, for the error that names a limit. */
   distanceUnit: string;
-  /** The horizontal scale of the sight, or `null` when it has none yet: no windage then. */
-  windageScale: SightScale | null;
 };
 
 const text = (value: number, decimals: number, separator: DecimalSeparator) => {
@@ -50,21 +44,14 @@ const text = (value: number, decimals: number, separator: DecimalSeparator) => {
 /** What the sheet shows when it opens: empty for a new mark, the saved one for an edit. */
 export function toFormValues(
   mark: Mark | undefined,
-  context: Pick<MarkFormContext, 'system' | 'scale' | 'separator' | 'windageScale'>,
+  context: Pick<MarkFormContext, 'system' | 'scale' | 'separator'>,
 ): MarkFormValues {
-  if (mark === undefined) {
-    return { distance: '', reading: '', note: '', measuredAt: '', windage: '' };
-  }
-  const { windageScale } = context;
+  if (mark === undefined) return { distance: '', reading: '', note: '', measuredAt: '' };
   return {
     distance: text(distanceIn(mark.distanceM, context.system), 2, context.separator),
     reading: showReading(mark.scaleValueMm, context.scale, context.separator),
     note: mark.note ?? '',
     measuredAt: toLocalInput(mark.measuredAt),
-    windage:
-      mark.windageMm === null || windageScale === null
-        ? ''
-        : showReading(mark.windageMm, windageScale, context.separator),
   };
 }
 
@@ -119,26 +106,6 @@ export function toMarkInput(
     }
   }
 
-  // Windage (F1-42): optional, read like the reading but on the horizontal scale.
-  let windageMm: number | null = null;
-  const { windageScale } = context;
-  if (windageScale !== null && values.windage.trim() !== '') {
-    const position = readReading(values.windage, windageScale);
-    if (position === null) errors.windage = notANumber;
-    else {
-      const { minMm, maxMm } = scaleBoundsMm(windageScale);
-      if (position < minMm || position > maxMm) {
-        errors.windage = {
-          messageKey: 'mark.errors.windageOutOfScale',
-          params: {
-            min: showReading(minMm, windageScale, context.separator),
-            max: showReading(maxMm, windageScale, context.separator),
-          },
-        };
-      } else windageMm = position;
-    }
-  }
-
   if (values.note.trim().length > NOTE_MAX) {
     errors.note = { messageKey: 'mark.errors.noteTooLong', params: {} };
   }
@@ -152,7 +119,6 @@ export function toMarkInput(
     arrowSetId: ids.arrowSetId,
     distanceM,
     scaleValueMm,
-    windageMm,
     replace: ids.replace ?? false,
     ...(note === '' ? {} : { note }),
     ...(measuredAt === undefined ? {} : { measuredAt }),

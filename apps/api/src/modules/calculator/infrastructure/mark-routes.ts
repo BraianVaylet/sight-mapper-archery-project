@@ -44,7 +44,6 @@ export function markToWire(mark: Mark) {
     arrowSetId: mark.arrowSetId,
     distanceM: mark.distanceM,
     scaleValueMm: mark.scaleValueMm,
-    windageMm: mark.windageMm,
     origin: mark.origin,
     ...(mark.note == null ? {} : { note: mark.note }),
     measuredAt: mark.measuredAt.toString(),

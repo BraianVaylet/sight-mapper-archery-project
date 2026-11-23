@@ -34,6 +34,7 @@ import { calcFailureText } from './calc-failure.js';
 import { cachedMark, useMarkActions } from './marks.js';
 import type { MarkFormValues } from './mark-form.logic.js';
 import { MarkSheet } from './mark-sheet.js';
+import { WindageSheet } from './windage-sheet.js';
 import { Ruler, type RulerMark } from './ruler.js';
 import { useSightData } from './sight-data.js';
 import {
@@ -166,6 +167,8 @@ function SightView({
   const { system, separator, arrowId, marksQuery, marks, scale, windageScale, analysis } =
     useSightData(setup, arrowParam);
   const actions = useMarkActions(setup.id, arrowId ?? '');
+  const updateSetup = setupHooks.useUpdate();
+  const [windageSheet, setWindageSheet] = useState<{ error?: string } | null>(null);
 
   const [sheet, setSheet] = useState<SheetState | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
@@ -175,11 +178,11 @@ function SightView({
   const unit = t(system === 'metric' ? 'sight.distanceUnitMetric' : 'sight.distanceUnitImperial');
   const showDistance = (m: number) => formatDistance(m, system, locale, unit);
   const readingText = (r: Reading) => (r.ok ? formatReading(r.reading, scale, separator) : '—');
-  /** "Deriva 2,5" for a measured mark with a windage; nothing otherwise (it is never estimated). */
-  const windageText = (m: Mark | undefined) =>
-    m === undefined || m.windageMm === null || windageScale === null
+  /** "Deriva 2,5": the base windage of the setup, the same at every distance (F1-42). */
+  const windageText =
+    setup.windageMm === null || windageScale === null
       ? undefined
-      : t('sight.windage', { reading: showReading(m.windageMm, windageScale, separator) });
+      : t('sight.windage', { reading: showReading(setup.windageMm, windageScale, separator) });
 
   const selectedM = distanceParam ?? marks[0]?.distanceM;
   const selected = selectedM === undefined ? undefined : analysis.readingAt(selectedM);
@@ -222,22 +225,18 @@ function SightView({
       : []),
   ];
 
-  /** The windage ruler: measured marks with a windage only (F1-42). */
+  /** The windage ruler: the one base windage of the setup (F1-42). */
   const windageMarks: RulerMark[] =
-    windageScale === null
+    windageScale === null || setup.windageMm === null
       ? []
-      : marks.flatMap((m) =>
-          m.windageMm === null
-            ? []
-            : [
-                {
-                  id: m.id,
-                  reading: readingOf(m.windageMm, windageScale),
-                  measured: true,
-                  label: showDistance(m.distanceM),
-                },
-              ],
-        );
+      : [
+          {
+            id: 'windage',
+            reading: readingOf(setup.windageMm, windageScale),
+            measured: true,
+            label: t('sight.windageField'),
+          },
+        ];
 
   // --- saving: the list takes the change first (RF-X-04) --------------------------------------
   const units = { system, locale, scale };
@@ -246,7 +245,7 @@ function SightView({
     describeError(
       translate,
       error,
-      isApiError(error) && error.code === 'SM-MARK-422-004' && windageScale !== null
+      isApiError(error) && error.code === 'SM-STP-422-004' && windageScale !== null
         ? { ...units, scale: windageScale }
         : units,
     ).text;
@@ -255,6 +254,20 @@ function SightView({
     setUndoError(false);
     setToast({ message, undo });
   };
+
+  /** The base windage of the setup, saved at once and undoable like a mark (RF-X-04). */
+  async function saveWindage(windageMm: number | null) {
+    const before = setup.windageMm;
+    setWindageSheet(null);
+    try {
+      await updateSetup.mutateAsync({ id: setup.id, patch: { windageMm } });
+      remember(t('sight.windageSaved'), () =>
+        updateSetup.mutateAsync({ id: setup.id, patch: { windageMm: before } }),
+      );
+    } catch (error) {
+      setWindageSheet({ error: explain(error) });
+    }
+  }
 
   async function save(
     input: CreateMark,
@@ -279,7 +292,6 @@ function SightView({
           patch: {
             distanceM: input.distanceM,
             scaleValueMm: input.scaleValueMm,
-            windageMm: input.windageMm ?? null,
             note: input.note ?? null,
             measuredAt: input.measuredAt,
             ...(replace ? { replace: true } : {}),
@@ -292,7 +304,6 @@ function SightView({
             patch: {
               distanceM: before.distanceM,
               scaleValueMm: before.scaleValueMm,
-              windageMm: before.windageMm,
               note: before.note ?? null,
               measuredAt: before.measuredAt,
             },
@@ -433,13 +444,9 @@ function SightView({
                       selectedMark !== undefined && analysis.inconsistentIds.has(selectedMark.id)
                     }
                   />
-                  {selected.ok &&
-                  selected.kind === 'measured' &&
-                  windageText(selectedMark) !== undefined ? (
-                    <span className="font-mono text-sm font-medium text-mark">
-                      {windageText(selectedMark)}
-                    </span>
-                  ) : null}
+                  {windageText === undefined ? null : (
+                    <span className="font-mono text-sm font-medium text-mark">{windageText}</span>
+                  )}
                   {selected.ok && selected.lowConfidence ? (
                     <span className="font-ui text-sm text-warning">{t('sight.lowConfidence')}</span>
                   ) : null}
@@ -560,11 +567,6 @@ function SightView({
                             </th>
                             <td className="py-1 pr-1 font-mono text-lg font-medium text-mark tabular-nums">
                               {readingText(reading)}
-                              {windageText(m) === undefined ? null : (
-                                <span className="block font-mono text-xs font-medium text-muted">
-                                  {windageText(m)}
-                                </span>
-                              )}
                             </td>
                             <td className="py-1 pr-1">
                               <ReadingBadge
@@ -649,16 +651,18 @@ function SightView({
                         label={t('sight.windageRulerLabel')}
                         formatValue={(value) => formatReading(value, windageScale, separator)}
                         lengthPx={300}
-                        selectedId={selectedMark?.id}
-                        onSelect={(id) => {
-                          const picked = marks.find((m) => m.id === id);
-                          if (picked !== undefined) go({ d: picked.distanceM });
-                        }}
                       />
                     </div>
                     {windageMarks.length === 0 ? (
-                      <p className="font-ui text-sm text-muted">{t('sight.windageNone')}</p>
+                      <p className="font-ui text-sm text-muted">{t('sight.windageEmpty')}</p>
                     ) : null}
+                    <Button
+                      variant="secondary"
+                      className="self-start"
+                      onClick={() => setWindageSheet({})}
+                    >
+                      {t('sight.windageEdit')}
+                    </Button>
                   </>
                 )}
               </SectionCard>
@@ -743,14 +747,23 @@ function SightView({
           error={sheet.error}
           ids={{ setupId: setup.id, arrowSetId: arrowId }}
           scale={scale}
-          windageScale={windageScale}
-          sightId={setup.sight.id}
           system={system}
           onClose={() => setSheet(null)}
           onSubmit={(input, values) => void save(input, values, sheet.mark)}
           onDelete={
             sheet.mark === undefined ? undefined : () => void removeMark(sheet.mark as Mark)
           }
+        />
+      )}
+
+      {windageSheet === null || windageScale === null ? null : (
+        <WindageSheet
+          key={windageSheet.error ?? 'windage'}
+          windageMm={setup.windageMm}
+          windageScale={windageScale}
+          error={windageSheet.error}
+          onClose={() => setWindageSheet(null)}
+          onSubmit={(windageMm) => void saveWindage(windageMm)}
         />
       )}
 

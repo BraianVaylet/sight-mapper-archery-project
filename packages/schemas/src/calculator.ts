@@ -37,6 +37,8 @@ export const updateSetup = z
     name: setupFields.name,
     arrowSetIds,
     isFavorite: z.boolean(),
+    /** The base windage of the setup (F1-42, RN-STP-08), one for every distance. `null` clears it. */
+    windageMm: z.number().nullable(),
   })
   .partial();
 export type UpdateSetup = z.infer<typeof updateSetup>;
@@ -44,6 +46,8 @@ export type UpdateSetup = z.infer<typeof updateSetup>;
 export const setup = z.object({
   ...resourceFields,
   ...setupFields,
+  /** Base windage in mm on the sight's horizontal scale (F1-42). `null`: not written down. */
+  windageMm: z.number().nullable().default(null),
   status: componentStatus,
 });
 export type Setup = z.infer<typeof setup>;
@@ -59,8 +63,6 @@ const scaleValueMm = z.number();
 export const markFields = {
   distanceM,
   scaleValueMm,
-  /** Windage in mm on the horizontal scale (F1-42). `null` clears it; checked against the sight. */
-  windageMm: z.number().nullable().optional(),
   note: optional(z.string().trim().max(200)),
   measuredAt: isoDateTime.optional(),
 };
@@ -84,7 +86,6 @@ export const mark = z.object({
   arrowSetId: uuidv7,
   distanceM,
   scaleValueMm,
-  windageMm: z.number().nullable().default(null),
   origin: z.enum(MARK_ORIGINS),
   note: optional(z.string().max(200)),
   measuredAt: isoDateTime,
