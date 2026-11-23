@@ -17,6 +17,11 @@ export type ComponentCollection = {
   readonly definition: SchemaDefinition;
   /** Shapes a value on its way to the database (a sight's scale is stored without nulls). */
   readonly store?: (name: string, value: unknown) => unknown;
+  /**
+   * Fields that always reach the domain, as `null` when not stored (a sight's `windageScale`):
+   * for them "not there" is a value the archer sees, not just an empty description.
+   */
+  readonly nullable?: readonly string[];
 };
 
 type Row = Record<string, unknown> & {
@@ -56,8 +61,10 @@ export function createComponentRepositories<E extends ComponentMeta, Patch exten
   );
   const Docs = connection.model(modelName, schema) as unknown as Model<Row>;
 
+  const nullable = options.nullable ?? [];
   const toEntity = (row: Row): E =>
     ({
+      ...Object.fromEntries(nullable.map((name) => [name, null])),
       ...Object.fromEntries(
         fieldNames
           .filter((name) => row[name] !== undefined && row[name] !== null)

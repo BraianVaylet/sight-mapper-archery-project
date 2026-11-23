@@ -362,6 +362,49 @@ describe('PATCH /sights/:id', () => {
   });
 });
 
+describe('the horizontal scale of a sight (F1-42)', () => {
+  const CLICKS = { unit: 'click', min: 0, max: 20, resolution: 1 };
+
+  it('stores it on create, with its direction defaulted to right', async () => {
+    const user = newUser();
+    const id = await addSight(user, { windageScale: CLICKS });
+    expect(await bodyOf(await call(user, 'GET', `/api/v1/sights/${id}`))).toMatchObject({
+      windageScale: { ...CLICKS, direction: 'right' },
+    });
+  });
+
+  it('is null when the sight is created without one', async () => {
+    const user = newUser();
+    const id = await addSight(user);
+    expect(await bodyOf(await call(user, 'GET', `/api/v1/sights/${id}`))).toMatchObject({
+      windageScale: null,
+    });
+  });
+
+  it('is set by a PATCH, and cannot be cleared', async () => {
+    const user = newUser();
+    const id = await addSight(user);
+    const response = await patch(user, id, { windageScale: { ...CLICKS, direction: 'left' } });
+    expect(response.status).toBe(200);
+    expect(await bodyOf(response)).toMatchObject({
+      windageScale: { ...CLICKS, direction: 'left' },
+      version: 2,
+    });
+    expect((await patch(user, id, { windageScale: null }, 2)).status).toBe(400);
+  });
+
+  it('reads as null on a sight stored before F1-42', async () => {
+    const user = newUser();
+    const id = await addSight(user, { windageScale: CLICKS });
+    await connection
+      .collection('sights')
+      .updateOne({ _id: id as never }, { $unset: { windageScale: '' } });
+    expect(await bodyOf(await call(user, 'GET', `/api/v1/sights/${id}`))).toMatchObject({
+      windageScale: null,
+    });
+  });
+});
+
 describe('archive, unarchive and delete (ADR-008)', () => {
   it('moves the sight out of the active list and back', async () => {
     const user = newUser();

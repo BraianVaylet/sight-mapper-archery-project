@@ -34,6 +34,7 @@ export function createEquipmentReader(deps: EquipmentReaderDeps) {
         status: sight.status,
         pinType: sight.pinType,
         scale: sight.scale,
+        windageScale: sight.windageScale,
         ...(sight.nickname == null ? {} : { nickname: sight.nickname }),
         ...(sight.manufacturer == null ? {} : { manufacturer: sight.manufacturer }),
         ...(sight.model == null ? {} : { model: sight.model }),
