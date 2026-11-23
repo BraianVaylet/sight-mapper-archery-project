@@ -63,10 +63,10 @@ test('sign up, build equipment and a setup, measure marks, use the tools and sig
   await page.goto('/sights/new');
   await inEnglish(page, 'new sight');
   await page.getByLabel('Model').fill('Ultraview');
-  await page.getByLabel('Scale unit').selectOption('cm');
-  await page.getByLabel('Minimum').fill('0');
-  await page.getByLabel('Maximum').fill('10');
-  await page.getByLabel('Smallest step').fill('0.1');
+  await page.getByLabel('Scale unit', { exact: true }).selectOption('cm');
+  await page.getByLabel('Minimum', { exact: true }).fill('0');
+  await page.getByLabel('Maximum', { exact: true }).fill('10');
+  await page.getByLabel('Smallest step', { exact: true }).fill('0.1');
   await page.getByRole('button', { name: 'Save' }).click();
   await expect(page.getByRole('heading', { name: 'Ultraview' })).toBeVisible();
 

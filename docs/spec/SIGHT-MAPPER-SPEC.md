@@ -204,6 +204,7 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
   distancia → lectura, boton de nueva marca siempre alcanzable con el pulgar. [+] Una segunda
   **regla horizontal** con la deriva de las marcas medidas; la deriva tambien en la lectura grande,
   en la tabla (bajo la lectura) y en el listado imprimible. Una distancia calculada no muestra deriva.
+  La columna de deriva del listado se imprime solo si alguna fila tiene deriva.
 
 ### 6.6 `calculator/auto` y `calculator/doctor`
 
@@ -270,7 +271,8 @@ Formato: `RF-<MOD>-<NN>`. Los criterios de aceptacion detallados estan en
   `keepPositions` (la posicion fisica se conserva y cambian las lecturas). Sin `strategy`, 409.
 - [+] **RN-SGT-05** RN-SGT-01..04 valen igual para `windageScale`, sobre la deriva de las marcas
   (`windageScaleChangeStrategy`); las marcas sin deriva no cuentan. Cargarla por primera vez no
-  pide estrategia. Una vez cargada no vuelve a `null`.
+  pide estrategia. Una vez cargada no vuelve a `null`. La PWA pide **una sola** eleccion ("que
+  conservar") y la manda para las dos escalas: el arquero elige que conservar, no un eje.
 
 ### 7.3 Setups
 

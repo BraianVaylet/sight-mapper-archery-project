@@ -23,6 +23,8 @@ Al 2026-11-18 (detalle en `docs/ACTION-PLAN.md` y `docs/BITACORA.md`):
 - **Ajustes post-rediseño** (F1-34..F1-41): mergeados en PR #3 y PR #4 — logo → Home, menu a la
   derecha, unidades por seccion (`profiles.units`), version del `package.json` raiz (`0.1.0`),
   rangos de equipo con motivo, tolerancia del Doctor por arquero (ADR-013) y logo nuevo.
+- **F1-42 (deriva por marca, F3-D adelantada):** hecha en `feat/windage` — escala horizontal en la
+  mira, `windageMm` por marca, segunda regla, export `schemaVersion` 3. F1-22 depende de ella.
 - **F1-22 (release):** metricas, runbook y canal de feedback listos; falta todo lo que necesita
   produccion (F0-20), incluida la migracion `20261117000000-profile-units.js`.
 - El Mark Doctor esta calibrado con solo 2 sets reales: recalibrar con mas (cambia solo el default).

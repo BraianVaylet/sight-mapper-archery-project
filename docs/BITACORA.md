@@ -18,6 +18,58 @@
 
 ---
 
+## 2026-11-23 — Cada marca guarda su deriva real y la mira tiene escala horizontal
+
+**Tareas:** F1-42 (F3-D adelantada) · **Commit/PR:** `feat/windage` · **Tarjeta:** sin tablero (F0-04)
+
+### Que se hizo
+
+- Spec, diccionario, dominio, UX y errores primero: §4.1, RF-EQP-02, RF-MRK-01/04, RN-SGT-05,
+  RN-MRK-07; `SM-MARK-422-003` (mira sin escala horizontal) y `SM-MARK-422-004` (deriva fuera de
+  escala). Diseño en `docs/superpowers/specs/2026-11-23-windage-design.md`, plan en
+  `docs/superpowers/plans/2026-11-23-windage.md`.
+- Dominio: `WindageScale` y `windageAxisScale` (`right → down`, `left → up`) para reusar conversion,
+  limites y regla. Una direccion que no sea `right`/`left` es `DomainError`.
+- Schemas: `windageScale` con la misma forma y reglas que `scale` (factory comun);
+  `windageMm` opcional en la marca; `windageScaleChangeStrategy`; export `schemaVersion` 3.
+- API: la mira guarda `windageScale` (`null` en las viejas, por la opcion `nullable` del repositorio
+  de componentes); la marca valida y guarda `windageMm`; el cambio de escala corre por eje
+  (`axis: vertical | windage`) en la misma transaccion, y en el eje horizontal solo cuentan las
+  marcas con deriva.
+- PWA: bloque "Escala horizontal" en el formulario de mira (precargado con una copia de la vertical
+  hasta que el arquero lo toca; obligatorio en mira nueva; aviso en mira vieja); campo "Deriva" en la
+  hoja de marca (o link a cargar la escala); deriva en el HUD y bajo la lectura en la tabla; seccion
+  "03 · Deriva por marca" con la regla horizontal; deshacer y reemplazar llevan la deriva; columna de
+  deriva en el listado imprimible.
+
+### Decisiones
+
+- La API acepta `windageScale: null`; lo obligatorio vive en el formulario (miras viejas e
+  importacion del autor siguen andando). Sin migracion: el campo faltante se lee como `null`.
+- Sin "lado" ni centro: la deriva se muestra como el numero de la perilla.
+- Una sola eleccion de estrategia para las dos escalas (RN-SGT-05). Los 409 de mira no llevan el eje.
+- La deriva no se redondea a la resolucion al tipearla, igual que la lectura.
+- La columna de deriva se imprime solo si alguna fila la tiene.
+- El export no tiene lector propio: subir a la version 3 no cambia ningun import.
+
+### Verificado
+
+- Dominio 262/262 (cobertura 99,76%), schemas 144/144, API 434/434 (cobertura ~96%), PWA 453/453.
+- E2E 360 y 1440: 49 pasan, 3 se saltean como antes. El flujo critico ES/EN confirma la escala
+  horizontal precargada, anota la deriva a 20 m y la ve en la regla horizontal. Auditorias de axe,
+  contraste (dark y light) y desbordes pasan con la seccion nueva.
+- Revisores: `domain-reviewer` (una direccion invalida se trataba como `left`: corregido),
+  `spec-reviewer` (el 422-004 de la API se mostraba con la escala vertical: corregido; dos reglas
+  quedaron escritas en la spec), `security-reviewer` (sin problemas).
+
+### Pendiente / deuda
+
+- Ya existia y vale para los dos ejes: las marcas en la papelera no se reescalan al cambiar la escala
+  de la mira. Al restaurarlas pueden quedar en la escala vieja.
+- Prueba al sol y con lector de pantalla de la regla horizontal en un telefono real.
+
+---
+
 ## 2026-11-18 — La verificacion por email se puede apagar para probar en Railway
 
 **Tareas:** F0-20 (preparacion) · **Commit/PR:** `fix/optional-email-verification` · **Tarjeta:** sin tablero (F0-04)

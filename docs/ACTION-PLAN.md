@@ -637,7 +637,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
 - **Criterios:** legible a 32 px; maskable dentro de la zona segura; mismo tile en dark y light;
   manifest y precache actualizados; capturas regeneradas.
 
-### [ ] F1-42 · Deriva por marca (F3-D adelantada)
+### [x] F1-42 · Deriva por marca (F3-D adelantada)
 
 - **Modulo:** domain, schemas, api (equipment, calculator, account), pwa, i18n · **Puntos:** 5 · **Depende de:** F1-41
 - **Descripcion:** la mira suma una escala horizontal (`windageScale`, misma forma que la vertical,
@@ -649,6 +649,7 @@ tomadas con el autor en la sesion del 2026-11-17, no re-litigar.
   vertical); `SM-MARK-422-003` y `-004`; cambio de escala horizontal con estrategia (RN-SGT-05);
   miras viejas sin escala horizontal siguen andando; export `schemaVersion` 3; ES/EN, dark/light,
   360/768/1440, E2E.
+- **Estado:** hecho en `feat/windage` (2026-11-23). Detalle y decisiones en la bitacora.
 
 ### [ ] F1-22 · Release del MVP y prueba con arqueros
 
