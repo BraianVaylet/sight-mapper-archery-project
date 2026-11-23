@@ -448,3 +448,33 @@ describe('Windage (F1-42)', () => {
     expect(posts[posts.length - 1]?.body).toMatchObject({ replace: true, windageMm: 4 });
   });
 });
+
+describe('Windage refused by the server (F1-42, errors.md SM-MARK-422-004)', () => {
+  it('names the ends of the horizontal scale, not of the vertical one', async () => {
+    const user = userEvent.setup();
+    const WINDAGE = { unit: 'mm', min: -10, max: 10, resolution: 0.5, direction: 'right' };
+    const windySetup = { ...setup, sight: { ...setup.sight, windageScale: WINDAGE } };
+    const refusal = {
+      success: false,
+      error: {
+        code: 'SM-MARK-422-004',
+        messageKey: 'errors.mark.windageOutOfScale',
+        params: { minMm: -10, maxMm: 10 },
+        requestId: 'r1',
+        timestamp: '2026-11-02T12:00:00Z',
+      },
+    };
+    const server = sightServer(THREE, {
+      [`GET /api/v1/setups/${SETUP_ID}`]: () => json(windySetup),
+      'POST /api/v1/marks': () => json(refusal, 422),
+    });
+    renderApp(`/setups/${SETUP_ID}`, server.fetch);
+    await screen.findByRole('table');
+    await user.click(screen.getByRole('button', { name: '+ Agregar marca' }));
+    await user.type(screen.getByLabelText('Distancia'), '50');
+    await user.type(screen.getByLabelText('Lectura'), '2,6');
+    await user.type(screen.getByLabelText('Deriva'), '3');
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(await screen.findByText(/\(-10,0–10,0\)/)).toBeInTheDocument();
+  });
+});

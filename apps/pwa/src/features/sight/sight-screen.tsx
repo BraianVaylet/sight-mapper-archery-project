@@ -241,7 +241,15 @@ function SightView({
 
   // --- saving: the list takes the change first (RF-X-04) --------------------------------------
   const units = { system, locale, scale };
-  const explain = (error: unknown) => describeError(translate, error, units).text;
+  // A windage off the horizontal scale names that scale's ends, not the vertical one's (F1-42).
+  const explain = (error: unknown) =>
+    describeError(
+      translate,
+      error,
+      isApiError(error) && error.code === 'SM-MARK-422-004' && windageScale !== null
+        ? { ...units, scale: windageScale }
+        : units,
+    ).text;
 
   const remember = (message: string, undo: () => Promise<unknown>) => {
     setUndoError(false);
